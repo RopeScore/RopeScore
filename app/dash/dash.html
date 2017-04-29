@@ -1,0 +1,9 @@
+<div>
+    <a ng-href="/config"><button>New</button></a>
+    <button>Import</button>
+    <a ng-href="{{ linkData }}" download="jumpscore-export.json"><button>Export</button></a>
+    <button ng-click="save()">Save</button>
+</div>
+<div ng-repeat="(id, event) in data">
+    <a class="event" ng-href="/event/{{ id }}">{{ event.config.name }}</a>
+</div>

@@ -1,0 +1,19 @@
+{
+  "name": "JumpScore",
+  "version": "2.0.0",
+  "description": "A scoring system for rope skipping",
+  "author": "Svante Bengtson <jumpscore@swant.pw>",
+  "main": "main.js",
+  "postinstall": "install-app-deps",
+  "dependencies": {
+    "electron": "^1.6.2",
+    "express": "^4.15.2"
+  },
+  "build": {
+    "appId": "pw.swant.jumpscore"
+  },
+  "scripts": {
+    "pack": "build --dir",
+    "dist": "build"
+  }
+}

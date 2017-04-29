@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html ng-app="jumpscore">
+    <base href="/">
+
+    <head>
+        <meta charset="utf-8">
+        <meta content="IE=edge" http-equiv="X-UA-Compatible">
+        <meta content="width=device-width, initial-scale=1" name="viewport">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="theme-color" content="#efefef">
+        <link rel="manifest" href="static/manifest.json">
+        <link rel="icon" href="static/img/icon.png">
+        <title>JumpScore</title>
+        <!-- Resources -->
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/store.everything.min.js"></script>
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="/static/css/style.css">
+        <!-- DEPLOY -->
+        <!-- Local angular modules -->
+        <script src="/jumpscore.js"></script>
+        <script src="/dash/dash.js"></script>
+        <script src="/config/config.js"></script>
+        <script src="/config/config.participants.js"></script>
+        <script src="/event/event.js"></script>
+        <script src="/score/score.js"></script>
+        <script src="/results/results.js"></script>
+        <!-- END DEPLOY -->
+    </head>
+
+    <body>
+        <nav>
+            <ul class="topnav">
+                <li ng-click="goHome()" class="pointer">
+                    <div>JumpScore</div>
+                </li>
+                <li><a ng-href="/">Events</a></li>
+                <li><a ng-href="/config">New Event</a></li>
+                <li ng-if="id"><a ng-href="/event/{{ id }}">Event</a></li>
+                <li ng-if="id"><a ng-href="/results/{{ id }}">Results</a></li>
+            </ul>
+        </nav>
+
+        <div ng-view>
+            Loading... Enable javascript and/or clear cache.
+        </div>

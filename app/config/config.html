@@ -1,0 +1,49 @@
+<h2>Basics</h2>
+<label>Event Name:
+  <input type="text" ng-model="data[id].config.name"/>
+</label>
+<!-- <label>Discipline:
+  <select ng-model="data[id].config.discipline">
+    <option value="masters">Masters</option>
+    <option value="teams">Teams</option>
+    <option value="power">Triples</option>
+    <option value="custom">Custom</option>
+  </select>
+</label> -->
+<div>
+    <label>SRSF:<input type="checkbox" ng-model="data[id].config.subevents.srsf"/></label>
+    <label>SRSS:<input type="checkbox" ng-model="data[id].config.subevents.srss"/></label>
+    <label>SRSE:<input type="checkbox" ng-model="data[id].config.subevents.srse"/></label>
+
+    <label>SRSR:<input type="checkbox" ng-model="data[id].config.subevents.srsr"/></label>
+    <label>DDSR:<input type="checkbox" ng-model="data[id].config.subevents.ddsr"/></label>
+    <label>SRPF:<input type="checkbox" ng-model="data[id].config.subevents.srpf"/></label>
+    <label>SRTF:<input type="checkbox" ng-model="data[id].config.subevents.srtf"/></label>
+    <label>DDSF:<input type="checkbox" ng-model="data[id].config.subevents.ddsf"/></label>
+    <label>DDPF:<input type="checkbox" ng-model="data[id].config.subevents.ddpf"/></label>
+
+    <label>Triples:<input type="checkbox" ng-model="data[id].config.subevents.srp"/></label>
+    <label>Double Unders:<input type="checkbox" ng-model="data[id].config.subevents.srd" /></label>
+</div>
+<label>{{ (data[id].config.discipline == "teams" ? "Teams:" : "Participants:" ) }}
+  <input type="number" ng-model="data[id].config.participants"/>
+</label>
+<h2>Judges</h2>
+<label ng-if="data[id].config.discipline != 'power'">Presentation:
+  <input type="number" ng-model="data[id].config.judges.a" />
+</label>
+<label ng-if="data[id].config.discipline != 'power'">Required Elements:
+  <input type="number" ng-model="data[id].config.judges.b" />
+</label>
+<label ng-if="data[id].config.discipline != 'power'">Difficulty:
+  <input type="number" ng-model="data[id].config.judges.d" />
+</label>
+<label ng-if="data[id].config.discipline != 'power'">Head Judges:
+  <input type="number" ng-model="data[id].config.judges.h" />
+</label>
+<label>Speed:
+  <input type="number" ng-model="data[id].config.judges.s" />
+</label>
+<button ng-click="save()">Save</button>
+
+<pre>{{data|json}}</pre>

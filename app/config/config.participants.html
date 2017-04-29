@@ -1,0 +1,11 @@
+<h1>Participants</h1>
+<label>Start with id:
+  <input type="number" ng-model="data[id].config.idStart" />
+</label>
+<br/>
+<label ng-repeat="n in getNumber(data[id].config.participants) track by $index">
+  Name: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].name" />
+  Club: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].club" />
+  id: {{ data[id].config.idStart + $index }}
+</label>
+<button ng-click="save()">Save</button>
