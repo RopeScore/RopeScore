@@ -22,23 +22,23 @@
         </label>
 
         <label>Music on the beat:
-            <input type="number" min="0" max="10" ng-model="data[id].scores[uid][event].a[$index].mob" />
+            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].mob" />
         </label>
         <label>Using the Music:
-            <input type="number" min="0" max="10" ng-model="data[id].scores[uid][event].a[$index].uom" />
+            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].uom" />
         </label>
         <label>Movement:
-            <input type="number" min="0" max="10" ng-model="data[id].scores[uid][event].a[$index].mov" />
+            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].mov" />
         </label>
         <label>Form of Body &amp; Execution:
-            <input type="number" min="0" max="10" ng-model="data[id].scores[uid][event].a[$index].fbe" />
+            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].fbe" />
         </label>
         <label>Originality:
-            <input type="number" min="0" max="10" ng-model="data[id].scores[uid][event].a[$index].ori" />
+            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].ori" />
         </label>
 
         <label ng-if="event == 'ddpf' || event == 'ddsf'">Interaction:
-            <input type="number" min="0" max="10" ng-model="data[id].scores[uid][event].a[$index].int" />
+            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].int" />
         </label>
     </div>
     <br/>

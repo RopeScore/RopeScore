@@ -24,6 +24,32 @@ a:hover {
   color: #3baec4;
 }
 
+button {
+  background-color: #ddd;
+  border: none;
+  color: #333;
+  padding: .3em .3em;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  margin-top: .2em;
+  border-radius: 5px;
+  font-size: 1em;
+  margin-bottom: .5em;
+  outline: none;
+}
+
+button:hover, button:disabled {
+  background-color: #ccc;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  color: #666;
+}
+
 
 /* nav */
 
@@ -105,6 +131,33 @@ nav a:visited, nav a:hover {
 
 nav ul li:hover:not(:first-child) {
   background-color: #bbb;
+}
+
+
+/* dash */
+
+.flex-container {
+  display: flex;
+}
+
+.event {
+  min-width: 33%;
+  width: 100%;
+  text-align: center;
+  background: #ddd;
+  margin: .3em;
+  border-radius: 10px;
+}
+
+.event:hover {
+  background: #ccc;
+}
+
+.event a {
+  color: #222;
+  display: block;
+  width: 100%;
+  padding: .3em;
 }
 
 

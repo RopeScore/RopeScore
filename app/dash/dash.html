@@ -4,6 +4,12 @@
     <a ng-href="{{ linkData }}" download="jumpscore-export.json"><button>Export</button></a>
     <button ng-click="save()">Save</button>
 </div>
-<div ng-repeat="(id, event) in data">
-    <a class="event" ng-href="/event/{{ id }}">{{ event.config.name }}</a>
+<h1>Events</h1>
+<div class="flex-container">
+    <div ng-repeat="(id, event) in data" class="event">
+        <a ng-href="/event/{{ id }}">{{ event.config.name }}</a>
+    </div>
 </div>
+<footer>
+    v2.0.0au
+</footer>

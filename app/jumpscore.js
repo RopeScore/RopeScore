@@ -130,6 +130,14 @@ angular.module('jumpscore', [
         isSpeed: function(abbr) {
           return (speedEvents.indexOf(abbr) >= 0 ? true : false);
         },
+        isSR: function(abbr) {
+          var type = abbr.substring(0, 2)
+          if (type.toLowerCase() == "sr") {
+            return true;
+          } else {
+            return false;
+          }
+        },
         count: function(obj, type) {
           var keys = Object.keys(obj);
           var sum = 0;

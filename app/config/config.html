@@ -28,6 +28,9 @@
 <label>{{ (data[id].config.discipline == "teams" ? "Teams:" : "Participants:" ) }}
   <input type="number" ng-model="data[id].config.participants"/>
 </label>
+<label>Simplified levels:
+  <input type="checkbox" ng-model="data[id].config.simplified"/>
+</label>
 <h2>Judges</h2>
 <label ng-if="data[id].config.discipline != 'power'">Presentation:
   <input type="number" ng-model="data[id].config.judges.a" />
@@ -46,4 +49,4 @@
 </label>
 <button ng-click="save()">Save</button>
 
-<pre>{{data|json}}</pre>
+<!-- <pre>{{data|json}}</pre> -->

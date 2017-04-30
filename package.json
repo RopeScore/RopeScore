@@ -1,7 +1,7 @@
 {
   "name": "JumpScore",
-  "version": "2.0.0",
-  "description": "A scoring system for rope skipping",
+  "version": "2.0.0au",
+  "description": "A scoring system for ropeskipping",
   "author": "Svante Bengtson <jumpscore@swant.pw>",
   "main": "main.js",
   "postinstall": "install-app-deps",

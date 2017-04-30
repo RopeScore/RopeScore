@@ -32,8 +32,14 @@ angular.module('jumpscore.results', ['ngRoute'])
     $scope.Abbr = Abbr
     $scope.getNumber = Num
 
+    $scope.partArray = Object.keys($scope.data[$scope.id].participants)
+      .map(function(key) {
+        $scope.data[$scope.id].participants[key].uid = key;
+        return $scope.data[$scope.id].participants[key];
+      })
+
     $scope.score = function(event, data, uid) {
-      if (Abbr.isSpeed(event) && data) {
+      if (Abbr.isSpeed(event) && data && data.s) {
         var scores = [];
         var T = 0;
         var W = 0;
@@ -114,30 +120,57 @@ angular.module('jumpscore.results', ['ngRoute'])
         var l;
         var rq;
         var lmax;
+        var lmin;
 
 
         /** Calc Points per level + rq */
-        if (event == 'srsf') {
-          l = function(x) {
-            return (3 / (Math.pow(1.5, (6 - x))))
+        if ($scope.data[$scope.id].config.simplified) {
+          lmin = 1;
+          if (event == 'srsf') {
+            l = function(x) {
+              return (3 / (Math.pow(1.5, (5 - x))))
+            }
+            lmax = 6;
+            rq = 50 / 14;
+            fac = 2;
+          } else if (event == 'srpf' || event == 'srtf') {
+            l = function(x) {
+              return (3.5 / (Math.pow(1.5, (4 - x))))
+            }
+            lmax = 6;
+            rq = 50 / 16;
+          } else if (event == 'ddsf' || event == 'ddpf') {
+            l = function(x) {
+              return (3 / (Math.pow(1.5, (4 - x))))
+            }
+            lmax = 5;
+            rq = 50 / 16;
           }
-          lmax = 6;
-          rq = 50 / 14;
-          fac = 2;
-        } else if (event == 'srpf' || event == 'srtf') {
-          l = function(x) {
-            return (3.5 / (Math.pow(1.5, (5 - x))))
+        } else {
+          lmin = 2;
+          if (event == 'srsf') {
+            l = function(x) {
+              return (3 / (Math.pow(1.5, (6 - x))))
+            }
+            lmax = 6;
+            rq = 50 / 14;
+            fac = 2;
+          } else if (event == 'srpf' || event == 'srtf') {
+            l = function(x) {
+              return (3.5 / (Math.pow(1.5, (5 - x))))
+            }
+            lmax = 6;
+            rq = 50 / 16;
+          } else if (event == 'ddsf' || event == 'ddpf') {
+            l = function(x) {
+              return (3 / (Math.pow(1.5, (5 - x))))
+            }
+            lmax = 5;
+            rq = 50 / 16;
           }
-          lmax = 6;
-          rq = 50 / 16;
-        } else if (event == 'ddsf' || event == 'ddpf') {
-          l = function(x) {
-            return (3 / (Math.pow(1.5, (5 - x))))
-          }
-          lmax = 5;
-          rq = 50 / 16;
         }
-        for (var i = 2; i <= lmax; i++) {
+
+        for (var i = lmin; i <= lmax; i++) {
           lev[i] = Math.roundTo(l(i), 4)
         }
 
@@ -321,19 +354,43 @@ angular.module('jumpscore.results', ['ngRoute'])
         if (!$scope.data[$scope.id].finalscores[uid]) {
           $scope.data[$scope.id].finalscores[uid] = {};
         }
+        if (!$scope.data[$scope.id].finalscores[uid][event]) {
+          $scope.data[$scope.id].finalscores[uid][event] = {};
+        }
 
-        $scope.data[$scope.id].finalscores[uid][event] = A;
+        $scope.data[$scope.id].finalscores[uid][event].total = A;
+        $scope.data[$scope.id].finalscores[uid][event].crea = (T4 - (T5 /
+          2));
+        $scope.data[$scope.id].finalscores[uid][event].diff = (T1 - (T5 /
+          2));
         return Math.roundTo(A, 2);
       }
     }
 
     $scope.rank = function(data, event, uid) {
-      if (data) {
+      if (data != undefined && data[uid] != undefined && data[uid][event] !=
+        undefined && (Abbr.isSpeed(event) || event == "ranksum")) {
+        if (event == "ranksum" && ((Object.keys(data[uid])
+              .length - 1) != Object.keys($scope.data[$scope.id].config
+              .subevents)
+            .length)) {
+          return undefined;
+        }
+
         var keys = Object.keys(data);
         var scores = [];
         var score = (data[uid] ? data[uid][event] || 0 : 0);
+        var rank;
+
         for (var i = 0; i < keys.length; i++) {
-          scores.push(data[keys[i]][event] || undefined)
+          if (event == "ranksum" && ((Object.keys(data[keys[i]])
+                .length - 1) != Object.keys($scope.data[$scope.id].config
+                .subevents)
+              .length)) {
+            // do nothing
+          } else {
+            scores.push(data[keys[i]][event] || 0)
+          }
         }
         if (event == 'ranksum') {
           scores.sort(function(a, b) {
@@ -344,7 +401,8 @@ angular.module('jumpscore.results', ['ngRoute'])
             return b - a; // sort descending
           })
         }
-        var rank = (score ? scores.indexOf(score) + 1 : '')
+        rank = (score != undefined ? scores.indexOf(score) + 1 :
+          undefined)
 
         if (!$scope.data[$scope.id].ranks) {
           $scope.data[$scope.id].ranks = {};
@@ -353,7 +411,85 @@ angular.module('jumpscore.results', ['ngRoute'])
           $scope.data[$scope.id].ranks[uid] = {};
         }
 
+        if (event != 'ranksum' && rank > 0) {
+          $scope.data[$scope.id].ranks[uid][event] = Number(rank) ||
+            undefined;
+        } else {
+          $scope.data[$scope.id].participants[uid].rank = rank;
+        }
+        return (rank <= 0 ? undefined : rank)
 
+
+      } else if (!Abbr.isSpeed(event) && data && data[uid] && data[uid]
+            [event]) {
+        var C;
+        var D;
+        var rank;
+        var Crank;
+        var Drank;
+        var ranksum;
+        var keys = Object.keys(data);
+        var Cscores = [];
+        var Dscores = [];
+        var ranksums = [];
+        var Cscore = (data[uid] && data[uid][event] ? data[uid][event].crea ||
+          0 : 0);
+        var Dscore = (data[uid] && data[uid][event] ? data[uid][event].diff ||
+          0 : 0);
+
+        for (var i = 0; i < keys.length; i++) {
+          if (data[keys[i]][event]) {
+            Cscores.push(data[keys[i]][event].crea || 0)
+            Dscores.push(data[keys[i]][event].diff || 0)
+          }
+        }
+        Cscores.sort(function(a, b) {
+          return b - a; // sort descending
+        })
+        Dscores.sort(function(a, b) {
+          return b - a; // sort descending
+        })
+        Crank = (Cscore != undefined ? Cscores.indexOf(Cscore) + 1 :
+          undefined)
+        Drank = (Dscore != undefined ? Dscores.indexOf(Dscore) + 1 :
+          undefined)
+        ranksum = Number(Crank) + Number(Drank);
+
+        // calc everyones Crank and Drank and push sum into an array
+        for (var i = 0; i < keys.length; i++) {
+          var CtempScore = (data[keys[i]] && data[keys[i]][event] ? data[[
+              keys[i]]]
+              [event].crea ||
+            0 : 0)
+          var DtempScore = (data[keys[i]] && data[keys[i]][event] ? data[[
+              keys[i]]]
+              [event].diff ||
+            0 : 0)
+          var CtempRank = (CtempScore != undefined ? Cscores.indexOf(
+              CtempScore) + 1 :
+            undefined)
+          var DtempRank = (DtempScore != undefined ? Dscores.indexOf(
+              DtempScore) + 1 :
+            undefined)
+          if (DtempRank > 0 && CtempRank > 0) {
+            var tempRanksum = Number(CtempRank) + Number(DtempRank);
+            ranksums.push(tempRanksum)
+          }
+        }
+
+        ranksums.sort(function(a, b) {
+          return a - b; // sort ascending
+        })
+
+        rank = (ranksum != undefined ? ranksums.indexOf(ranksum) + 1 :
+          undefined)
+
+        if (!$scope.data[$scope.id].ranks) {
+          $scope.data[$scope.id].ranks = {};
+        }
+        if (!$scope.data[$scope.id].ranks[uid]) {
+          $scope.data[$scope.id].ranks[uid] = {};
+        }
         if (event != 'ranksum') {
           $scope.data[$scope.id].ranks[uid][event] = rank;
         }
@@ -362,12 +498,20 @@ angular.module('jumpscore.results', ['ngRoute'])
     }
 
     $scope.finalscore = function(data) {
-      if (data) {
+      if (data && ((Object.keys(data)
+            .length - (Object.keys(data)
+              .indexOf("final") >= 0 ? 1 : 0)) == Object.keys($scope.data[
+            $scope.id].config.subevents)
+          .length)) {
         var total = 0;
         data.final = undefined;
         var keys = Object.keys(data);
         for (var i = 0; i < keys.length; i++) {
-          total = total + (data[keys[i]] || 0);
+          total = total + (Number(data[keys[i]]) || (data[keys[i]] &&
+              data[
+                keys[i]].total ?
+              Number(data[keys[i]].total) : 0) ||
+            0);
         }
         data.final = total;
         return Math.roundTo(total, 2);
@@ -375,7 +519,11 @@ angular.module('jumpscore.results', ['ngRoute'])
     }
 
     $scope.ranksum = function(data) {
-      if (data) {
+      if (data && ((Object.keys(data)
+            .length - (Object.keys(data)
+              .indexOf("ranksum") >= 0 ? 1 : 0)) == Object.keys($scope.data[
+            $scope.id].config.subevents)
+          .length)) {
         var sum = 0;
         data.ranksum = undefined;
         var keys = Object.keys(data)
@@ -385,5 +533,9 @@ angular.module('jumpscore.results', ['ngRoute'])
         data.ranksum = (sum > 0 ? sum : undefined);
         return (sum > 0 ? sum : '');
       }
+    }
+
+    $scope.hasSR = function(obj) {
+
     }
   })
