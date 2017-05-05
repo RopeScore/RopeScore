@@ -181,7 +181,7 @@ angular.module('jumpscore.results', ['ngRoute'])
           scores.push(data.d[i])
         }
         for (var i = 0; i < n; i++) {
-          for (var p = 1; p < lmax; p++) {
+          for (var p = lmin - 1; p < lmax; p++) {
             if (!calcdiff[i]) {
               calcdiff[i] = 0;
             }
@@ -203,7 +203,7 @@ angular.module('jumpscore.results', ['ngRoute'])
         tempT = calcdiff.reduce(function(a, b) {
           return a + b
         })
-        tempT = Math.roundTo(tempT / (rem < 0 ? 3 - rem : 3), 4);
+        tempT = Math.roundTo(tempT / (rem < 0 ? Math.abs(3 + rem) : 3), 4);
 
         T1 = Math.roundTo(tempT * 2.5, 4)
 
@@ -368,12 +368,17 @@ angular.module('jumpscore.results', ['ngRoute'])
     }
 
     $scope.rank = function(data, event, uid) {
+      var events = Object.keys($scope.data[$scope.id].config.subevents)
+      var enabled = 0;
+      for (var i = 0; i < events.length; i++) {
+        if ($scope.data[$scope.id].config.subevents[events[i]]) {
+          enabled = enabled + 1;
+        }
+      }
       if (data != undefined && data[uid] != undefined && data[uid][event] !=
         undefined && (Abbr.isSpeed(event) || event == "ranksum")) {
         if (event == "ranksum" && ((Object.keys(data[uid])
-              .length - 1) != Object.keys($scope.data[$scope.id].config
-              .subevents)
-            .length)) {
+            .length - 1) != enabled)) {
           return undefined;
         }
 
@@ -384,9 +389,7 @@ angular.module('jumpscore.results', ['ngRoute'])
 
         for (var i = 0; i < keys.length; i++) {
           if (event == "ranksum" && ((Object.keys(data[keys[i]])
-                .length - 1) != Object.keys($scope.data[$scope.id].config
-                .subevents)
-              .length)) {
+              .length - 1) != enabled)) {
             // do nothing
           } else {
             scores.push(data[keys[i]][event] || 0)
@@ -498,44 +501,57 @@ angular.module('jumpscore.results', ['ngRoute'])
     }
 
     $scope.finalscore = function(data) {
-      if (data && ((Object.keys(data)
-            .length - (Object.keys(data)
-              .indexOf("final") >= 0 ? 1 : 0)) == Object.keys($scope.data[
-            $scope.id].config.subevents)
-          .length)) {
-        var total = 0;
-        data.final = undefined;
-        var keys = Object.keys(data);
-        for (var i = 0; i < keys.length; i++) {
-          total = total + (Number(data[keys[i]]) || (data[keys[i]] &&
-              data[
-                keys[i]].total ?
-              Number(data[keys[i]].total) : 0) ||
-            0);
+      if (data) {
+        var keys = Object.keys(data)
+        var subt = (keys.indexOf("final") >= 0 ? 1 : 0)
+        var events = Object.keys($scope.data[$scope.id].config.subevents)
+        var enabled = 0;
+        for (var i = 0; i < events.length; i++) {
+          if ($scope.data[$scope.id].config.subevents[events[i]]) {
+            enabled = enabled + 1;
+          }
         }
-        data.final = total;
-        return Math.roundTo(total, 2);
+        if (keys.length - subt == enabled) {
+          var total = 0;
+          data.final = undefined;
+          var keys = Object.keys(data);
+          for (var i = 0; i < keys.length; i++) {
+            total = total + (Number(data[keys[i]]) || (data[keys[i]] &&
+                data[
+                  keys[i]].total ?
+                Number(data[keys[i]].total) : 0) ||
+              0);
+          }
+          data.final = total;
+          return Math.roundTo(total, 2);
+        }
       }
     }
 
     $scope.ranksum = function(data) {
-      if (data && ((Object.keys(data)
-            .length - (Object.keys(data)
-              .indexOf("ranksum") >= 0 ? 1 : 0)) == Object.keys($scope.data[
-            $scope.id].config.subevents)
-          .length)) {
-        var sum = 0;
-        data.ranksum = undefined;
+      if (data) {
         var keys = Object.keys(data)
-        for (var i = 0; i < keys.length; i++) {
-          sum += data[keys[i]] || 0;
+        var subt = (keys.indexOf("ranksum") >= 0 ? 1 : 0)
+        var events = Object.keys($scope.data[$scope.id].config.subevents)
+        var enabled = 0;
+        for (var i = 0; i < events.length; i++) {
+          if ($scope.data[$scope.id].config.subevents[events[i]]) {
+            enabled = enabled + 1;
+          }
         }
-        data.ranksum = (sum > 0 ? sum : undefined);
-        return (sum > 0 ? sum : '');
+        if (keys.length - subt == enabled) {
+          var sum = 0;
+          data.ranksum = undefined;
+          var keys = Object.keys(data)
+          for (var i = 0; i < keys.length; i++) {
+            if (keys[i] == "srsf") {
+              sum += data[keys[i]] || 0;
+            }
+            sum += data[keys[i]] || 0;
+          }
+          data.ranksum = (sum > 0 ? sum : undefined);
+          return (sum > 0 ? sum : '');
+        }
       }
-    }
-
-    $scope.hasSR = function(obj) {
-
     }
   })

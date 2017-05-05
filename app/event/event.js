@@ -23,9 +23,10 @@ angular.module('jumpscore.event', ['ngRoute'])
    * @param {service} $routeParams
    * @param {service} Db
    */
-  .controller('EventCtrl', function($scope, $location, $routeParams, Db) {
+  .controller('EventCtrl', function($scope, $location, $routeParams, Db, Abbr) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id;
     $scope.setID($scope.id)
+    $scope.Abbr = Abbr;
   })

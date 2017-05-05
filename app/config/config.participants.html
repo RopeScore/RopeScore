@@ -3,9 +3,11 @@
   <input type="number" ng-model="data[id].config.idStart" />
 </label>
 <br/>
-<label ng-repeat="n in getNumber(data[id].config.participants) track by $index">
-  Name: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].name" />
-  Club: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].club" />
-  id: {{ data[id].config.idStart + $index }}
-</label>
+<table>
+  <tr ng-repeat="n in getNumber(data[id].config.participants) track by $index">
+    <td><label>Name: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].name"/></label></td>
+    <td><label>Club: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].club"/></label></td>
+    <td>id: {{ data[id].config.idStart + $index }}</td>
+  </tr>
+</table>
 <button ng-click="save()">Save</button>

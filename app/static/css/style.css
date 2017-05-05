@@ -24,7 +24,7 @@ a:hover {
   color: #3baec4;
 }
 
-button {
+button, .button {
   background-color: #ddd;
   border: none;
   color: #333;
@@ -40,7 +40,7 @@ button {
   outline: none;
 }
 
-button:hover, button:disabled {
+button:hover, button:disabled, .button:hover {
   background-color: #ccc;
 }
 
@@ -48,6 +48,21 @@ footer {
   position: absolute;
   bottom: 0;
   color: #666;
+}
+
+.mb {
+  margin-bottom: 3em;
+}
+
+.hidden {
+  display: none;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+.inline {
+  display: inline;
 }
 
 
@@ -138,11 +153,14 @@ nav ul li:hover:not(:first-child) {
 
 .flex-container {
   display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .event {
-  min-width: 33%;
-  width: 100%;
+  min-width: 10em;
+  /*width: 100%;*/
   text-align: center;
   background: #ddd;
   margin: .3em;
@@ -160,11 +178,30 @@ nav ul li:hover:not(:first-child) {
   padding: .3em;
 }
 
+div.table {
+  overflow-x: auto;
+}
+
 
 /* forms */
 
 label {
   display: block;
+}
+
+#config-events {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+#config-events label {
+  padding: .3em;
+  border: 1px solid #ddd;
+}
+
+input[type=number] {
+  width: 6em;
 }
 
 

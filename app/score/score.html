@@ -1,148 +1,239 @@
 <h1>{{ Abbr.unabbr(event) }} Score for {{ data[id].participants[uid].name }} ({{ uid }})</h1>
-<div ng-if="Abbr.isSpeed(event)">
-    <label ng-repeat="n in getNumber(data[id].config.judges.s) track by $index">
-        S{{ $index + 1 }}: <input type="number" min="0" ng-model="data[id].scores[uid][event].s[$index]" />
-    </label>
-    <label>False Start:
-      <input type="checkbox" ng-model="data[id].scores[uid][event].start"/>
-    </label>
-    <label ng-if="data[id].config.discipline == 'teams'">False Switches:
-      <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].switches" />
-    </label>
+<div ng-if="Abbr.isSpeed(event)" class="table">
+  <table>
+    <tr ng-repeat="n in getNumber(data[id].config.judges.s) track by $index">
+      <td><label for="s{{ $index }}">S{{ $index + 1 }}:</td>
+        <td><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]"/></td>
+      </tr>
+      <tr>
+        <td><label for="fst">False Start:</label></td>
+      <td><input type="checkbox" id="fst" ng-model="data[id].scores[uid][event].start"
+        /></td>
+    </tr>
+    <tr ng-if="Abbr.isTeam(event)">
+      <td><label for="fsw">False Switches:</label></td>
+      <td><input type="number" id="fsw" min="0" max="3" ng-model="data[id].scores[uid][event].switches"
+        /></td>
+    </tr>
+  </table>
 </div>
 
 <div ng-if="!Abbr.isSpeed(event)">
+  <div class="flex-container mb">
     <div class="emb" ng-repeat="n in getNumber(data[id].config.judges.a) track by $index">
-        <h2>A{{ $index + 1 }}:</h2>
-        <label>Minor Misses:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].mim['a' + $index]" />
-        </label>
-        <label>Major Misses:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].mam['a' + $index]" />
-        </label>
+      <h2>A{{ $index + 1 }}:</h2>
+      <table>
+        <tr>
+          <td><label for="a{{ $index }}mim">Minor Misses:</label></td>
+          <td><input type="number" id="a{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['a' + $index]"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}mam">Major Misses:</label></td>
+          <td><input type="number" id="a{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['a' + $index]"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}mob">Music on the beat:</label></td>
+          <td><input type="number" id="a{{ $index }}mob" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].mob" /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}uom">Using the Music:</label></td>
+          <td><input type="number" id="a{{ $index }}uom" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].uom" /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}mov">Movement:</label></td>
+          <td><input type="number" id="a{{ $index }}mov" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].mov" /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}fbe">Form of Body &amp; Execution:</label></td>
+          <td><input type="number" id="a{{ $index }}fbe" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].fbe" /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}ori">Originality:</label></td>
+          <td><input type="number" id="a{{ $index }}ori" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].ori" /></td>
+        </tr>
 
-        <label>Music on the beat:
-            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].mob" />
-        </label>
-        <label>Using the Music:
-            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].uom" />
-        </label>
-        <label>Movement:
-            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].mov" />
-        </label>
-        <label>Form of Body &amp; Execution:
-            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].fbe" />
-        </label>
-        <label>Originality:
-            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].ori" />
-        </label>
-
-        <label ng-if="event == 'ddpf' || event == 'ddsf'">Interaction:
-            <input type="number" min="0" max="10" step="0.5" ng-model="data[id].scores[uid][event].a[$index].int" />
-        </label>
+        <tr ng-if="event == 'ddpf' || event == 'ddsf'">
+          <td><label for="a{{ $index }}int">Interaction:</label></td>
+          <td><input type="number" id="a{{ $index }}int" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].int" /></tr>
+        </tr>
+      </table>
     </div>
-    <br/>
+  </div>
+
+  <div class="flex-container mb">
     <div ng-repeat="n in getNumber(data[id].config.judges.b) track by $index">
-        <h2>B{{ $index + 1 }}:</h2>
-        <label>Minor Misses:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].mim['b' + $index]" />
-        </label>
-        <label>Major Misses:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].mam['b' + $index]" />
-        </label>
+      <h2>B{{ $index + 1 }}:</h2>
+      <table>
+        <tr>
+          <td><label for="b{{ $index }}mim">Minor Misses:</label></td>
+          <td><input type="number" id="b{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['b' + $index]"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="b{{ $index }}mam">Major Misses:</label></td>
+          <td><input type="number" id="b{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['b' + $index]"
+            /></td>
+        </tr>
 
-        <div ng-if="event == 'ddpf' || event == 'ddsf'">
-            <label>Amount of different Turner Involvement Skills:
-                <input type="number" min="0" max="8" ng-model="data[id].scores[uid][event].b[$index].tis" />
-            </label>
-            <label>Amount of different Turner / Jumper Switches:
-                <input type="number" min="0" max="5" ng-model="data[id].scores[uid][event].b[$index].swi" />
-            </label>
-            <label>Amount of Gymnastics that are aerials:
-                <input type="number" min="0" max="8" ng-model="data[id].scores[uid][event].b[$index].aer" />
-            </label>
-            <label>Amount of Gymnastics that are aerials:
-                <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].aer" />
-            </label>
-            <label>Amount of Gymnastics that are NOT aerials:
-                <input type="number" min="0" max="2" ng-model="data[id].scores[uid][event].b[$index].nae" />
-            </label>
-            <label>Speed Dance:
-                <input type="number" min="0" max="1" ng-model="data[id].scores[uid][event].b[$index].spd" />
-            </label>
-            <label>Release:
-                <input type="number" min="0" max="1" ng-model="data[id].scores[uid][event].b[$index].rel" />
-            </label>
-            <label ng-if="event == 'ddpf'">Amount of Jumper Interactions:
-                <input type="number" min="0" max="2" ng-model="data[id].scores[uid][event].b[$index].jis" />
-            </label>
-        </div>
+        <tbody ng-if="!Abbr.isSR(event)">
+          <tr>
+            <td><label for="b{{ $index }}tis">Amount of different <b>Turner Involvement Skills</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}tis" min="0" max="8" ng-model="data[id].scores[uid][event].b[$index].tis"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}swi">Amount of different <b>Turner / Jumper Switches</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}swi" min="0" max="5" ng-model="data[id].scores[uid][event].b[$index].swi"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}aer">Amount of <b>Gymnastics that are aerials</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}aer" min="0" max="8" ng-model="data[id].scores[uid][event].b[$index].aer"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}nae">Amount of <b>Gymnastics that are <em>NOT</em> aerials</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}nae" min="0" max="2" ng-model="data[id].scores[uid][event].b[$index].nae"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}spd"><b>Speed Dance</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}spd" min="0" max="1" ng-model="data[id].scores[uid][event].b[$index].spd"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}rel"><b>Release</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}rel" min="0" max="1" ng-model="data[id].scores[uid][event].b[$index].rel"
+              /></td>
+          </tr>
 
-        <div ng-if="!(event == 'ddpf' || event == 'ddsf')">
-            <label>Amount of separate sets of at least 4 different triple Multiples:
-                <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].mul" />
-            </label>
-            <label>Amount of different Gymnastics:
-                <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].gym" />
-            </label>
-            <label>Amount of different Power Skills:
-                <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].pow" />
-            </label>
-            <label>Amount of different Speed Dances:
-                <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].spd" />
-            </label>
-            <label>Amount of different Releases:
-                <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].rel" />
-            </label>
-            <label>Amount of different Wraps:
-                <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].wra" />
-            </label>
+          <tr ng-if="event == 'ddpf'">
+            <td><label>Amount of <b>Jumper Interactions</b>:</label></td>
+            <td><input type="number" min="0" max="2" ng-model="data[id].scores[uid][event].b[$index].jis"
+              /></td>
+          </tr>
+        </tbody>
 
-            <label ng-if="event != 'srsf'">Amount separate Pair Interactions:
-                <input type="number" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].pai" />
-            </label>
-        </div>
+        <tbody ng-if="Abbr.isSR(event)">
+          <tr>
+            <td><label for="b{{ $index }}mul">Amount of separate <b>sets of at least 4 different triple Multiples</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}mul" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].mul"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}gym">Amount of different <b>Gymnastics</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}gym" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].gym"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}pow">Amount of different <b>Power Skills</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}pow" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].pow"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}spd">Amount of different <b>Speed Dances</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}spd" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].spd"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}rel">Amount of different <b>Releases</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}rel" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].rel"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}wra">Amount of different <b>Wraps</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}wra" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].wra"
+              /></td>
+          </tr>
+
+          <tr ng-if="event != 'srsf'">
+            <td><label for="b{{ $index }}pai">Amount separate <b>Pair Interactions</b>:</label></td>
+            <td><input type="number" id="b{{ $index }}pai" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].pai"
+              /></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <br/>
+  </div>
+
+  <div class="flex-container mb">
     <div ng-repeat="n in getNumber(data[id].config.judges.d) track by $index">
-        <h2>D{{ $index + 1 }}:</h2>
-        <label>Level 2:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].d[$index]['1']" />
-        </label>
-        <label>Level 3:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].d[$index]['2']" />
-        </label>
-        <label>Level 4:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].d[$index]['3']" />
-        </label>
-        <label>Level 5:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].d[$index]['4']" />
-        </label>
-
-        <label ng-if="!(event == 'ddsf' || event == 'ddpf')">Level 6:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].d[$index]['5']" />
-        </label>
+      <h2>D{{ $index + 1 }}:</h2>
+      <table>
+        <tr ng-if="data[id].config.simplified">
+          <td><label for="d{{ $index }}-0">Level 1:</label></td>
+          <td><input type="number" id="d{{ $index }}-0" min="0" ng-model="data[id].scores[uid][event].d[$index]['0']"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="d{{ $index }}-1">Level 2:</label></td>
+          <td><input type="number" id="d{{ $index }}-1" min="0" ng-model="data[id].scores[uid][event].d[$index]['1']"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="d{{ $index }}-2">Level 3:</label></td>
+          <td><input type="number" id="d{{ $index }}-2" min="0" ng-model="data[id].scores[uid][event].d[$index]['2']"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="d{{ $index }}-3">Level 4:</label></td>
+          <td><input type="number" id="d{{ $index }}-3" min="0" ng-model="data[id].scores[uid][event].d[$index]['3']"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="d{{ $index }}-4">Level 5:</label></td>
+          <td><input type="number" id="d{{ $index }}-4" min="0" ng-model="data[id].scores[uid][event].d[$index]['4']"
+            /></td>
+        </tr>
+        <tr ng-if="Abbr.isSR(event) && !data[id].config.simplified">
+          <td><label for="d{{ $index }}-5">Level 6:</label></td>
+          <td><input type="number" id="d{{ $index }}-5" min="0" ng-model="data[id].scores[uid][event].d[$index]['5']"
+            /></td>
+        </tr>
+      </table>
     </div>
-    <br/>
+  </div>
+
+  <div class="flex-container mb">
     <div ng-repeat="n in getNumber(data[id].config.judges.h) track by $index">
-        <h2>H{{ $index + 1 }}:</h2>
-        <label>Minor Misses:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].mim['h' + $index]" />
-        </label>
-        <label>Major Misses:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].mam['h' + $index]" />
-        </label>
+      <h2>H{{ $index + 1 }}:</h2>
+      <table>
+        <tr>
+          <td><label for="h{{ $index }}mim">Minor Misses:</label></td>
+          <td><input type="number" id="h{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['h' + $index]"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="h{{ $index }}mam">Major Misses:</label></td>
+          <td><input type="number" id="h{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['h' + $index]"
+            /></td>
+        </tr>
 
-        <label>Space Violations:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].h[$index].spc" />
-        </label>
-        <label>Time Violation:
-            <input type="checkbox" ng-model="data[id].scores[uid][event].h[$index].tim" />
-        </label>
-
-        <label ng-if="event == 'ddsf' || event == 'ddpf'">Less than 3 skills:
-            <input type="number" min="0" ng-model="data[id].scores[uid][event].h[$index].few" />
-        </label>
+        <tr>
+          <td><label for="h{{ $index }}spc">Space Violations:</label></td>
+          <td><input type="number" id="h{{ $index }}spc" min="0" ng-model="data[id].scores[uid][event].h[$index].spc"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="h{{ $index }}tim">Time Violation:</label></td>
+          <td><input type="checkbox" id="h{{ $index }}tim" ng-model="data[id].scores[uid][event].h[$index].tim"
+            /></td>
+        </tr>
+        <tr ng-if="!Abbr.isSR(event)">
+          <td><label for="h{{ $index }}few">Less than 3 skills:</label></td>
+          <td><input type="number" id="h{{ $index }}few" min="0" ng-model="data[id].scores[uid][event].h[$index].few"
+            /></td>
+        </tr>
+      </table>
     </div>
+  </div>
 </div>
 <button ng-click="save()">Save &amp; Return</button>

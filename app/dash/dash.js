@@ -33,4 +33,21 @@ angular.module('jumpscore.dash', ['ngRoute'])
     $scope.save = function() {
       Db.set($scope.data)
     }
+
+    document.getElementById('import-file')
+      .addEventListener('change', function(evt) {
+        var files = evt.target.files;
+        var file = files[0];
+        var reader = new FileReader();
+        reader.onload = function() {
+          var data = JSON.parse(this.result);
+          if (confirm("This will overwrite ALL your existing data")) {
+            Db.set(data);
+            $scope.$apply(function() {
+              $scope.data = data;
+            })
+          }
+        }
+        reader.readAsText(file)
+      }, false)
   })

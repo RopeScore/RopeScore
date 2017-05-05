@@ -1,15 +1,18 @@
 <div>
-    <a ng-href="/config"><button>New</button></a>
-    <button>Import</button>
-    <a ng-href="{{ linkData }}" download="jumpscore-export.json"><button>Export</button></a>
-    <button ng-click="save()">Save</button>
+  <a ng-href="/config"><button>New</button></a>
+  <label class="button" for="import-file">Import</label>
+  <a ng-href="{{ linkData }}" download="jumpscore-export.json"><button>Export</button></a>
+  <button ng-click="save()">Save</button>
 </div>
 <h1>Events</h1>
 <div class="flex-container">
-    <div ng-repeat="(id, event) in data" class="event">
-        <a ng-href="/event/{{ id }}">{{ event.config.name }}</a>
-    </div>
+  <div ng-repeat="(id, event) in data" class="event">
+    <a ng-href="/event/{{ id }}">{{ event.config.name }}</a>
+  </div>
 </div>
 <footer>
-    v2.0.0au
+  v2.0.0au
 </footer>
+
+<input type="file" class="hidden" id="import-file" enctype="multipart/form-data"
+/>

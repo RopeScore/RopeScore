@@ -23,7 +23,7 @@ angular.module('jumpscore.config', ['ngRoute'])
    * @param {service} $routeParams
    * @param {service} Db
    */
-  .controller('ConfigCtrl', function($scope, $location, $routeParams, Db) {
+  .controller('ConfigCtrl', function($scope, $location, $routeParams, Db, Abbr) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id;
@@ -37,4 +37,16 @@ angular.module('jumpscore.config', ['ngRoute'])
       Db.set($scope.data)
       $location.path('/config/participants/' + $scope.id)
     }
+
+    $scope.remove = function() {
+      if (confirm(
+          "Are you sure you want to remove this event and all of its data?"
+        )) {
+        delete $scope.data[$scope.id]
+        Db.set($scope.data)
+        $location.path('/')
+      }
+    }
+
+    $scope.Abbr = Abbr;
   })

@@ -119,9 +119,11 @@ angular.module('jumpscore', [
         ddsf: "Double Dutch Single Freestyle",
         ddpf: "Double Dutch Pair Freestyle",
 
-        srp: "Single Rope Triple Unders"
+        srp: "Single Rope Triple Unders",
+        srd: "Single Rope Double Unders"
       }
       var speedEvents = ['srss', 'srse', 'srsr', 'ddsr', 'srp', 'srd']
+      var masterEvents = ['srss', 'srse', 'srsf', 'srp', 'srd']
 
       return {
         unabbr: function(abbr) {
@@ -138,7 +140,75 @@ angular.module('jumpscore', [
             return false;
           }
         },
+        isTeam: function(abbr) {
+          return (masterEvents.indexOf(abbr) < 0 ? true : false)
+        },
+        hasSR: function(obj) {
+          if (!obj) {
+            return false;
+          }
+          var keys = Object.keys(obj)
+          for (var i = 0; i < keys.length; i++) {
+            var type = keys[i].substring(0, 2)
+            if (obj[keys[i]] && type.toLowerCase() == "sr") {
+              return true;
+            }
+          }
+          return false;
+        },
+        hasDD: function(obj) {
+          if (!obj) {
+            return false;
+          }
+          var keys = Object.keys(obj)
+          for (var i = 0; i < keys.length; i++) {
+            var type = keys[i].substring(0, 2)
+            if (obj[keys[i]] && type.toLowerCase() == "dd") {
+              return true;
+            }
+          }
+          return false;
+        },
+        hasTeams: function(obj) {
+          if (!obj) {
+            return false;
+          }
+          var keys = Object.keys(obj)
+          for (var i = 0; i < keys.length; i++) {
+            if (obj[keys[i]] && masterEvents.indexOf(keys[i]) < 0) {
+              return true;
+            }
+          }
+          return false
+        },
+        hasSpeed: function(obj) {
+          if (!obj) {
+            return false;
+          }
+          var keys = Object.keys(obj)
+          for (var i = 0; i < keys.length; i++) {
+            if (obj[keys[i]] && speedEvents.indexOf(keys[i]) >= 0) {
+              return true;
+            }
+          }
+          return false
+        },
+        hasFreestyle: function(obj) {
+          if (!obj) {
+            return false;
+          }
+          var keys = Object.keys(obj)
+          for (var i = 0; i < keys.length; i++) {
+            if (obj[keys[i]] && speedEvents.indexOf(keys[i]) < 0) {
+              return true;
+            }
+          }
+          return false
+        },
         count: function(obj, type) {
+          if (!obj) {
+            return 0;
+          }
           var keys = Object.keys(obj);
           var sum = 0;
           if (type) {

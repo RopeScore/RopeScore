@@ -1,46 +1,48 @@
 <h1>{{ data[id].config.name }}</h1>
 <a ng-href="/config/{{ id }}"><button>Configure</button></a>
-<table>
+<div class="table">
+  <table>
     <thead>
-        <tr>
-            <th>{{ (data[id].config.discipline == 'teams' ? 'Team ' : '' ) }} Name</th>
-            <th>Club</th>
-            <th>id</th>
+      <tr>
+        <th>{{ (Abbr.hasTeams(data[id].config.subevents) ? 'Team ' : '' ) }} Name</th>
+        <th>Club</th>
+        <th>id</th>
 
-            <th ng-if="data[id].config.subevents.srss">SRSS</th>
-            <th ng-if="data[id].config.subevents.srse">SRSE</th>
-            <th ng-if="data[id].config.subevents.srss">SRSF</th>
+        <th ng-if="data[id].config.subevents.srss">SRSS</th>
+        <th ng-if="data[id].config.subevents.srse">SRSE</th>
+        <th ng-if="data[id].config.subevents.srsf">SRSF</th>
 
-            <th ng-if="data[id].config.subevents.srsr">SRSR</th>
-            <th ng-if="data[id].config.subevents.ddsr">DDSR</th>
-            <th ng-if="data[id].config.subevents.srpf">SRPF</th>
-            <th ng-if="data[id].config.subevents.srtf">SRTF</th>
-            <th ng-if="data[id].config.subevents.ddsf">DDSF</th>
-            <th ng-if="data[id].config.subevents.ddpf">DDPF</th>
+        <th ng-if="data[id].config.subevents.srsr">SRSR</th>
+        <th ng-if="data[id].config.subevents.ddsr">DDSR</th>
+        <th ng-if="data[id].config.subevents.srpf">SRPF</th>
+        <th ng-if="data[id].config.subevents.srtf">SRTF</th>
+        <th ng-if="data[id].config.subevents.ddsf">DDSF</th>
+        <th ng-if="data[id].config.subevents.ddpf">DDPF</th>
 
-            <th ng-if="data[id].config.subevents.srp">SRP</th>
-            <th ng-if="data[id].config.subevents.srd">SRD</th>
-        </tr>
+        <th ng-if="data[id].config.subevents.srp">SRP</th>
+        <th ng-if="data[id].config.subevents.srd">SRD</th>
+      </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="(uid, participant) in data[id].participants">
-            <td>{{ participant.name }}</td>
-            <td>{{ participant.club }}</td>
-            <td>{{ uid }}</td>
+      <tr ng-repeat="(uid, participant) in data[id].participants">
+        <td>{{ participant.name }}</td>
+        <td>{{ participant.club }}</td>
+        <td>{{ uid }}</td>
 
-            <td ng-if="data[id].config.subevents.srss"><a ng-href="/score/{{ id }}/{{ uid }}/srss">Edit</a></td>
-            <td ng-if="data[id].config.subevents.srse"><a ng-href="/score/{{ id }}/{{ uid }}/srse">Edit</a></td>
-            <td ng-if="data[id].config.subevents.srss"><a ng-href="/score/{{ id }}/{{ uid }}/srsf">Edit</a></td>
+        <td ng-if="data[id].config.subevents.srss"><a ng-href="/score/{{ id }}/{{ uid }}/srss">Edit</a></td>
+        <td ng-if="data[id].config.subevents.srse"><a ng-href="/score/{{ id }}/{{ uid }}/srse">Edit</a></td>
+        <td ng-if="data[id].config.subevents.srsf"><a ng-href="/score/{{ id }}/{{ uid }}/srsf">Edit</a></td>
 
-            <td ng-if="data[id].config.subevents.srsr"><a ng-href="/score/{{ id }}/{{ uid }}/srsr">Edit</a></td>
-            <td ng-if="data[id].config.subevents.ddsr"><a ng-href="/score/{{ id }}/{{ uid }}/ddsr">Edit</a></td>
-            <td ng-if="data[id].config.subevents.srpf"><a ng-href="/score/{{ id }}/{{ uid }}/srpf">Edit</a></td>
-            <td ng-if="data[id].config.subevents.srtf"><a ng-href="/score/{{ id }}/{{ uid }}/srtf">Edit</a></td>
-            <td ng-if="data[id].config.subevents.ddsf"><a ng-href="/score/{{ id }}/{{ uid }}/ddsf">Edit</a></td>
-            <td ng-if="data[id].config.subevents.ddpf"><a ng-href="/score/{{ id }}/{{ uid }}/ddpf">Edit</a></td>
+        <td ng-if="data[id].config.subevents.srsr"><a ng-href="/score/{{ id }}/{{ uid }}/srsr">Edit</a></td>
+        <td ng-if="data[id].config.subevents.ddsr"><a ng-href="/score/{{ id }}/{{ uid }}/ddsr">Edit</a></td>
+        <td ng-if="data[id].config.subevents.srpf"><a ng-href="/score/{{ id }}/{{ uid }}/srpf">Edit</a></td>
+        <td ng-if="data[id].config.subevents.srtf"><a ng-href="/score/{{ id }}/{{ uid }}/srtf">Edit</a></td>
+        <td ng-if="data[id].config.subevents.ddsf"><a ng-href="/score/{{ id }}/{{ uid }}/ddsf">Edit</a></td>
+        <td ng-if="data[id].config.subevents.ddpf"><a ng-href="/score/{{ id }}/{{ uid }}/ddpf">Edit</a></td>
 
-            <td ng-if="data[id].config.subevents.srp"><a ng-href="/score/{{ id }}/{{ uid }}/srp">Edit</a></td>
-            <td ng-if="data[id].config.subevents.srd"><a ng-href="/score/{{ id }}/{{ uid }}/srd">Edit</a></td>
-        </tr>
+        <td ng-if="data[id].config.subevents.srp"><a ng-href="/score/{{ id }}/{{ uid }}/srp">Edit</a></td>
+        <td ng-if="data[id].config.subevents.srd"><a ng-href="/score/{{ id }}/{{ uid }}/srd">Edit</a></td>
+      </tr>
     </tbody>
-</table>
+  </table>
+  </table>
