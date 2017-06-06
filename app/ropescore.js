@@ -32,17 +32,18 @@ var tableToExcel = (function() {
 })()
 
 /**
- * @namespace jumpscore
+ * @namespace ropescore
  * @requires ngRoute
  */
-angular.module('jumpscore', [
+angular.module('ropescore', [
   'ngRoute',
-  'jumpscore.dash',
-  'jumpscore.config',
-  'jumpscore.config.participants',
-  'jumpscore.event',
-  'jumpscore.score',
-  'jumpscore.results'
+  'ropescore.dash',
+  'ropescore.config',
+  'ropescore.config.participants',
+  'ropescore.event',
+  'ropescore.score',
+  'ropescore.results',
+  'ropescore.about.licence'
 ])
 
   .config([
@@ -50,7 +51,7 @@ angular.module('jumpscore', [
     function($locationProvider, $routeProvider, $compileProvider) {
       /**
        * @description ngRoute with html5 mode (no hashbang, but with fallback)
-       * @memberOf jumpscore.jumpscore
+       * @memberOf ropescore.ropescore
        */
       $locationProvider.html5Mode(true)
         .hashPrefix('!');
@@ -68,7 +69,7 @@ angular.module('jumpscore', [
     /**
      * @name $rootScope.goHome
      * @function
-     * @memberOf trick
+     * @memberOf ropescore
      * @description function to go to /
      */
     $rootScope.goHome = function() {
@@ -79,27 +80,37 @@ angular.module('jumpscore', [
       $rootScope.id = id;
     }
 
+    $rootScope.copyright = function() {
+      if (new Date()
+        .getFullYear() == 2017) {
+        return 2017;
+      } else {
+        return "2017-" + new Date()
+          .getFullYear();
+      }
+    }
+
     /* still dreaming about autoupdate...
-      store.watch('jumpscore', function() {
-      console.log(store.get('jumpscore'))
-      $rootScope.data = store.get('jumpscore')
+      store.watch('ropescore', function() {
+      console.log(store.get('ropescore'))
+      $rootScope.data = store.get('ropescore')
     })*/
   })
 
   .factory("Db",
     /**
      * @function Db
-     * @memberOf jumpscore.jumpscore
+     * @memberOf ropescore.ropescore
      * @return {object} Return database
      */
     function() {
 
       return {
         get: function() {
-          return store.get('jumpscore') || {}
+          return store.get('ropescore') || {}
         },
         set: function(newData) {
-          return store.set('jumpscore', newData)
+          return store.set('ropescore', newData)
         }
       }
     })
@@ -121,35 +132,89 @@ angular.module('jumpscore', [
 
         srp: "Single Rope Triple Unders",
         srd: "Single Rope Double Unders"
-      }
-      var speedEvents = ['srss', 'srse', 'srsr', 'ddsr', 'srp', 'srd']
-      var masterEvents = ['srss', 'srse', 'srsf', 'srp', 'srd']
+      };
+      // uncomment nonabbrs if you want to use non standard abbrs
+      var nonabbrs = {
+        srss: {
+          abbr: "srm30s",
+          name: "Masters 30s Speed"
+        },
+        srse: {
+          abbr: "srm3min",
+          name: "Masters 3 minutes Speed"
+        },
+        srsf: {
+          abbr: "",
+          name: ""
+        },
+        // ------------------
+        srsr: {
+          abbr: "",
+          name: ""
+        },
+        ddsr: {
+          abbr: "",
+          name: ""
+        },
+        srpf: {
+          abbr: "srf2",
+          name: ""
+        },
+        srtf: {
+          abbr: "srf4",
+          name: ""
+        },
+        ddsf: {
+          abbr: "ddf3",
+          name: ""
+        },
+        ddpf: {
+          abbr: "ddf4",
+          name: ""
+        },
+        // ------------------
+        srp: {
+          abbr: "",
+          name: ""
+        },
+        srd: {
+          abbr: "srdr",
+          name: "Single Rope Double Unders Relay"
+        }
+      };
+      var speedEvents = ['srss', 'srse', 'srsr', 'ddsr', 'srp', 'srd'];
+      var masterEvents = ['srss', 'srse', 'srsf', 'srp', 'srd'];
 
       return {
         unabbr: function(abbr) {
-          return abbrs[abbr]
+          return nonabbrs[abbr].name || abbrs[abbr]
         },
-        isSpeed: function(abbr) {
-          return (speedEvents.indexOf(abbr) >= 0 ? true : false);
-        },
-        isSR: function(abbr) {
-          var type = abbr.substring(0, 2)
-          if (type.toLowerCase() == "sr") {
-            return true;
+        abbr: function(abbr) {
+          // converts a standard abbr to a non-standard abbr
+          if(nonabbrs) {
+            return nonabbrs[abbr].abbr || abbr
           } else {
-            return false;
+            return abbr
           }
         },
+        events: Object.keys(abbrs),
+        isSpeed: function(abbr) {
+          return (speedEvents.indexOf(abbr) >= 0);
+        },
+        isSR: function(abbr) {
+          var type = abbr.substring(0, 2);
+          return (type.toLowerCase() == "sr")
+        },
         isTeam: function(abbr) {
-          return (masterEvents.indexOf(abbr) < 0 ? true : false)
+          return (masterEvents.indexOf(abbr) < 0)
         },
         hasSR: function(obj) {
           if (!obj) {
             return false;
           }
-          var keys = Object.keys(obj)
+          var keys = Object.keys(obj);
           for (var i = 0; i < keys.length; i++) {
-            var type = keys[i].substring(0, 2)
+            var type = keys[i].substring(0, 2);
             if (obj[keys[i]] && type.toLowerCase() == "sr") {
               return true;
             }

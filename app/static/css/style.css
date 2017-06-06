@@ -65,6 +65,20 @@ footer {
   display: inline;
 }
 
+ol {
+  counter-reset: item;
+}
+
+li {
+  margin-left: 1.3em;
+  display: block;
+}
+
+ol li:before {
+  content: counters(item, ".") " ";
+  counter-increment: item
+}
+
 
 /* nav */
 
@@ -202,6 +216,11 @@ label {
 
 input[type=number] {
   width: 6em;
+}
+
+textarea {
+  width: 20em;
+  height: 15em;
 }
 
 

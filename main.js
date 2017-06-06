@@ -5,17 +5,25 @@ const {
 const server = require("./server");
 const path = require('path')
 const url = require('url')
-const Debug = false;
+const Debug = true;
+const Expire = new Date("2017-06-16")
+  .getTime();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win
+let win;
 
 function createWindow() {
+  if (Expire && new Date()
+    .getTime() > Expire) {
+    app.quit()
+  }
+
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
-    height: 600
+    height: 600,
+    icon: path.join(__dirname, 'app/static/img/icon.png')
   })
 
   // and load the index.html of the app.

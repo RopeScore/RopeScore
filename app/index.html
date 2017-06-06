@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="jumpscore">
+<html ng-app="ropescore">
   <base href="/">
 
   <head>
@@ -10,22 +10,24 @@
     <meta name="theme-color" content="#efefef">
     <link rel="manifest" href="/static/manifest.json">
     <link rel="icon" href="/static/img/icon.png">
-    <title>JumpScore</title>
+    <title>RopeScore</title>
     <!-- Resources -->
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/store.everything.min.js"></script>
+    <script src="/static/js/papaparse.js"></script>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/static/css/style.css">
     <!-- DEPLOY -->
     <!-- Local angular modules -->
-    <script src="/jumpscore.js"></script>
+    <script src="/ropescore.js"></script>
     <script src="/dash/dash.js"></script>
     <script src="/config/config.js"></script>
     <script src="/config/config.participants.js"></script>
     <script src="/event/event.js"></script>
     <script src="/score/score.js"></script>
     <script src="/results/results.js"></script>
+    <script src="/about/about.licence.js"></script>
     <!-- END DEPLOY -->
   </head>
 
@@ -33,7 +35,7 @@
     <nav>
       <ul class="topnav">
         <li ng-click="goHome()" class="pointer">
-          <div>JumpScore</div>
+          <div>RopeScore</div>
         </li>
         <li><a ng-href="/">Events</a></li>
         <li><a ng-href="/config">New Event</a></li>
@@ -45,3 +47,7 @@
     <div ng-view>
       Loading... Enable javascript and/or clear cache.
     </div>
+
+    <footer>
+      v2.0.0au &copy; Svante Bengtson {{ copyright() }} <a ng-href="/licence">Licence</a>
+    </footer>

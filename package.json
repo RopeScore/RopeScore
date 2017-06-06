@@ -1,19 +1,22 @@
 {
-  "name": "JumpScore",
+  "name": "RopeScore",
   "version": "2.0.0au",
   "description": "A scoring system for ropeskipping",
-  "author": "Svante Bengtson <jumpscore@swant.pw>",
+  "author": "Svante Bengtson <ropescore@swant.pw>",
   "main": "main.js",
   "postinstall": "install-app-deps",
   "dependencies": {
-    "electron": "^1.6.2",
     "express": "^4.15.2"
   },
+  "devDependencies": {
+    "electron": "^1.6.2"
+  },
   "build": {
-    "appId": "pw.swant.jumpscore"
+    "appId": "pw.swant.ropescore"
   },
   "scripts": {
     "pack": "build --dir",
-    "dist": "build"
+    "dist": "build",
+    "build": "electron-packager . RopeScore --out=build --asar --icon=app/static/img/icon"
   }
 }

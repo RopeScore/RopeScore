@@ -1,7 +1,7 @@
 <div>
   <a ng-href="/config"><button>New</button></a>
   <label class="button" for="import-file">Import</label>
-  <a ng-href="{{ linkData }}" download="jumpscore-export.json"><button>Export</button></a>
+  <a ng-href="{{ linkData }}" download="ropescore-export.json"><button>Export</button></a>
   <button ng-click="save()">Save</button>
 </div>
 <h1>Events</h1>
@@ -10,9 +10,6 @@
     <a ng-href="/event/{{ id }}">{{ event.config.name }}</a>
   </div>
 </div>
-<footer>
-  v2.0.0au
-</footer>
 
 <input type="file" class="hidden" id="import-file" enctype="multipart/form-data"
 />

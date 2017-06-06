@@ -1,10 +1,10 @@
 'use strict';
 /**
- * @class jumpscore.config
- * @memberOf jumpscore
+ * @class ropescore.config
+ * @memberOf ropescore
  * @requires ngRoute
  */
-angular.module('jumpscore.config', ['ngRoute'])
+angular.module('ropescore.config', ['ngRoute'])
 
   .config([
     '$routeProvider',
@@ -17,7 +17,7 @@ angular.module('jumpscore.config', ['ngRoute'])
   ])
 
   /**
-   * @class jumpscore.config.ConfigCtrl
+   * @class ropescore.config.ConfigCtrl
    * @param {service} $scope
    * @param {service} $location
    * @param {service} $routeParams

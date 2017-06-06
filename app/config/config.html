@@ -5,31 +5,24 @@
     <td><input type="text" id="name" ng-model="data[id].config.name" /></td>
   </tr>
 
-  <tr>
+  <!--<tr>
     <td><label for="part">{{ (Abbr.hasTeams(data[id].config.subevents) ? "Teams:" : "Participants:" ) }}</label></td>
     <td><input type="number" id="part" ng-model="data[id].config.participants" /></td>
-  </tr>
+  </tr>-->
 
   <tr>
     <td><label for="simp">Simplified levels:</label></td>
     <td><input type="checkbox" id="simp" ng-model="data[id].config.simplified" /></td>
   </tr>
 </table>
-<div id="config-events">
-  <label>SRSF:<input type="checkbox" ng-model="data[id].config.subevents.srsf"/></label>
-  <label>SRSS:<input type="checkbox" ng-model="data[id].config.subevents.srss"/></label>
-  <label>SRSE:<input type="checkbox" ng-model="data[id].config.subevents.srse"/></label>
 
-  <label>SRSR:<input type="checkbox" ng-model="data[id].config.subevents.srsr"/></label>
-  <label>DDSR:<input type="checkbox" ng-model="data[id].config.subevents.ddsr"/></label>
-  <label>SRPF:<input type="checkbox" ng-model="data[id].config.subevents.srpf"/></label>
-  <label>SRTF:<input type="checkbox" ng-model="data[id].config.subevents.srtf"/></label>
-  <label>DDSF:<input type="checkbox" ng-model="data[id].config.subevents.ddsf"/></label>
-  <label>DDPF:<input type="checkbox" ng-model="data[id].config.subevents.ddpf"/></label>
-
-  <label>Triples:<input type="checkbox" ng-model="data[id].config.subevents.srp"/></label>
-  <label>Double Unders:<input type="checkbox" ng-model="data[id].config.subevents.srd" /></label>
-</div>
+<h2>Events</h2>
+<table>
+  <tr ng-repeat="event in Abbr.events track by $index">
+    <td><label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label></td>
+    <td><input type="checkbox" ng-model="data[id].config.subevents[event]" /></td>
+  </tr>
+</table>
 
 <h2>Judges</h2>
 <p ng-if="!Abbr.count(data[id].config.subevents)"> Select at least one event</p>
@@ -55,7 +48,20 @@
     <td><input type="number" id="s" ng-model="data[id].config.judges.s" /></td>
   </tr>
 </table>
-<button ng-click="save()">Save</button>
+
+<div ng-if="data[id].config.simplified">
+  <h2>Rank factors</h2>
+  <p>If these values are left blank the ones defined in fisac-irsf's judging manual
+    will be used. For non-standard events a factor of 1 will be used</p>
+  <table>
+    <tr ng-repeat="(key,bool) in data[id].config.subevents" ng-if="bool">
+      <td><label for="factor-{{ key }}">{{ Abbr.unabbr(key) }}</label></td>
+      <td><input type="number" id="factor-{{ key }}" ng-model="data[id].config.factors[key]"
+        /></td>
+    </tr>
+  </table>
+</div>
+<button ng-click="save()">Save and Continue</button>
 <button ng-click="remove()">Remove event</button>
 
-<!-- <pre>{{data|json}}</pre> -->
+<!-- <pre>{{data[id].config|json}}</pre> -->

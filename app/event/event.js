@@ -1,10 +1,10 @@
 'use strict';
 /**
- * @class jumpscore.event
- * @memberOf jumpscore
+ * @class ropescore.event
+ * @memberOf ropescore
  * @requires ngRoute
  */
-angular.module('jumpscore.event', ['ngRoute'])
+angular.module('ropescore.event', ['ngRoute'])
 
   .config([
     '$routeProvider',
@@ -17,7 +17,7 @@ angular.module('jumpscore.event', ['ngRoute'])
   ])
 
   /**
-   * @class jumpscore.event.EventCtrl
+   * @class ropescore.event.EventCtrl
    * @param {service} $scope
    * @param {service} $location
    * @param {service} $routeParams
@@ -29,4 +29,6 @@ angular.module('jumpscore.event', ['ngRoute'])
     $scope.id = $routeParams.id;
     $scope.setID($scope.id)
     $scope.Abbr = Abbr;
+    
+    $scope.events = Abbr.events;
   })

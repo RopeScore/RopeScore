@@ -1,10 +1,10 @@
 'use strict';
 /**
- * @class jumpscore.results
- * @memberOf jumpscore
+ * @class ropescore.results
+ * @memberOf ropescore
  * @requires ngRoute
  */
-angular.module('jumpscore.results', ['ngRoute'])
+angular.module('ropescore.results', ['ngRoute'])
 
   .config([
     '$routeProvider',
@@ -17,7 +17,7 @@ angular.module('jumpscore.results', ['ngRoute'])
   ])
 
   /**
-   * @class jumpscore.results.ResultsCtrl
+   * @class ropescore.results.ResultsCtrl
    * @param {service} $scope
    * @param {service} $location
    * @param {service} $routeParams
@@ -81,7 +81,8 @@ angular.module('jumpscore.results', ['ngRoute'])
           Y = preY * 1;
         }
 
-        //console.log(T, W, Y)
+        console.log("id:", uid, "event:", event, "T:", T, "W:", W, "preY:",
+          preY, "Y:", Y)
 
         if (!$scope.data[$scope.id].finalscores) {
           $scope.data[$scope.id].finalscores = {};
@@ -91,7 +92,7 @@ angular.module('jumpscore.results', ['ngRoute'])
         }
 
         $scope.data[$scope.id].finalscores[uid][event] = Y;
-        return Math.roundTo(Y, 2);
+        return Math.roundTo(preY, 2);
 
       } else if (!Abbr.isSpeed(event) && data && data.a && data.b && data.d &&
         data.h) {
@@ -101,6 +102,7 @@ angular.module('jumpscore.results', ['ngRoute'])
         var T3 = 0; // reqi score
         var T4 = 0; // crea score
         var T5 = 0; // deductions
+        var keys = [];
         var tempT = 0;
         var rem = 0;
         var diff = 0;
@@ -192,18 +194,30 @@ angular.module('jumpscore.results', ['ngRoute'])
         calcdiff.sort(function(a, b) {
           return a - b
         })
-        rem = n - 3;
-        for (var i = 0; i < rem; i++) {
-          if (i % 2 == 0) {
-            calcdiff.shift()
-          } else {
-            calcdiff.pop()
+
+
+        if (n >= 4) {
+          calcdiff.shift()
+          calcdiff.pop()
+          n = n - 2;
+        } else if (n == 1) {} else if (n == 3) {
+          var tempCalcdiff = [];
+          var diff;
+          for (var i = 1; i < n; i++) {
+            var cdiff = Math.abs(calcdiff[i] - calcdiff[i - 1])
+            if (!diff || cdiff <= diff) {
+              diff = cdiff;
+              tempCalcdiff = [calcdiff[i - 1], calcdiff[i]]
+            }
           }
+          n = 2;
+          calcdiff = tempCalcdiff;
         }
+
         tempT = calcdiff.reduce(function(a, b) {
           return a + b
         })
-        tempT = Math.roundTo(tempT / (rem < 0 ? Math.abs(3 + rem) : 3), 4);
+        tempT = Math.roundTo(tempT / n, 4);
 
         T1 = Math.roundTo(tempT * 2.5, 4)
 
@@ -211,8 +225,9 @@ angular.module('jumpscore.results', ['ngRoute'])
         tempT = 0;
         scores = [];
 
-        n = Object.keys(data.a);
-        for (var i = 0; i < n.length; i++) {
+        n = Object.keys(data.a)
+          .length;
+        for (var i = 0; i < n; i++) {
           scores.push(data.a[i])
         }
         for (var i = 0; i < scores.length; i++) {
@@ -230,26 +245,38 @@ angular.module('jumpscore.results', ['ngRoute'])
         calcpres.sort(function(a, b) {
           return a - b
         })
-        rem = n - 3;
-        for (var i = 0; i < rem; i++) {
-          if (i % 2 == 0) {
-            calcpres.shift()
-          } else {
-            calcpres.pop()
+
+        if (n >= 4) {
+          calcpres.shift()
+          calcpres.pop()
+          n = n - 2;
+        } else if (n == 1) {} else if (n == 3) {
+          var tempCalcpres = [];
+          var diff;
+          for (var i = 1; i < n; i++) {
+            var cdiff = Math.abs(calcpres[i] - calcpres[i - 1])
+            if (!diff || cdiff <= diff) {
+              diff = cdiff;
+              tempCalcpres = [calcpres[i - 1], calcpres[i]]
+            }
           }
+          n = 2;
+          calcpres = tempCalcpres;
         }
+
         tempT = calcpres.reduce(function(a, b) {
           return a + b
         })
-        tempT = Math.roundTo(tempT / (rem < 0 ? 3 - rem : 3), 4);
-        T2 = Math.roundTo((tempT > 40 ? 200 : tempT * 5), 4)
+        tempT = Math.roundTo(tempT / n, 4);
+        T2 = Math.roundTo((tempT > 40 ? 40 * 5 : tempT * 5), 4)
 
         /** Calc T3 */
         tempT = 0;
         scores = [];
 
-        n = Object.keys(data.b);
-        for (var i = 0; i < n.length; i++) {
+        n = Object.keys(data.b)
+          .length;
+        for (var i = 0; i < n; i++) {
           scores.push(data.b[i])
         }
         for (var i = 0; i < scores.length; i++) {
@@ -264,18 +291,29 @@ angular.module('jumpscore.results', ['ngRoute'])
         calcrq.sort(function(a, b) {
           return a - b
         })
-        rem = n - 3;
-        for (var i = 0; i < rem; i++) {
-          if (i % 2 == 0) {
-            calcrq.shift()
-          } else {
-            calcrq.pop()
+
+        if (n >= 4) {
+          calcrq.shift()
+          calcrq.pop()
+          n = n - 2;
+        } else if (n == 1) {} else if (n == 3) {
+          var tempCalcrq = [];
+          var diff;
+          for (var i = 1; i < n; i++) {
+            var cdiff = Math.abs(calcrq[i] - calcrq[i - 1])
+            if (!diff || cdiff <= diff) {
+              diff = cdiff;
+              tempCalcrq = [calcrq[i - 1], calcrq[i]]
+            }
           }
+          n = 2;
+          calcrq = tempCalcrq;
         }
+
         tempT = calcrq.reduce(function(a, b) {
           return a + b
         })
-        tempT = Math.roundTo(tempT / (rem < 0 ? 3 - rem : 3), 4);
+        tempT = Math.roundTo(tempT / n, 4);
         T3 = Math.roundTo((tempT * rq > 50 ? 50 : tempT * rq), 4)
 
         /** Calc T4 */
@@ -285,49 +323,79 @@ angular.module('jumpscore.results', ['ngRoute'])
         tempT = 0;
         scores = [];
 
-        n = Object.keys(data.mim);
-        for (var i = 0; i < n.length; i++) {
-          scores.push(data.mim[n[i]])
+        n = Object.keys(data.mim)
+          .length;
+        keys = Object.keys(data.mim);
+        for (var i = 0; i < n; i++) {
+          scores.push(data.mim[keys[i]])
         }
         scores.sort(function(a, b) {
           return a - b
         })
-        rem = n.length - 7;
-        for (var i = 0; i < rem; i++) {
-          if (i % 2 == 0) {
-            scores.shift()
-          } else {
-            scores.pop()
+
+        if (n >= 4) {
+          scores.shift()
+          scores.pop()
+          n = n - 2;
+        } else if (n == 1) {} else if (n == 3) {
+          var tempMim = [];
+          var diff;
+          for (var i = 1; i < n; i++) {
+            var cdiff = Math.abs(scores[i] - scores[i - 1])
+            if (!diff || cdiff <= diff) {
+              diff = cdiff;
+              tempMim = [scores[i - 1], scores[i]]
+            }
           }
+          n = 2;
+          scores = tempMim;
         }
+
         mim = scores.reduce(function(a, b) {
           return a + b
         })
-        mim = Math.roundTo(mim / (rem < 0 ? 7 - rem : 7), 4);
+        mim = Math.roundTo(mim / n, 4);
 
         scores = [];
+        n = 0;
+        keys = [];
 
-        n = Object.keys(data.mam);
-        for (var i = 0; i < n.length; i++) {
-          scores.push(data.mam[n[i]])
+        n = Object.keys(data.mam)
+          .length;
+        keys = Object.keys(data.mam);
+        for (var i = 0; i < n; i++) {
+          scores.push(data.mam[keys[i]])
         }
         scores.sort(function(a, b) {
           return a - b
         })
-        rem = n.length - 7;
-        for (var i = 0; i < rem; i++) {
-          if (i % 2 == 0) {
-            scores.shift()
-          } else {
-            scores.pop()
+
+        if (n >= 4) {
+          scores.shift()
+          scores.pop()
+          n = n - 2;
+        } else if (n == 1) {} else if (n == 3) {
+          var tempMam = [];
+          var diff;
+          for (var i = 1; i < n; i++) {
+            var cdiff = Math.abs(scores[i] - scores[i - 1])
+            if (!diff || cdiff <= diff) {
+              diff = cdiff;
+              tempMam = [scores[i - 1], scores[i]]
+            }
           }
+          n = 2;
+          scores = tempMam;
         }
+
         mam = scores.reduce(function(a, b) {
           return a + b
         })
-        mam = Math.roundTo(mam / (rem < 0 ? 7 - rem : 7), 4);
+        mam = Math.roundTo(mam / n, 4);
 
         scores = [];
+        n = [];
+
         n = Object.keys(data.h)
         for (var i = 0; i < n.length; i++) {
           few = few + (data.h[n[i]].few || 0);
@@ -346,7 +414,10 @@ angular.module('jumpscore.results', ['ngRoute'])
         A = ((T1 - (T5 / 2)) + (T4 - (T5 / 2))) * fac;
         A = (A < 0 ? 0 : A)
 
-        //console.log(T1, T2, T3, T4, T5, A)
+        console.log("id:", uid, "event:", event, "T1:", T1, "T2:", T2,
+          "T3:", T3, "T4:", T4,
+          "T5:",
+          T5, "multiplied:", A)
 
         if (!$scope.data[$scope.id].finalscores) {
           $scope.data[$scope.id].finalscores = {};
@@ -386,6 +457,7 @@ angular.module('jumpscore.results', ['ngRoute'])
         var scores = [];
         var score = (data[uid] ? data[uid][event] || 0 : 0);
         var rank;
+        var fac = 1;
 
         for (var i = 0; i < keys.length; i++) {
           if (event == "ranksum" && ((Object.keys(data[keys[i]])
@@ -414,6 +486,14 @@ angular.module('jumpscore.results', ['ngRoute'])
           $scope.data[$scope.id].ranks[uid] = {};
         }
 
+        if ($scope.data[$scope.id].config.simplified &&
+          $scope.data[$scope.id].config.factors &&
+          $scope.data[$scope.id].config.factors[event]) {
+          fac = $scope.data[$scope.id].config.factors[event]
+        }
+
+        rank = rank * fac;
+
         if (event != 'ranksum' && rank > 0) {
           $scope.data[$scope.id].ranks[uid][event] = Number(rank) ||
             undefined;
@@ -439,6 +519,7 @@ angular.module('jumpscore.results', ['ngRoute'])
           0 : 0);
         var Dscore = (data[uid] && data[uid][event] ? data[uid][event].diff ||
           0 : 0);
+        var fac = 1;
 
         for (var i = 0; i < keys.length; i++) {
           if (data[keys[i]][event]) {
@@ -486,6 +567,16 @@ angular.module('jumpscore.results', ['ngRoute'])
 
         rank = (ranksum != undefined ? ranksums.indexOf(ranksum) + 1 :
           undefined)
+
+        if ($scope.data[$scope.id].config.simplified &&
+          $scope.data[$scope.id].config.factors &&
+          $scope.data[$scope.id].config.factors[event]) {
+          fac = $scope.data[$scope.id].config.factors[event] || 1;
+        } else if (event == 'srsf') {
+          fac = 2;
+        }
+
+        rank = rank * fac;
 
         if (!$scope.data[$scope.id].ranks) {
           $scope.data[$scope.id].ranks = {};
@@ -544,9 +635,6 @@ angular.module('jumpscore.results', ['ngRoute'])
           data.ranksum = undefined;
           var keys = Object.keys(data)
           for (var i = 0; i < keys.length; i++) {
-            if (keys[i] == "srsf") {
-              sum += data[keys[i]] || 0;
-            }
             sum += data[keys[i]] || 0;
           }
           data.ranksum = (sum > 0 ? sum : undefined);
