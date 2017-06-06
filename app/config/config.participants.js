@@ -37,9 +37,17 @@ angular.module('ropescore.config.participants', ['ngRoute'])
     
     $scope.addNum = 25;
     $scope.add = function() {
-      var ids = Object.keys($scope.data[$scope.id].participants)
-      ids = ids.sort(function(a, b) {return b - a});
-      var max = Number(ids[0]) + 1;
+      var max = 0;
+      if($scope.data[$scope.id].participants) {
+        var ids = Object.keys($scope.data[$scope.id].participants)
+        ids = ids.sort(function(a, b) {return b - a});
+        var max = Number(ids[0]) + 1;
+      } else {
+        max = $scope.data[$scope.id].config.idStart;
+      }
+      if(!$scope.data[$scope.id].participants) {
+        $scope.data[$scope.id].participants = {};
+      }
       for(var i = 0; i < $scope.addNum; i++) {
         $scope.data[$scope.id].participants[max + i] = {};
       }

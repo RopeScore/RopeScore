@@ -1,5 +1,5 @@
 <h1>Participants</h1>
-<label>Start with id:
+<label ng-if="!data[id].participants">Start with id:
   <input type="number" ng-model="data[id].config.idStart" />
 </label>
 <br/>
@@ -29,5 +29,3 @@
 </div>
 
 <button ng-click="save()">Save and Continue</button>
-
-<pre>{{ data[id].participants | json }}</pre>

@@ -83,7 +83,7 @@
             /></td>
         </tr>
 
-        <tbody ng-if="!Abbr.isSR(event)">
+        <tbody ng-if="Abbr.isType(event, 'dd')">
           <tr>
             <td><label for="b{{ $index }}tis">Amount of different <b>Turner Involvement Skills</b>:</label></td>
             <td><input type="number" id="b{{ $index }}tis" min="0" max="8" ng-model="data[id].scores[uid][event].b[$index].tis"
@@ -122,7 +122,7 @@
           </tr>
         </tbody>
 
-        <tbody ng-if="Abbr.isSR(event)">
+        <tbody ng-if="Abbr.isType(event, 'sr')">
           <tr>
             <td><label for="b{{ $index }}mul">Amount of separate <b>sets of at least 4 different triple Multiples</b>:</label></td>
             <td><input type="number" id="b{{ $index }}mul" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].mul"
@@ -193,7 +193,7 @@
           <td><input type="number" id="d{{ $index }}-4" min="0" ng-model="data[id].scores[uid][event].d[$index]['4']"
             /></td>
         </tr>
-        <tr ng-if="Abbr.isSR(event) && !data[id].config.simplified">
+        <tr ng-if="Abbr.isType(event, 'sr') && !data[id].config.simplified">
           <td><label for="d{{ $index }}-5">Level 6:</label></td>
           <td><input type="number" id="d{{ $index }}-5" min="0" ng-model="data[id].scores[uid][event].d[$index]['5']"
             /></td>
@@ -227,7 +227,7 @@
           <td><input type="checkbox" id="h{{ $index }}tim" ng-model="data[id].scores[uid][event].h[$index].tim"
             /></td>
         </tr>
-        <tr ng-if="!Abbr.isSR(event)">
+        <tr ng-if="Abbr.isType(event, 'dd')">
           <td><label for="h{{ $index }}few">Less than 3 skills:</label></td>
           <td><input type="number" id="h{{ $index }}few" min="0" ng-model="data[id].scores[uid][event].h[$index].few"
             /></td>
