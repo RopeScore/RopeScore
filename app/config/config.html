@@ -18,34 +18,30 @@
 
 <h2>Events</h2>
 <table>
+  <tr>
+    <th colspan="2">Event</th>
+    <th>Presentation </th>
+    <th>Required Elements</th>
+    <th>Difficulty </th>
+    <th>Head Judges </th>
+    <th ng-if="MissJudges">Misses</th>
+    <th>Speed </th>
+  </tr>
   <tr ng-repeat="event in Abbr.events track by $index">
-    <td><label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label></td>
     <td><input type="checkbox" ng-model="data[id].config.subevents[event]" /></td>
-  </tr>
-</table>
-
-<h2>Judges</h2>
-<p ng-if="!Abbr.count(data[id].config.subevents)"> Select at least one event</p>
-<table>
-  <tr ng-if="Abbr.hasFreestyle(data[id].config.subevents)">
-    <td><label for="a">Presentation:</label></td>
-    <td><input type="number" id="a" ng-model="data[id].config.judges.a" /></td>
-  </tr>
-  <tr ng-if="Abbr.hasFreestyle(data[id].config.subevents)">
-    <td><label for="b">Required Elements:</label></td>
-    <td><input type="number" id="b" ng-model="data[id].config.judges.b" /></td>
-  </tr>
-  <tr ng-if="Abbr.hasFreestyle(data[id].config.subevents)">
-    <td><label for="d">Difficulty:</label></td>
-    <td><input type="number" id="d" ng-model="data[id].config.judges.d" /></td>
-  </tr>
-  <tr ng-if="Abbr.hasFreestyle(data[id].config.subevents)">
-    <td><label for="h">Head Judges:</label></td>
-    <td><input type="number" id="h" ng-model="data[id].config.judges.h" /></td>
-  </tr>
-  <tr ng-if="Abbr.hasSpeed(data[id].config.subevents)">
-    <td><label for="s">Speed:</label></td>
-    <td><input type="number" id="s" ng-model="data[id].config.judges.s" /></td>
+    <td><label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label></td>
+    <td><input type="number" ng-model="data[id].config.judges[event].a" placeholder="Presentation"
+        ng-if="!Abbr.isSpeed(event)" /></td>
+    <td><input type="number" ng-model="data[id].config.judges[event].b" placeholder="Required Elements"
+        ng-if="!Abbr.isSpeed(event)" /></td>
+    <td><input type="number" ng-model="data[id].config.judges[event].d" placeholder="Difficulty"
+        ng-if="!Abbr.isSpeed(event)" /></td>
+    <td><input type="number" ng-model="data[id].config.judges[event].h" placeholder="Head Judges"
+        ng-if="!Abbr.isSpeed(event)" /></td>
+    <td><input type="number" ng-model="data[id].config.judges[event].m" placeholder="Misses"
+        ng-if="!Abbr.isSpeed(event)" /></td>
+    <td><input type="number" ng-model="data[id].config.judges[event].s" placeholder="Speed"
+        ng-if="Abbr.isSpeed(event)" /></td>
   </tr>
 </table>
 

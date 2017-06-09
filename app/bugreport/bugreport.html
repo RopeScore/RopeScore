@@ -1,0 +1,17 @@
+<div>
+  <p>To report a bug with RopeScore, please email <a href="mailto:ropescore@swant.pw">ropescore@swant.pw</a>.</p>
+  <p>to better understand your issue please also include the logfile and an export of
+    the data saved in RopeScore. Both of which can be saved to your computer below</p>
+  <a ng-href="{{ logLinkData }}" download="ropescore.log.json"><button>Export Logfile</button></a>
+  <a ng-href="{{ linkData }}" download="ropescore-export.json"><button>Export Data</button></a>
+</div>
+
+<div>
+  <p>You can preview the data that will be sent below</p>
+  <button ng-click="toggle('data')">{{ show.data ? 'Hide' : 'Display' }} data</button>
+  <button ng-click="toggle('log')">{{ show.log ? 'Hide' : 'Display' }} log</button>
+</div>
+<div>
+  <textarea ng-show="show.data">{{ data | json }}</textarea>
+  <textarea ng-show="show.log">{{ log | json }}</textarea>
+</div>

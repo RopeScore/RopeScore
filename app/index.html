@@ -16,10 +16,12 @@
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/store.everything.min.js"></script>
     <script src="/static/js/papaparse.js"></script>
+    <script src="/static/js/console-history.js"></script>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/static/css/style.css">
     <!-- DEPLOY -->
     <!-- Local angular modules -->
+    <script src="/config.js"></script>
     <script src="/ropescore.js"></script>
     <script src="/dash/dash.js"></script>
     <script src="/config/config.js"></script>
@@ -28,6 +30,7 @@
     <script src="/score/score.js"></script>
     <script src="/results/results.js"></script>
     <script src="/about/about.licence.js"></script>
+    <script src="/bugreport/bugreport.js"></script>
     <!-- END DEPLOY -->
   </head>
 
@@ -49,5 +52,5 @@
     </div>
 
     <footer>
-      v2.0.0au &copy; Svante Bengtson {{ copyright() }} <a ng-href="/licence">Licence</a>
+      {{ version }} &copy; Svante Bengtson {{ copyright() }} <a ng-href="/licence">Licence</a>      - <a ng-href="/bugreport">Bugs</a>
     </footer>

@@ -36,6 +36,7 @@ angular.module('ropescore.dash', ['ngRoute'])
 
     document.getElementById('import-file')
       .addEventListener('change', function(evt) {
+        console.log('File detected, attempting parse')
         var files = evt.target.files;
         var file = files[0];
         var reader = new FileReader();

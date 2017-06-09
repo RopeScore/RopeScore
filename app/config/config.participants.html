@@ -3,15 +3,25 @@
   <input type="number" ng-model="data[id].config.idStart" />
 </label>
 <br/>
-<table>
+<table ng-if="data[id].participants">
   <!--<tr ng-repeat="n in getNumber(data[id].config.participants) track by $index">
     <td><label>Name: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].name"/></label></td>
     <td><label>Club: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].club"/></label></td>
     <td>id: {{ data[id].config.idStart + $index }}</td>
   </tr>-->
+  <tr>
+    <th>{{ (Abbr.hasTeam(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
+    <th>Club</th>
+    <th>id</th>
+    <th></th>
+  </tr>
   <tr ng-repeat="(uid, info) in data[id].participants">
-    <td><label>Name: <input type="text" ng-model="data[id].participants[uid].name"/></label></td>
-    <td><label>Club: <input type="text" ng-model="data[id].participants[uid].club"/></label></td>
+    <td><input type="text" ng-model="data[id].participants[uid].name" placeholder="Name"
+      /></label>
+    </td>
+    <td><input type="text" ng-model="data[id].participants[uid].club" placeholder="Club"
+      /></label>
+    </td>
     <td>id: {{ uid }}</td>
     <td><a ng-confirm-click="Remove participant {{ uid }}?" confirmed-click="delete(uid)">Remove</a></td>
   </tr>
@@ -22,6 +32,7 @@
   <div ng-show="excelButton">
     <h3>Import from excel</h3>
     <p>Copy and paste from excel, if there's only two columns without a header</p>
+    <p>Examples: <a href="/static/import-examples.xlsx" target="_blank" download="import-examples.xlsx">import-examples.xlsx</a></p>
     <textarea ng-model="csv"></textarea>
     <br/>
     <button ng-click="import()">Import</button>

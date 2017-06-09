@@ -1,12 +1,12 @@
 <h1>{{ Abbr.unabbr(event) }} Score for {{ data[id].participants[uid].name }} ({{ uid }})</h1>
 <div ng-if="Abbr.isSpeed(event)" class="table">
   <table>
-    <tr ng-repeat="n in getNumber(data[id].config.judges.s) track by $index">
+    <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
       <td><label for="s{{ $index }}">S{{ $index + 1 }}:</td>
-        <td><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]"/></td>
-      </tr>
-      <tr>
-        <td><label for="fst">False Start:</label></td>
+      <td><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]"/></td>
+    </tr>
+    <tr>
+      <td><label for="fst">False Start:</label></td>
       <td><input type="checkbox" id="fst" ng-model="data[id].scores[uid][event].start"
         /></td>
     </tr>
@@ -20,19 +20,21 @@
 
 <div ng-if="!Abbr.isSpeed(event)">
   <div class="flex-container mb">
-    <div class="emb" ng-repeat="n in getNumber(data[id].config.judges.a) track by $index">
+    <div class="emb" ng-repeat="n in getNumber(data[id].config.judges[event].a) track by $index">
       <h2>A{{ $index + 1 }}:</h2>
       <table>
-        <tr>
-          <td><label for="a{{ $index }}mim">Minor Misses:</label></td>
-          <td><input type="number" id="a{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['a' + $index]"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="a{{ $index }}mam">Major Misses:</label></td>
-          <td><input type="number" id="a{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['a' + $index]"
-            /></td>
-        </tr>
+        <tbody ng-if="!MissJudges">
+          <tr>
+            <td><label for="a{{ $index }}mim">Minor Misses:</label></td>
+            <td><input type="number" id="a{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['a' + $index]"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="a{{ $index }}mam">Major Misses:</label></td>
+            <td><input type="number" id="a{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['a' + $index]"
+              /></td>
+          </tr>
+        </tbody>
         <tr>
           <td><label for="a{{ $index }}mob">Music on the beat:</label></td>
           <td><input type="number" id="a{{ $index }}mob" min="0" max="10" step="0.5"
@@ -69,19 +71,21 @@
   </div>
 
   <div class="flex-container mb">
-    <div ng-repeat="n in getNumber(data[id].config.judges.b) track by $index">
+    <div ng-repeat="n in getNumber(data[id].config.judges[event].b) track by $index">
       <h2>B{{ $index + 1 }}:</h2>
       <table>
-        <tr>
-          <td><label for="b{{ $index }}mim">Minor Misses:</label></td>
-          <td><input type="number" id="b{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['b' + $index]"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="b{{ $index }}mam">Major Misses:</label></td>
-          <td><input type="number" id="b{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['b' + $index]"
-            /></td>
-        </tr>
+        <tbody ng-if="!MissJudges">
+          <tr>
+            <td><label for="b{{ $index }}mim">Minor Misses:</label></td>
+            <td><input type="number" id="b{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['b' + $index]"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="b{{ $index }}mam">Major Misses:</label></td>
+            <td><input type="number" id="b{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['b' + $index]"
+              /></td>
+          </tr>
+        </tbody>
 
         <tbody ng-if="Abbr.isType(event, 'dd')">
           <tr>
@@ -165,7 +169,7 @@
   </div>
 
   <div class="flex-container mb">
-    <div ng-repeat="n in getNumber(data[id].config.judges.d) track by $index">
+    <div ng-repeat="n in getNumber(data[id].config.judges[event].d) track by $index">
       <h2>D{{ $index + 1 }}:</h2>
       <table>
         <tr ng-if="data[id].config.simplified">
@@ -203,7 +207,7 @@
   </div>
 
   <div class="flex-container mb">
-    <div ng-repeat="n in getNumber(data[id].config.judges.h) track by $index">
+    <div ng-repeat="n in getNumber(data[id].config.judges[event].h) track by $index">
       <h2>H{{ $index + 1 }}:</h2>
       <table>
         <tr>
@@ -230,6 +234,24 @@
         <tr ng-if="Abbr.isType(event, 'dd')">
           <td><label for="h{{ $index }}few">Less than 3 skills:</label></td>
           <td><input type="number" id="h{{ $index }}few" min="0" ng-model="data[id].scores[uid][event].h[$index].few"
+            /></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex-container mb" ng-if="MissJudges">
+    <div ng-repeat="n in getNumber(data[id].config.judges[event].m) track by $index">
+      <h2>M{{ $index + 1 }}:</h2>
+      <table>
+        <tr>
+          <td><label for="m{{ $index }}mim">Minor Misses:</label></td>
+          <td><input type="number" id="h{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['m' + $index]"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="m{{ $index }}mam">Major Misses:</label></td>
+          <td><input type="number" id="h{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['m' + $index]"
             /></td>
         </tr>
       </table>

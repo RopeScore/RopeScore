@@ -9,8 +9,7 @@ angular.module('ropescore.about.licence', ['ngRoute'])
   .config([
     '$routeProvider',
   function($routeProvider) {
-      var evaluation = true;
-      if (evaluation) {
+      if (Config.Eval) {
         $routeProvider.when('/licence', {
           templateUrl: '/about/about.licence.eval.html',
           controller: 'LicenceCtrl'
@@ -29,6 +28,6 @@ angular.module('ropescore.about.licence', ['ngRoute'])
    */
   .controller('LicenceCtrl', function($scope) {
     $scope.name = "Mr. Takashi Ogawa";
-    $scope.from = "May 16, 2017"
-    $scope.to = "June 16, 2017"
+    $scope.from = Config.LicenceDate;
+    $scope.to = Number(Config.LicenceDate) + (30 * 24 * 60 * 60 * 1000);
   })

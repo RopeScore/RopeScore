@@ -1,51 +1,81 @@
 const {
   app,
-  BrowserWindow
+  BrowserWindow,
+  dialog,
+  autoUpdater
 } = require('electron')
-const server = require("./server");
+const server = require("./server")
+const Config = require('./app/config')
 const path = require('path')
 const url = require('url')
-const Debug = true;
-const Expire = new Date("2017-06-16")
-  .getTime();
+if (require('electron-squirrel-startup')) return;
+
+/* Dreaming about it...
+autoUpdater.on('checking-for-update', () => {
+  console.log('checking for updates')
+})
+autoUpdater.on('update-available', () => {
+  console.log('downloading update')
+})
+autoUpdater.on('checking-for-update', () => {
+  console.log('update-downloaded')
+  dialog.showMessageBox({
+    buttons: ['Install', 'Not now'],
+    defaultId: 0,
+    message: 'A new version of RopeScore is avilabel, do you wish to install it now?',
+    title: 'Update Avilable',
+    cancelId: 1
+  }, function(button) {
+    if (button == 0) {
+      autoUpdater.quitAndInstall()
+    }
+  })
+})
+autoUpdater.setFeedURL(Config.releaseRemoteUrl)
+autoUpdater.checkForUpdates()*/
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 
 function createWindow() {
-  if (Expire && new Date()
-    .getTime() > Expire) {
-    app.quit()
+  if (Config.Eval && Config.LicenceDate && new Date()
+    .getTime() > (Number(Config.LicenceDate) + (30 * 24 * 60 * 60 * 1000))) {
+    dialog.showErrorBox('Expired Licence',
+      'This copy of RopeScore has an expired licence,\n Please contact ropescore@swant.pw'
+    );
+    app.quit();
+  } else {
+
+    // Create the browser window.
+    win = new BrowserWindow({
+      width: 800,
+      height: 600,
+      icon: path.join(__dirname, 'app/static/img/icon.png')
+    })
+
+    // and load the index.html of the app.
+    /*win.loadURL(url.format({
+      pathname: path.join(__dirname, 'app/index.html'),
+      protocol: 'file:',
+      slashes: true
+    }))*/
+    win.loadURL(`http://localhost:3333`)
+
+    // Open the DevTools.
+    if (Config.Debug) {
+      win.webContents.openDevTools()
+    }
+
+    // Emitted when the window is closed.
+    win.on('closed', () => {
+      // Dereference the window object, usually you would store windows
+      // in an array if your app supports multi windows, this is the time
+      // when you should delete the corresponding element.
+      win = null
+    })
   }
-
-  // Create the browser window.
-  win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    icon: path.join(__dirname, 'app/static/img/icon.png')
-  })
-
-  // and load the index.html of the app.
-  /*win.loadURL(url.format({
-    pathname: path.join(__dirname, 'app/index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))*/
-  win.loadURL(`http://localhost:3333`)
-
-  // Open the DevTools.
-  if (Debug) {
-    win.webContents.openDevTools()
-  }
-
-  // Emitted when the window is closed.
-  win.on('closed', () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null
-  })
 }
 
 // This method will be called when Electron has finished

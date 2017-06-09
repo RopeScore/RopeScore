@@ -30,6 +30,7 @@ angular.module('ropescore.score', ['ngRoute'])
     $scope.id = $routeParams.id;
     $scope.uid = $routeParams.uid;
     $scope.event = $routeParams.event;
+    $scope.MissJudges = Config.MissJudges;
     $scope.setID($scope.id)
 
     $scope.Abbr = Abbr

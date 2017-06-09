@@ -31,6 +31,7 @@ angular.module('ropescore.config', ['ngRoute'])
     if (!$scope.id) {
       $scope.id = btoa(new Date()
         .getTime())
+      console.log(`new event with id: ${$scope.id}`)
     }
 
     $scope.save = function() {
@@ -38,10 +39,13 @@ angular.module('ropescore.config', ['ngRoute'])
       $location.path('/config/participants/' + $scope.id)
     }
 
+    $scope.MissJudges = Config.MissJudges
+
     $scope.remove = function() {
       if (confirm(
           "Are you sure you want to remove this event and all of its data?"
         )) {
+        console.log(`removing ${$scope.id}`)
         delete $scope.data[$scope.id]
         Db.set($scope.data)
         $location.path('/')

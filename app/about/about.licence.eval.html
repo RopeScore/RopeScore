@@ -1,6 +1,7 @@
 <h1>Licence</h1>
-<p>This is an evaluation copy of RopeScore licenced to {{ name }} from {{ from }} until
-  {{ to }} this evaluation copy are licenced under the following Terms and Conditions:
+<p>This is an evaluation copy of RopeScore licenced to {{ name }} from {{ from | date
+  }} until {{ to | date }} this evaluation copy are licenced under the following
+  Terms and Conditions:
 </p>
 <ol>
   <li><b>Preamble:</b> This Agreement, governs the relationship between {{ name }}, a
@@ -43,9 +44,9 @@
       </li>
     </ol>
   </li>
-  <li><b>Term &amp; Termination:</b> The Term of this license shall be until {{ to }}.
-    Licensor may terminate this Agreement, including Licensee’s license in the case
-    where Licensee :
+  <li><b>Term &amp; Termination:</b> The Term of this license shall be until {{ to |
+    date }}. Licensor may terminate this Agreement, including Licensee’s license
+    in the case where Licensee :
     <ol>
       <li>became insolvent or otherwise entered into any liquidation process; or</li>
       <li>exported The Software to any jurisdiction where licensor may not enforce his
@@ -148,4 +149,5 @@
   <li>electron</li>
   <li>express.js</li>
   <li>Papa Parse</li>
+  <li>console.history</li>
 </ul>
