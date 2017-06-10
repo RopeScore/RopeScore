@@ -104,6 +104,7 @@ function renamePackagedAppDir(packageOutputDirPath) {
       newAppBundleName)
 
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
+    if (fs.existsSync(distAppPath)) fs.removeSync(distAppPath)
     fs.renameSync(path.join(packageOutputDirPath, appBundleName),
       packagedAppPath)
     fs.copySync(packagedAppPath,
