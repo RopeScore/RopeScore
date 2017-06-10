@@ -99,8 +99,9 @@ function renamePackagedAppDir(packageOutputDirPath) {
   if (argv.platform === 'darwin') {
     const appBundleName = `${Package.name}.app`
     const newAppBundleName = `${baseName}.app`
-    packagedAppPath = path.join(buildOutputPath, newAppBundleName)
-    distAppPath = path.join(distOutputPath, newAppBundleName)
+    packagedAppPath = path.join(packageOutputDirPath, newAppBundleName)
+    distAppPath = path.join(distOutputPath, argv.platform, argv.arch,
+      newAppBundleName)
 
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
     fs.renameSync(path.join(packageOutputDirPath, appBundleName),
