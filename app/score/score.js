@@ -24,7 +24,7 @@ angular.module('ropescore.score', ['ngRoute'])
    * @param {service} Db
    */
   .controller('ScoreCtrl', function($scope, $location, $routeParams, Db, Abbr,
-    Num) {
+    Num, Config) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id;

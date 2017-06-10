@@ -7,66 +7,71 @@ const argv = require('yargs')
   .usage('Usage: node $0 [options]')
   .wrap(require('yargs')
     .terminalWidth())
-  .default('arch', process.arch)
-  .describe('arch', 'arch to build for')
-  .choices('arch', ['x64', 'ia32', 'armv7l'])
+  .alias('a', 'arch')
+  .default('a', process.arch)
+  .describe('a', 'arch to build for')
+  .choices('a', ['x64', 'ia32', 'armv7l'])
+  .alias('p', 'platform')
+  .default('p', process.platform)
+  .describe('p', 'platform to build for')
+  .choices('p', ['win32', 'darwin', 'linux'])
   .help('help')
   .alias('h', 'help')
   .argv
 
-const package = require('./package.json')
+const Package = require('./package.json')
 const Config = require('./app/config.js')
 
 const repositoryRootPath = path.resolve(__dirname)
 const buildOutputPath = path.join(repositoryRootPath, 'build')
 const distOutputPath = path.join(repositoryRootPath, 'dist')
 const packagedAppPath = path.join(repositoryRootPath, 'app')
+const baseName =
+  `${Package.name}-${argv.platform}-${argv.arch}-${Package.version}`
 
 const packageOptions = {
   'appBundleId': 'pw.swant.ropescore',
   'appCopyright': `Copyright © ${((new Date()).getFullYear() == 2017 ? '2017' : '2017-' + ((new Date()).getFullYear()) )} Svante Bengtson.`,
-  'appVersion': package.version,
-  'arch': process.platform === 'darwin' ? 'x64' : argv.arch, // OS X is 64-bit only
+  'appVersion': Package.version,
+  'arch': argv.platform === 'darwin' ? 'x64' : argv.arch, // OS X is 64-bit only
   'asar': true,
-  'buildVersion': package.version,
+  'buildVersion': Package.version,
   'dir': path.join(repositoryRootPath),
   'icon': getIcon(),
   'ignore': ['dist'],
-  'name': package.name,
+  'name': Package.name,
   'out': buildOutputPath,
   'overwrite': true,
-  'platform': process.platform,
+  'platform': argv.platform,
   'version-string': {
-    'CompanyName': package.name,
-    'FileDescription': package.name,
-    'ProductName': package.name
+    'CompanyName': Package.name,
+    'FileDescription': Package.name,
+    'ProductName': Package.name
   }
 }
 
 
-const installerOptions = {
-  appDirectory: path.join(buildOutputPath,
-    `${package.name}-${process.platform}-${argv.arch}-${package.version}`),
+const winstallerOptions = {
+  appDirectory: path.join(buildOutputPath, baseName),
   iconUrl: getIcon(),
   loadingGif: path.join(repositoryRootPath, 'app', 'static', 'img', 'gif',
     'installing.gif'),
-  outputDirectory: path.join(distOutputPath, process.platform, argv.arch),
+  outputDirectory: path.join(distOutputPath, argv.platform, argv.arch),
   noMsi: true,
-  setupExe: `${package.name}-${process.platform}-${argv.arch}-${package.version}-Setup.exe`,
-  //remoteReleases: Config.releaseRemoteUrl(argv.arch),
+  setupExe: `${baseName}-Setup.exe`,
+  remoteReleases: Config.releaseRemoteUrl(argv.arch, argv.platform),
   setupIcon: path.join(repositoryRootPath, 'app', 'static', 'img', 'icon.ico'),
-  version: require('./package.json')
-    .version
+  version: Package.version
 }
 
 function getIcon() {
-  switch (process.platform) {
+  switch (argv.platform) {
     case 'darwin':
       return path.join(repositoryRootPath, 'app', 'static', 'img', 'icon.icns')
-      /*case 'linux':
-        // Don't pass an icon, as the dock/window list icon is set via the icon
-        // option in the BrowserWindow constructor in atom-window.coffee.
-        return null*/
+    case 'linux':
+      // Don't pass an icon, as the dock/window list icon is set via the icon
+      // option in the BrowserWindow constructor in atom-window.coffee.
+      return null
     default:
       return path.join(repositoryRootPath, 'app', 'static', 'img', 'icon.ico')
   }
@@ -91,28 +96,30 @@ function runPackager(options) {
 
 function renamePackagedAppDir(packageOutputDirPath) {
   let packagedAppPath
-  if (process.platform === 'darwin') {
-    const appBundleName = package.name + '.app'
-    packagedAppPath = path.join(buildOutputPath, appBundleName)
+  if (argv.platform === 'darwin') {
+    const appBundleName = `${baseName}.app`
+    packagedAppPath = path.join(distOutputPath, argv.platform, argv.arch,
+      appBundleName)
+
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
-    fs.renameSync(path.join(packageOutputDirPath, appBundleName),
+    fs.copySync(path.join(packageOutputDirPath, appBundleName),
       packagedAppPath)
   } else {
-    packagedAppPath = path.join(buildOutputPath,
-      `${package.name}-${process.platform}-${argv.arch}-${package.version}`
-    )
+    packagedAppPath = path.join(buildOutputPath, baseName)
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
     fs.renameSync(packageOutputDirPath, packagedAppPath)
   }
   return packagedAppPath
 }
 
-console.log(`Building ${package.name} version ${package.version}`)
+console.log(`Building ${baseName}`)
 runPackager(packageOptions)
   .then((packagedAppPath) => {
     console.log('app packaged')
-    installerOptions.appDirectory = packagedAppPath;
-    winstaller.createWindowsInstaller(installerOptions)
+    if (argv.platform == 'win32') {
+      winstallerOptions.appDirectory = packagedAppPath;
+      winstaller.createWindowsInstaller(winstallerOptions)
+    }
   })
 
-return
+return;

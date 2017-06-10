@@ -26,7 +26,7 @@ angular.module('ropescore.about.licence', ['ngRoute'])
   /**
    * @class ropescore.about.licence.LicenceCtrl
    */
-  .controller('LicenceCtrl', function($scope) {
+  .controller('LicenceCtrl', function($scope, Config) {
     $scope.name = "Mr. Takashi Ogawa";
     $scope.from = Config.LicenceDate;
     $scope.to = Number(Config.LicenceDate) + (30 * 24 * 60 * 60 * 1000);

@@ -23,7 +23,8 @@ angular.module('ropescore.config', ['ngRoute'])
    * @param {service} $routeParams
    * @param {service} Db
    */
-  .controller('ConfigCtrl', function($scope, $location, $routeParams, Db, Abbr) {
+  .controller('ConfigCtrl', function($scope, $location, $routeParams, Db, Abbr,
+    Config) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id;

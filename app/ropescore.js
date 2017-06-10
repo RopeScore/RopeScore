@@ -47,7 +47,8 @@ angular.module('ropescore', [
   'ropescore.score',
   'ropescore.results',
   'ropescore.about.licence',
-  'ropescore.bugreport'
+  'ropescore.bugreport',
+  'Config'
 ])
 
   .config([
@@ -69,7 +70,7 @@ angular.module('ropescore', [
     }
   ])
 
-  .run(function($location, $rootScope, Db) {
+  .run(function($location, $rootScope, Db, Config) {
     /**
      * @name $rootScope.goHome
      * @function
