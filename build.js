@@ -100,9 +100,8 @@ function renamePackagedAppDir(packageOutputDirPath) {
     const appBundleName = `${baseName}.app`
     packagedAppPath = path.join(distOutputPath, argv.platform, argv.arch,
       appBundleName)
-
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
-    fs.copySync(path.join(packageOutputDirPath, appBundleName),
+    fs.copySync(packageOutputDirPath,
       packagedAppPath)
   } else {
     packagedAppPath = path.join(buildOutputPath, baseName)
