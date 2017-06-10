@@ -9,16 +9,14 @@
         <th colspan="3" rowspan="2">Overall</th>
       </tr>
       <tr>
-        <th colspan="2" ng-repeat="event in Abbr.events track by $index"
-          ng-if="data[id].config.subevents[event]">{{ Abbr.unabbr(event)}}</th>
+        <th colspan="2" ng-repeat="event in Abbr.events track by $index" ng-if="data[id].config.subevents[event]">{{ Abbr.unabbr(event)}}</th>
       </tr>
       <tr>
         <th>{{ (Abbr.hasTeam(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
         <th>Club</th>
         <th>id</th>
 
-        <th ng-repeat-start="event in Abbr.events track by $index"
-          ng-if="data[id].config.subevents[event]">Score</th>
+        <th ng-repeat-start="event in Abbr.events track by $index" ng-if="data[id].config.subevents[event]">Score</th>
         <th ng-if="data[id].config.subevents[event]" style="color:red" ng-repeat-end>{{ (data[id].config.simplified && data[id].config.factors && data[id].config.factors[event]
           ? (data[id].config.factors[event] != 1 ? data[id].config.factors[event]
           + 'x' : '') : (event == 'srsf' ? '2x' : '')) }} Rank</th>
@@ -34,8 +32,7 @@
         <td>{{ data[id].participants[part.uid].club }}</td>
         <td>{{ part.uid }}</td>
 
-        <td ng-repeat-start="event in Abbr.events track by $index"
-          ng-if="data[id].config.subevents[event]">{{ score(event, data[id].scores[part.uid][event], part.uid) }}</td>
+        <td ng-repeat-start="event in Abbr.events track by $index" ng-if="data[id].config.subevents[event]">{{ score(event, dataNow()[id].scores[part.uid][event], part.uid) }}</td>
         <td ng-if="data[id].config.subevents[event]" style="color:red" ng-repeat-end>{{ rank(data[id].finalscores, event, part.uid) }}</td>
 
         <td>{{ finalscore(data[id].finalscores[part.uid]) }}</td>

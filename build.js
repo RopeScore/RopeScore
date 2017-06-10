@@ -19,6 +19,7 @@ const Config = require('./app/config.js')
 
 const repositoryRootPath = path.resolve(__dirname)
 const buildOutputPath = path.join(repositoryRootPath, 'build')
+const distOutputPath = path.join(repositoryRootPath, 'dist')
 const packagedAppPath = path.join(repositoryRootPath, 'app')
 
 const packageOptions = {
@@ -30,11 +31,13 @@ const packageOptions = {
   'buildVersion': package.version,
   'dir': path.join(repositoryRootPath),
   'icon': getIcon(),
+  'ignore': ['dist'],
   'name': package.name,
   'out': buildOutputPath,
   'overwrite': true,
   'platform': process.platform,
   'version-string': {
+    'CompanyName': package.name,
     'FileDescription': package.name,
     'ProductName': package.name
   }
@@ -42,14 +45,15 @@ const packageOptions = {
 
 
 const installerOptions = {
-  appDirectory: path.join(repositoryRootPath, 'build', 'RopeScore-win32-ia32'),
-  authors: 'Svante Bengtson',
+  appDirectory: path.join(buildOutputPath,
+    `${package.name}-${process.platform}-${argv.arch}-${package.version}`),
   iconUrl: getIcon(),
   loadingGif: path.join(repositoryRootPath, 'app', 'static', 'img', 'gif',
     'installing.gif'),
-  outputDirectory: buildOutputPath,
+  outputDirectory: path.join(distOutputPath, process.platform, argv.arch),
   noMsi: true,
-  //remoteReleases: Config.releaseRemoteUrl,
+  setupExe: `${package.name}-${process.platform}-${argv.arch}-${package.version}-Setup.exe`,
+  //remoteReleases: Config.releaseRemoteUrl(argv.arch),
   setupIcon: path.join(repositoryRootPath, 'app', 'static', 'img', 'icon.ico'),
   version: require('./package.json')
     .version
@@ -103,6 +107,7 @@ function renamePackagedAppDir(packageOutputDirPath) {
   return packagedAppPath
 }
 
+console.log(`Building ${package.name} version ${package.version}`)
 runPackager(packageOptions)
   .then((packagedAppPath) => {
     console.log('app packaged')

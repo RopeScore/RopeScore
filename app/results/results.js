@@ -25,7 +25,13 @@ angular.module('ropescore.results', ['ngRoute'])
    */
   .controller('ResultsCtrl', function($scope, $location, $routeParams, Db, Abbr,
     Num) {
-    $scope.data = Db.get()
+    store.watch('ropescore', function() {
+      $scope.$apply();
+    });
+    $scope.dataNow = function() {
+      return Db.get()
+    }
+    $scope.data = $scope.dataNow();
 
     $scope.id = $routeParams.id;
     $scope.setID($scope.id)

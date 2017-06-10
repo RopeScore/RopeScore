@@ -99,12 +99,6 @@ angular.module('ropescore', [
     $rootScope.$on('$routeChangeStart', function(next, current) {
       console.log(`Navigated to ${$location.path()}`)
     });
-
-    /* still dreaming about autoupdate...
-     store.watch('ropescore', function() {
-     console.log(store.get('ropescore'))
-     $rootScope.data = store.get('ropescore')
-     })*/
   })
 
   .factory("Db",
@@ -114,10 +108,9 @@ angular.module('ropescore', [
      * @return {object} Return database
      */
     function() {
-
       return {
         get: function() {
-          console.log('got data from databse')
+          console.log('got data from database')
           return store.get('ropescore') || {}
         },
         set: function(newData) {
