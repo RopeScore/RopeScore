@@ -15,33 +15,33 @@ if (require('electron-squirrel-startup')) {
   return
 } else {
   app.on('ready', function() {
-    // Dreaming about it...
-    autoUpdater.on('checking-for-update', () => {
-      console.log('checking for updates')
-    })
-    autoUpdater.on('update-available', () => {
-      console.log('downloading update')
-
-    })
-    autoUpdater.on('update-downloaded', () => {
-      console.log('update-downloaded')
-      dialog.showMessageBox({
-        buttons: ['Install', 'Not now'],
-        defaultId: 0,
-        message: 'A new version of RopeScore is avilabel, do you wish to install it now?',
-        title: 'Update Avilable',
-        cancelId: 1
-      }, function(button) {
-        if (button == 0) {
-          autoUpdater.quitAndInstall()
-        }
+    if (process.platform != 'darwin') {
+      autoUpdater.on('checking-for-update', () => {
+        console.log('checking for updates')
       })
-    })
-    autoUpdater.setFeedURL(Config.releaseRemoteUrl())
-    if (fs.existsSync(path.resolve(path.dirname(process.execPath), '..',
-        'Update.exe'))) {
-      dialog.showErrorBox('Squirrel', 'App installed with Squirrel')
-      autoUpdater.checkForUpdates()
+      autoUpdater.on('update-available', () => {
+        console.log('downloading update')
+      })
+      autoUpdater.on('update-downloaded', () => {
+        console.log('update-downloaded')
+        dialog.showMessageBox({
+          buttons: ['Install', 'Not now'],
+          defaultId: 0,
+          message: 'A new version of RopeScore is avilabel, do you wish to install it now?',
+          title: 'Update Avilable',
+          cancelId: 1
+        }, function(button) {
+          if (button == 0) {
+            autoUpdater.quitAndInstall()
+          }
+        })
+      })
+      autoUpdater.setFeedURL(Config.releaseRemoteUrl())
+      if (fs.existsSync(path.resolve(path.dirname(process.execPath), '..',
+          'Update.exe'))) {
+        dialog.showErrorBox('Squirrel', 'App installed with Squirrel')
+        autoUpdater.checkForUpdates()
+      }
     }
   })
 }
