@@ -1,1 +1,147 @@
 <h1>Documentation</h1>
+<h2>Table of Contents</h2>
+<ol class="docs">
+  <li><a href="#dash">The Dasboard</a></li>
+  <li><a href="#config">Configuration</a>
+    <ol class="docs">
+      <li><a href="#config.event">Event Data</a></li>
+      <li><a href="#config.part">Participants</a></li>
+    </ol>
+  </li>
+  <li><a href="#event">Event</a></li>
+  <li><a href="#score">Score Entering</a>
+    <ol class="docs">
+      <li><a href="#score.speed">Speed</a></li>
+      <li><a href="#score.free">Freestyle</a></li>
+    </ol>
+  </li>
+  </li>
+  <li><a href="#result">Results</a></li>
+  <li><a href="#misc">Miscellaneous</a>
+    <ol>
+      <li><a href="#misc.key">Keyboard Shortcuts</a></li>
+      <li><a href="#misc.bugs">Bugs</a></li>
+      <li><a href="#misc.update">Updates</a></li>
+    </ol>
+  </li>
+</ol>
+
+<!-- BEGIN CONTENT -->
+<h2 id="dash">1. The Dashboard</h2>
+<img src="/static/img/docs/dash.png" />
+<p>The above image shows a dashboard with multiple added events.</p>
+<p>The upper gray area is the menu, on the dashboard only "Dashboard" and "New Event"
+  are avilable.</p>
+<p>The first row of buttons gives you various tools manage your events.</p>
+<ul class="docs">
+  <li><b>New</b>: This button will create a new event</li>
+  <li><b>Import</b>: This button will allow you to choose an exportfile from ropescore,
+    saved on your computer, and REPLACE ALL events with those in the export file.
+    Make sure to export your current events before importing new ones</li>
+  <li><b>Export</b>: This button will export all your data to a file on your computer,
+    you will be prompted to select where the file should be saved</li>
+  <li><b>Save</b>: This button saves your data, it doesn't currently have any effect
+    as the data is saved regularly during normal use</li>
+</ul>
+<p>The row of buttons below "Dashboard" (here "test1", "Test2" etc.) will, once clicked,
+  open the event view for that particular event.</p>
+
+
+
+<h2 id="config">2. Configuration</h2>
+<p>The configuration will open either when you create a new event from the menu or the
+  dashboard, or when you click configure in the <a href="#event">Event view</a></p>
+<p>Changing the configuration after scores have been entered may give unexpected results</p>
+
+<h3 id="config.event">2.1 Event Data</h3>
+<img src="/static/img/docs/config.png" />
+<p>This is the configuration for a new event, in the Basics menu you must fill in a
+  name for your event.</p>
+<p>Simplified Levels will be described later.</p>
+<p>Under Events you can select which subevents the Event contains of by clicking the
+  checkboxes to the right of their names. If an event is selected you must also specify
+  how many judges that will judge the event.</p>
+<img src="/static/img/docs/config-simplified.png" />
+<p>If Simplified Leves are selected, the scores will be calculated a bit different,
+  this is detailed under <a href="#result">Result</a>, the option to choose what
+  factor the scores and ranks will be multiplied by to determine the final rank and
+  score. If one of the fields is left blank the rank factors defined in fisac-irsf's
+  judging manual will be used, and if it's an event that is not defined in fisac-irsf's
+  judging manual and the field is left empty, a factor of one (1) will be used.</p>
+
+<h3 id="config.part">2.2 Participants</h3>
+<img src="/static/img/docs/participants.png" />
+<p>Upon clicking "Save and Continue" on the <a href="#config.event">Event Data</a> Configuration
+  participants can be added, you have the option to select what id the participants
+  will start with, this id is used for internal purposes, but is displayed as a tool
+  for the event organiser. The id of a participant will never change, however the
+  participant's name and club may, thus the id of the participant can be relied onto
+  for identification.</p>
+<img src="/static/img/docs/participants-added.png" />
+<p>Once "Add Participants" has been clicked a table where the participants name and
+  club can be entered will show, name and club can be omitted for every participant
+  as the id is used by the program.</p>
+<img src="/static/img/docs/participants-import.png" />
+<p>Participants can also be imported from excel, or similar spreadsheet software. See
+  <a href="/static/import-examples.xlsx" target="_blank" download="import-examples.xlsx">import-examples.xlsx</a>&nbsp;
+  for examples. Note that the header id will be ignored, this is to ensure that ther
+  won't be any conflicts. the data pasted into the input area will be treated as
+  tab separated content (tsv) and every value must be separated by a tab character.</p>
+
+
+
+<h2 id="event">3. Event</h2>
+<img src="/static/img/docs/event.png" />
+<p>After <a href="#config.part">adding participants</a> to an event, or when the event
+  is clicked on <a href="#dash">The Dashboard</a> the Event View will be shown. This
+  view gives an overview over the participants and the events, clicking "edit" in
+  the column of an event on the row of a participant will open <a href="#score">Score Entering</a></p>
+
+
+
+<h2 id="score">4. Score Entering</h2>
+<p>The view to enter scores does differ for speed events and freestyle events</p>
+<h3 id="score.speed">4.1 Speed</h3>
+<img src="/static/img/docs/score.png" />
+<p>Enter the scores each speed judge have turned in to their respective box, if the
+  speed judges have signaled that the skipper made a false start that box should
+  be checked.</p>
+
+<h3 id="score.free">4.2 Freestyle</h3>
+<img src="/static/img/docs/score1.png" />
+<p><b>A</b> judges are Presentation Judges, <b>B</b> judges are Required Elements Judges,
+  <b>D</b> judges are Difficulty Judges, <b>H</b> judges are Head judges, and
+  <b>M</b> judges are Miss judges. The task of judging misses might be delegated
+  to other judges, if so their miss counts are entered as a Miss judge's score</p>
+<p>Currently the program will fail silently if a number greater than the allowed max
+  is entered, this might cause results for that participant to not be calculated.</p>
+<p>it is highly reccomended that zero (0) is entered instead of leaving a field blank</p>
+
+
+<h2 id="result">5. Results</h2>
+<img src="/static/img/docs/results.png" />
+<p>Results and ranking are generated for every subevent where a participant have complete
+  scores entered. If all the subevents of a participant have complete scores entered
+  the total score, rank sum and overall rank will be calculated as well. the overall
+  score is calculated using the scores for the individual subevents multiplied by
+  certain factors, see <a href="#config.event">Event Configuration</a></p>
+<p>The Results can be exported to excel by pressing the "Export to Excel" button.</p>
+<p>The "Update Live" will recalculate the scores every second (1) until disabled</p>
+<p>If simplified levels are selected in the event's <a href="#config.event">Configuration</a>&nbsp;
+  the difficluties awards higher points per trick and the factors that the ranks
+  and scores are multiplied against may differ from fisac-irsf's judging manual,
+  as set in the <a href="#config.event">Event Configuration</a>.</p>
+
+
+
+<h2 id="misc">6. Miscellaneous</h2>
+<h3 id="misc.key">6.1 Keyboard Shortcuts</h3>
+<ul class="docs">
+  <li><b>Ctrl+N/&#x2318;+N</b>: Opens a new window, an aditional window can for example
+    be used on a separate monitor to show results updated live.</li>
+</ul>
+<h3 id="misc.bugs">6.2 Bugs</h3>
+<p>See <a href="/bugreport">Bugs</a></p>
+<h3 id="misc.update">6.3 Updates</h3>
+<p>The program will automatically search for and download updates when it is started,
+  if there is an update avilable the program will prompt the user before installing.</p>

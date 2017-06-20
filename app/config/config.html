@@ -19,6 +19,10 @@
 <h2>Events</h2>
 <table>
   <tr>
+    <th class="blank" colspan="2"></th>
+    <th colspan="{{ (MissJudges ? 6 : 5) }}">Number of Judges</th>
+  </tr>
+  <tr>
     <th colspan="2">Event</th>
     <th>Presentation </th>
     <th>Required Elements</th>
@@ -28,7 +32,8 @@
     <th>Speed </th>
   </tr>
   <tr ng-repeat="event in Abbr.events track by $index">
-    <td><input type="checkbox" ng-model="data[id].config.subevents[event]" /></td>
+    <td><input type="checkbox" id="event-{{ event }}" ng-model="data[id].config.subevents[event]"
+      /></td>
     <td><label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label></td>
     <td><input type="number" ng-model="data[id].config.judges[event].a" placeholder="Presentation"
         ng-if="!Abbr.isSpeed(event)" /></td>

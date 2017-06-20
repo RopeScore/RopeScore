@@ -23,26 +23,47 @@ angular.module('ropescore.results', ['ngRoute'])
    * @param {service} $routeParams
    * @param {service} Db
    */
-  .controller('ResultsCtrl', function($scope, $location, $routeParams, Db, Abbr,
-    Num) {
-    store.watch('ropescore', function() {
-      $scope.$apply();
-    });
+  .controller('ResultsCtrl', function($scope, $location,
+    $routeParams, Db, Abbr, Num, Config, tablesToExcel) {
     $scope.dataNow = function() {
       return Db.get()
     }
     $scope.data = $scope.dataNow();
+    $scope.live = function() {
+      if ($scope.isLive) {
+        $scope.isLive = false;
+        clearInterval($scope.interval)
+        setTimeout(function() {
+          console.log = console.__log
+          console.log('live update stopped')
+        }, 1000)
+      } else {
+        console.log('updating live')
+        $scope.isLive = true;
+        console.__log = console.log
+        console.log = function() {
+          return
+        }
+        $scope.interval = setInterval(function() {
+          $scope.$apply()
+        }, 1000)
+      }
+    }
 
     $scope.id = $routeParams.id;
     $scope.setID($scope.id)
     $scope.Abbr = Abbr
     $scope.getNumber = Num
 
-    $scope.partArray = Object.keys($scope.data[$scope.id].participants)
-      .map(function(key) {
-        $scope.data[$scope.id].participants[key].uid = key;
-        return $scope.data[$scope.id].participants[key];
-      })
+    if ($scope.data[$scope.id].participants) {
+      $scope.partArray = Object.keys($scope.data[$scope.id].participants)
+        .map(function(key) {
+          $scope.data[$scope.id].participants[key].uid = key;
+          return $scope.data[$scope.id].participants[key];
+        })
+    } else {
+      $scope.partArray = []
+    }
 
     $scope.score = function(event, data, uid) {
       if (Abbr.isSpeed(event) && data && data.s) {
@@ -51,7 +72,7 @@ angular.module('ropescore.results', ['ngRoute'])
         var W = 0;
         var Y = 0;
         var preY = 0;
-        var diff;
+        var diff = undefined;
 
         for (var i = 0; i < Object.keys(data.s)
           .length; i++) {
@@ -62,7 +83,7 @@ angular.module('ropescore.results', ['ngRoute'])
         })
         for (var i = 1; i < scores.length; i++) {
           var cdiff = Math.abs(scores[i] - scores[i - 1])
-          if (!diff || cdiff <= diff) {
+          if (typeof diff == 'undefined' || cdiff <= diff) {
             diff = cdiff;
             T = (scores[i] + scores[i - 1]) / 2
           }
@@ -77,15 +98,7 @@ angular.module('ropescore.results', ['ngRoute'])
 
         preY = T - W;
 
-        if (event == 'srss') {
-          Y = preY * 5;
-        } else if (event == 'srsr') {
-          Y = preY * 3;
-        } else if (event == 'ddsr') {
-          Y = preY * 2;
-        } else {
-          Y = preY * 1;
-        }
+        Y = preY * $scope.speedFactor(event)
 
         console.log("id:", uid, "event:", event, "T:", T, "W:", W, "preY:",
           preY, "Y:", Y)
@@ -98,7 +111,9 @@ angular.module('ropescore.results', ['ngRoute'])
         }
 
         $scope.data[$scope.id].finalscores[uid][event] = Y;
-        return Math.roundTo(preY, 2);
+        if (Config.ShowRaw)
+          return Math.roundTo(preY, 2);
+        return Math.roundTo(Y, 2);
 
       } else if (!Abbr.isSpeed(event) && data && data.a && data.b && data.d &&
         data.h) {
@@ -111,7 +126,7 @@ angular.module('ropescore.results', ['ngRoute'])
         var keys = [];
         var tempT = 0;
         var rem = 0;
-        var diff = 0;
+        var diff = undefined;
         var mim = 0;
         var mam = 0;
         var tim = 0;
@@ -208,10 +223,10 @@ angular.module('ropescore.results', ['ngRoute'])
           n = n - 2;
         } else if (n == 1) {} else if (n == 3) {
           var tempCalcdiff = [];
-          var diff;
+          var diff = undefined;
           for (var i = 1; i < n; i++) {
             var cdiff = Math.abs(calcdiff[i] - calcdiff[i - 1])
-            if (!diff || cdiff <= diff) {
+            if (typeof diff == 'undefined' || cdiff <= diff) {
               diff = cdiff;
               tempCalcdiff = [calcdiff[i - 1], calcdiff[i]]
             }
@@ -258,10 +273,10 @@ angular.module('ropescore.results', ['ngRoute'])
           n = n - 2;
         } else if (n == 1) {} else if (n == 3) {
           var tempCalcpres = [];
-          var diff;
+          var diff = undefined;
           for (var i = 1; i < n; i++) {
             var cdiff = Math.abs(calcpres[i] - calcpres[i - 1])
-            if (!diff || cdiff <= diff) {
+            if (typeof diff == 'undefined' || cdiff <= diff) {
               diff = cdiff;
               tempCalcpres = [calcpres[i - 1], calcpres[i]]
             }
@@ -304,10 +319,10 @@ angular.module('ropescore.results', ['ngRoute'])
           n = n - 2;
         } else if (n == 1) {} else if (n == 3) {
           var tempCalcrq = [];
-          var diff;
+          var diff = undefined;
           for (var i = 1; i < n; i++) {
             var cdiff = Math.abs(calcrq[i] - calcrq[i - 1])
-            if (!diff || cdiff <= diff) {
+            if (typeof diff == 'undefined' || cdiff <= diff) {
               diff = cdiff;
               tempCalcrq = [calcrq[i - 1], calcrq[i]]
             }
@@ -345,10 +360,10 @@ angular.module('ropescore.results', ['ngRoute'])
           n = n - 2;
         } else if (n == 1) {} else if (n == 3) {
           var tempMim = [];
-          var diff;
+          var diff = undefined;
           for (var i = 1; i < n; i++) {
             var cdiff = Math.abs(scores[i] - scores[i - 1])
-            if (!diff || cdiff <= diff) {
+            if (typeof diff == 'undefined' || cdiff <= diff) {
               diff = cdiff;
               tempMim = [scores[i - 1], scores[i]]
             }
@@ -382,10 +397,10 @@ angular.module('ropescore.results', ['ngRoute'])
           n = n - 2;
         } else if (n == 1) {} else if (n == 3) {
           var tempMam = [];
-          var diff;
+          var diff = undefined;
           for (var i = 1; i < n; i++) {
             var cdiff = Math.abs(scores[i] - scores[i - 1])
-            if (!diff || cdiff <= diff) {
+            if (typeof diff == 'undefined' || cdiff <= diff) {
               diff = cdiff;
               tempMam = [scores[i - 1], scores[i]]
             }
@@ -454,7 +469,8 @@ angular.module('ropescore.results', ['ngRoute'])
       }
       if (data != undefined && data[uid] != undefined && data[uid][event] !=
         undefined && (Abbr.isSpeed(event) || event == "ranksum")) {
-        if (event == "ranksum" && ((Object.keys(data[uid])
+        if (event == "ranksum" && !$scope.rankAll && ((Object.keys(data[
+              uid])
             .length - 1) != enabled)) {
           return undefined;
         }
@@ -466,7 +482,8 @@ angular.module('ropescore.results', ['ngRoute'])
         var fac = 1;
 
         for (var i = 0; i < keys.length; i++) {
-          if (event == "ranksum" && ((Object.keys(data[keys[i]])
+          if (event == "ranksum" && !$scope.rankAll && ((Object.keys(data[
+                keys[i]])
               .length - 1) != enabled)) {
             // do nothing
           } else {
@@ -562,6 +579,19 @@ angular.module('ropescore.results', ['ngRoute'])
               DtempScore) + 1 :
             undefined)
           if (DtempRank > 0 && CtempRank > 0) {
+            if (!$scope.data[$scope.id].hiddenRanks) {
+              $scope.data[$scope.id].hiddenRanks = {}
+            }
+            if (!$scope.data[$scope.id].hiddenRanks[keys[i]]) {
+              $scope.data[$scope.id].hiddenRanks[keys[i]] = {}
+            }
+            if (!$scope.data[$scope.id].hiddenRanks[keys[i]][event]) {
+              $scope.data[$scope.id].hiddenRanks[keys[i]][event] = {}
+            }
+            $scope.data[$scope.id].hiddenRanks[keys[i]][event].crea =
+              CtempRank;
+            $scope.data[$scope.id].hiddenRanks[keys[i]][event].diff =
+              DtempRank;
             var tempRanksum = Number(CtempRank) + Number(DtempRank);
             ranksums.push(tempRanksum)
           }
@@ -608,7 +638,7 @@ angular.module('ropescore.results', ['ngRoute'])
             enabled = enabled + 1;
           }
         }
-        if (keys.length - subt == enabled) {
+        if ($scope.rankAll || keys.length - subt == enabled) {
           var total = 0;
           data.final = undefined;
           var keys = Object.keys(data);
@@ -636,7 +666,7 @@ angular.module('ropescore.results', ['ngRoute'])
             enabled = enabled + 1;
           }
         }
-        if (keys.length - subt == enabled) {
+        if ($scope.rankAll || keys.length - subt == enabled) {
           var sum = 0;
           data.ranksum = undefined;
           var keys = Object.keys(data)
@@ -647,5 +677,37 @@ angular.module('ropescore.results', ['ngRoute'])
           return (sum > 0 ? sum : '');
         }
       }
+    }
+
+    $scope.roundTo = Math.roundTo;
+
+    $scope.ShowDC = Config.ShowDC;
+    $scope.ShowAllTables = Config.ShowAllTables;
+
+    $scope.toExcel = function() {
+      $scope.rankAll = $scope.isLive = false;
+      setTimeout(function() {
+        var tables = document.getElementsByTagName('table');
+        tablesToExcel(tables, $scope.data[$scope.id].config.name)
+      })
+    }
+
+    $scope.toPDF = function() {
+      var doc = new jspdf('landscape')
+      var table = document.getElementsByTagName('table')[0];
+      var res = doc.autoTableHtmlToJson(table);
+      doc.autoTable(res.columns, res.data);
+      doc.save('test.pdf')
+    }
+
+    $scope.speedFactor = function(event) {
+      if (event == 'srss') {
+        return 5;
+      } else if (event == 'srsr') {
+        return 3;
+      } else if (event == 'ddsr') {
+        return 2;
+      }
+      return 1;
     }
   })

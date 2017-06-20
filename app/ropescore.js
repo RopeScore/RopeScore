@@ -11,7 +11,12 @@ Math.roundTo = function(n, digits) {
   return test;
 }
 
-var tableToExcel = (function() {
+var errorSocket = new WebSocket("ws://localhost:3333/errors");
+errorSocket.onmessage = function(evt) {
+  console.log('backend error:', JSON.parse(evt.data))
+}
+
+/*var tableToExcel = (function() {
   var uri = 'data:application/vnd.ms-excel;base64,',
     template =
     '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><meta http-equiv="content-type" content="text/plain; charset=UTF-8"/></head><body><table>{table}</table></body></html>',
@@ -32,7 +37,7 @@ var tableToExcel = (function() {
     console.log('saving excel table')
     window.location.href = uri + base64(format(template, ctx))
   }
-})()
+})()*/
 
 /**
  * @namespace ropescore
@@ -47,6 +52,7 @@ angular.module('ropescore', [
   'ropescore.score',
   'ropescore.results',
   'ropescore.about.licence',
+  'ropescore.about.docs',
   'ropescore.bugreport',
   'Config'
 ])
@@ -117,9 +123,57 @@ angular.module('ropescore', [
         set: function(newData) {
           console.log('saved data to databse')
           return store.set('ropescore', newData)
+        },
+        watch: function() {
+          console.log('watching database for updates')
+          store.watch('ropescore', function() {
+            console.log("database updated")
+            $rootScope.$apply();
+          })
+          return
         }
       }
     })
+
+  .factory('tablesToExcel', function(Abbr) {
+    return function(tables, name) {
+      var wb = XLSX.utils.book_new();
+      var wopts = {
+        bookType: 'xlsx',
+        bookSST: true,
+        type: 'base64'
+      };
+      if (!wb.Props) wb.Props = {};
+      wb.Props.Title = (name ? 'Results for ' + (name) + ' - ' : '') +
+        'RopeScore';
+      wb.Props.CreatedDate = new Date()
+        .toISOString();
+      var uri = 'data:application/octet-streaml;base64,'
+      for (var i = 0; i < tables.length; i++) {
+        var sheetName = (tables[i].getAttribute('name') == 'overall' ?
+          'Overall' : Abbr.abbr(tables[i].getAttribute('name')) || (
+            'Sheet' + (i + 1)))
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(tables[i], {
+            cellStyles: true
+          }),
+          sheetName)
+      }
+      console.log(wb)
+      var wbout = XLSX.write(wb, wopts);
+
+      var link = document.createElement("a");
+      link.download = 'ropescore' + (name ? '-' + (name) : '') + '.xlsx';
+      link.href = uri + wbout;
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup the DOM
+      document.body.removeChild(link);
+      link = undefined;
+      //window.location.href = uri + wbout;
+    }
+  })
 
   .factory("Abbr",
 
@@ -140,14 +194,9 @@ angular.module('ropescore', [
           masters: true,
           speed: false
         },
-
+        // ------------------
         srsr: {
           name: "Single Rope Speed Relay",
-          masters: false,
-          speed: true
-        },
-        ddsr: {
-          name: "Double Dutch Speed Relay",
           masters: false,
           speed: true
         },
@@ -161,6 +210,11 @@ angular.module('ropescore', [
           masters: false,
           speed: false
         },
+        ddsr: {
+          name: "Double Dutch Speed Relay",
+          masters: false,
+          speed: true
+        },
         ddsf: {
           name: "Double Dutch Single Freestyle",
           masters: false,
@@ -171,7 +225,7 @@ angular.module('ropescore', [
           masters: false,
           speed: false
         },
-
+        // ------------------
         srp: {
           name: "Single Rope Triple Unders",
           masters: true,
@@ -202,16 +256,16 @@ angular.module('ropescore', [
           abbr: "",
           name: ""
         },
-        ddsr: {
-          abbr: "",
-          name: ""
-        },
         srpf: {
           abbr: "srf2",
           name: ""
         },
         srtf: {
           abbr: "srf4",
+          name: ""
+        },
+        ddsr: {
+          abbr: "",
           name: ""
         },
         ddsf: {
@@ -331,8 +385,7 @@ angular.module('ropescore', [
           var sum = 0;
           if (type) {
             for (var i = 0; i < keys.length; i++) {
-              if (keys[i].substring(0, 2)
-                .toLowerCase() == type.toLowerCase() && obj[keys[i]]) {
+              if (functions.isType(keys[i], type) && obj[keys[i]]) {
                 sum++
               }
             }
@@ -340,6 +393,27 @@ angular.module('ropescore', [
             for (var i = 0; i < keys.length; i++) {
               if (obj[keys[i]]) {
                 sum++
+              }
+            }
+          }
+          return sum;
+        },
+        header: function(obj, type, DC) {
+          if (!obj) {
+            return 0;
+          }
+          var keys = Object.keys(obj);
+          var sum = 0;
+          if (type) {
+            for (var i = 0; i < keys.length; i++) {
+              if (functions.isType(keys[i], type) && obj[keys[i]]) {
+                sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 6)
+              }
+            }
+          } else {
+            for (var i = 0; i < keys.length; i++) {
+              if (obj[keys[i]]) {
+                sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 6)
               }
             }
           }

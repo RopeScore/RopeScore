@@ -22,7 +22,7 @@
     <td><input type="text" ng-model="data[id].participants[uid].club" placeholder="Club"
       /></label>
     </td>
-    <td>id: {{ uid }}</td>
+    <td>{{ uid }}</td>
     <td><a ng-confirm-click="Remove participant {{ uid }}?" confirmed-click="delete(uid)">Remove</a></td>
   </tr>
 </table>

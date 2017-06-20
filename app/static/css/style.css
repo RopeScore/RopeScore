@@ -13,6 +13,15 @@ body {
   position: relative;
 }
 
+.mono {
+  font-family: monospace;
+}
+
+p {
+  margin-bottom: .3em;
+  max-width: 60%;
+}
+
 a {
   color: #008499;
   text-decoration: none;
@@ -54,6 +63,10 @@ footer {
   margin-bottom: 3em;
 }
 
+.mt {
+  margin-top: 1em;
+}
+
 .hidden {
   display: none;
   visibility: hidden;
@@ -74,9 +87,18 @@ li {
   display: block;
 }
 
+ul.docs, ol.docs {
+  max-width: 60%;
+}
+
 ol li:before {
   content: counters(item, ".") " ";
   counter-increment: item
+}
+
+img {
+  max-width: 60%;
+  border: 1px solid #ddd;
 }
 
 
@@ -201,6 +223,8 @@ div.table {
 
 label {
   display: block;
+  cursor: hand;
+  cursor: pointer;
 }
 
 #config-events {
@@ -220,11 +244,21 @@ td input[type=number], td input[type=text] {
 
 input[type=number] {
   width: 6em;
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 textarea {
   width: 20em;
   height: 15em;
+}
+
+input.ng-invalid {
+  border: 2px solid red;
 }
 
 
@@ -241,6 +275,18 @@ th, td {
 
 .blank {
   border: none;
+}
+
+.red {
+  color: #f00;
+}
+
+.green {
+  color: #008000;
+}
+
+.gray {
+  color: #808080;
 }
 
 tbody tr:nth-child(even) {

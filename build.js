@@ -10,11 +10,14 @@ const argv = require('yargs')
   .alias('a', 'arch')
   .default('a', process.arch)
   .describe('a', 'arch to build for')
-  .choices('a', ['x64', 'ia32', 'armv7l'])
+  .choices('a', ['x64', 'ia32', 'armv7l', 'all'])
   .alias('p', 'platform')
   .default('p', process.platform)
   .describe('p', 'platform to build for')
   .choices('p', ['win32', 'darwin', 'linux'])
+  .default('all', false)
+  .boolean('all')
+  .describe('all', 'If present all plattforms and archs will be packaged')
   .help('help')
   .alias('h', 'help')
   .argv
@@ -28,6 +31,22 @@ const distOutputPath = path.join(repositoryRootPath, 'dist')
 const packagedAppPath = path.join(repositoryRootPath, 'app')
 const baseName =
   `${Package.name}-${argv.platform}-${argv.arch}-${Package.version}`
+const configFile = path.join(repositoryRootPath, 'app', 'config.js')
+
+fs.readFile(configFile, 'utf8', function(err, data) {
+  if (err) {
+    return console.log(err);
+  }
+  var result = data.replace(/version: '.+'/g,
+      `version: '${Package.version}'`)
+    .replace(/LicenceDate: \d+/g,
+      `LicenceDate: ${new Date().getTime()}`)
+    .replace(/Debug: true/g, `Debug: false`);
+
+  fs.writeFile(configFile, result, 'utf8', function(err) {
+    if (err) return console.log(err);
+  });
+});
 
 const packageOptions = {
   'appBundleId': 'pw.swant.ropescore',
@@ -35,6 +54,7 @@ const packageOptions = {
   'appVersion': Package.version,
   'arch': argv.platform === 'darwin' ? 'x64' : argv.arch, // OS X is 64-bit only
   'asar': true,
+  'all': argv.all,
   'buildVersion': Package.version,
   'dir': path.join(repositoryRootPath),
   'icon': getIcon(),

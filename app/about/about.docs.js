@@ -19,4 +19,10 @@ angular.module('ropescore.about.docs', ['ngRoute'])
   /**
    * @class ropescore.about.docs.DocsCtrl
    */
-  .controller('DocsCtrl', function($scope) {})
+  .controller('DocsCtrl', function($scope, $anchorScroll, $location) {
+    $scope.anchor = $location.hash();
+    /** Configure $anchorScroll to take the navbar into consideration*/
+    $anchorScroll.yOffset = 60;
+    /** Scroll To anchor */
+    $anchorScroll();
+  })

@@ -1,7 +1,7 @@
 {
   "name": "RopeScore",
   "productName": "RopeScore",
-  "version": "2.0.0-au3",
+  "version": "2.0.0-au8",
   "description": "A scoring system for ropeskipping",
   "author": "Svante Bengtson <ropescore@swant.pw>",
   "main": "main.js",
@@ -9,6 +9,7 @@
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.15.2",
+    "express-ws": "^3.0.0",
     "fs-extra": "^3.0.1"
   },
   "devDependencies": {
@@ -20,6 +21,15 @@
   "scripts": {
     "start": "electron .",
     "build": "node build",
-    "build32": "node build --arch=ia32"
+    "build:win": "node build -p win32",
+    "build:win:64": "node build -p win32 -a x64",
+    "build:win:32": "node build -p win32 -a ia32",
+    "build:mac": "node build -p darwin",
+    "build:linux": "node build -p linux",
+    "build:linux:64": "node build -p linux -a x64",
+    "build:linux:32": "node build -p linux -a ia32",
+    "build:linux:arm": "node build -p linux -a armv7l",
+    "build:all": "node build --all",
+    "dist:sync": "rsync -avzP dist/win32/ lhome:"
   }
 }

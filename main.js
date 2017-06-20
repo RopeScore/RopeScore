@@ -1,9 +1,11 @@
+const logCatch = require('./log-catch');
 const {
   app,
   BrowserWindow,
   dialog,
   autoUpdater,
-  globalShortcut
+  Menu,
+  MenuItem
 } = require('electron')
 const server = require("./server")
 const Config = require('./app/config')
@@ -27,8 +29,8 @@ if (require('electron-squirrel-startup')) {
         dialog.showMessageBox({
           buttons: ['Install', 'Not now'],
           defaultId: 0,
-          message: 'A new version of RopeScore is avilabel, do you wish to install it now?',
-          title: 'Update Avilable',
+          message: 'A new version of RopeScore is available, do you wish to install it now?',
+          title: 'Update Available',
           cancelId: 1
         }, function(button) {
           if (button == 0) {
@@ -36,10 +38,12 @@ if (require('electron-squirrel-startup')) {
           }
         })
       })
+      autoUpdater.on('error', (error) => {
+        console.log(error);
+      });
       autoUpdater.setFeedURL(Config.releaseRemoteUrl())
       if (fs.existsSync(path.resolve(path.dirname(process.execPath), '..',
           'Update.exe'))) {
-        dialog.showErrorBox('Squirrel', 'App installed with Squirrel')
         autoUpdater.checkForUpdates()
       }
     }
@@ -87,21 +91,36 @@ function createWindow() {
       // when you should delete the corresponding element.
       win.splice(win[win.length - 1], 1)
     })
+    const menu = Menu.getApplicationMenu() || new Menu
+    if (menu.items[3]) {
+      menu.items[3].submenu.append(new MenuItem({
+        label: 'New Window',
+        accelerator: 'CommandOrControl+N',
+        click: () => {
+          console.log('CommandOrControl+N is pressed')
+          createWindow()
+        }
+      }))
+    } else {
+      menu.append(new MenuItem({
+        label: 'New Window',
+        accelerator: 'CommandOrControl+N',
+        click: () => {
+          console.log('CommandOrControl+N is pressed')
+          createWindow()
+        }
+      }))
+    }
+    Menu.setApplicationMenu(menu)
   }
 }
 
-function shortcuts() {
-  const ret = globalShortcut.register('CommandOrControl+N', () => {
-    console.log('CommandOrControl+N is pressed')
-    createWindow()
-  })
-}
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
-app.on('ready', shortcuts)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

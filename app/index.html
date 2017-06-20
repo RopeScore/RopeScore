@@ -12,11 +12,15 @@
     <link rel="icon" href="/static/img/icon.png">
     <title>RopeScore</title>
     <!-- Resources -->
+    <script src="/static/js/console-history.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/store.everything.min.js"></script>
+    <script src="/static/js/sha1.js"></script>
     <script src="/static/js/papaparse.js"></script>
-    <script src="/static/js/console-history.js"></script>
+    <script src="/static/js/cpexcel.js"></script>
+    <script src="/static/js/jszip.js"></script>
+    <script src="/static/js/xlsx.js"></script>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/static/css/style.css">
     <!-- DEPLOY -->
@@ -30,6 +34,7 @@
     <script src="/score/score.js"></script>
     <script src="/results/results.js"></script>
     <script src="/about/about.licence.js"></script>
+    <script src="/about/about.docs.js"></script>
     <script src="/bugreport/bugreport.js"></script>
     <!-- END DEPLOY -->
   </head>
@@ -40,7 +45,7 @@
         <li ng-click="goHome()" class="pointer">
           <div>RopeScore</div>
         </li>
-        <li><a ng-href="/">Events</a></li>
+        <li><a ng-href="/">Dashboard</a></li>
         <li><a ng-href="/config">New Event</a></li>
         <li ng-if="id"><a ng-href="/event/{{ id }}">Event</a></li>
         <li ng-if="id"><a ng-href="/results/{{ id }}">Results</a></li>
@@ -52,5 +57,5 @@
     </div>
 
     <footer>
-      {{ version }} &copy; Svante Bengtson {{ copyright() }} <a ng-href="/licence">Licence</a>      - <a ng-href="/bugreport">Bugs</a>
+      {{ version }} &copy; Svante Bengtson {{ copyright() }} <a ng-href="/licence">Licence</a>      &ndash; <a ng-href="/bugreport">Bugs</a> &ndash; <a ng-href="/docs#toc">Documentation</a>
     </footer>

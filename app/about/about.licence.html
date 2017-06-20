@@ -168,12 +168,10 @@
 </ol>
 
 <h2>Open Source</h2>
-<p>RopeScore use the following Open source projects released under the MIT licence:</p>
-<ul>
-  <li>Angular.js</li>
-  <li>Store.js</li>
-  <li>electron</li>
-  <li>express.js</li>
-  <li>Papa Parse</li>
-  <li>console.history</li>
-</ul>
+<div ng-repeat="(licence, subs) in foss">
+  <p>RopeScore use the following Open source projects released under the {{ licence
+    }} licence:</p>
+  <ul>
+    <li ng-repeat="s in subs"><a ng-href="{{ s.licence }}" target="_blank">{{ s.name }}</a></li>
+  </ul>
+</div>

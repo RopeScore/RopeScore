@@ -1,5 +1,6 @@
+<!-- TODO: if value > max="", correct to max -->
 <h1>{{ Abbr.unabbr(event) }} Score for {{ data[id].participants[uid].name }} ({{ uid }})</h1>
-<div ng-if="Abbr.isSpeed(event)" class="table">
+<form ng-if="Abbr.isSpeed(event)" class="table" name="speedform">
   <table>
     <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
       <td><label for="s{{ $index }}">S{{ $index + 1 }}:</td>
@@ -16,9 +17,11 @@
         /></td>
     </tr>
   </table>
-</div>
+  <span ng-show="speedform.$invalid">Check input for errors marked in red.</span>
+  <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
+</form>
 
-<div ng-if="!Abbr.isSpeed(event)">
+<form ng-if="!Abbr.isSpeed(event)" name="freeform">
   <div class="flex-container mb">
     <div class="emb" ng-repeat="n in getNumber(data[id].config.judges[event].a) track by $index">
       <h2>A{{ $index + 1 }}:</h2>
@@ -257,5 +260,6 @@
       </table>
     </div>
   </div>
-</div>
-<button ng-click="save()">Save &amp; Return</button>
+  <span ng-show="freeform.$invalid">Check input for errors marked in red.</span>
+  <button ng-click="save()" ng-disabled="(freeform.$invalid)">Save &amp; Return</button>
+</form>
