@@ -10,7 +10,7 @@
     <td><input type="number" id="part" ng-model="data[id].config.participants" /></td>
   </tr>-->
 
-  <tr>
+  <tr ng-if="Simplified">
     <td><label for="simp">Simplified levels:</label></td>
     <td><input type="checkbox" id="simp" ng-model="data[id].config.simplified" /></td>
   </tr>

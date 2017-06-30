@@ -11,6 +11,7 @@ const Config = {
   ShowRaw: true, // default: false
   ShowDC: true, // default: false, (Show Diff and Creat Scores + rank in overall table)
   ShowAllTables: false, // default: false
+  Simplified: true, // default: false
   CheckStart: 0 // default: 0
 }
 

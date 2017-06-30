@@ -41,6 +41,7 @@ angular.module('ropescore.config', ['ngRoute'])
     }
 
     $scope.MissJudges = Config.MissJudges
+    $scope.Simplified = Config.Simplified
 
     $scope.remove = function() {
       if (confirm(
