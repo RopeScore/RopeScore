@@ -43,7 +43,7 @@
         ng-if="!Abbr.isSpeed(event)" /></td>
     <td><input type="number" ng-model="data[id].config.judges[event].h" placeholder="Head Judges"
         ng-if="!Abbr.isSpeed(event)" /></td>
-    <td><input type="number" ng-model="data[id].config.judges[event].m" placeholder="Misses"
+    <td ng-if="MissJudges"><input type="number" ng-model="data[id].config.judges[event].m" placeholder="Misses"
         ng-if="!Abbr.isSpeed(event)" /></td>
     <td><input type="number" ng-model="data[id].config.judges[event].s" placeholder="Speed"
         ng-if="Abbr.isSpeed(event)" /></td>

@@ -30,6 +30,6 @@
     "build:linux:32": "node build -p linux -a ia32",
     "build:linux:arm": "node build -p linux -a armv7l",
     "build:all": "node build --all",
-    "dist:sync": "rsync -avzP dist/win32/ lhome:"
+    "dist:sync": "rsync -avzcP dist/win32 lhome:"
   }
 }
