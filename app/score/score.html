@@ -1,5 +1,5 @@
 <!-- TODO: if value > max="", correct to max -->
-<h1>{{ Abbr.unabbr(event) }} Score for {{ data[id].participants[uid].name }} ({{ uid }})</h1>
+<h1>{{ Abbr.unabbr(event) }} Score for {{ data[id].participants[uid].name }} from {{ data[id].participants[uid].club }} ({{ uid }})</h1>
 <form ng-if="Abbr.isSpeed(event)" class="table" name="speedform">
   <table>
     <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
