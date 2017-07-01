@@ -175,254 +175,192 @@ angular.module('ropescore', [
     }
   })
 
-  .factory("Abbr",
-
-    function() {
-      var abbrs = {
-        srss: {
-          name: "Single Rope Speed Sprint",
-          masters: true,
-          speed: true
-        },
-        srse: {
-          name: "Single Rope Speed Endurance",
-          masters: true,
-          speed: true
-        },
-        srsf: {
-          name: "Single Rope Single Freestyle",
-          masters: true,
-          speed: false
-        },
-        // ------------------
-        srsr: {
-          name: "Single Rope Speed Relay",
-          masters: false,
-          speed: true
-        },
-        srpf: {
-          name: "Single Rope Pair Freestyle",
-          masters: false,
-          speed: false
-        },
-        srtf: {
-          name: "Single Rope Team Freestyle",
-          masters: false,
-          speed: false
-        },
-        ddsr: {
-          name: "Double Dutch Speed Relay",
-          masters: false,
-          speed: true
-        },
-        ddsf: {
-          name: "Double Dutch Single Freestyle",
-          masters: false,
-          speed: false
-        },
-        ddpf: {
-          name: "Double Dutch Pair Freestyle",
-          masters: false,
-          speed: false
-        },
-        // ------------------
-        srp: {
-          name: "Single Rope Triple Unders",
-          masters: true,
-          speed: true
-        },
-        srd: {
-          name: "Single Rope Double Unders",
-          masters: true,
-          speed: true
-        }
-      };
-      // fill in nonabbrs if you want to use non standard abbrs, add non-standard events here as well
-      var nonabbrs = {
-        srss: {
-          abbr: "srm30s",
-          name: "Masters 30s Speed"
-        },
-        srse: {
-          abbr: "srm3min",
-          name: "Masters 3 minutes Speed"
-        },
-        srsf: {
-          abbr: "",
-          name: ""
-        },
-        // ------------------
-        srsr: {
-          abbr: "",
-          name: ""
-        },
-        srpf: {
-          abbr: "srf2",
-          name: ""
-        },
-        srtf: {
-          abbr: "srf4",
-          name: ""
-        },
-        ddsr: {
-          abbr: "",
-          name: ""
-        },
-        ddsf: {
-          abbr: "ddf3",
-          name: ""
-        },
-        ddpf: {
-          abbr: "ddf4",
-          name: ""
-        },
-        // ------------------
-        srp: {
-          abbr: "",
-          name: ""
-        },
-        srd: {
-          abbr: "srdr",
-          name: "Single Rope Double Unders Relay"
-        },
-        // ------------------
-        srsj: {
-          abbr: "srs1min",
-          name: "Masters 1 minute Speed",
-          speed: true,
-          masters: true
-        }
-      };
-
-      var functions = {
-        unabbr: function(abbr) {
-          return nonabbrs[abbr].name || abbrs[abbr].name
-        },
-        abbr: function(abbr) {
-          // converts a standard abbr to a non-standard abbr
-          if (nonabbrs) {
-            return nonabbrs[abbr].abbr || abbr
-          } else {
-            return abbr
-          }
-        },
-        events: Object.keys(nonabbrs),
-        isSpeed: function(abbr) {
-          if (nonabbrs && nonabbrs[abbr]) {
-            return nonabbrs[abbr].speed || abbrs[abbr].speed;
-          } else if (abbrs[abbr]) {
-            return abbrs[abbr].speed
-          } else {
-            return false;
-          }
-        },
-        isTeam: function(abbr) {
-          if (nonabbrs) {
-            return !(nonabbrs[abbr].masters || abbrs[abbr].masters);
-          } else if (abbrs[abbr]) {
-            return abbrs[abbr].masters
-          } else {
-            return false;
-          }
-        },
-        isType: function(abbr, type) {
-          var abbrType = abbr.substring(0, 2);
-          return (abbrType.toLowerCase() == type.toLowerCase())
-        },
-        hasType: function(obj, type) {
-          if (!obj) {
-            return false;
-          }
-          var keys = Object.keys(obj);
-          for (var i = 0; i < keys.length; i++) {
-            if (obj[keys[i]] && functions.isType(keys[i], type.toLowerCase())) {
-              return true;
-            }
-          }
-          return false;
-        },
-        hasTeams: function(obj) {
-          if (!obj) {
-            return false;
-          }
-          var keys = Object.keys(obj)
-          for (var i = 0; i < keys.length; i++) {
-            if (obj[keys[i]] && functions.isTeam(keys[i])) {
-              return true;
-            }
-          }
-          return false
-        },
-        hasSpeed: function(obj) {
-          if (!obj) {
-            return false;
-          }
-          var keys = Object.keys(obj)
-          for (var i = 0; i < keys.length; i++) {
-            if (obj[keys[i]] && functions.isSpeed(keys[i])) {
-              return true;
-            }
-          }
-          return false
-        },
-        hasFreestyle: function(obj) {
-          if (!obj) {
-            return false;
-          }
-          var keys = Object.keys(obj)
-          for (var i = 0; i < keys.length; i++) {
-            if (obj[keys[i]] && !functions.isSpeed(keys[i])) {
-              return true;
-            }
-          }
-          return false
-        },
-        count: function(obj, type) {
-          if (!obj) {
-            return 0;
-          }
-          var keys = Object.keys(obj);
-          var sum = 0;
-          if (type) {
-            for (var i = 0; i < keys.length; i++) {
-              if (functions.isType(keys[i], type) && obj[keys[i]]) {
-                sum++
-              }
-            }
-          } else {
-            for (var i = 0; i < keys.length; i++) {
-              if (obj[keys[i]]) {
-                sum++
-              }
-            }
-          }
-          return sum;
-        },
-        header: function(obj, type, DC) {
-          if (!obj) {
-            return 0;
-          }
-          var keys = Object.keys(obj);
-          var sum = 0;
-          if (type) {
-            for (var i = 0; i < keys.length; i++) {
-              if (functions.isType(keys[i], type) && obj[keys[i]]) {
-                sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 6)
-              }
-            }
-          } else {
-            for (var i = 0; i < keys.length; i++) {
-              if (obj[keys[i]]) {
-                sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 6)
-              }
-            }
-          }
-          return sum;
-        }
+  .factory("Abbr", function(Config) {
+    var abbrs = {
+      srss: {
+        name: "Single Rope Speed Sprint",
+        masters: true,
+        speed: true
+      },
+      srse: {
+        name: "Single Rope Speed Endurance",
+        masters: true,
+        speed: true
+      },
+      srsf: {
+        name: "Single Rope Single Freestyle",
+        masters: true,
+        speed: false
+      },
+      // ------------------
+      srsr: {
+        name: "Single Rope Speed Relay",
+        masters: false,
+        speed: true
+      },
+      srpf: {
+        name: "Single Rope Pair Freestyle",
+        masters: false,
+        speed: false
+      },
+      srtf: {
+        name: "Single Rope Team Freestyle",
+        masters: false,
+        speed: false
+      },
+      ddsr: {
+        name: "Double Dutch Speed Relay",
+        masters: false,
+        speed: true
+      },
+      ddsf: {
+        name: "Double Dutch Single Freestyle",
+        masters: false,
+        speed: false
+      },
+      ddpf: {
+        name: "Double Dutch Pair Freestyle",
+        masters: false,
+        speed: false
+      },
+      // ------------------
+      srp: {
+        name: "Single Rope Triple Unders",
+        masters: true,
+        speed: true
       }
+    };
+    var nonabbrs = Config.Nonabbrs
 
-      return functions;
-    })
+    var functions = {
+      unabbr: function(abbr) {
+        return nonabbrs[abbr].name || abbrs[abbr].name
+      },
+      abbr: function(abbr) {
+        // converts a standard abbr to a non-standard abbr
+        if (nonabbrs) {
+          return nonabbrs[abbr].abbr || abbr
+        } else {
+          return abbr
+        }
+      },
+      events: Object.keys(nonabbrs),
+      isSpeed: function(abbr) {
+        if (nonabbrs && nonabbrs[abbr]) {
+          return nonabbrs[abbr].speed || abbrs[abbr].speed;
+        } else if (abbrs[abbr]) {
+          return abbrs[abbr].speed
+        } else {
+          return false;
+        }
+      },
+      isTeam: function(abbr) {
+        if (nonabbrs) {
+          return !(nonabbrs[abbr].masters || abbrs[abbr].masters);
+        } else if (abbrs[abbr]) {
+          return abbrs[abbr].masters
+        } else {
+          return false;
+        }
+      },
+      isType: function(abbr, type) {
+        var abbrType = abbr.substring(0, 2);
+        return (abbrType.toLowerCase() == type.toLowerCase())
+      },
+      hasType: function(obj, type) {
+        if (!obj) {
+          return false;
+        }
+        var keys = Object.keys(obj);
+        for (var i = 0; i < keys.length; i++) {
+          if (obj[keys[i]] && functions.isType(keys[i], type.toLowerCase())) {
+            return true;
+          }
+        }
+        return false;
+      },
+      hasTeams: function(obj) {
+        if (!obj) {
+          return false;
+        }
+        var keys = Object.keys(obj)
+        for (var i = 0; i < keys.length; i++) {
+          if (obj[keys[i]] && functions.isTeam(keys[i])) {
+            return true;
+          }
+        }
+        return false
+      },
+      hasSpeed: function(obj) {
+        if (!obj) {
+          return false;
+        }
+        var keys = Object.keys(obj)
+        for (var i = 0; i < keys.length; i++) {
+          if (obj[keys[i]] && functions.isSpeed(keys[i])) {
+            return true;
+          }
+        }
+        return false
+      },
+      hasFreestyle: function(obj) {
+        if (!obj) {
+          return false;
+        }
+        var keys = Object.keys(obj)
+        for (var i = 0; i < keys.length; i++) {
+          if (obj[keys[i]] && !functions.isSpeed(keys[i])) {
+            return true;
+          }
+        }
+        return false
+      },
+      count: function(obj, type) {
+        if (!obj) {
+          return 0;
+        }
+        var keys = Object.keys(obj);
+        var sum = 0;
+        if (type) {
+          for (var i = 0; i < keys.length; i++) {
+            if (functions.isType(keys[i], type) && obj[keys[i]]) {
+              sum++
+            }
+          }
+        } else {
+          for (var i = 0; i < keys.length; i++) {
+            if (obj[keys[i]]) {
+              sum++
+            }
+          }
+        }
+        return sum;
+      },
+      header: function(obj, type, DC) {
+        if (!obj) {
+          return 0;
+        }
+        var keys = Object.keys(obj);
+        var sum = 0;
+        if (type) {
+          for (var i = 0; i < keys.length; i++) {
+            if (functions.isType(keys[i], type) && obj[keys[i]]) {
+              sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 6)
+            }
+          }
+        } else {
+          for (var i = 0; i < keys.length; i++) {
+            if (obj[keys[i]]) {
+              sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 6)
+            }
+          }
+        }
+        return sum;
+      }
+    }
+
+    return functions;
+  })
 
   .factory("Num",
     function() {
