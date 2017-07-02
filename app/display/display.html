@@ -1,0 +1,58 @@
+<!-- TODO: making it fucking work -->
+<div ng-if="data.globconfig.display.speed" class="lg">
+  <h1>Unofficial Speed Scores - {{ data[data.globconfig.display.id].config.name }}</h1>
+  <table>
+    <tr ng-repeat="event in data.globconfig.display.events | orderBy : '-'">
+      <td class="onethird">{{ Abbr.unabbr(event.event) }}</td>
+      <td class="onethird">{{ data[data.globconfig.display.id].participants[event.uid].name }}, {{ data[data.globconfig.display.id].participants[event.uid].club
+        }}
+      </td>
+      <td class="onethird">{{ score(event.event, data[data.globconfig.display.id].scores[event.uid][event.event],
+        event.uid, data.globconfig.display.id, 'PreY') }}</td>
+    </tr>
+  </table>
+</div>
+
+<div ng-if="!data.globconfig.display.speed" class="lg center">
+  <h1>Unofficial Scores - {{ data[data.globconfig.display.id].config.name }}</h1>
+  <h2>{{ Abbr.unabbr(data.globconfig.display.event.event) }}</h2>
+  <h2><u>{{ data[data.globconfig.display.id].participants[event.uid].name }}</u> from <u>{{ data[data.globconfig.display.id].participants[event.uid].club }}</u></h2>
+  <table class="blank lg center">
+    <tr>
+      <th></th>
+      <th>Difficulty</th>
+      <th>Creativity</th>
+    </tr>
+    <tr>
+      <th class="ra">Score</th>
+      <td>{{ roundTo(data[data.globconfig.display.id].finalscores[data.globconfig.display.event.uid][data.globconfig.display.event.event].diff,
+        2) || 0 }}</td>
+      <td>{{ roundTo(data[data.globconfig.display.id].finalscores[data.globconfig.display.event.uid][data.globconfig.display.event.event].crea,
+        2) || 0 }}</td>
+    </tr>
+    <tr class="bb">
+      <th class="ra">Deductions</th>
+      <td>{{ roundTo(-data[data.globconfig.display.id].finalscores[data.globconfig.display.event.uid][data.globconfig.display.event.event].deduc
+        / 2, 2) }}</td>
+      <td>{{ roundTo(-data[data.globconfig.display.id].finalscores[data.globconfig.display.event.uid][data.globconfig.display.event.event].deduc
+        / 2, 2) }}</td>
+    </tr>
+    <tr>
+      <th class="ra">Total</th>
+      <td>{{ roundTo(data[data.globconfig.display.id].finalscores[data.globconfig.display.event.uid][data.globconfig.display.event.event].diff
+        - (data[data.globconfig.display.id].finalscores[data.globconfig.display.event.uid][data.globconfig.display.event.event].deduc
+        / 2), 2) || 0 }}</td>
+      <td>{{ roundTo(data[data.globconfig.display.id].finalscores[data.globconfig.display.event.uid][data.globconfig.display.event.event].crea
+        - (data[data.globconfig.display.id].finalscores[data.globconfig.display.event.uid][data.globconfig.display.event.event].deduc
+        / 2), 2) || 0 }}</td>
+    </tr>
+    <tr>
+      <td colspan="3">&nbsp;</td>
+    </tr>
+    <tr>
+      <th colspan="2">Unofficial Score</th>
+      <td>{{ score(data.globconfig.display.event.event, data[data.globconfig.display.id].scores[data.globconfig.display.event.uid][data.globconfig.display.event.event],
+        data.globconfig.display.event.uid, data.globconfig.display.id, 'PreA') }}</td>
+    </tr>
+  </table>
+</div>

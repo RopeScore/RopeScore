@@ -12,6 +12,11 @@
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td colspan="3"></td>
+
+        <td ng-repeat="event in events track by $index" colspan="2" ng-if="data[id].config.subevents[events[$index]]"><a ng-href="/speedscore/{{ id }}/{{ events[$index] }}" ng-if="Abbr.isSpeed(events[$index])">Edit Multiple</a></td>
+      </tr>
       <tr ng-repeat="(uid, participant) in data[id].participants">
         <td>{{ participant.name }}</td>
         <td>{{ participant.club }}</td>

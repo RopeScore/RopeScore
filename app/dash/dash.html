@@ -2,11 +2,11 @@
   <a ng-href="/config"><button>New</button></a>
   <label class="button" for="import-file">Import</label>
   <a ng-href="{{ linkData }}" download="ropescore-export.json"><button>Export</button></a>
-  <button ng-click="save()">Save</button>
+  <a ng-href="/display"><button>Display Live Unofficial Scores</button></a>
 </div>
 <h1>Dashboard</h1>
 <div class="flex-container">
-  <div ng-repeat="(id, event) in data" class="event">
+  <div ng-repeat="(id, event) in data" class="event" ng-if="id != 'globconfig'">
     <a ng-href="/event/{{ id }}">{{ event.config.name }}</a>
   </div>
 </div>

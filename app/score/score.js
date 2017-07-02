@@ -24,7 +24,7 @@ angular.module('ropescore.score', ['ngRoute'])
    * @param {service} Db
    */
   .controller('ScoreCtrl', function($scope, $location, $routeParams, Db, Abbr,
-    Num, Config) {
+    Num, Config, Calc, Display) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id;
@@ -35,6 +35,16 @@ angular.module('ropescore.score', ['ngRoute'])
 
     $scope.Abbr = Abbr
     $scope.getNumber = Num
+    $scope.roundTo = Math.roundTo
+
+    $scope.display = function(uid, id, event) {
+      Display.display(uid, id, event)
+      $scope.data = Db.get()
+    }
+
+    $scope.score = function(event, data, uid, ret) {
+      return Calc.score(event, data, uid, $scope.id, ret, $scope)
+    }
 
     $scope.save = function() {
       Db.set($scope.data)

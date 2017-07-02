@@ -13,31 +13,17 @@ Math.roundTo = function(n, digits) {
 
 var errorSocket = new WebSocket("ws://localhost:3333/errors");
 errorSocket.onmessage = function(evt) {
-  console.log('backend error:', JSON.parse(evt.data))
+  var data = JSON.parse(evt.data)
+  if (data.type == 'update') return;
+  console.log('backend error:', data)
 }
 
-/*var tableToExcel = (function() {
-  var uri = 'data:application/vnd.ms-excel;base64,',
-    template =
-    '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><meta http-equiv="content-type" content="text/plain; charset=UTF-8"/></head><body><table>{table}</table></body></html>',
-    base64 = function(s) {
-      return window.btoa(unescape(encodeURIComponent(s)))
-    },
-    format = function(s, c) {
-      return s.replace(/{(\w+)}/g, function(m, p) {
-        return c[p];
-      })
-    }
-  return function(table, name) {
-    if (!table.nodeType) table = document.getElementById(table)
-    var ctx = {
-      worksheet: name || 'Worksheet',
-      table: table.innerHTML
-    }
-    console.log('saving excel table')
-    window.location.href = uri + base64(format(template, ctx))
-  }
-})()*/
+var dbSocket = new WebSocket("ws://localhost:3333/db");
+dbSocket.onmessage = function(evt) {
+  var data = JSON.parse(evt.data)
+  if (data.type != 'update') return;
+  console.log('Update')
+}
 
 /**
  * @namespace ropescore
@@ -50,11 +36,14 @@ angular.module('ropescore', [
   'ropescore.config.participants',
   'ropescore.event',
   'ropescore.score',
+  'ropescore.score.speed',
   'ropescore.results',
+  'ropescore.display',
   'ropescore.about.licence',
   'ropescore.about.docs',
   'ropescore.bugreport',
-  'Config'
+  'Config',
+  'Calc'
 ])
 
   .config([
@@ -114,25 +103,29 @@ angular.module('ropescore', [
      * @memberOf ropescore.ropescore
      * @return {object} Return database
      */
-    function() {
-      return {
+    function($rootScope, $q) {
+      var methods = {
         get: function() {
           console.log('got data from database')
           return store.get('ropescore') || {}
         },
         set: function(newData) {
           console.log('saved data to databse')
-          return store.set('ropescore', newData)
-        },
-        watch: function() {
-          console.log('watching database for updates')
-          store.watch('ropescore', function() {
-            console.log("database updated")
-            $rootScope.$apply();
-          })
-          return
+          store.set('ropescore', newData)
+          return dbSocket.send('{"type":"update"}')
+          methods.data = methods.get()
         }
       }
+      methods.data = methods.get()
+
+      dbSocket.onmessage = function(evt) {
+        var data = JSON.parse(evt.data)
+        if (data.type != 'update') return;
+        console.log('Update ng')
+
+        methods.data = methods.get();
+      }
+      return methods
     })
 
   .factory('tablesToExcel', function(Abbr) {
@@ -345,13 +338,13 @@ angular.module('ropescore', [
         if (type) {
           for (var i = 0; i < keys.length; i++) {
             if (functions.isType(keys[i], type) && obj[keys[i]]) {
-              sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 6)
+              sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 10)
             }
           }
         } else {
           for (var i = 0; i < keys.length; i++) {
             if (obj[keys[i]]) {
-              sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 6)
+              sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 10)
             }
           }
         }
@@ -372,6 +365,76 @@ angular.module('ropescore', [
         }
       }
     })
+
+  .factory("Display", function($rootScope, Abbr, Db) {
+    return {
+      display: function(uid, id, event) {
+        var data = Db.get()
+        if (typeof data.globconfig == 'undefined') data
+          .globconfig = {}
+        if (typeof data.globconfig.display == 'undefined' || id !==
+          data.globconfig.display.id)
+          data
+          .globconfig.display = {}
+        if (typeof data.globconfig.display.events == 'undefined')
+          data.globconfig.display.events = []
+
+        data.globconfig.display.id = id;
+        data.globconfig.display.speed = (Abbr.isSpeed(event) ?
+          true : false);
+        if (Abbr.isSpeed(event)) {
+          var child = {
+            uid: uid,
+            event: event
+          }
+          var ioc = data.globconfig.display.events.findIndex(
+            function(obj) {
+              return obj.uid == uid && obj.event == event
+            });
+          if (ioc != -1)
+            data.globconfig.display.events.splice(ioc, 1)
+          data.globconfig.display.events.push(child)
+        } else {
+          data.globconfig.display.event = {
+            uid: uid,
+            event: event
+          }
+        }
+        Db.set(data)
+      },
+      displayAll: function(participants, id, event) {
+        if (!Abbr.isSpeed(event)) throw "this function can only be used on multiple speed events"
+
+        var data = Db.get();
+        var keys = Object.keys(participants)
+        if (typeof data.globconfig == 'undefined') data
+          .globconfig = {}
+        if (typeof data.globconfig.display == 'undefined' || id !==
+          data.globconfig.display.id)
+          data
+          .globconfig.display = {}
+        if (typeof data.globconfig.display.events == 'undefined')
+          data.globconfig.display.events = []
+
+        data.globconfig.display.id = id;
+        data.globconfig.display.speed = true;
+        for (var i = 0; i < keys.length; i++) {
+          var child = {
+            uid: keys[i],
+            event: event
+          }
+          var ioc = data.globconfig.display.events.findIndex(
+            function(obj) {
+              return obj.uid == keys[i] && obj.event == event
+            });
+          if (ioc != -1)
+            data.globconfig.display.events.splice(ioc, 1)
+          data.globconfig.display.events.push(child)
+        }
+        Db.set(data)
+      }
+    }
+  })
 
   .directive('ngConfirmClick', [
     function() {

@@ -1,10 +1,11 @@
 <!-- TODO: if value > max="", correct to max -->
-<h1>{{ Abbr.unabbr(event) }} Score for {{ data[id].participants[uid].name }} from {{ data[id].participants[uid].club }} ({{ uid }})</h1>
+<h1>{{ Abbr.unabbr(event) }} Score for <u>{{ data[id].participants[uid].name }}</u> from <u>{{ data[id].participants[uid].club }}</u> ({{ uid }})</h1>
 <form ng-if="Abbr.isSpeed(event)" class="table" name="speedform">
   <table>
     <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
-      <td><label for="s{{ $index }}">S{{ $index + 1 }}:</td>
-      <td><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]"/></td>
+      <td><label for="s{{ $index }}">S{{ $index + 1 }}:</label></td>
+      <td><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]"
+        /></td>
     </tr>
     <tr>
       <td><label for="fst">False Start:</label></td>
@@ -16,9 +17,14 @@
       <td><input type="number" id="fsw" min="0" max="3" ng-model="data[id].scores[uid][event].switches"
         /></td>
     </tr>
+    <tr>
+      <td>Unofficial Score:</td>
+      <td>{{ score(event, data[id].scores[uid][event], uid, 'PreY') }}</td>
+    </tr>
   </table>
   <span ng-show="speedform.$invalid">Check input for errors marked in red.</span>
   <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
+  <button ng-click="display(uid, id, event)">Display</button>
 </form>
 
 <form ng-if="!Abbr.isSpeed(event)" name="freeform">
@@ -260,6 +266,33 @@
       </table>
     </div>
   </div>
+  <div class="table">
+    <table>
+      <tr>
+        <th></th>
+        <th>Presentation</th>
+        <th>Required Elements</th>
+        <th>Difficulty</th>
+        <th>Deductions</th>
+        <th>Creativity - (Deductions / 2)</th>
+        <th>Difficulty - (Deductions / 2)</th>
+        <th>Total</th>
+      </tr>
+      <tr>
+        <th>Unofficial Scores:</th>
+        <td>{{ roundTo(data[id].finalscores[uid][event].pres, 2) || '' }}</td>
+        <td>{{ roundTo(data[id].finalscores[uid][event].req, 2) || '' }}</td>
+        <td>{{ roundTo(data[id].finalscores[uid][event].diff, 2) || '' }}</td>
+        <td>{{ roundTo(-data[id].finalscores[uid][event].deduc, 2) }}</td>
+        <td>{{ roundTo(data[id].finalscores[uid][event].crea - (data[id].finalscores[uid][event].deduc
+          / 2), 2) || '' }}</td>
+        <td>{{ roundTo(data[id].finalscores[uid][event].diff - (data[id].finalscores[uid][event].deduc
+          / 2), 2) || '' }}</td>
+        <td>{{ score(event, data[id].scores[uid][event], uid) || '' }}</td>
+      </tr>
+    </table>
+  </div>
   <span ng-show="freeform.$invalid">Check input for errors marked in red.</span>
   <button ng-click="save()" ng-disabled="(freeform.$invalid)">Save &amp; Return</button>
+  <button ng-click="display(uid, id, event)">Display</button>
 </form>

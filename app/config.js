@@ -8,7 +8,7 @@ const Config = {
     return `https://download.swant.pw/ropescore/${platform || process.platform}/${arch || process.arch}`
   },
   MissJudges: true, // default: false
-  ShowRaw: true, // default: false
+  ShowRaw: false, // default: false
   ShowDC: true, // default: false, (Show Diff and Creat Scores + rank in overall table)
   ShowAllTables: false, // default: false
   Simplified: true, // default: false
