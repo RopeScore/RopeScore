@@ -164,7 +164,6 @@ angular.module('ropescore', [
       // Cleanup the DOM
       document.body.removeChild(link);
       link = undefined;
-      //window.location.href = uri + wbout;
     }
   })
 

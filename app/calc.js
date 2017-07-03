@@ -423,6 +423,9 @@ angular.module('Calc', [])
           return 2;
         }
         return 1;
+      },
+      clearData: function(id, scope) {
+        delete scope.data[id].finalscores
       }
     };
     return methods

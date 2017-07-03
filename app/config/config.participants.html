@@ -4,11 +4,6 @@
 </label>
 <br/>
 <table ng-if="data[id].participants">
-  <!--<tr ng-repeat="n in getNumber(data[id].config.participants) track by $index">
-    <td><label>Name: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].name"/></label></td>
-    <td><label>Club: <input type="text" ng-model="data[id].participants[data[id].config.idStart + $index].club"/></label></td>
-    <td>id: {{ data[id].config.idStart + $index }}</td>
-  </tr>-->
   <tr>
     <th>{{ (Abbr.hasTeam(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
     <th>Club</th>
@@ -40,3 +35,22 @@
 </div>
 
 <button ng-click="save()">Save and Continue</button>
+<button ng-click="export()">Export list of participants to Excel</button>
+
+<div ng-show="showAll">
+  <table ng-if="data[id].participants" id="partlist" name="overall">
+    <tr>
+      <th colspan="3">{{ data[id].config.name }}</th>
+    </tr>
+    <tr>
+      <th>{{ (Abbr.hasTeam(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
+      <th>Club</th>
+      <th>id</th>
+    </tr>
+    <tr ng-repeat="(uid, info) in data[id].participants">
+      <td>{{ data[id].participants[uid].name }}</td>
+      <td>{{ data[id].participants[uid].club }}</td>
+      <td>{{ uid }}</td>
+    </tr>
+  </table>
+</div>

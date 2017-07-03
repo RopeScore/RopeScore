@@ -44,10 +44,5 @@ angular.module('ropescore.display', ['ngRoute'])
     if (typeof $scope.data.globconfig.display == 'undefined') $scope.data.globconfig
       .display = {}
 
-    if ($scope.speed) {} else {
-      $scope.uid = $scope.data.globconfig.display.uid || '';
-      $scope.event = $scope.data.globconfig.display.event || '';
-    }
-
     $scope.Abbr = Abbr;
   })

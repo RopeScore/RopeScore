@@ -47,6 +47,7 @@ angular.module('ropescore.score', ['ngRoute'])
     }
 
     $scope.save = function() {
+      delete $scope.data[$scope.id].finalscores
       Db.set($scope.data)
       $location.path('/event/' + $scope.id)
     }
