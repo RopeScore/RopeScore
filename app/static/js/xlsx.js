@@ -19575,7 +19575,10 @@ var XLSX = {};
         var merges = [], midx = 0;
         var R = 0, _C = 0, C = 0, RS = 0, CS = 0;
 
+        var name = table.getAttribute('name') || ''
+
 	var color, noborders, bold;
+        ws['!cols'] = []
 
         for (; R < rows.length; ++R) {
             var row = rows[R];
@@ -19602,6 +19605,14 @@ var XLSX = {};
                 })
 
                 var o = {t: 's', v: v};
+                
+                if(typeof ws['!cols'][C] == 'undefined')
+                  ws['!cols'][C] = {wch:5};
+                if(v.trim().length > ws['!cols'][C].wch) {
+                  if(name == 'overall' && R > 1 || name != 'overall') {
+                    ws['!cols'][C].wch = ((name == 'overall' && R == 1) || (name != 'overall' && R == 0) ? v.trim().length / 3 + 3 | 0 : v.trim().length + 2)
+                  }
+                }
 
                 if (v != null && v.length) {
                     if (!isNaN(Number(v))) o = {t: 'n', v: Number(v)};

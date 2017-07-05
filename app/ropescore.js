@@ -179,6 +179,11 @@ angular.module('ropescore', [
         masters: true,
         speed: true
       },
+      srp: {
+        name: "Single Rope Triple Unders",
+        masters: true,
+        speed: true
+      },
       srsf: {
         name: "Single Rope Single Freestyle",
         masters: true,
@@ -214,12 +219,6 @@ angular.module('ropescore', [
         name: "Double Dutch Pair Freestyle",
         masters: false,
         speed: false
-      },
-      // ------------------
-      srp: {
-        name: "Single Rope Triple Unders",
-        masters: true,
-        speed: true
       }
     };
     var nonabbrs = Config.Nonabbrs
@@ -227,6 +226,12 @@ angular.module('ropescore', [
     var functions = {
       unabbr: function(abbr) {
         return nonabbrs[abbr].name || abbrs[abbr].name
+      },
+      unabbrNoType: function(abbr) {
+        var unabbred = nonabbrs[abbr].name || abbrs[abbr].name
+        unabbred = unabbred.replace('Single Rope ', '')
+        unabbred = unabbred.replace('Double Dutch ', '')
+        return unabbred
       },
       abbr: function(abbr) {
         // converts a standard abbr to a non-standard abbr

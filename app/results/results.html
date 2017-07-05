@@ -79,6 +79,9 @@
     <table name="overall">
       <thead>
         <tr>
+          <th bold="true" noborders colspan="{{ (3 + Abbr.header(data[id].config.subevents, 'sr', false) + Abbr.header(data[id].config.subevents, 'dd', false) + 3) }}">{{ data[id].config.name }} Overall Results</th>
+        </tr>
+        <tr>
           <th bold="true" class="blank" noborders colspan="3" rowspan="2"></th>
           <th bold="true" colspan="{{ Abbr.header(data[id].config.subevents, 'sr', false) }}"
             ng-if="Abbr.hasType(data[id].config.subevents, 'sr')">Single Rope</th>
@@ -87,7 +90,7 @@
           <th bold="true" colspan="3" rowspan="2">Overall</th>
         </tr>
         <tr>
-          <th bold="true" colspan="2" ng-repeat="event in Abbr.events track by $index" ng-if="data[id].config.subevents[event]">{{ Abbr.unabbr(event)}}</th>
+          <th bold="true" colspan="2" ng-repeat="event in Abbr.events track by $index" ng-if="data[id].config.subevents[event]">{{ Abbr.unabbrNoType(event)}}</th>
         </tr>
         <tr>
           <th bold="true">{{ (Abbr.hasTeam(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
@@ -122,13 +125,13 @@
       </tbody>
     </table>
   </div>
+
   <div class="table" ng-repeat=" event in Abbr.events track by $index" ng-if="data[id].config.subevents[event]">
     <table name="{{ event }}" class="mt">
       <thead>
         <tr>
-          <th bold="true" colspan="3" class="blank" noborders></th>
-          <th bold="true" colspan="2" ng-if="Abbr.isSpeed(event) ">{{ Abbr.unabbr(event)}}</th>
-          <th bold="true" colspan="10" ng-if="!Abbr.isSpeed(event) ">{{ Abbr.unabbr(event)}}</th>
+          <th bold="true" colspan="5" ng-if="Abbr.isSpeed(event)">{{ data[id].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
+          <th bold="true" colspan="13" ng-if="!Abbr.isSpeed(event)">{{ data[id].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
         </tr>
         <tr>
           <th bold="true">{{ (Abbr.hasTeam(data[id].config.subevents) ? " Team Name " : "Name ")
@@ -137,13 +140,13 @@
           <th bold="true">Club</th>
           <th bold="true">id</th>
 
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Presentation</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Required Elements</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Difficulty</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Deductions</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Creativity - (deductions / 2)</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Pres</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Req El</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Diff</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Deduc</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Crea - Deduc/2</th>
           <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Rank</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Difficulty - (deductions / 2)</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Diff - Deduc/2</th>
           <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Rank</th>
 
           <th bold="true">Score</th>

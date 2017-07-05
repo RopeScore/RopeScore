@@ -1,4 +1,3 @@
-<!-- TODO: if value > max="", correct to max -->
 <h1>{{ Abbr.unabbr(event) }} Score for <u>{{ data[id].participants[uid].name }}</u> from <u>{{ data[id].participants[uid].club }}</u> ({{ uid }})</h1>
 <form ng-if="Abbr.isSpeed(event)" class="table" name="speedform">
   <table>
@@ -47,33 +46,39 @@
         <tr>
           <td><label for="a{{ $index }}mob">Music on the beat:</label></td>
           <td><input type="number" id="a{{ $index }}mob" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].mob" /></td>
+              ng-model="data[id].scores[uid][event].a[$index].mob" ng-change="toMax('a', $index, 'mob')"
+            /></td>
         </tr>
         <tr>
           <td><label for="a{{ $index }}uom">Using the Music:</label></td>
           <td><input type="number" id="a{{ $index }}uom" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].uom" /></td>
+              ng-model="data[id].scores[uid][event].a[$index].uom" ng-change="toMax('a', $index, 'uom')"
+            /></td>
         </tr>
         <tr>
           <td><label for="a{{ $index }}mov">Movement:</label></td>
           <td><input type="number" id="a{{ $index }}mov" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].mov" /></td>
+              ng-model="data[id].scores[uid][event].a[$index].mov" ng-change="toMax('a', $index, 'mov')"
+            /></td>
         </tr>
         <tr>
           <td><label for="a{{ $index }}fbe">Form of Body &amp; Execution:</label></td>
           <td><input type="number" id="a{{ $index }}fbe" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].fbe" /></td>
+              ng-model="data[id].scores[uid][event].a[$index].fbe" ng-change="toMax('a', $index, 'fbe')"
+            /></td>
         </tr>
         <tr>
           <td><label for="a{{ $index }}ori">Originality:</label></td>
           <td><input type="number" id="a{{ $index }}ori" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].ori" /></td>
+              ng-model="data[id].scores[uid][event].a[$index].ori" ng-change="toMax('a', $index, 'ori')"
+            /></td>
         </tr>
 
         <tr ng-if="event == 'ddpf' || event == 'ddsf'">
           <td><label for="a{{ $index }}int">Interaction:</label></td>
           <td><input type="number" id="a{{ $index }}int" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].int" /></tr>
+              ng-model="data[id].scores[uid][event].a[$index].int" ng-change="toMax('a', $index, 'int')"
+            /></tr>
         </tr>
       </table>
     </div>
@@ -100,38 +105,38 @@
           <tr>
             <td><label for="b{{ $index }}tis">Amount of different <b>Turner Involvement Skills</b>:</label></td>
             <td><input type="number" id="b{{ $index }}tis" min="0" max="8" ng-model="data[id].scores[uid][event].b[$index].tis"
-              /></td>
+                ng-change="toMax('b', $index, 'tis')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}swi">Amount of different <b>Turner / Jumper Switches</b>:</label></td>
             <td><input type="number" id="b{{ $index }}swi" min="0" max="5" ng-model="data[id].scores[uid][event].b[$index].swi"
-              /></td>
+                ng-change="toMax('b', $index, 'swi')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}aer">Amount of <b>Gymnastics that are aerials</b>:</label></td>
             <td><input type="number" id="b{{ $index }}aer" min="0" max="8" ng-model="data[id].scores[uid][event].b[$index].aer"
-              /></td>
+                ng-change="toMax('b', $index, 'aer')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}nae">Amount of <b>Gymnastics that are <em>NOT</em> aerials</b>:</label></td>
             <td><input type="number" id="b{{ $index }}nae" min="0" max="2" ng-model="data[id].scores[uid][event].b[$index].nae"
-              /></td>
+                ng-change="toMax('b', $index, 'nae')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}spd"><b>Speed Dance</b>:</label></td>
             <td><input type="number" id="b{{ $index }}spd" min="0" max="1" ng-model="data[id].scores[uid][event].b[$index].spd"
-              /></td>
+                ng-change="toMax('b', $index, 'spd')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}rel"><b>Release</b>:</label></td>
             <td><input type="number" id="b{{ $index }}rel" min="0" max="1" ng-model="data[id].scores[uid][event].b[$index].rel"
-              /></td>
+                ng-change="toMax('b', $index, 'rel')" /></td>
           </tr>
 
           <tr ng-if="event == 'ddpf'">
             <td><label>Amount of <b>Jumper Interactions</b>:</label></td>
             <td><input type="number" min="0" max="2" ng-model="data[id].scores[uid][event].b[$index].jis"
-              /></td>
+                ng-change="toMax('b', $index, 'jis')" /></td>
           </tr>
         </tbody>
 
@@ -139,38 +144,38 @@
           <tr>
             <td><label for="b{{ $index }}mul">Amount of separate <b>sets of at least 4 different triple Multiples</b>:</label></td>
             <td><input type="number" id="b{{ $index }}mul" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].mul"
-              /></td>
+                ng-change="toMax('b', $index, 'mul')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}gym">Amount of different <b>Gymnastics</b>:</label></td>
             <td><input type="number" id="b{{ $index }}gym" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].gym"
-              /></td>
+                ng-change="toMax('b', $index, 'gym')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}pow">Amount of different <b>Power Skills</b>:</label></td>
             <td><input type="number" id="b{{ $index }}pow" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].pow"
-              /></td>
+                ng-change="toMax('b', $index, 'pow')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}spd">Amount of different <b>Speed Dances</b>:</label></td>
             <td><input type="number" id="b{{ $index }}spd" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].spd"
-              /></td>
+                ng-change="toMax('b', $index, 'spd')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}rel">Amount of different <b>Releases</b>:</label></td>
             <td><input type="number" id="b{{ $index }}rel" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].rel"
-              /></td>
+                ng-change="toMax('b', $index, 'rel')" /></td>
           </tr>
           <tr>
             <td><label for="b{{ $index }}wra">Amount of different <b>Wraps</b>:</label></td>
             <td><input type="number" id="b{{ $index }}wra" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].wra"
-              /></td>
+                ng-change="toMax('b', $index, 'wra')" /></td>
           </tr>
 
           <tr ng-if="event != 'srsf'">
             <td><label for="b{{ $index }}pai">Amount separate <b>Pair Interactions</b>:</label></td>
             <td><input type="number" id="b{{ $index }}pai" min="0" max="3" ng-model="data[id].scores[uid][event].b[$index].pai"
-              /></td>
+                ng-change="toMax('b', $index, 'pai')" /></td>
           </tr>
         </tbody>
       </table>
@@ -219,16 +224,18 @@
     <div ng-repeat="n in getNumber(data[id].config.judges[event].h) track by $index">
       <h2>H{{ $index + 1 }}:</h2>
       <table>
-        <tr>
-          <td><label for="h{{ $index }}mim">Minor Misses:</label></td>
-          <td><input type="number" id="h{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['h' + $index]"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="h{{ $index }}mam">Major Misses:</label></td>
-          <td><input type="number" id="h{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['h' + $index]"
-            /></td>
-        </tr>
+        <tbody ng-if="!MissJudges">
+          <tr>
+            <td><label for="h{{ $index }}mim">Minor Misses:</label></td>
+            <td><input type="number" id="h{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['h' + $index]"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="h{{ $index }}mam">Major Misses:</label></td>
+            <td><input type="number" id="h{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['h' + $index]"
+              /></td>
+          </tr>
+        </tbody>
 
         <tr>
           <td><label for="h{{ $index }}spc">Space Violations:</label></td>

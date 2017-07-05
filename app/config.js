@@ -1,7 +1,7 @@
 const Config = {
   Debug: false, // default: false
-  LicenceDate: 1499108713902,
-  version: '2.0.0-au9',
+  LicenceDate: 1499261569500,
+  version: '2.0.0-au92',
   Eval: true, // default: false
 
   releaseRemoteUrl: function(arch, platform) {
@@ -18,15 +18,33 @@ const Config = {
   Nonabbrs: {
     srss: {
       abbr: "srm30s",
-      name: "Masters 30s Speed"
+      name: "30s Speed"
     },
     srse: {
       abbr: "srm3min",
-      name: "Masters 3 minutes Speed"
+      name: "3 min Speed"
+    },
+    // ---- BEGIN EXTRA ----
+    srsj: {
+      abbr: "srs1min",
+      name: "1 min Speed",
+      speed: true,
+      masters: true
+    },
+    srd: {
+      abbr: "srdr",
+      name: "Double Unders Relay",
+      masters: true,
+      speed: true
+    },
+    // ---- END EXTRA ----
+    srp: {
+      abbr: "",
+      name: ""
     },
     srsf: {
       abbr: "",
-      name: ""
+      name: "Masters Freestyle"
     },
     // ------------------
     srsr: {
@@ -52,24 +70,6 @@ const Config = {
     ddpf: {
       abbr: "ddf4",
       name: ""
-    },
-    // ------------------
-    srp: {
-      abbr: "",
-      name: ""
-    },
-    // ------------------
-    srd: {
-      abbr: "srdr",
-      name: "Single Rope Double Unders Relay",
-      masters: true,
-      speed: true
-    },
-    srsj: {
-      abbr: "srs1min",
-      name: "Masters 1 minute Speed",
-      speed: true,
-      masters: true
     }
   }
 }

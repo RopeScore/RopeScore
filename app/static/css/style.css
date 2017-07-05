@@ -273,6 +273,10 @@ input.ng-invalid {
   border: 2px solid red;
 }
 
+input.yellow {
+  border: 2px solid orange;
+}
+
 
 /* tables */
 

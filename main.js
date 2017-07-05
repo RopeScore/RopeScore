@@ -1,6 +1,7 @@
 const logCatch = require('./log-catch');
 const {
   app,
+  shell,
   BrowserWindow,
   dialog,
   autoUpdater,
@@ -91,27 +92,144 @@ function createWindow() {
       // when you should delete the corresponding element.
       win.splice(win[win.length - 1], 1)
     })
-    const menu = Menu.getApplicationMenu() || new Menu
-    if (menu.items[3]) {
-      menu.items[3].submenu.append(new MenuItem({
-        label: 'New Window',
-        accelerator: 'CommandOrControl+N',
-        click: () => {
-          console.log('CommandOrControl+N is pressed')
-          createWindow()
-        }
-      }))
-    } else {
-      menu.append(new MenuItem({
-        label: 'New Window',
-        accelerator: 'CommandOrControl+N',
-        click: () => {
-          console.log('CommandOrControl+N is pressed')
-          createWindow()
-        }
-      }))
+
+    /* beautify preserve:start */
+    const menu = [
+      {
+        label: 'Edit',
+        role: 'edit',
+        submenu: [
+          {role: 'undo'},
+          {role: 'redo'},
+          {type: 'separator'},
+          {role: 'cut'},
+          {role: 'copy'},
+          {role: 'paste'},
+          {role: 'pasteandmatchstyle'},
+          {role: 'delete'},
+          {role: 'selectall'}
+        ]
+      },
+      {
+        label: 'View',
+        role: 'view',
+        submenu: [
+          {role: 'reload'},
+          {role: 'forcereload'},
+          {type: 'separator'},
+          {role: 'resetzoom'},
+          {role: 'zoomin'},
+          {role: 'zoomout'},
+          {type: 'separator'},
+          {role: 'togglefullscreen'}
+      ]
+    },
+      {
+        role: 'window',
+        submenu: [
+          {
+            label: 'New',
+            accelerator: 'CmdOrCtrl+N',
+            click: () => {
+              createWindow()
+            }
+          },
+          {role: 'minimize'},
+          {role: 'close'}
+        ]
+      },
+      {
+        role: 'help',
+        submenu: [
+          {
+            label: 'Documentation',
+            accelerator: 'F1',
+            click: function(item, focusedWindow) {
+              if (focusedWindow)
+                focusedWindow.loadURL('http://localhost:3333/docs');
+            }
+          },
+          {
+            label: 'Report Bugs',
+            click: function(item, focusedWindow) {
+              if (focusedWindow)
+                focusedWindow.loadURL('http://localhost:3333/bugreport');
+            }
+          },
+          {
+            label: 'Licence',
+            click: function(item, focusedWindow) {
+              if (focusedWindow)
+                focusedWindow.loadURL('http://localhost:3333/licence');
+            }
+          },
+        ]
+      },
+    ];
+
+    if (Config.Debug) {
+      const viewMenu = menu.find(function(m) {
+        return m.role === 'view'
+      })
+      if (viewMenu) {
+        viewMenu.submenu.push({role: 'toggledevtools'})
+      }
     }
-    Menu.setApplicationMenu(menu)
+
+    if (process.platform === 'darwin') {
+      const name = app.getName();
+      menu.unshift({
+        label: app.getName(),
+        submenu: [
+          {role: 'about'},
+          {type: 'separator'},
+          {role: 'services', submenu: []},
+          {type: 'separator'},
+          {role: 'hide'},
+          {role: 'hideothers'},
+          {role: 'unhide'},
+          {type: 'separator'},
+          {role: 'quit'}
+        ]
+      });
+      const windowMenu = menu.find(function(m) {
+        return m.role === 'window'
+      })
+      const editMenu = menu.find(function(m) {
+        return m.role === 'edit'
+      })
+      if (windowMenu) {
+        windowMenu.submenu = [
+          {
+            label: 'New',
+            accelerator: 'CmdOrCtrl+N',
+            click: () => {
+              createWindow()
+            }
+          },
+          {role: 'close'},
+          {role: 'minimize'},
+          {role: 'zoom'},
+          {type: 'separator'},
+          {role: 'front'}
+        ]
+      }
+      if(editMenu) {
+        editMenu.submenu.push(
+          {type: 'separator'},
+          {
+            label: 'Speech',
+            submenu: [
+              {role: 'startspeaking'},
+              {role: 'stopspeaking'}
+            ]
+          }
+        )
+      }
+    }
+    /* beautify preserve:end */
+
+    Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
   }
 }
 

@@ -387,7 +387,7 @@ angular.module('Calc', [])
             output.T5 /
             2)));
           output.A = output.PreA * fac;
-          output.A = (output.A < 0 ? 0 : output.A)
+          //output.A = (output.A < 0 ? 0 : output.A)
           output.PreA = (output.PreA < 0 ? 0 : output.PreA)
 
           console.log("id:", uid, "event:", event, "T1:", output.T1,

@@ -42,6 +42,20 @@ angular.module('ropescore.score', ['ngRoute'])
       $scope.data = Db.get()
     }
 
+    $scope.toMax = function(j, i, t) {
+      var el = document.getElementById((j) + (i) + (t))
+      var val = Number(el.value)
+      var max = Number(el.max)
+      if (val > max) {
+        $scope.data[$scope.id].scores[$scope.uid][$scope.event][j][i][t] =
+          max
+        el.classList.add('yellow')
+        setTimeout(function() {
+          el.classList.remove('yellow')
+        }, 5000)
+      }
+    }
+
     $scope.score = function(event, data, uid, ret) {
       return Calc.score(event, data, uid, $scope.id, ret, $scope)
     }
