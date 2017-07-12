@@ -33,11 +33,11 @@ angular.module('ropescore.event', ['ngRoute'])
 
     $scope.events = Abbr.events;
 
-    $scope.checksum = function(obj) {
+    $scope.checksum = function(obj, n) {
       var string = (obj ? JSON.stringify(obj) : '')
       var hash = sha1(string)
       var o = Config.CheckStart
-      var checksum = hash.substring(o, o + 5)
+      var checksum = hash.substring(o, o + n)
       return checksum;
     }
   })

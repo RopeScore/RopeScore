@@ -1,7 +1,7 @@
 {
   "name": "RopeScore",
   "productName": "RopeScore",
-  "version": "2.0.0-au92",
+  "version": "2.0.0-au93",
   "description": "A scoring system for ropeskipping",
   "author": "Svante Bengtson <ropescore@swant.pw>",
   "main": "main.js",

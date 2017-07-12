@@ -9,6 +9,8 @@
         <th>id</th>
 
         <th colspan="2" ng-repeat="event in events track by $index" ng-if="data[id].config.subevents[events[$index]]">{{ Abbr.abbr(events[$index]) }}</th>
+
+        <th>Checksum</th>
       </tr>
     </thead>
     <tbody>
@@ -16,6 +18,8 @@
         <td colspan="3"></td>
 
         <td ng-repeat="event in events track by $index" colspan="2" ng-if="data[id].config.subevents[events[$index]]"><a ng-href="/speedscore/{{ id }}/{{ events[$index] }}" ng-if="Abbr.isSpeed(events[$index])">Edit Multiple</a></td>
+
+        <td class="mono">{{ checksum(data[id].scores, 10) }}</td>
       </tr>
       <tr ng-repeat="(uid, participant) in data[id].participants">
         <td>{{ participant.name }}</td>
@@ -23,7 +27,9 @@
         <td>{{ uid }}</td>
 
         <td ng-repeat-start="event in events track by $index" ng-if="data[id].config.subevents[events[$index]]"><a ng-href="/score/{{ id }}/{{ uid }}/{{ events[$index] }}">Edit</a></td>
-        <td class="mono" ng-repeat-end ng-if="data[id].config.subevents[events[$index]]">{{ checksum(data[id].scores[uid][events[$index]]) }}</td>
+        <td class="mono" ng-repeat-end ng-if="data[id].config.subevents[events[$index]]">{{ checksum(data[id].scores[uid][events[$index]], 5) }}</td>
+
+        <td class="mono">{{ checksum(data[id].scores[uid], 10) }}</td>
       </tr>
     </tbody>
   </table>

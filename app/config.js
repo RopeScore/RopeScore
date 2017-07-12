@@ -1,7 +1,7 @@
 const Config = {
   Debug: false, // default: false
-  LicenceDate: 1499261569500,
-  version: '2.0.0-au92',
+  LicenceDate: 1499859919877,
+  version: '2.0.0-au93',
   Eval: true, // default: false
 
   releaseRemoteUrl: function(arch, platform) {
