@@ -126,7 +126,7 @@ angular.module('ropescore.results', ['ngRoute'])
           $scope.data[$scope.id].ranks[uid] = {};
         }
 
-        if ($scope.data[$scope.id].config.simplified &&
+        if (($scope.data[$scope.id].config.simplified || $scope.data[$scope.id].config.showFactors) &&
           $scope.data[$scope.id].config.factors &&
           $scope.data[$scope.id].config.factors[event]) {
           fac = $scope.data[$scope.id].config.factors[event]
@@ -225,7 +225,7 @@ angular.module('ropescore.results', ['ngRoute'])
         rank = (ranksum != undefined ? ranksums.indexOf(ranksum) + 1 :
           undefined)
 
-        if ($scope.data[$scope.id].config.simplified &&
+        if (($scope.data[$scope.id].config.simplified || $scope.data[$scope.id].config.showFactors) &&
           $scope.data[$scope.id].config.factors &&
           $scope.data[$scope.id].config.factors[event]) {
           fac = $scope.data[$scope.id].config.factors[event] || 1;

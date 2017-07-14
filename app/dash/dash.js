@@ -22,7 +22,7 @@ angular.module('ropescore.dash', ['ngRoute'])
    * @param {service} $location
    * @param {service} Db
    */
-  .controller('DashCtrl', function($scope, $location, Db) {
+  .controller('DashCtrl', function($scope, $location, Checksum, Db) {
     $scope.data = Db.get()
 
     $scope.setID(null)
@@ -33,6 +33,13 @@ angular.module('ropescore.dash', ['ngRoute'])
     $scope.save = function() {
       Db.set($scope.data)
     }
+
+    $scope.reset = function() {
+      $scope.data = {}
+      Db.set($scope.data)
+    }
+
+    $scope.checksum = Checksum
 
     document.getElementById('import-file')
       .addEventListener('change', function(evt) {

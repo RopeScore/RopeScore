@@ -167,6 +167,16 @@ angular.module('ropescore', [
     }
   })
 
+  .factory("Checksum", function(Config) {
+    return function(obj, n = 5) {
+      var string = (obj ? JSON.stringify(obj) : '')
+      var hash = sha1(string)
+      var o = Config.CheckStart
+      var checksum = hash.substring(o, o + n)
+      return checksum;
+    }
+  })
+
   .factory("Abbr", function(Config) {
     var abbrs = {
       srss: {

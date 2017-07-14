@@ -65,7 +65,7 @@ angular.module('ropescore.config.participants', ['ngRoute'])
       var processed = [];
       console.log(data)
 
-      var ids = ($scope.data[$scope.id].participants ? Object.keys($scope.data[
+      var ids = ($scope.hasData() ? Object.keys($scope.data[
         $scope.id].participants) : [$scope.data[$scope.id].config.idStart])
       ids = ids.sort(function(a, b) {
         return b - a
@@ -103,7 +103,7 @@ angular.module('ropescore.config.participants', ['ngRoute'])
       }
       for (var i = 0; i < data.data.length; i++) {
         var id;
-        var keys = ($scope.data[$scope.id].participants ? Object.keys(
+        var keys = ($scope.hasData() ? Object.keys(
           $scope.data[$scope.id].participants) : [])
         if (indexes.id >= 0 && keys.indexOf(data.data[i][indexes.id]) < 0) {
           id = data.data[i][indexes.id]
@@ -123,6 +123,14 @@ angular.module('ropescore.config.participants', ['ngRoute'])
       var tables = [document.getElementById('partlist')]
       tablesToExcel(tables, $scope.data[$scope.id].config.name +
         "-participants")
+    }
+
+    $scope.hasData = function () {
+      if(typeof $scope.data[$scope.id].participants == 'undefined')
+        return false
+      if(Object.keys($scope.data[$scope.id].participants).length < 1)
+        return false
+      return true
     }
 
     $scope.delete = function(uid) {

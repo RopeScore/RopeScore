@@ -24,7 +24,7 @@ angular.module('ropescore.event', ['ngRoute'])
    * @param {service} Db
    */
   .controller('EventCtrl', function($scope, $location, $routeParams, Db, Abbr,
-    Config) {
+    Checksum, Config) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id;
@@ -33,11 +33,5 @@ angular.module('ropescore.event', ['ngRoute'])
 
     $scope.events = Abbr.events;
 
-    $scope.checksum = function(obj, n) {
-      var string = (obj ? JSON.stringify(obj) : '')
-      var hash = sha1(string)
-      var o = Config.CheckStart
-      var checksum = hash.substring(o, o + n)
-      return checksum;
-    }
+    $scope.checksum = Checksum
   })

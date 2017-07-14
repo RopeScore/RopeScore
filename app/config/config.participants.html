@@ -1,9 +1,9 @@
 <h1>Participants</h1>
-<label ng-if="!data[id].participants">Start with id:
+<label ng-if="!hasData()">Start with id:
   <input type="number" ng-model="data[id].config.idStart" />
 </label>
 <br/>
-<table ng-if="data[id].participants">
+<table ng-if="hasData()">
   <tr>
     <th>{{ (Abbr.hasTeam(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
     <th>Club</th>
@@ -38,7 +38,7 @@
 <button ng-click="export()">Export list of participants to Excel</button>
 
 <div ng-show="showAll">
-  <table ng-if="data[id].participants" id="partlist" name="overall">
+  <table ng-if="hasData()" id="partlist" name="overall">
     <tr>
       <th colspan="3">{{ data[id].config.name }}</th>
     </tr>
