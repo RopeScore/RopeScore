@@ -1,7 +1,7 @@
 const Config = {
   Debug: false, // default: false
-  LicenceDate: 1500022326445,
-  version: '2.0.0-au93',
+  LicenceDate: 1500031370004,
+  version: '2.0.0-au94',
   Eval: true, // default: false
 
   releaseRemoteUrl: function(arch, platform) {
@@ -38,7 +38,7 @@ const Config = {
       speed: true
     },
     // ---- END EXTRA ----
-    srp: {
+    srtu: {
       abbr: "",
       name: ""
     },

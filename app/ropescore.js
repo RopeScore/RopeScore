@@ -189,7 +189,7 @@ angular.module('ropescore', [
         masters: true,
         speed: true
       },
-      srp: {
+      srtu: {
         name: "Single Rope Triple Unders",
         masters: true,
         speed: true
