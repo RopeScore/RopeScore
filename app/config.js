@@ -1,10 +1,11 @@
+/* global angular */
 const Config = {
   Debug: false, // default: false
-  LicenceDate: 1500031370004,
-  version: '2.0.0-au94',
+  LicenceDate: 1501460583323,
+  version: '2.0.0-au95',
   Eval: true, // default: false
 
-  releaseRemoteUrl: function(arch, platform) {
+  releaseRemoteUrl: function (arch, platform) {
     return `https://download.swant.pw/ropescore/${platform || process.platform}/${arch || process.arch}`
   },
   MissJudges: true, // default: false
@@ -17,59 +18,59 @@ const Config = {
   // fill in nonabbrs if you want to use non standard abbrs, add non-standard events here as well
   Nonabbrs: {
     srss: {
-      abbr: "srm30s",
-      name: "30s Speed"
+      abbr: 'srm30s',
+      name: '30s Speed'
     },
     srse: {
-      abbr: "srm3min",
-      name: "3 min Speed"
+      abbr: 'srm3min',
+      name: '3 min Speed'
     },
     // ---- BEGIN EXTRA ----
     srsj: {
-      abbr: "srs1min",
-      name: "1 min Speed",
+      abbr: 'srs1min',
+      name: '1 min Speed',
       speed: true,
       masters: true
     },
     srd: {
-      abbr: "srdr",
-      name: "Double Unders Relay",
+      abbr: 'srdr',
+      name: 'Double Unders Relay',
       masters: true,
       speed: true
     },
     // ---- END EXTRA ----
     srtu: {
-      abbr: "",
-      name: ""
+      abbr: '',
+      name: ''
     },
     srsf: {
-      abbr: "",
-      name: "Masters Freestyle"
+      abbr: '',
+      name: 'Masters Freestyle'
     },
     // ------------------
     srsr: {
-      abbr: "",
-      name: ""
+      abbr: '',
+      name: ''
     },
     srpf: {
-      abbr: "srf2",
-      name: ""
+      abbr: 'srf2',
+      name: ''
     },
     srtf: {
-      abbr: "srf4",
-      name: ""
+      abbr: 'srf4',
+      name: ''
     },
     ddsr: {
-      abbr: "",
-      name: ""
+      abbr: '',
+      name: ''
     },
     ddsf: {
-      abbr: "ddf3",
-      name: ""
+      abbr: 'ddf3',
+      name: ''
     },
     ddpf: {
-      abbr: "ddf4",
-      name: ""
+      abbr: 'ddf4',
+      name: ''
     }
   }
 }
@@ -78,10 +79,10 @@ if (typeof module === 'object' && typeof exports !== 'undefined') {
   // Node. Does not work with strict CommonJS, but
   // only CommonJS-like environments that support module.exports,
   // like Node.
-  module.exports = Config;
-} else if (typeof angular == 'object') {
+  module.exports = Config
+} else if (typeof angular === 'object') {
   angular.module('Config', [])
-    .factory('Config', function() {
-      return Config;
+    .factory('Config', function () {
+      return Config
     })
 }

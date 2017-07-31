@@ -1,4 +1,9 @@
 <h1>{{ data[id].config.name }} Results</h1>
+
+<button ng-click="toExcel()">Export to Excel</button>
+<button ng-click="live()">{{ (isLive ? 'Stop Updating Live' : 'Update Live' ) }}</button>
+<button ng-click="toggleRankAll()">Overall rank everyone</button>
+
 <div class="table">
   <table name="raw">
     <thead>
@@ -40,7 +45,8 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="part in partArray | orderBy : ['rank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})">
+      <tr ng-repeat="part in partArray | orderBy : 'uid' : false : comparator.overall"
+        ng-style="($even ? {} : {'background-color':'#eee'})">
         <td>{{ data[id].participants[part.uid].name }}</td>
         <td>{{ data[id].participants[part.uid].club }}</td>
         <td>{{ part.uid }}</td>
@@ -69,10 +75,6 @@
     </tbody>
   </table>
 </div>
-
-<button ng-click="toExcel()">Export to Excel</button>
-<button ng-click="live()">{{ (isLive ? 'Stop Updating Live' : 'Update Live' ) }}</button>
-<button ng-click="toggleRankAll()">Overall rank everyone</button>
 
 <div ng-show="ShowAllTables">
   <div class="table">
@@ -109,7 +111,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="part in partArray | orderBy : ['rank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})">
+        <tr ng-repeat="part in partArray | orderBy : 'uid' : false : comparator.overall"
+          ng-style="($even ? {} : {'background-color':'#eee'})">
           <td>{{ data[id].participants[part.uid].name }}</td>
           <td>{{ data[id].participants[part.uid].club }}</td>
           <td>{{ part.uid }}</td>
@@ -126,7 +129,7 @@
     </table>
   </div>
 
-  <div class="table" ng-repeat=" event in Abbr.events track by $index" ng-if="data[id].config.subevents[event]">
+  <div class="table" ng-repeat="event in Abbr.events track by $index" ng-if="data[id].config.subevents[event]">
     <table name="{{ event }}" class="mt">
       <thead>
         <tr>
@@ -156,7 +159,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="part in partArray | orderBy : ['rank','uid'] " ng-style="($even ?
+        <tr ng-repeat="part in partArray | orderBy : 'uid' : false : comparator[event]" ng-style="($even ?
     {} : { 'background-color': '#eee'}) ">
           <td>{{ data[id].participants[part.uid].name }}</td>
           <td>{{ data[id].participants[part.uid].club }}</td>
