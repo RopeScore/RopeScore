@@ -45,10 +45,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="part in partArray | orderBy : 'uid' : false : comparator.overall"
-        ng-style="($even ? {} : {'background-color':'#eee'})">
-        <td>{{ data[id].participants[part.uid].name }}</td>
-        <td>{{ data[id].participants[part.uid].club }}</td>
+      <tr ng-repeat="part in partArray | orderBy : ['rank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})">
+        <td>{{ part.name }}</td>
+        <td>{{ part.club }}</td>
         <td>{{ part.uid }}</td>
 
         <td class="gray" argb="FF808080" ng-repeat-start="event in Abbr.events track by $index"
@@ -111,8 +110,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="part in partArray | orderBy : 'uid' : false : comparator.overall"
-          ng-style="($even ? {} : {'background-color':'#eee'})">
+        <tr ng-repeat="part in partArray | orderBy : ['rank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})">
+          <!-- ng-if="inAll(part.uid)" -->
           <td>{{ data[id].participants[part.uid].name }}</td>
           <td>{{ data[id].participants[part.uid].club }}</td>
           <td>{{ part.uid }}</td>
@@ -159,8 +158,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="part in partArray | orderBy : 'uid' : false : comparator[event]" ng-style="($even ?
-    {} : { 'background-color': '#eee'}) ">
+        <tr ng-repeat="part in makeRankArray() | orderBy : [event, 'uid']" ng-style="($even ? {} : { 'background-color': '#eee'})"
+          ng-if="part[event]">
           <td>{{ data[id].participants[part.uid].name }}</td>
           <td>{{ data[id].participants[part.uid].club }}</td>
           <td>{{ part.uid }}</td>
@@ -187,4 +186,4 @@
   </div>
 </div>
 
-<!-- <pre>{{ data[id] | json }}</pre> -->
+<!-- <pre>{{ data[id].ranks | json }}</pre> -->

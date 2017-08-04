@@ -1,8 +1,8 @@
 /* global angular */
 const Config = {
   Debug: false, // default: false
-  LicenceDate: 1501460583323,
-  version: '2.0.0-au95',
+  LicenceDate: 1501881524439,
+  version: '2.0.0-au98',
   Eval: true, // default: false
 
   releaseRemoteUrl: function (arch, platform) {

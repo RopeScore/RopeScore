@@ -72,16 +72,30 @@ angular.module('ropescore.results', ['ngRoute'])
       $scope.partArray = []
     }
 
+    $scope.makeRankArray = function () {
+      var arr = Object.keys($scope.data[$scope.id].ranks)
+        .map(function (key) {
+          $scope.data[$scope.id].ranks[key].uid = key
+          return $scope.data[$scope.id].ranks[key]
+        })
+      return arr
+    }
+
     $scope.comparator = {
       overall: function (v1, v2) {
         $scope.comparator.compare(v1, v2, 'overall')
       },
-      compare: function (v1, v2, event) {
-        if (event === 'overall') {
-          if (typeof $scope.data[$scope.id].participants[v1.value] === 'undefined') {
-            return Number(v2.value) < Number(v1.value)
+      compare: function (v1, v2, evt) {
+        if (v1.type === 'number' || v2.type === 'number') {
+          return 0
+        }
+        if (evt === 'overall') {
+          if (typeof $scope.data[$scope.id].participants[v1.value].rank === 'undefined') {
+            console.log(v1.value, (Number(v2.value) > Number(v1.value) ? -1 : 1))
+            return (Number(v2.value) > Number(v1.value) ? -1 : 1)
           } else {
-            return Number($scope.data[$scope.id].participants[v1.value].rank) < Number($scope.data[$scope.id].participants[v2.value].rank)
+            console.log(v1.value, (Number($scope.data[$scope.id].participants[v2.value].rank) > Number($scope.data[$scope.id].participants[v1.value].rank) ? -1 : 1))
+            return (Number($scope.data[$scope.id].participants[v2.value].rank) > Number($scope.data[$scope.id].participants[v1.value].rank) ? -1 : 1)
           }
         }
       }
@@ -98,18 +112,20 @@ angular.module('ropescore.results', ['ngRoute'])
     }
 
     $scope.rank = function (data, event, uid) {
-      var events = Object.keys($scope.data[$scope.id].config.subevents)
-      var enabled = 0
-      for (var i = 0; i < events.length; i++) {
-        if ($scope.data[$scope.id].config.subevents[events[i]]) {
-          enabled = enabled + 1
-        }
+      var entered = 0
+      if (typeof data !== 'undefined' && typeof data[uid] !== 'undefined') {
+        entered = Object.keys(data[uid]).filter(function (abbr) {
+          return Abbr.events.indexOf(abbr) >= 0
+        })
       }
-      if (data != undefined && data[uid] != undefined && data[uid][event] !=
-        undefined && (Abbr.isSpeed(event) || event == 'ranksum')) {
-        if (event == 'ranksum' && !$scope.rankAll && ((Object.keys(data[
-              uid])
-            .length - 1) != enabled)) {
+
+      var events = Object.keys($scope.data[$scope.id].config.subevents)
+      var enabled = events.filter(function (abbr) {
+        return $scope.data[$scope.id].config.subevents[abbr]
+      })
+
+      if (data !== undefined && data[uid] !== undefined && data[uid][event] !== undefined && (Abbr.isSpeed(event) || event === 'ranksum')) {
+        if (event === 'ranksum' && !$scope.rankAll && (entered.length !== enabled.length)) {
           return undefined
         }
 
@@ -117,12 +133,15 @@ angular.module('ropescore.results', ['ngRoute'])
         var scores = []
         var score = (data[uid] ? data[uid][event] || 0 : 0)
         var rank
+        Tscore = Dscore + Cscore
         var fac = 1
 
         for (var i = 0; i < keys.length; i++) {
-          if (event == 'ranksum' && !$scope.rankAll && ((Object.keys(data[
-                keys[i]])
-              .length - 1) != enabled)) {
+          entered = 0
+          entered = Object.keys(data[keys[i]]).filter(function (abbr) {
+            return Abbr.events.indexOf(abbr) >= 0
+          })
+          if (event === 'ranksum' && !$scope.rankAll && (entered.length !== enabled.length)) {
             // do nothing
           } else {
             scores.push(data[keys[i]][event] || 0)
@@ -138,8 +157,9 @@ angular.module('ropescore.results', ['ngRoute'])
           })
         }
 
-        rank = (score != undefined ? scores.indexOf(score) + 1 :
-          undefined)
+        console.log(scores)
+
+        rank = (score !== undefined ? scores.indexOf(score) + 1 : undefined)
 
         if (!$scope.data[$scope.id].ranks) {
           $scope.data[$scope.id].ranks = {}
@@ -163,8 +183,7 @@ angular.module('ropescore.results', ['ngRoute'])
           $scope.data[$scope.id].participants[uid].rank = rank
         }
         return (rank <= 0 ? undefined : rank)
-      } else if (!Abbr.isSpeed(event) && data && data[uid] && data[uid]
-            [event]) {
+      } else if (!Abbr.isSpeed(event) && data && data[uid] && data[uid][event]) {
         var C
         var D
         var rank
@@ -217,6 +236,7 @@ angular.module('ropescore.results', ['ngRoute'])
               keys[i]][event].diff - (data[
               keys[i]][event].deduc / 2) ||
             0 : 0)
+          var TtempScore = DtempScore + CtempScore
           var CtempRank = (CtempScore != undefined ? Cscores.indexOf(
               CtempScore) + 1 :
             undefined)
@@ -238,53 +258,28 @@ angular.module('ropescore.results', ['ngRoute'])
             $scope.data[$scope.id].hiddenRanks[keys[i]][event].diff =
               DtempRank
             var tempRanksum = Number(CtempRank) + Number(DtempRank)
-            ranksums.push({ranksum: tempRanksum, uid: keys[i]})
+            ranksums.push({ranksum: tempRanksum, score: TtempScore, uid: keys[i]})
           }
         }
 
         ranksums.sort(function (a, b) {
-          return a.ranksum - b.ranksum // sort ascending
+          // sort ascending on rank but descending on score if ranksums are equal
+          if (a.ranksum === b.ranksum) {
+            return b.score - a.score
+          } else {
+            return a.ranksum - b.ranksum
+          }
         })
 
-        // TODO: if more than once in array, check which score is higher
-        //       probably by for looping over the scores, and if the score
-        //       >= scores[i], then award i+1
-
-        if (typeof ranksum !== 'undefined') {
-          var n = 0
-          for (i = 0; i < ranksums.length; i++) {
-            if (ranksums[i].ranksum === ranksum) {
-              n++
-            }
-          }
-          if (n > 1) {
-            while (n > 1) {
-              var Tindex = ranksums.findIndex(function (obj) {
-                return (uid !== obj.uid ? ranksum === obj.ranksum : false)
-              })
-              var Tuid = ranksums[Tindex].uid
-              console.log(Tuid)
-              if (Tscores[Tuid] >= Tscore) {
-                rank = Tindex + 1
-              } else {
-                rank = Tindex + 1
-              }
-              n--
-            }
-          } else {
-            rank = ranksums.findIndex(function (obj) {
-              return ranksum === obj.ranksum
-            }) + 1
-          }
-        } else {
-          rank = undefined
-        }
+        rank = ranksums.findIndex(function (obj) {
+          return uid === obj.uid
+        }) + 1
 
         if (($scope.data[$scope.id].config.simplified || $scope.data[$scope.id].config.showFactors) &&
           $scope.data[$scope.id].config.factors &&
           $scope.data[$scope.id].config.factors[event]) {
           fac = $scope.data[$scope.id].config.factors[event] || 1
-        } else if (event == 'srsf') {
+        } else if (event === 'srsf') {
           fac = 2
         }
 
@@ -334,21 +329,22 @@ angular.module('ropescore.results', ['ngRoute'])
     $scope.ranksum = function (data) {
       if (data) {
         var keys = Object.keys(data)
-        var subt = (keys.indexOf('ranksum') >= 0 ? 1 : 0)
+        keys = keys.filter(function (abbr) {
+          return Abbr.events.indexOf(abbr) >= 0
+        })
         var events = Object.keys($scope.data[$scope.id].config.subevents)
-        var enabled = 0
-        for (var i = 0; i < events.length; i++) {
-          if ($scope.data[$scope.id].config.subevents[events[i]]) {
-            enabled = enabled + 1
-          }
-        }
-        if ($scope.rankAll || keys.length - subt == enabled) {
+        var enabled = events.filter(function (abbr) {
+          return $scope.data[$scope.id].config.subevents[abbr]
+        })
+        if ($scope.rankAll || keys.length === enabled.length) {
           var sum = 0
-          data.ranksum = undefined
-          var keys = Object.keys(data)
-          for (var i = 0; i < keys.length; i++) {
-            sum += data[keys[i]] || 0
-          }
+          console.log(data.ranksum, data)
+          sum = Object.keys(data).filter(function (abbr) {
+            return Abbr.events.indexOf(abbr) >= 0
+          }).reduce(function (sum, abbr) {
+            return sum + data[abbr]
+          }, 0)
+          console.log(sum)
           data.ranksum = (sum > 0 ? sum : undefined)
           return (sum > 0 ? sum : '')
         }

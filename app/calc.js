@@ -160,7 +160,8 @@ angular.module('Calc', [])
           }
 
           for (i = lmin - 1; i < lmax; i++) {
-            lev[i] = Math.roundTo(l(i + 1), 4)
+            // lev[i] = Math.roundTo(l(i + 1), 4)
+            lev[i] = l(i + 1)
           }
 
           /** calc T1 */
@@ -177,11 +178,9 @@ angular.module('Calc', [])
               calcdiff[i][p] = Math.roundTo((scores[i][p] || 0) * lev[p], 4)
               if (lmaxes[p] !== -1 && calcdiff[i][p] > lmaxes[p]) {
                 var temp = calcdiff[i][p] - lmaxes[p] || 0
-                temp = temp * lev[p]
                 calcdiff[i][p] = lmaxes[p]
                 if (p >= lmin && temp > 0 && lmaxes[p - 1] !== -1 && calcdiff[i][p - 1] < lmaxes[p - 1]) {
                   // there is an excess of level 3 (4) skills for it'll be converted to 1.5 level 2 (3) skills
-                  temp = temp / 1.5
                   calcdiff[i][p - 1] = calcdiff[i][p - 1] + temp
                   calcdiff[i][p - 1] = (calcdiff[i][p - 1] > lmaxes[p - 1] ? lmaxes[p - 1] : calcdiff[i][p - 1])
                 }
@@ -300,8 +299,11 @@ angular.module('Calc', [])
               }
               calcrq[i] = calcrq[i] + (scores[i][keys[p]] || 0)
             }
-            if (typeof scores[i].pai !== 'undefined' && scores[i].pai === 1) {
+            if (typeof scores[i].pai !== 'undefined' && scores[i].pai < 2) {
               calcrq[i] = calcrq[i] - scores[i].pai
+            }
+            if (typeof scores[i].jis !== 'undefined' && scores[i].jis < 2) {
+              calcrq[i] = calcrq[i] - scores[i].jis
             }
           }
           calcrq.sort(function (a, b) {

@@ -15,7 +15,7 @@
 <div ng-if="!data.globconfig.display.speed && data.globconfig.display.id" class="lg center">
   <h1>Unofficial Scores - {{ data[data.globconfig.display.id].config.name }}</h1>
   <h2>{{ Abbr.unabbr(data.globconfig.display.event.event) }}</h2>
-  <h2><u>{{ data[data.globconfig.display.id].participants[event.uid].name }}</u> from <u>{{ data[data.globconfig.display.id].participants[event.uid].club }}</u></h2>
+  <h2><u>{{ data[data.globconfig.display.id].participants[data.globconfig.display.event.uid].name }}</u> from <u>{{ data[data.globconfig.display.id].participants[data.globconfig.display.event.uid].club }}</u></h2>
   <table class="blank lg center">
     <tr>
       <th></th>
