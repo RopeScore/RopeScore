@@ -1,27 +1,27 @@
-'use strict';
+/* global angular, WebSocket, store, XLSX, sha1 */
+'use strict'
 
-Math.roundTo = function(n, digits) {
-  digits = digits || 0;
-  var init = n;
+Math.roundTo = function (n, digits) {
+  digits = digits || 0
 
-  var multiplicator = Math.pow(10, digits);
-  n = parseFloat((n * multiplicator));
-  var test = (Math.round(n) / multiplicator);
-  //console.log(`rounded ${init} to ${test}`)
-  return test;
+  var multiplicator = Math.pow(10, digits)
+  n = parseFloat((n * multiplicator))
+  var test = (Math.round(n) / multiplicator)
+  // console.log(`rounded ${init} to ${test}`)
+  return test
 }
 
-var errorSocket = new WebSocket("ws://localhost:3333/errors");
-errorSocket.onmessage = function(evt) {
+var errorSocket = new WebSocket('ws://localhost:3333/errors')
+errorSocket.onmessage = function (evt) {
   var data = JSON.parse(evt.data)
-  if (data.type == 'update') return;
+  if (data.type === 'update') return
   console.log('backend error:', data)
 }
 
-var dbSocket = new WebSocket("ws://localhost:3333/db");
-dbSocket.onmessage = function(evt) {
+var dbSocket = new WebSocket('ws://localhost:3333/db')
+dbSocket.onmessage = function (evt) {
   var data = JSON.parse(evt.data)
-  if (data.type != 'update') return;
+  if (data.type !== 'update') return
   console.log('Update')
 }
 
@@ -48,202 +48,198 @@ angular.module('ropescore', [
 
   .config([
     '$locationProvider', '$routeProvider', '$compileProvider',
-    function($locationProvider, $routeProvider, $compileProvider) {
+    function ($locationProvider, $routeProvider, $compileProvider) {
       /**
        * @description ngRoute with html5 mode (no hashbang, but with fallback)
        * @memberOf ropescore.ropescore
        */
       $locationProvider.html5Mode(true)
-        .hashPrefix('!');
+        .hashPrefix('!')
 
       $routeProvider.otherwise({
         redirectTo: '/'
-      });
+      })
 
       $compileProvider.aHrefSanitizationWhitelist(
-        /^\s*(https?:|ftp:|mailto:|data:application\/json)/);
+        /^\s*(https?:|ftp:|mailto:|data:application\/json)/)
     }
   ])
 
-  .run(function($location, $rootScope, Db, Config) {
+  .run(function ($location, $rootScope, Db, Config) {
     /**
      * @name $rootScope.goHome
      * @function
      * @memberOf ropescore
      * @description function to go to /
      */
-    $rootScope.goHome = function() {
-      $location.path('/');
-    };
-
-    $rootScope.setID = function(id) {
-      console.log(`id: ${id}`)
-      $rootScope.id = id;
+    $rootScope.goHome = function () {
+      $location.path('/')
     }
 
-    $rootScope.copyright = function() {
-      if (new Date()
-        .getFullYear() == 2017) {
-        return 2017;
+    $rootScope.setID = function (id) {
+      console.log(`id: ${id}`)
+      $rootScope.id = id
+    }
+
+    $rootScope.copyright = function () {
+      if (new Date().getFullYear() === 2017) {
+        return 2017
       } else {
-        return "2017-" + ((new Date())
-          .getFullYear());
+        return '2017-' + ((new Date()).getFullYear())
       }
     }
     $rootScope.version = Config.version
 
-    $rootScope.$on('$routeChangeStart', function(next, current) {
+    $rootScope.$on('$routeChangeStart', function (next, current) {
       console.log(`Navigated to ${$location.path()}`)
-    });
+    })
   })
 
-  .factory("Db",
+  .factory('Db',
     /**
      * @function Db
      * @memberOf ropescore.ropescore
      * @return {object} Return database
      */
-    function($rootScope, $q) {
+    function ($rootScope, $q) {
       var methods = {
-        get: function() {
+        get: function () {
           console.log('got data from database')
           return store.get('ropescore') || {}
         },
-        set: function(newData) {
+        set: function (newData) {
           console.log('saved data to databse')
           store.set('ropescore', newData)
-          return dbSocket.send('{"type":"update"}')
           methods.data = methods.get()
+          return dbSocket.send('{"type":"update"}')
         }
       }
       methods.data = methods.get()
 
-      dbSocket.onmessage = function(evt) {
+      dbSocket.onmessage = function (evt) {
         var data = JSON.parse(evt.data)
-        if (data.type != 'update') return;
+        if (data.type !== 'update') return
         console.log('Update ng')
 
-        methods.data = methods.get();
+        methods.data = methods.get()
       }
       return methods
     })
 
-  .factory('tablesToExcel', function(Abbr) {
-    return function(tables, name) {
-      var wb = XLSX.utils.book_new();
+  .factory('tablesToExcel', function (Abbr) {
+    return function (tables, name) {
+      var wb = XLSX.utils.book_new()
       var wopts = {
         bookType: 'xlsx',
         bookSST: true,
         type: 'base64'
-      };
-      if (!wb.Props) wb.Props = {};
+      }
+      if (!wb.Props) wb.Props = {}
       wb.Props.Title = (name ? 'Results for ' + (name) + ' - ' : '') +
-        'RopeScore';
+        'RopeScore'
       wb.Props.CreatedDate = new Date()
-        .toISOString();
+        .toISOString()
       var uri = 'data:application/octet-streaml;base64,'
       for (var i = 0; i < tables.length; i++) {
-        var sheetName = (tables[i].getAttribute('name') == 'overall' ?
-          'Overall' : Abbr.abbr(tables[i].getAttribute('name')) || (
-            'Sheet' + (i + 1)))
+        var sheetName = (tables[i].getAttribute('name') === 'overall' ? 'Overall' : Abbr.abbr(tables[i].getAttribute('name')) || ('Sheet' + (i + 1)))
         XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(tables[i], {
-            cellStyles: true
-          }),
+          cellStyles: true
+        }),
           sheetName)
       }
       console.log(wb)
-      var wbout = XLSX.write(wb, wopts);
+      var wbout = XLSX.write(wb, wopts)
 
-      var link = document.createElement("a");
-      link.download = 'ropescore' + (name ? '-' + (name) : '') + '.xlsx';
-      link.href = uri + wbout;
+      var link = document.createElement('a')
+      link.download = 'ropescore' + (name ? '-' + (name) : '') + '.xlsx'
+      link.href = uri + wbout
 
-      document.body.appendChild(link);
-      link.click();
+      document.body.appendChild(link)
+      link.click()
 
       // Cleanup the DOM
-      document.body.removeChild(link);
-      link = undefined;
+      document.body.removeChild(link)
+      link = undefined
     }
   })
 
-  .factory("Checksum", function(Config) {
-    return function(obj, n = 5) {
+  .factory('Checksum', function (Config) {
+    return function (obj, n = 5) {
       var string = (obj ? JSON.stringify(obj) : '')
       var hash = sha1(string)
       var o = Config.CheckStart
       var checksum = hash.substring(o, o + n)
-      return checksum;
+      return checksum
     }
   })
 
-  .factory("Abbr", function(Config) {
+  .factory('Abbr', function (Config) {
     var abbrs = {
       srss: {
-        name: "Single Rope Speed Sprint",
+        name: 'Single Rope Speed Sprint',
         masters: true,
         speed: true
       },
       srse: {
-        name: "Single Rope Speed Endurance",
+        name: 'Single Rope Speed Endurance',
         masters: true,
         speed: true
       },
       srtu: {
-        name: "Single Rope Triple Unders",
+        name: 'Single Rope Triple Unders',
         masters: true,
         speed: true
       },
       srsf: {
-        name: "Single Rope Single Freestyle",
+        name: 'Single Rope Single Freestyle',
         masters: true,
         speed: false
       },
       // ------------------
       srsr: {
-        name: "Single Rope Speed Relay",
+        name: 'Single Rope Speed Relay',
         masters: false,
         speed: true
       },
       srpf: {
-        name: "Single Rope Pair Freestyle",
+        name: 'Single Rope Pair Freestyle',
         masters: false,
         speed: false
       },
       srtf: {
-        name: "Single Rope Team Freestyle",
+        name: 'Single Rope Team Freestyle',
         masters: false,
         speed: false
       },
       ddsr: {
-        name: "Double Dutch Speed Relay",
+        name: 'Double Dutch Speed Relay',
         masters: false,
         speed: true
       },
       ddsf: {
-        name: "Double Dutch Single Freestyle",
+        name: 'Double Dutch Single Freestyle',
         masters: false,
         speed: false
       },
       ddpf: {
-        name: "Double Dutch Pair Freestyle",
+        name: 'Double Dutch Pair Freestyle',
         masters: false,
         speed: false
       }
-    };
+    }
     var nonabbrs = Config.Nonabbrs
 
     var functions = {
-      unabbr: function(abbr) {
+      unabbr: function (abbr) {
         return nonabbrs[abbr].name || abbrs[abbr].name
       },
-      unabbrNoType: function(abbr) {
+      unabbrNoType: function (abbr) {
         var unabbred = nonabbrs[abbr].name || abbrs[abbr].name
         unabbred = unabbred.replace('Single Rope ', '')
         unabbred = unabbred.replace('Double Dutch ', '')
         return unabbred
       },
-      abbr: function(abbr) {
+      abbr: function (abbr) {
         // converts a standard abbr to a non-standard abbr
         if (nonabbrs) {
           return nonabbrs[abbr].abbr || abbr
@@ -252,82 +248,82 @@ angular.module('ropescore', [
         }
       },
       events: Object.keys(nonabbrs),
-      isSpeed: function(abbr) {
+      isSpeed: function (abbr) {
         if (nonabbrs && nonabbrs[abbr]) {
-          return nonabbrs[abbr].speed || abbrs[abbr].speed;
+          return nonabbrs[abbr].speed || abbrs[abbr].speed
         } else if (abbrs[abbr]) {
           return abbrs[abbr].speed
         } else {
-          return false;
+          return false
         }
       },
-      isTeam: function(abbr) {
+      isTeam: function (abbr) {
         if (nonabbrs) {
-          return !(nonabbrs[abbr].masters || abbrs[abbr].masters);
+          return !(nonabbrs[abbr].masters || abbrs[abbr].masters)
         } else if (abbrs[abbr]) {
           return abbrs[abbr].masters
         } else {
-          return false;
+          return false
         }
       },
-      isType: function(abbr, type) {
-        var abbrType = abbr.substring(0, 2);
-        return (abbrType.toLowerCase() == type.toLowerCase())
+      isType: function (abbr, type) {
+        var abbrType = abbr.substring(0, 2)
+        return (abbrType.toLowerCase() === type.toLowerCase())
       },
-      hasType: function(obj, type) {
+      hasType: function (obj, type) {
         if (!obj) {
-          return false;
+          return false
         }
-        var keys = Object.keys(obj);
+        var keys = Object.keys(obj)
         for (var i = 0; i < keys.length; i++) {
           if (obj[keys[i]] && functions.isType(keys[i], type.toLowerCase())) {
-            return true;
+            return true
           }
         }
-        return false;
+        return false
       },
-      hasTeams: function(obj) {
+      hasTeams: function (obj) {
         if (!obj) {
-          return false;
+          return false
         }
         var keys = Object.keys(obj)
         for (var i = 0; i < keys.length; i++) {
           if (obj[keys[i]] && functions.isTeam(keys[i])) {
-            return true;
+            return true
           }
         }
         return false
       },
-      hasSpeed: function(obj) {
+      hasSpeed: function (obj) {
         if (!obj) {
-          return false;
+          return false
         }
         var keys = Object.keys(obj)
         for (var i = 0; i < keys.length; i++) {
           if (obj[keys[i]] && functions.isSpeed(keys[i])) {
-            return true;
+            return true
           }
         }
         return false
       },
-      hasFreestyle: function(obj) {
+      hasFreestyle: function (obj) {
         if (!obj) {
-          return false;
+          return false
         }
         var keys = Object.keys(obj)
         for (var i = 0; i < keys.length; i++) {
           if (obj[keys[i]] && !functions.isSpeed(keys[i])) {
-            return true;
+            return true
           }
         }
         return false
       },
-      count: function(obj, type) {
+      count: function (obj, type) {
         if (!obj) {
-          return 0;
+          return 0
         }
-        var keys = Object.keys(obj);
-        var sum = 0;
+        var keys = Object.keys(obj)
+        var sum = 0
         if (type) {
           for (var i = 0; i < keys.length; i++) {
             if (functions.isType(keys[i], type) && obj[keys[i]]) {
@@ -341,14 +337,14 @@ angular.module('ropescore', [
             }
           }
         }
-        return sum;
+        return sum
       },
-      header: function(obj, type, DC) {
+      header: function (obj, type, DC) {
         if (!obj) {
-          return 0;
+          return 0
         }
-        var keys = Object.keys(obj);
-        var sum = 0;
+        var keys = Object.keys(obj)
+        var sum = 0
         if (type) {
           for (var i = 0; i < keys.length; i++) {
             if (functions.isType(keys[i], type) && obj[keys[i]]) {
@@ -362,51 +358,52 @@ angular.module('ropescore', [
             }
           }
         }
-        return sum;
+        return sum
       }
     }
 
-    return functions;
+    return functions
   })
 
-  .factory("Num",
-    function() {
-      return function(num) {
+  .factory('Num',
+    function () {
+      return function (num) {
         if (num) {
-          return new Array(num);
+          return new Array(num)
         } else {
-          return [];
+          return []
         }
       }
     })
 
-  .factory("Display", function($rootScope, Abbr, Db) {
+  .factory('Display', function ($rootScope, Abbr, Db) {
     return {
-      display: function(uid, id, event) {
+      display: function (uid, id, event) {
         var data = Db.get()
-        if (typeof data.globconfig == 'undefined') data
-          .globconfig = {}
-        if (typeof data.globconfig.display == 'undefined' || id !==
-          data.globconfig.display.id)
-          data
-          .globconfig.display = {}
-        if (typeof data.globconfig.display.events == 'undefined')
+        if (typeof data.globconfig === 'undefined') {
+          data.globconfig = {}
+        }
+        if (typeof data.globconfig.display === 'undefined' || id !== data.globconfig.display.id) {
+          data.globconfig.display = {}
+        }
+        if (typeof data.globconfig.display.events === 'undefined') {
           data.globconfig.display.events = []
+        }
 
-        data.globconfig.display.id = id;
-        data.globconfig.display.speed = (Abbr.isSpeed(event) ?
-          true : false);
+        data.globconfig.display.id = id
+        data.globconfig.display.speed = Abbr.isSpeed(event)
         if (Abbr.isSpeed(event)) {
           var child = {
             uid: uid,
             event: event
           }
           var ioc = data.globconfig.display.events.findIndex(
-            function(obj) {
-              return obj.uid == uid && obj.event == event
-            });
-          if (ioc != -1)
+            function (obj) {
+              return obj.uid === uid && obj.event === event
+            })
+          if (ioc !== -1) {
             data.globconfig.display.events.splice(ioc, 1)
+          }
           data.globconfig.display.events.push(child)
         } else {
           data.globconfig.display.event = {
@@ -416,33 +413,36 @@ angular.module('ropescore', [
         }
         Db.set(data)
       },
-      displayAll: function(participants, id, event) {
-        if (!Abbr.isSpeed(event)) throw "this function can only be used on multiple speed events"
+      displayAll: function (participants, id, event) {
+        if (!Abbr.isSpeed(event)) throw new Error('this function can only be used on multiple speed events')
 
-        var data = Db.get();
+        var data = Db.get()
         var keys = Object.keys(participants)
-        if (typeof data.globconfig == 'undefined') data
+        if (typeof data.globconfig === 'undefined') {
+          data
           .globconfig = {}
-        if (typeof data.globconfig.display == 'undefined' || id !==
-          data.globconfig.display.id)
+        }
+        if (typeof data.globconfig.display === 'undefined' || id !==
+          data.globconfig.display.id) {
           data
           .globconfig.display = {}
-        if (typeof data.globconfig.display.events == 'undefined')
-          data.globconfig.display.events = []
+        }
+        if (typeof data.globconfig.display.events === 'undefined') { data.globconfig.display.events = [] }
 
-        data.globconfig.display.id = id;
-        data.globconfig.display.speed = true;
+        data.globconfig.display.id = id
+        data.globconfig.display.speed = true
         for (var i = 0; i < keys.length; i++) {
           var child = {
             uid: keys[i],
             event: event
           }
           var ioc = data.globconfig.display.events.findIndex(
-            function(obj) {
-              return obj.uid == keys[i] && obj.event == event
-            });
-          if (ioc != -1)
+            function (obj) {
+              return obj.uid === keys[i] && obj.event === event
+            })
+          if (ioc !== -1) {
             data.globconfig.display.events.splice(ioc, 1)
+          }
           data.globconfig.display.events.push(child)
         }
         Db.set(data)
@@ -451,16 +451,16 @@ angular.module('ropescore', [
   })
 
   .directive('ngConfirmClick', [
-    function() {
+    function () {
       return {
-        link: function(scope, element, attr) {
-          var msg = attr.ngConfirmClick || "Are you sure?";
-          var clickAction = attr.confirmedClick;
-          element.bind('click', function(event) {
+        link: function (scope, element, attr) {
+          var msg = attr.ngConfirmClick || 'Are you sure?'
+          var clickAction = attr.confirmedClick
+          element.bind('click', function (event) {
             if (window.confirm(msg)) {
               scope.$eval(clickAction)
             }
-          });
+          })
         }
       }
     }

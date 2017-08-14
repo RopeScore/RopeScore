@@ -37,8 +37,17 @@ angular.module('ropescore.score', ['ngRoute'])
     $scope.Abbr = Abbr
     $scope.getNumber = Num
     $scope.roundTo = Math.roundTo
+    $scope.freestyle = Calc.freestyle
+
+    $scope.score = function () {
+      if (typeof $scope.data[$scope.id].scores === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid] === 'undefined') {
+        return undefined
+      }
+      return Calc.score($scope.event, $scope.data[$scope.id].scores[$scope.uid][$scope.event], $scope.uid)
+    }
 
     $scope.display = function (uid, id, event) {
+      Db.set($scope.data)
       Display.display(uid, id, event)
       $scope.data = Db.get()
     }
@@ -57,12 +66,7 @@ angular.module('ropescore.score', ['ngRoute'])
       }
     }
 
-    $scope.score = function (event, data, uid, ret) {
-      return Calc.score(event, data, uid, $scope.id, ret, $scope)
-    }
-
     $scope.save = function () {
-      delete $scope.data[$scope.id].finalscores
       Db.set($scope.data)
       $location.path('/event/' + $scope.id)
     }

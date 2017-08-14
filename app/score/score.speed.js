@@ -1,4 +1,5 @@
-'use strict';
+/* global angular */
+'use strict'
 /**
  * @class ropescore.score.speed
  * @memberOf ropescore
@@ -8,11 +9,11 @@ angular.module('ropescore.score.speed', ['ngRoute'])
 
   .config([
     '$routeProvider',
-  function($routeProvider) {
+    function ($routeProvider) {
       $routeProvider.when('/speedscore/:id/:event', {
         templateUrl: '/score/score.speed.html',
         controller: 'SpeedScoreCtrl'
-      });
+      })
     }
   ])
 
@@ -23,32 +24,34 @@ angular.module('ropescore.score.speed', ['ngRoute'])
    * @param {service} $routeParams
    * @param {service} Db
    */
-  .controller('SpeedScoreCtrl', function($scope, $location, $routeParams, Db,
+  .controller('SpeedScoreCtrl', function ($scope, $location, $routeParams, Db,
     Abbr, Display, Calc, Num, Config) {
     $scope.data = Db.get()
 
-    $scope.id = $routeParams.id;
-    $scope.event = $routeParams.event;
+    $scope.id = $routeParams.id
+    $scope.event = $routeParams.event
     $scope.setID($scope.id)
 
     $scope.Abbr = Abbr
     $scope.getNumber = Num
 
-    $scope.save = function() {
+    $scope.save = function () {
       Db.set($scope.data)
       $location.path('/event/' + $scope.id)
     }
 
-    $scope.score = function(event, data, uid, ret) {
+    $scope.score = function (event, data, uid, ret) {
       return Calc.score(event, data, uid, $scope.id, ret, $scope)
     }
 
-    $scope.display = function(uid, id, event) {
+    $scope.display = function (uid, id, event) {
+      Db.set($scope.data)
       Display.display(uid, id, event)
       $scope.data = Db.get()
     }
 
-    $scope.displayAll = function(participants, id, event) {
+    $scope.displayAll = function (participants, id, event) {
+      Db.set($scope.data)
       Display.displayAll(participants, id, event)
       $scope.data = Db.get()
     }

@@ -18,7 +18,7 @@
     </tr>
     <tr>
       <td>Unofficial Score:</td>
-      <td>{{ score(event, data[id].scores[uid][event], uid, 'PreY') }}</td>
+      <td>{{ score().PreY }}</td>
     </tr>
   </table>
   <span ng-show="speedform.$invalid">Check input for errors marked in red.</span>
@@ -27,65 +27,6 @@
 </form>
 
 <form ng-if="!Abbr.isSpeed(event)" name="freeform">
-  <div class="flex-container mb">
-    <div class="emb" ng-repeat="n in getNumber(data[id].config.judges[event].a) track by $index">
-      <h2>A{{ $index + 1 }}:</h2>
-      <table>
-        <tbody ng-if="!MissJudges">
-          <tr>
-            <td><label for="a{{ $index }}mim">Minor Misses:</label></td>
-            <td><input type="number" id="a{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['a' + $index]"
-              /></td>
-          </tr>
-          <tr>
-            <td><label for="a{{ $index }}mam">Major Misses:</label></td>
-            <td><input type="number" id="a{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['a' + $index]"
-              /></td>
-          </tr>
-        </tbody>
-        <tr>
-          <td><label for="a{{ $index }}mob">Music on the beat:</label></td>
-          <td><input type="number" id="a{{ $index }}mob" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].mob" ng-change="toMax('a', $index, 'mob')"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="a{{ $index }}mov">Movement:</label></td>
-          <td><input type="number" id="a{{ $index }}mov" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].mov" ng-change="toMax('a', $index, 'mov')"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="a{{ $index }}ori">Originality:</label></td>
-          <td><input type="number" id="a{{ $index }}ori" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].ori" ng-change="toMax('a', $index, 'ori')"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="a{{ $index }}uom">Using the Music:</label></td>
-          <td><input type="number" id="a{{ $index }}uom" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].uom" ng-change="toMax('a', $index, 'uom')"
-            /></td>
-        </tr>
-
-        <tr>
-          <td><label for="a{{ $index }}fbe">Form of Body &amp; Execution:</label></td>
-          <td><input type="number" id="a{{ $index }}fbe" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].fbe" ng-change="toMax('a', $index, 'fbe')"
-            /></td>
-        </tr>
-
-
-        <tr ng-if="event == 'ddpf' || event == 'ddsf'">
-          <td><label for="a{{ $index }}int">Interaction:</label></td>
-          <td><input type="number" id="a{{ $index }}int" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].int" ng-change="toMax('a', $index, 'int')"
-            /></tr>
-        </tr>
-      </table>
-    </div>
-  </div>
-
   <div class="flex-container mb">
     <div ng-repeat="n in getNumber(data[id].config.judges[event].b) track by $index">
       <h2>B{{ $index + 1 }}:</h2>
@@ -185,6 +126,65 @@
   </div>
 
   <div class="flex-container mb">
+    <div class="emb" ng-repeat="n in getNumber(data[id].config.judges[event].a) track by $index">
+      <h2>A{{ $index + 1 }}:</h2>
+      <table>
+        <tbody ng-if="!MissJudges">
+          <tr>
+            <td><label for="a{{ $index }}mim">Minor Misses:</label></td>
+            <td><input type="number" id="a{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['a' + $index]"
+              /></td>
+          </tr>
+          <tr>
+            <td><label for="a{{ $index }}mam">Major Misses:</label></td>
+            <td><input type="number" id="a{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['a' + $index]"
+              /></td>
+          </tr>
+        </tbody>
+        <tr>
+          <td><label for="a{{ $index }}mob">Music on the beat:</label></td>
+          <td><input type="number" id="a{{ $index }}mob" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].mob" ng-change="toMax('a', $index, 'mob')"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}mov">Movement:</label></td>
+          <td><input type="number" id="a{{ $index }}mov" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].mov" ng-change="toMax('a', $index, 'mov')"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}ori">Originality:</label></td>
+          <td><input type="number" id="a{{ $index }}ori" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].ori" ng-change="toMax('a', $index, 'ori')"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}uom">Using the Music:</label></td>
+          <td><input type="number" id="a{{ $index }}uom" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].uom" ng-change="toMax('a', $index, 'uom')"
+            /></td>
+        </tr>
+
+        <tr>
+          <td><label for="a{{ $index }}fbe">Form of Body &amp; Execution:</label></td>
+          <td><input type="number" id="a{{ $index }}fbe" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].fbe" ng-change="toMax('a', $index, 'fbe')"
+            /></td>
+        </tr>
+
+
+        <tr ng-if="event == 'ddpf' || event == 'ddsf'">
+          <td><label for="a{{ $index }}int">Interaction:</label></td>
+          <td><input type="number" id="a{{ $index }}int" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].int" ng-change="toMax('a', $index, 'int')"
+            /></tr>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex-container mb">
     <div ng-repeat="n in getNumber(data[id].config.judges[event].d) track by $index">
       <h2>D{{ $index + 1 }}:</h2>
       <table>
@@ -279,8 +279,8 @@
     <table>
       <tr>
         <th></th>
-        <th>Presentation</th>
         <th>Required Elements</th>
+        <th>Presentation</th>
         <th>Difficulty</th>
         <th>Deductions</th>
         <th>Creativity - (Deductions / 2)</th>
@@ -289,15 +289,20 @@
       </tr>
       <tr>
         <th>Unofficial Scores:</th>
-        <td>{{ roundTo(data[id].finalscores[uid][event].pres, 2) || '' }}</td>
-        <td>{{ roundTo(data[id].finalscores[uid][event].req, 2) || '' }}</td>
-        <td>{{ roundTo(data[id].finalscores[uid][event].diff, 2) || '' }}</td>
-        <td>{{ roundTo(-data[id].finalscores[uid][event].deduc, 2) }}</td>
-        <td>{{ roundTo(data[id].finalscores[uid][event].crea - (data[id].finalscores[uid][event].deduc
-          / 2), 2) || '' }}</td>
-        <td>{{ roundTo(data[id].finalscores[uid][event].diff - (data[id].finalscores[uid][event].deduc
-          / 2), 2) || '' }}</td>
-        <td>{{ score(event, data[id].scores[uid][event], uid) || '' }}</td>
+        <td>{{ scores.T3 = roundTo(freestyle.T3(data[id].scores[uid][event].b, event),
+          2) || '' }}</td>
+        <td>{{ scores.T2 = roundTo(freestyle.T2(event, data[id].scores[uid][event].a),
+          2) || '' }}</td>
+        <td>{{ scores.T1 = roundTo(freestyle.T1(data[id].scores[uid][event].d, event),
+          2) || '' }}</td>
+        <td>{{ scores.T5 = (freestyle.T5(data[id].scores[uid][event]) !== undefined ?
+          -roundTo(freestyle.T5(data[id].scores[uid][event]), 2) : '') }}</td>
+        <td>{{ roundTo(freestyle.T4(scores.T2, scores.T3) + (scores.T5 / 2), 2) || ''
+          }}
+        </td>
+        <td>{{ roundTo(scores.T1 + (scores.T5 / 2), 2) || '' }}</td>
+        <td>{{ roundTo(freestyle.A(scores.T1, freestyle.T4(scores.T2, scores.T3), -scores.T5,
+          event).PreA, 2) || '' }}</td>
       </tr>
     </table>
   </div>

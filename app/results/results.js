@@ -1,3 +1,4 @@
+/* global angular */
 'use strict'
 /**
  * @class ropescore.results
@@ -24,11 +25,8 @@ angular.module('ropescore.results', ['ngRoute'])
    * @param {service} Db
    */
   .controller('ResultsCtrl', function ($scope, $location,
-    $routeParams, Db, Calc, Abbr, Num, Config, tablesToExcel) {
-    $scope.dataNow = function () {
-      return Db.get()
-    }
-    $scope.data = $scope.dataNow()
+    $routeParams, $interval, Db, Calc, Abbr, Num, Config, tablesToExcel) {
+    $scope.data = Db.get()
     // dbSocket.onmessage = function(evt) {
     //   var data = JSON.parse(evt.data)
     //   if (data.type != 'update') return;
@@ -36,14 +34,14 @@ angular.module('ropescore.results', ['ngRoute'])
     //   $scope.data = Db.get()
     //   $scope.$apply();
     // }
-    $scope.live = function () {
-      if ($scope.isLive) {
+    $scope.live = function (forceOff) {
+      if (forceOff || $scope.isLive) {
         $scope.isLive = false
-        clearInterval($scope.interval)
-        setTimeout(function () {
+        $interval.cancel($scope.interval)
+        if (typeof console.__log === 'function') {
           console.log = console.__log
-          console.log('live update stopped')
-        }, 1000)
+        }
+        console.log('live update stopped')
       } else {
         console.log('updating live')
         $scope.isLive = true
@@ -51,9 +49,10 @@ angular.module('ropescore.results', ['ngRoute'])
         console.log = function () {
           return
         }
-        $scope.interval = setInterval(function () {
-          $scope.$apply()
-        }, 1000)
+        $scope.interval = $interval(function () {
+          $scope.data = Db.get()
+          updateScores()
+        }, 5000)
       }
     }
 
@@ -72,304 +71,99 @@ angular.module('ropescore.results', ['ngRoute'])
       $scope.partArray = []
     }
 
-    $scope.makeRankArray = function () {
-      var arr = Object.keys($scope.data[$scope.id].ranks)
-        .map(function (key) {
-          $scope.data[$scope.id].ranks[key].uid = key
-          return $scope.data[$scope.id].ranks[key]
-        })
-      return arr
-    }
-
-    $scope.comparator = {
-      overall: function (v1, v2) {
-        $scope.comparator.compare(v1, v2, 'overall')
-      },
-      compare: function (v1, v2, evt) {
-        if (v1.type === 'number' || v2.type === 'number') {
-          return 0
-        }
-        if (evt === 'overall') {
-          if (typeof $scope.data[$scope.id].participants[v1.value].rank === 'undefined') {
-            console.log(v1.value, (Number(v2.value) > Number(v1.value) ? -1 : 1))
-            return (Number(v2.value) > Number(v1.value) ? -1 : 1)
-          } else {
-            console.log(v1.value, (Number($scope.data[$scope.id].participants[v2.value].rank) > Number($scope.data[$scope.id].participants[v1.value].rank) ? -1 : 1))
-            return (Number($scope.data[$scope.id].participants[v2.value].rank) > Number($scope.data[$scope.id].participants[v1.value].rank) ? -1 : 1)
-          }
-        }
+    $scope.rank = function (data, event) {
+      if (Abbr.isSpeed(event)) {
+        return Calc.rank.speed(data, event, $scope.data[$scope.id].config, $scope.rankAll, $scope.data[$scope.id].participants)
+      } else if (!Abbr.isSpeed(event)) {
+        return Calc.rank.freestyle(data, event, $scope.data[$scope.id].config, $scope.rankAll, $scope.data[$scope.id].participants)
       }
     }
 
-    for (var i = 0; i < Abbr.events.length; i++) {
-      $scope.comparator[Abbr.events[i]] = function (v1, v2) {
-        $scope.comparator.compare(v1, v2, Abbr.events[i])
+    var updateScores = function () {
+      var i, j, event
+      $scope.ranks = {}
+      $scope.finalscores = {}
+      $scope.rankArray = []
+
+      for (i = 0; i < $scope.partArray.length; i++) {
+        var uid = $scope.partArray[i].uid
+
+        if (typeof $scope.finalscores[uid] === 'undefined') {
+          $scope.finalscores[uid] = {}
+        }
+
+        for (j = 0; j < Abbr.events.length; j++) {
+          event = Abbr.events[j]
+
+          if (typeof $scope.finalscores[uid][event] === 'undefined') {
+            $scope.finalscores[uid][event] = {}
+          }
+          if (typeof $scope.data[$scope.id].scores[uid] !== 'undefined') {
+            $scope.finalscores[uid][event] = Calc.score(event, $scope.data[$scope.id].scores[uid][event], uid, $scope.data[$scope.id].config.simplified)
+          }
+        }
+      }
+
+      for (i = 0; i < Abbr.events.length; i++) {
+        $scope.ranks[Abbr.events[i]] = $scope.rank($scope.finalscores, Abbr.events[i])
+      }
+
+      for (i = 0; i < $scope.partArray.length; i++) {
+        var obj = {
+          uid: $scope.partArray[i].uid
+        }
+        for (j = 0; j < Abbr.events.length; j++) {
+          event = Abbr.events[j]
+          if (Abbr.isSpeed(event)) {
+            obj[event] = $scope.ranks[event][obj.uid]
+          } else if (typeof $scope.ranks[event][obj.uid] !== 'undefined') {
+            obj[event] = $scope.ranks[event][obj.uid].total
+          }
+        }
+        $scope.rankArray.push(obj)
+      }
+
+      for (i = 0; i < $scope.partArray.length; i++) {
+        uid = $scope.partArray[i].uid
+        event = 'final'
+
+        if (typeof $scope.finalscores[uid] === 'undefined') {
+          continue
+        }
+        $scope.finalscores[uid][event] = Calc.finalscore($scope.finalscores[uid], $scope.data[$scope.id].config.subevents, $scope.rankAll, uid)
+      }
+      $scope.ranksums = Calc.rank.sum($scope.rankArray, $scope.finalscores)
+      $scope.finalRanks = Calc.rank.overall($scope.ranksums)
+
+      for (i = 0; i < $scope.partArray.length; i++) {
+        $scope.partArray[i].rank = $scope.finalRanks[$scope.partArray[i].uid] || undefined
       }
     }
 
-    $scope.score = function (event, data, uid, ret) {
-      return Calc.score(event, data, uid, $scope.id, ret, $scope)
-    }
-
-    $scope.rank = function (data, event, uid) {
-      var entered = 0
-      if (typeof data !== 'undefined' && typeof data[uid] !== 'undefined') {
-        entered = Object.keys(data[uid]).filter(function (abbr) {
-          return Abbr.events.indexOf(abbr) >= 0
-        })
-      }
-
-      var events = Object.keys($scope.data[$scope.id].config.subevents)
-      var enabled = events.filter(function (abbr) {
-        return $scope.data[$scope.id].config.subevents[abbr]
-      })
-
-      if (data !== undefined && data[uid] !== undefined && data[uid][event] !== undefined && (Abbr.isSpeed(event) || event === 'ranksum')) {
-        if (event === 'ranksum' && !$scope.rankAll && (entered.length !== enabled.length)) {
-          return undefined
-        }
-
-        var keys = Object.keys(data)
-        var scores = []
-        var score = (data[uid] ? data[uid][event] || 0 : 0)
-        var rank
-        Tscore = Dscore + Cscore
-        var fac = 1
-
-        for (var i = 0; i < keys.length; i++) {
-          entered = 0
-          entered = Object.keys(data[keys[i]]).filter(function (abbr) {
-            return Abbr.events.indexOf(abbr) >= 0
-          })
-          if (event === 'ranksum' && !$scope.rankAll && (entered.length !== enabled.length)) {
-            // do nothing
-          } else {
-            scores.push(data[keys[i]][event] || 0)
-          }
-        }
-        if (event === 'ranksum') {
-          scores.sort(function (a, b) {
-            return a - b // sort ascending
-          })
-        } else {
-          scores.sort(function (a, b) {
-            return b - a // sort descending
-          })
-        }
-
-        console.log(scores)
-
-        rank = (score !== undefined ? scores.indexOf(score) + 1 : undefined)
-
-        if (!$scope.data[$scope.id].ranks) {
-          $scope.data[$scope.id].ranks = {}
-        }
-        if (!$scope.data[$scope.id].ranks[uid]) {
-          $scope.data[$scope.id].ranks[uid] = {}
-        }
-
-        if (($scope.data[$scope.id].config.simplified || $scope.data[$scope.id].config.showFactors) &&
-          $scope.data[$scope.id].config.factors &&
-          $scope.data[$scope.id].config.factors[event]) {
-          fac = $scope.data[$scope.id].config.factors[event]
-        }
-
-        rank = rank * fac
-
-        if (event != 'ranksum' && rank > 0) {
-          $scope.data[$scope.id].ranks[uid][event] = Number(rank) ||
-            undefined
-        } else {
-          $scope.data[$scope.id].participants[uid].rank = rank
-        }
-        return (rank <= 0 ? undefined : rank)
-      } else if (!Abbr.isSpeed(event) && data && data[uid] && data[uid][event]) {
-        var C
-        var D
-        var rank
-        var Crank
-        var Drank
-        var ranksum
-        var keys = Object.keys(data)
-        var Cscores = []
-        var Dscores = []
-        var Tscores = {}
-        var Tscore
-        var ranksums = []
-        var Cscore = (data[uid] && data[uid][event] ? data[uid][event].crea -
-          (data[uid][event].deduc / 2) ||
-          0 : 0)
-        var Dscore = (data[uid] && data[uid][event] ? data[uid][event].diff -
-          (data[uid][event].deduc / 2) ||
-          0 : 0)
-        Tscore = Dscore + Cscore
-        var fac = 1
-
-        for (var i = 0; i < keys.length; i++) {
-          if (data[keys[i]][event]) {
-            Cscores.push(data[keys[i]][event].crea - (data[
-              keys[i]][event].deduc / 2) || 0)
-            Dscores.push(data[keys[i]][event].diff - (data[
-              keys[i]][event].deduc / 2) || 0)
-            Tscores[keys[i]] = (data[keys[i]][event].crea + data[keys[i]][event].diff - data[keys[i]][event].deduc)
-          }
-        }
-        Cscores.sort(function (a, b) {
-          return b - a // sort descending
-        })
-        Dscores.sort(function (a, b) {
-          return b - a // sort descending
-        })
-        Crank = (Cscore != undefined ? Cscores.indexOf(Cscore) + 1 :
-          undefined)
-        Drank = (Dscore != undefined ? Dscores.indexOf(Dscore) + 1 :
-          undefined)
-        ranksum = Number(Crank) + Number(Drank)
-
-        // calc everyones Crank and Drank and push sum into an array
-        for (var i = 0; i < keys.length; i++) {
-          var CtempScore = (data[keys[i]] && data[keys[i]][event] ? data[
-              keys[i]][event].crea - (data[
-              keys[i]][event].deduc / 2) ||
-            0 : 0)
-          var DtempScore = (data[keys[i]] && data[keys[i]][event] ? data[
-              keys[i]][event].diff - (data[
-              keys[i]][event].deduc / 2) ||
-            0 : 0)
-          var TtempScore = DtempScore + CtempScore
-          var CtempRank = (CtempScore != undefined ? Cscores.indexOf(
-              CtempScore) + 1 :
-            undefined)
-          var DtempRank = (DtempScore != undefined ? Dscores.indexOf(
-              DtempScore) + 1 :
-            undefined)
-          if (DtempRank > 0 && CtempRank > 0) {
-            if (!$scope.data[$scope.id].hiddenRanks) {
-              $scope.data[$scope.id].hiddenRanks = {}
-            }
-            if (!$scope.data[$scope.id].hiddenRanks[keys[i]]) {
-              $scope.data[$scope.id].hiddenRanks[keys[i]] = {}
-            }
-            if (!$scope.data[$scope.id].hiddenRanks[keys[i]][event]) {
-              $scope.data[$scope.id].hiddenRanks[keys[i]][event] = {}
-            }
-            $scope.data[$scope.id].hiddenRanks[keys[i]][event].crea =
-              CtempRank
-            $scope.data[$scope.id].hiddenRanks[keys[i]][event].diff =
-              DtempRank
-            var tempRanksum = Number(CtempRank) + Number(DtempRank)
-            ranksums.push({ranksum: tempRanksum, score: TtempScore, uid: keys[i]})
-          }
-        }
-
-        ranksums.sort(function (a, b) {
-          // sort ascending on rank but descending on score if ranksums are equal
-          if (a.ranksum === b.ranksum) {
-            return b.score - a.score
-          } else {
-            return a.ranksum - b.ranksum
-          }
-        })
-
-        rank = ranksums.findIndex(function (obj) {
-          return uid === obj.uid
-        }) + 1
-
-        if (($scope.data[$scope.id].config.simplified || $scope.data[$scope.id].config.showFactors) &&
-          $scope.data[$scope.id].config.factors &&
-          $scope.data[$scope.id].config.factors[event]) {
-          fac = $scope.data[$scope.id].config.factors[event] || 1
-        } else if (event === 'srsf') {
-          fac = 2
-        }
-
-        rank = rank * fac
-
-        if (!$scope.data[$scope.id].ranks) {
-          $scope.data[$scope.id].ranks = {}
-        }
-        if (!$scope.data[$scope.id].ranks[uid]) {
-          $scope.data[$scope.id].ranks[uid] = {}
-        }
-        if (event != 'ranksum') {
-          $scope.data[$scope.id].ranks[uid][event] = rank
-        }
-        return rank
-      }
-    }
-
-    $scope.finalscore = function (data) {
-      if (data) {
-        var keys = Object.keys(data)
-        var subt = (keys.indexOf('final') >= 0 ? 1 : 0)
-        var events = Object.keys($scope.data[$scope.id].config.subevents)
-        var enabled = 0
-        for (var i = 0; i < events.length; i++) {
-          if ($scope.data[$scope.id].config.subevents[events[i]]) {
-            enabled = enabled + 1
-          }
-        }
-        if ($scope.rankAll || keys.length - subt == enabled) {
-          var total = 0
-          data.final = undefined
-          var keys = Object.keys(data)
-          for (var i = 0; i < keys.length; i++) {
-            total = total + (Number(data[keys[i]]) || (data[keys[i]] &&
-                data[
-                  keys[i]].total ?
-                Number(data[keys[i]].total) : 0) ||
-              0)
-          }
-          data.final = total
-          return Math.roundTo(total, 2)
-        }
-      }
-    }
-
-    $scope.ranksum = function (data) {
-      if (data) {
-        var keys = Object.keys(data)
-        keys = keys.filter(function (abbr) {
-          return Abbr.events.indexOf(abbr) >= 0
-        })
-        var events = Object.keys($scope.data[$scope.id].config.subevents)
-        var enabled = events.filter(function (abbr) {
-          return $scope.data[$scope.id].config.subevents[abbr]
-        })
-        if ($scope.rankAll || keys.length === enabled.length) {
-          var sum = 0
-          console.log(data.ranksum, data)
-          sum = Object.keys(data).filter(function (abbr) {
-            return Abbr.events.indexOf(abbr) >= 0
-          }).reduce(function (sum, abbr) {
-            return sum + data[abbr]
-          }, 0)
-          console.log(sum)
-          data.ranksum = (sum > 0 ? sum : undefined)
-          return (sum > 0 ? sum : '')
-        }
-      }
-    }
+    updateScores()
 
     $scope.roundTo = Math.roundTo
+    $scope.inAll = Calc.inAll
 
     $scope.ShowDC = Config.ShowDC
     $scope.ShowAllTables = Config.ShowAllTables
 
     $scope.toggleRankAll = function (forceOff) {
-      if ($scope.rankAll == true || forceOff) {
+      if (forceOff || $scope.rankAll === true) {
         var keys = Object.keys($scope.data[$scope.id].participants)
         for (var i = 0; i < keys.length; i++) {
           delete $scope.data[$scope.id].participants[keys[i]].rank
         }
         $scope.rankAll = false
+        updateScores()
       } else {
         $scope.rankAll = true
+        updateScores()
       }
     }
 
     $scope.toExcel = function () {
-      $scope.isLive = false
+      $scope.live(true)
       $scope.toggleRankAll(true)
       setTimeout(function () {
         var tables = document.getElementsByTagName('table')
@@ -378,6 +172,4 @@ angular.module('ropescore.results', ['ngRoute'])
         tablesToExcel(tables, $scope.data[$scope.id].config.name)
       })
     }
-
-    $scope.speedFactor = Calc.speedFactor
   })

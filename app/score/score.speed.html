@@ -21,7 +21,7 @@
         /></td>
       <td ng-if="Abbr.isTeam(event)"><input type="number" id="fsw" min="0" max="3" ng-model="data[id].scores[uid][event].switches"
         /></td>
-      <td>{{ score(event, data[id].scores[uid][event], uid, 'PreY') }}</td>
+      <td>{{ score(event, data[id].scores[uid][event]).PreY }}</td>
       <td><a ng-click="display(uid, id, event)">Display</a></td>
     </tr>
   </table>

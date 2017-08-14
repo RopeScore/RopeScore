@@ -1,4 +1,4 @@
-const logCatch = require('./log-catch');
+const logCatch = require('./log-catch')
 const {
   app,
   shell,
@@ -8,16 +8,16 @@ const {
   Menu,
   MenuItem
 } = require('electron')
-const server = require("./server")
+const server = require('./server')
 const Config = require('./app/config')
 const path = require('path')
 const url = require('url')
 const fs = require('fs-extra')
 
 if (require('electron-squirrel-startup')) {
-  return
+
 } else {
-  app.on('ready', function() {
+  app.on('ready', function () {
     if (process.platform != 'darwin') {
       autoUpdater.on('checking-for-update', () => {
         console.log('checking for updates')
@@ -33,15 +33,15 @@ if (require('electron-squirrel-startup')) {
           message: 'A new version of RopeScore is available, do you wish to install it now?',
           title: 'Update Available',
           cancelId: 1
-        }, function(button) {
+        }, function (button) {
           if (button == 0) {
             autoUpdater.quitAndInstall()
           }
         })
       })
       autoUpdater.on('error', (error) => {
-        console.log(error);
-      });
+        console.log(error)
+      })
       autoUpdater.setFeedURL(Config.releaseRemoteUrl())
       if (fs.existsSync(path.resolve(path.dirname(process.execPath), '..',
           'Update.exe'))) {
@@ -51,20 +51,18 @@ if (require('electron-squirrel-startup')) {
   })
 }
 
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win = [];
+let win = []
 
-function createWindow() {
+function createWindow () {
   if (Config.Eval && Config.LicenceDate && new Date()
     .getTime() > (Number(Config.LicenceDate) + (30 * 24 * 60 * 60 * 1000))) {
     dialog.showErrorBox('Expired Licence',
       'This copy of RopeScore has an expired licence,\n Please contact ropescore@swant.pw'
-    );
-    app.quit();
+    )
+    app.quit()
   } else {
-
     // Create the browser window.
     win.push(new BrowserWindow({
       width: 800,
@@ -73,16 +71,17 @@ function createWindow() {
     }))
 
     // and load the index.html of the app.
-    /*win.loadURL(url.format({
+    /* win.loadURL(url.format({
       pathname: path.join(__dirname, 'app/index.html'),
       protocol: 'file:',
       slashes: true
-    }))*/
+    })) */
     win[win.length - 1].loadURL(`http://localhost:3333`)
 
     // Open the DevTools.
     if (Config.Debug) {
       win[win.length - 1].webContents.openDevTools()
+      // BrowserWindow.addDevToolsExtension('C:\\Users\\00svbeon\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\ighdmehidhipcmcojjgiloacoafjmpfk\\0.10.9_0')
     }
 
     // Emitted when the window is closed.
@@ -122,8 +121,8 @@ function createWindow() {
           {role: 'zoomout'},
           {type: 'separator'},
           {role: 'togglefullscreen'}
-      ]
-    },
+        ]
+      },
       {
         role: 'window',
         submenu: [
@@ -144,31 +143,32 @@ function createWindow() {
           {
             label: 'Documentation',
             accelerator: 'F1',
-            click: function(item, focusedWindow) {
-              if (focusedWindow)
-                focusedWindow.loadURL('http://localhost:3333/docs');
+            click: function (item, focusedWindow) {
+              if (focusedWindow) { focusedWindow.loadURL('http://localhost:3333/docs') }
             }
           },
           {
             label: 'Report Bugs',
-            click: function(item, focusedWindow) {
-              if (focusedWindow)
-                focusedWindow.loadURL('http://localhost:3333/bugreport');
+            click: function (item, focusedWindow) {
+              if (focusedWindow) {
+                focusedWindow.loadURL('http://localhost:3333/bugreport')
+              }
             }
           },
           {
             label: 'Licence',
-            click: function(item, focusedWindow) {
-              if (focusedWindow)
-                focusedWindow.loadURL('http://localhost:3333/licence');
+            click: function (item, focusedWindow) {
+              if (focusedWindow) {
+                focusedWindow.loadURL('http://localhost:3333/licence')
+              }
             }
-          },
+          }
         ]
-      },
-    ];
+      }
+    ]
 
     if (Config.Debug) {
-      const viewMenu = menu.find(function(m) {
+      const viewMenu = menu.find(function (m) {
         return m.role === 'view'
       })
       if (viewMenu) {
@@ -177,7 +177,7 @@ function createWindow() {
     }
 
     if (process.platform === 'darwin') {
-      const name = app.getName();
+      const name = app.getName()
       menu.unshift({
         label: app.getName(),
         submenu: [
@@ -191,11 +191,11 @@ function createWindow() {
           {type: 'separator'},
           {role: 'quit'}
         ]
-      });
-      const windowMenu = menu.find(function(m) {
+      })
+      const windowMenu = menu.find(function (m) {
         return m.role === 'window'
       })
-      const editMenu = menu.find(function(m) {
+      const editMenu = menu.find(function (m) {
         return m.role === 'edit'
       })
       if (windowMenu) {
@@ -214,7 +214,7 @@ function createWindow() {
           {role: 'front'}
         ]
       }
-      if(editMenu) {
+      if (editMenu) {
         editMenu.submenu.push(
           {type: 'separator'},
           {
@@ -229,11 +229,9 @@ function createWindow() {
     }
     /* beautify preserve:end */
 
-    Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
+    Menu.setApplicationMenu(Menu.buildFromTemplate(menu))
   }
 }
-
-
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
