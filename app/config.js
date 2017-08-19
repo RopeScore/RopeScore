@@ -1,14 +1,14 @@
 /* global angular */
 const Config = {
-  Debug: true, // default: false
-  LicenceDate: 1501881524439,
-  version: '2.0.0-au98',
-  Eval: true, // default: false
+  Debug: false, // default: false
+  LicenceDate: 1503129921977,
+  version: '2.0.0-au',
+  Eval: false, // default: false
 
   releaseRemoteUrl: function (arch, platform) {
     return `https://download.swant.pw/ropescore/${platform || process.platform}/${arch || process.arch}`
   },
-  MissJudges: false, // default: false
+  MissJudges: true, // default: false
   ShowRaw: false, // default: false
   ShowDC: true, // default: false, (Show Diff and Creat Scores + rank in overall table)
   ShowAllTables: true, // default: false

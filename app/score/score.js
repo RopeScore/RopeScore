@@ -56,9 +56,8 @@ angular.module('ropescore.score', ['ngRoute'])
       var el = document.getElementById((j) + (i) + (t))
       var val = Number(el.value.replace(',', '.'))
       var max = Number(el.max.replace(',', '.'))
-      if (val > max) {
-        $scope.data[$scope.id].scores[$scope.uid][$scope.event][j][i][t] =
-          max
+      if (typeof max !== 'undefined' && val > max) {
+        $scope.data[$scope.id].scores[$scope.uid][$scope.event][j][i][t] = max
         el.classList.add('yellow')
         setTimeout(function () {
           el.classList.remove('yellow')
@@ -66,7 +65,26 @@ angular.module('ropescore.score', ['ngRoute'])
       }
     }
 
+    $scope.clean = function (obj) {
+      var scope = obj
+      var keys = Object.keys(scope)
+
+      for (var i = 0; i < keys.length; i++) {
+        if (scope[keys[i]] !== null && typeof scope[keys[i]] === 'object') {
+          scope[keys[i]] = $scope.clean(scope[keys[i]])
+        }
+        if (scope[keys[i]] === null || scope[keys[i]] === '' || typeof scope[keys[i]] === 'undefined' || (typeof scope[keys[i]] === 'object' && Object.keys(scope[keys[i]]).length === 0)) {
+          delete scope[keys[i]]
+        }
+      }
+      return scope
+    }
+
     $scope.save = function () {
+      $scope.data[$scope.id].scores = $scope.clean($scope.data[$scope.id].scores)
+      if ($scope.data[$scope.id].scores !== null && typeof $scope.data[$scope.id].scores === 'object' && Object.keys($scope.data[$scope.id].scores).length === 0) {
+        delete $scope.data[$scope.id].scores
+      }
       Db.set($scope.data)
       $location.path('/event/' + $scope.id)
     }

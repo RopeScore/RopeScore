@@ -1,7 +1,7 @@
-const winstaller = require('electron-winstaller');
-const packager = require('electron-packager');
-const path = require('path');
-const assert = require('assert');
+const winstaller = require('electron-winstaller')
+const packager = require('electron-packager')
+const path = require('path')
+const assert = require('assert')
 const fs = require('fs-extra')
 const argv = require('yargs')
   .usage('Usage: node $0 [options]')
@@ -28,29 +28,29 @@ const Config = require('./app/config.js')
 const repositoryRootPath = path.resolve(__dirname)
 const buildOutputPath = path.join(repositoryRootPath, 'build')
 const distOutputPath = path.join(repositoryRootPath, 'dist')
-const packagedAppPath = path.join(repositoryRootPath, 'app')
+const packagedAppPath = path.join(repositoryRootPath, 'app') // eslint-disable-line
 const baseName =
   `${Package.name}-${argv.platform}-${argv.arch}-${Package.version}`
 const configFile = path.join(repositoryRootPath, 'app', 'config.js')
 
-fs.readFile(configFile, 'utf8', function(err, data) {
+fs.readFile(configFile, 'utf8', function (err, data) {
   if (err) {
-    return console.log(err);
+    return console.log(err)
   }
   var result = data.replace(/version: '.+'/g,
       `version: '${Package.version}'`)
     .replace(/LicenceDate: \d+/g,
       `LicenceDate: ${new Date().getTime()}`)
-    .replace(/Debug: true/g, `Debug: false`);
+    .replace(/Debug: true/g, `Debug: false`)
 
-  fs.writeFile(configFile, result, 'utf8', function(err) {
-    if (err) return console.log(err);
-  });
-});
+  fs.writeFile(configFile, result, 'utf8', function (err) {
+    if (err) return console.log(err)
+  })
+})
 
 const packageOptions = {
   'appBundleId': 'pw.swant.ropescore',
-  'appCopyright': `Copyright © ${((new Date()).getFullYear() == 2017 ? '2017' : '2017-' + ((new Date()).getFullYear()) )} Svante Bengtson.`,
+  'appCopyright': `Copyright © ${((new Date()).getFullYear() === 2017 ? '2017' : '2017-' + ((new Date()).getFullYear()))} Svante Bengtson.`,
   'appVersion': Package.version,
   'arch': argv.platform === 'darwin' ? 'x64' : argv.arch, // OS X is 64-bit only
   'asar': true,
@@ -70,7 +70,6 @@ const packageOptions = {
   }
 }
 
-
 const winstallerOptions = {
   appDirectory: path.join(buildOutputPath, baseName),
   iconUrl: getIcon(),
@@ -84,7 +83,7 @@ const winstallerOptions = {
   version: Package.version
 }
 
-function getIcon() {
+function getIcon () {
   switch (argv.platform) {
     case 'darwin':
       return path.join(repositoryRootPath, 'app', 'static', 'img', 'icon.icns')
@@ -97,7 +96,7 @@ function getIcon() {
   }
 }
 
-function runPackager(options) {
+function runPackager (options) {
   return new Promise((resolve, reject) => {
     packager(packageOptions, (err, packageOutputDirPaths) => {
       if (err) {
@@ -114,13 +113,13 @@ function runPackager(options) {
   })
 }
 
-function renamePackagedAppDir(packageOutputDirPath) {
+function renamePackagedAppDir (packageOutputDirPath) {
   let packagedAppPath
   if (argv.platform === 'darwin') {
     const appBundleName = `${Package.name}.app`
     const newAppBundleName = `${baseName}.app`
     packagedAppPath = path.join(packageOutputDirPath, newAppBundleName)
-    distAppPath = path.join(distOutputPath, argv.platform, argv.arch,
+    var distAppPath = path.join(distOutputPath, argv.platform, argv.arch,
       newAppBundleName)
 
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
@@ -141,10 +140,8 @@ console.log(`Building ${baseName}`)
 runPackager(packageOptions)
   .then((packagedAppPath) => {
     console.log('app packaged')
-    if (argv.platform == 'win32') {
-      winstallerOptions.appDirectory = packagedAppPath;
+    if (argv.platform === 'win32') {
+      winstallerOptions.appDirectory = packagedAppPath
       winstaller.createWindowsInstaller(winstallerOptions)
     }
   })
-
-return;

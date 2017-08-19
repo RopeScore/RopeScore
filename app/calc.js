@@ -59,6 +59,7 @@ angular.module('Calc', [])
           if (typeof ld === 'string') {
             ld = methods.levelData(ld)
           }
+          console.log(ld)
 
           var i
           var calcdiff = []
