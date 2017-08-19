@@ -4,19 +4,30 @@
   <li><a href="#dash">The Dasboard</a></li>
   <li><a href="#config">Configuration</a>
     <ol class="docs">
-      <li><a href="#config.event">Event Data</a></li>
+      <li><a href="#config.event">Category Data</a></li>
       <li><a href="#config.part">Participants</a></li>
     </ol>
   </li>
-  <li><a href="#event">Event</a></li>
+  <li><a href="#event">Category</a></li>
   <li><a href="#score">Score Entering</a>
     <ol class="docs">
-      <li><a href="#score.speed">Speed</a></li>
+      <li><a href="#score.speed">Speed</a>
+        <ol class="docs">
+          <li><a href="#score.speed.single">Single</a></li>
+          <li><a href="#score.speed.mult">Multiple</a></li>
+        </ol>
+      </li>
       <li><a href="#score.free">Freestyle</a></li>
     </ol>
   </li>
   </li>
   <li><a href="#result">Results</a></li>
+  <li><a href="#live">Live Display</a>
+    <ol class="docs">
+      <li><a href="#live.speed">Speed</a></li>
+      <li><a href="#live.free">Freestyle</a></li>
+    </ol>
+  </li>
   <li><a href="#misc">Miscellaneous</a>
     <ol>
       <li><a href="#misc.key">Keyboard Shortcuts</a></li>
@@ -29,36 +40,40 @@
 <!-- BEGIN CONTENT -->
 <h2 id="dash">1. The Dashboard</h2>
 <img src="/static/img/docs/dash.png" />
-<p>The above image shows a dashboard with multiple added events.</p>
-<p>The upper gray area is the menu, on the dashboard only "Dashboard" and "New Event"
+<p>The above image shows a dashboard with multiple added categories.</p>
+<p>The upper gray area is the menu, on the dashboard only "Dashboard" and "New Category"
   are avilable.</p>
-<p>The first row of buttons gives you various tools manage your events.</p>
+<p>The first row of buttons gives you various tools manage your categories.</p>
 <ul class="docs">
-  <li><b>New</b>: This button will create a new event</li>
+  <li><b>New</b>: This button will create a new category</li>
   <li><b>Import</b>: This button will allow you to choose an exportfile from ropescore,
-    saved on your computer, and REPLACE ALL events with those in the export file.
-    Make sure to export your current events before importing new ones</li>
+    saved on your computer, and REPLACE ALL categories with those in the export file.
+    Make sure to export your current categories before importing new ones</li>
   <li><b>Export</b>: This button will export all your data to a file on your computer,
     you will be prompted to select where the file should be saved</li>
-  <li><b>Save</b>: This button saves your data, it doesn't currently have any effect
-    as the data is saved regularly during normal use</li>
+  <li><b>Reset</b>: This button resets the program, it removes ALL saved data. It's highly
+    reccomended to do an export before resetting</li>
+  <li><b>Display Live Unofficial Scores</b>: This will take you to a page thatcan be
+    displayed for instance on an external projector, it will show unofficial scores,
+    live when they are set to be displayed in the program</li>
 </ul>
 <p>The row of buttons below "Dashboard" (here "test1", "Test2" etc.) will, once clicked,
-  open the event view for that particular event.</p>
+  open the category view for that particular category. The hexadecimal number below
+  them are their checksum, more info on this is avilable under <a href="#event">Category</a></p>
 
 
 
 <h2 id="config">2. Configuration</h2>
-<p>The configuration will open either when you create a new event from the menu or the
-  dashboard, or when you click configure in the <a href="#event">Event view</a></p>
+<p>The configuration will open either when you create a new category from the menu or
+  the dashboard, or when you click configure in the <a href="#event">Category view</a></p>
 <p>Changing the configuration after scores have been entered may give unexpected results</p>
 
-<h3 id="config.event">2.1 Event Data</h3>
+<h3 id="config.event">2.1 Category Data</h3>
 <img src="/static/img/docs/config.png" />
-<p>This is the configuration for a new event, in the Basics menu you must fill in a
-  name for your event.</p>
+<p>This is the configuration for a new category, in the Basics menu you must fill in
+  a name for your category.</p>
 <p>Simplified Levels will be described later.</p>
-<p>Under Events you can select which subevents the Event contains of by clicking the
+<p>Under Events you can select which events the category contains of by clicking the
   checkboxes to the right of their names. If an event is selected you must also specify
   how many judges that will judge the event.</p>
 <img src="/static/img/docs/config-simplified.png" />
@@ -71,12 +86,11 @@
 
 <h3 id="config.part">2.2 Participants</h3>
 <img src="/static/img/docs/participants.png" />
-<p>Upon clicking "Save and Continue" on the <a href="#config.event">Event Data</a> Configuration
-  participants can be added, you have the option to select what id the participants
-  will start with, this id is used for internal purposes, but is displayed as a tool
-  for the event organiser. The id of a participant will never change, however the
-  participant's name and club may, thus the id of the participant can be relied onto
-  for identification.</p>
+<p>Upon clicking "Save and Continue" on the <a href="#config.event">Category Data</a>  Configuration participants can be added, you have the option to select what id
+  the participants will start with, this id is used for internal purposes, but is
+  displayed as a tool for the Competition organiser. The id of a participant will
+  never change, however the participant's name and club may, thus the id of the participant
+  can be relied onto for identification.</p>
 <img src="/static/img/docs/participants-added.png" />
 <p>Once "Add Participants" has been clicked a table where the participants name and
   club can be entered will show, name and club can be omitted for every participant
@@ -90,12 +104,29 @@
 
 
 
-<h2 id="event">3. Event</h2>
+<h2 id="event">3. Category</h2>
 <img src="/static/img/docs/event.png" />
-<p>After <a href="#config.part">adding participants</a> to an event, or when the event
-  is clicked on <a href="#dash">The Dashboard</a> the Event View will be shown. This
-  view gives an overview over the participants and the events, clicking "edit" in
-  the column of an event on the row of a participant will open <a href="#score">Score Entering</a></p>
+<p>After <a href="#config.part">adding participants</a> to a category, or when the category
+  is clicked on <a href="#dash">The Dashboard</a> the Category View will be shown.
+  This view gives an overview over the participants and the events, clicking "edit"
+  in the column of an event on the row of a participant will open <a href="#score">Score Entering</a>.</p>
+<p>Edit multiple is avilable for Speed events, where you can enter multiple speed scores
+  at once</p>
+
+<img src="/static/img/docs/checksums.png" />
+<p>The checksums is a value calculated from the data entered, it can be compared to
+  a second instance of RopeScore, if the two values match, then the entered data
+  is equal</p>
+<ul>
+  <li><b>Overall</b>: (green) The checksum in the top right corner of the category view
+    grid shows the checksum for the whole category, this is also the number displayed
+    on the
+    <a href="#dash">Dashboard</a></li>
+  <li><b>Participant</b>: (red) The checksum in the rightmost cell of every row shows
+    the checksum of all data entered for that participant</li>
+  <li><b>Event</b>: (blue) The checksum right to an Edit button shows the checksum for
+    that participant's score in that specific event</li>
+</ul>
 
 
 
@@ -103,10 +134,23 @@
 <p>The view to enter scores does differ for speed events and freestyle events</p>
 <p>For all numerical inputs both decimal point (.) and decimal comma (,) are allowed</p>
 <h3 id="score.speed">4.1 Speed</h3>
+<h4 id="score.speed.single">4.1.1 Single</h4>
 <img src="/static/img/docs/score.png" />
 <p>Enter the scores each speed judge have turned in to their respective box, if the
   speed judges have signaled that the skipper made a false start that box should
-  be checked.</p>
+  be checked. For team speed, false switches is avilable, if the judges have marked
+  any false switches, the appropriate number of false switches should be entered.
+  The last row shows the unofficial score, calculated on the fly</p>
+<h4 id="score.speed.mult">4.1.2 Multiple</h4>
+<img src="/static/img/docs/score2.png" />
+<p>Scores are entered the same way as for a single speed entry, however multiple participant's
+  scores can be entered at once. The second-to-rightmost column shows the unofficial
+  scores, calculated on the fly. pressing Display in the rightmost column will add
+  that participant's speed score to the currently displayed speed events, see
+  <a href="#live">Live Display</a>. Clicking display all will add all speed scores
+  from the current event to the currently displayed speed events.
+</p>
+
 
 <h3 id="score.free">4.2 Freestyle</h3>
 <img src="/static/img/docs/score1.png" />
@@ -114,35 +158,47 @@
   <b>D</b> judges are Difficulty Judges, <b>H</b> judges are Head judges, and
   <b>M</b> judges are Miss judges. The task of judging misses might be delegated
   to other judges, if so their miss counts are entered as a Miss judge's score</p>
-<p>Currently the program will fail silently if a number greater than the allowed max
-  is entered, this might cause results for that participant to not be calculated.</p>
+<p>The program will correct numbers greater than the allowed amximum, and indicate sow
+  by adding a yellow border to the input field, for five (5) seconds. If it can't
+  automatically correct it, a red border will be added to the input field and saving
+  won't be allowed.</p>
 <p>it is highly reccomended that zero (0) is entered instead of leaving a field blank</p>
+<p>The bottom row calculates and displays Unofficial scores on the fly.</p>
+<p>Pressing Display will display that participant's score only on the live display,
+  see <a href="#live">Live Display</a></p>
 
 
 <h2 id="result">5. Results</h2>
 <img src="/static/img/docs/results.png" />
-<p>Results and ranking are generated for every subevent where a participant have complete
-  scores entered. If all the subevents of a participant have complete scores entered
+<p>Results and ranking are generated for every event where a participant have complete
+  scores entered. If all the events of a participant have complete scores entered
   the total score, rank sum and overall rank will be calculated as well. the overall
-  score is calculated using the scores for the individual subevents multiplied by
-  certain factors, see <a href="#config.event">Event Configuration</a></p>
+  score is calculated using the scores for the individual events multiplied by certain
+  factors, see <a href="#config.event">Category Configuration</a></p>
 <p>The Results can be exported to excel by pressing the "Export to Excel" button.</p>
-<p>The "Update Live" will recalculate the scores every second (1) until disabled</p>
-<p>If simplified levels are selected in the event's <a href="#config.event">Configuration</a>&nbsp;
+<p>The "Update Live" will recalculate the scores every five (5) seconds until disabled</p>
+<p>If simplified levels are selected in the category's <a href="#config.event">Configuration</a>&nbsp;
   the difficluties awards higher points per trick and the factors that the ranks
   and scores are multiplied against may differ from fisac-irsf's judging manual,
-  as set in the <a href="#config.event">Event Configuration</a>.</p>
+  as set in the <a href="#config.event">category Configuration</a>.</p>
 
 
+<h2 id="live">6. Live Display</h2>
+<h3 id="live.speed">6.1 Speed</h3>
+<img src="/static/img/docs/live.png" />
 
-<h2 id="misc">6. Miscellaneous</h2>
-<h3 id="misc.key">6.1 Keyboard Shortcuts</h3>
+<h3 id="live.free">6.2 Freestyle</h3>
+<img src="/static/img/docs/live1.png" />
+
+
+<h2 id="misc">7. Miscellaneous</h2>
+<h3 id="misc.key">7.1 Keyboard Shortcuts</h3>
 <ul class="docs">
   <li><b>Ctrl+N/&#x2318;+N</b>: Opens a new window, an aditional window can for example
     be used on a separate monitor to show results updated live.</li>
 </ul>
-<h3 id="misc.bugs">6.2 Bugs</h3>
+<h3 id="misc.bugs">7.2 Bugs</h3>
 <p>See <a href="/bugreport">Bugs</a></p>
-<h3 id="misc.update">6.3 Updates</h3>
+<h3 id="misc.update">7.3 Updates</h3>
 <p>The program will automatically search for and download updates when it is started,
   if there is an update avilable the program will prompt the user before installing.</p>

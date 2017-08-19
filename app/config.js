@@ -1,7 +1,7 @@
 /* global angular */
 const Config = {
   Debug: false, // default: false
-  LicenceDate: 1503129921977,
+  LicenceDate: 1503136112046,
   version: '2.0.0-au',
   Eval: false, // default: false
 
