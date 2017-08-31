@@ -3,10 +3,11 @@ const Config = {
   Debug: false, // default: false
   LicenceDate: 1503136112046,
   version: '2.0.0-au',
+  country: Config.version.split('-').slice(-1)[0].substring(0, 2),
   Eval: false, // default: false
 
   releaseRemoteUrl: function (arch, platform) {
-    return `https://download.swant.pw/ropescore/${platform || process.platform}/${arch || process.arch}`
+    return `https://download.swant.pw/ropescore/au/${platform || process.platform}/${arch || process.arch}`
   },
   MissJudges: true, // default: false
   ShowRaw: false, // default: false
