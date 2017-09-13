@@ -41,6 +41,7 @@ angular.module('ropescore', [
   'ropescore.display',
   'ropescore.about.licence',
   'ropescore.about.docs',
+  'ropescore.about.changelog',
   'ropescore.bugreport',
   'Config',
   'Calc'

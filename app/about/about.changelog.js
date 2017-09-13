@@ -1,26 +1,26 @@
 /* global angular */
 'use strict'
 /**
- * @class ropescore.about.docs
+ * @class ropescore.about.changelog
  * @memberOf ropescore
  * @requires ngRoute
  */
-angular.module('ropescore.about.docs', ['ngRoute'])
+angular.module('ropescore.about.changelog', ['ngRoute'])
 
   .config([
     '$routeProvider',
     function ($routeProvider) {
-      $routeProvider.when('/docs', {
-        templateUrl: '/about/about.docs.html',
-        controller: 'DocsCtrl'
+      $routeProvider.when('/changelog', {
+        templateUrl: '/about/about.changelog.html',
+        controller: 'ChangelogCtrl'
       })
     }
   ])
 
   /**
-   * @class ropescore.about.docs.DocsCtrl
+   * @class ropescore.about.changelog.ChangelogCtrl
    */
-  .controller('DocsCtrl', function ($scope, $anchorScroll, $location) {
+  .controller('ChangelogCtrl', function ($scope, $anchorScroll, $location) {
     $scope.anchor = $location.hash()
     /** Configure $anchorScroll to take the navbar into consideration */
     $anchorScroll.yOffset = 60

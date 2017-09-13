@@ -1,9 +1,8 @@
 /* global angular */
-const Config = {
+var Config = {
   Debug: false, // default: false
-  LicenceDate: 1503136112046,
-  version: '2.0.0-au',
-  country: Config.version.split('-').slice(-1)[0].substring(0, 2),
+  LicenceDate: 1505331034340,
+  version: '2.0.1-au',
   Eval: false, // default: false
 
   releaseRemoteUrl: function (arch, platform) {
@@ -75,6 +74,8 @@ const Config = {
     }
   }
 }
+Config.country = Config.version.split('-')
+  .slice(-1)[0].substring(0, 2)
 
 if (typeof module === 'object' && typeof exports !== 'undefined') {
   // Node. Does not work with strict CommonJS, but

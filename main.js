@@ -8,8 +8,8 @@ const {
   Menu,
   MenuItem
 } = require('electron')
-const server = require('./server')
 const Config = require('./app/config')
+const server = require('./server')
 const path = require('path')
 const url = require('url')
 const fs = require('fs-extra')
