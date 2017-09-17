@@ -46,9 +46,7 @@ angular.module('ropescore.results', ['ngRoute'])
         console.log('updating live')
         $scope.isLive = true
         console.__log = console.log
-        console.log = function () {
-          return
-        }
+        console.log = function () {}
         $scope.interval = $interval(function () {
           $scope.data = Db.get()
           updateScores()
@@ -132,7 +130,8 @@ angular.module('ropescore.results', ['ngRoute'])
         }
         $scope.finalscores[uid][event] = Calc.finalscore($scope.finalscores[uid], $scope.data[$scope.id].config.subevents, $scope.rankAll, uid)
       }
-      $scope.ranksums = Calc.rank.sum($scope.rankArray, $scope.finalscores)
+      console.log($scope.data[$scope.id].config.subevents)
+      $scope.ranksums = Calc.rank.sum($scope.rankArray, $scope.finalscores, $scope.data[$scope.id].config.subevents)
       $scope.finalRanks = Calc.rank.overall($scope.ranksums)
 
       for (i = 0; i < $scope.partArray.length; i++) {

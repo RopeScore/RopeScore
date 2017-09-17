@@ -148,28 +148,27 @@
             /></td>
         </tr>
         <tr>
+          <td><label for="a{{ $index }}uom">Using the Music:</label></td>
+          <td><input type="number" id="a{{ $index }}uom" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].uom" ng-change="toMax('a', $index, 'uom')"
+            /></td>
+        </tr>
+        <tr>
           <td><label for="a{{ $index }}mov">Movement:</label></td>
           <td><input type="number" id="a{{ $index }}mov" min="0" max="10" step="0.5"
               ng-model="data[id].scores[uid][event].a[$index].mov" ng-change="toMax('a', $index, 'mov')"
             /></td>
         </tr>
         <tr>
-          <td><label for="a{{ $index }}ori">Originality:</label></td>
-          <td><input type="number" id="a{{ $index }}ori" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].ori" ng-change="toMax('a', $index, 'ori')"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="a{{ $index }}uom">Using the Music:</label></td>
-          <td><input type="number" id="a{{ $index }}uom" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$index].uom" ng-change="toMax('a', $index, 'uom')"
-            /></td>
-        </tr>
-
-        <tr>
           <td><label for="a{{ $index }}fbe">Form of Body &amp; Execution:</label></td>
           <td><input type="number" id="a{{ $index }}fbe" min="0" max="10" step="0.5"
               ng-model="data[id].scores[uid][event].a[$index].fbe" ng-change="toMax('a', $index, 'fbe')"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="a{{ $index }}ori">Originality:</label></td>
+          <td><input type="number" id="a{{ $index }}ori" min="0" max="10" step="0.5"
+              ng-model="data[id].scores[uid][event].a[$index].ori" ng-change="toMax('a', $index, 'ori')"
             /></td>
         </tr>
 

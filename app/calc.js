@@ -534,8 +534,8 @@ angular.module('Calc', [])
                 .T5 / 2) || 0)
               // Tscores[keys[i]] = data[keys[i]][event].A
             } else if (rankAll) {
-              Cscores.push(-2000)
-              Dscores.push(-2000)
+              Cscores.push(-Infinity)
+              Dscores.push(-Infinity)
             }
           }
           Cscores.sort(function (a, b) {
@@ -547,13 +547,11 @@ angular.module('Calc', [])
 
           // calc everyones Crank and Drank and push sum into an array
           for (i = 0; i < keys.length; i++) {
-            var CtempScore = (data[keys[i]] && data[keys[i]][event] ? data[keys[i]][event].T4 - (data[keys[i]][event].T5 / 2) || 0 : -2000)
-            var DtempScore = (data[keys[i]] && data[keys[i]][event] ? data[keys[i]][event].T1 - (data[keys[i]][event].T5 / 2) || 0 : -2000)
-            var TtempScore = (data[keys[i]] && data[keys[i]][event] ? data[keys[i]][event].A || 0 : -2000)
-            var CtempRank = (typeof CtempScore !== 'undefined' ? Cscores.indexOf(
-              CtempScore) + 1 : undefined)
-            var DtempRank = (typeof DtempScore !== 'undefined' ? Dscores.indexOf(
-              DtempScore) + 1 : undefined)
+            var CtempScore = (data[keys[i]] && data[keys[i]][event] ? data[keys[i]][event].T4 - (data[keys[i]][event].T5 / 2) || 0 : -Infinity)
+            var DtempScore = (data[keys[i]] && data[keys[i]][event] ? data[keys[i]][event].T1 - (data[keys[i]][event].T5 / 2) || 0 : -Infinity)
+            var TtempScore = (data[keys[i]] && data[keys[i]][event] ? data[keys[i]][event].A || 0 : -Infinity)
+            var CtempRank = (typeof CtempScore !== 'undefined' ? Cscores.indexOf(CtempScore) + 1 : undefined)
+            var DtempRank = (typeof DtempScore !== 'undefined' ? Dscores.indexOf(DtempScore) + 1 : undefined)
             if (DtempRank > 0 && CtempRank > 0) {
               if (typeof ranks[keys[i]] === 'undefined') {
                 ranks[keys[i]] = {}
@@ -586,8 +584,10 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < ranksums.length; i++) {
-            ranks[ranksums[i].uid].total = (ranksums.findIndex(function (
-              obj) {
+            ranks[ranksums[i].uid].total = (ranksums.findIndex(function (obj) {
+              if (rankAll && ranksums[i].score === -Infinity) {
+                return obj.ranksum === ranksums[i].ranksum
+              }
               return obj.uid === ranksums[i].uid
             }) + 1) * fac
           }
@@ -615,7 +615,7 @@ angular.module('Calc', [])
 
           return output
         },
-        sum: function (arr, finalscores) {
+        sum: function (arr, finalscores, subevents) {
           var output = {}
           for (var i = 0; i < arr.length; i++) {
             if (typeof finalscores[arr[i].uid].final === 'undefined') {
@@ -624,6 +624,9 @@ angular.module('Calc', [])
             var sum = Object.keys(arr[i])
               .filter(function (abbr) {
                 return Abbr.events.indexOf(abbr) >= 0
+              })
+              .filter(function (abbr) {
+                return typeof subevents[abbr] !== 'undefined' && subevents[abbr] === true
               })
               .reduce(function (sum, abbr) {
                 if (typeof arr[i][abbr] === 'undefined') {

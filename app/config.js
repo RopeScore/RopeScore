@@ -1,6 +1,6 @@
 /* global angular */
 var Config = {
-  Debug: false, // default: false
+  Debug: true, // default: false
   LicenceDate: 1505331034340,
   version: '2.0.1-au',
   Eval: false, // default: false
