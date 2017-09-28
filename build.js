@@ -29,8 +29,7 @@ const repositoryRootPath = path.resolve(__dirname)
 const buildOutputPath = path.join(repositoryRootPath, 'build')
 const distOutputPath = path.join(repositoryRootPath, 'dist')
 const packagedAppPath = path.join(repositoryRootPath, 'app') // eslint-disable-line
-const baseName =
-  `${Package.name}-${argv.platform}-${argv.arch}-${Package.version}`
+const baseName = `${Package.name}-${argv.platform}-${argv.arch}-${Package.version}`
 const configFile = path.join(repositoryRootPath, 'app', 'config.js')
 
 fs.readFile(configFile, 'utf8', function (err, data) {

@@ -1,48 +1,36 @@
 /* global angular */
 var Config = {
   Debug: true, // default: false
-  LicenceDate: 1505331034340,
-  version: '2.0.1-au',
+  LicenceDate: 1506583916141,
+  version: '2.0.2-au',
   Eval: false, // default: false
 
-  MissJudges: true, // default: false
+  MissJudges: false, // default: false
   ShowRaw: false, // default: false
-  ShowDC: true, // default: false, (Show Diff and Creat Scores + rank in overall table)
-  ShowAllTables: true, // default: false
-  Simplified: true, // default: false
+  ShowDC: false, // default: false, (Show Diff and Creat Scores + rank in overall table)
+  ShowAllTables: false, // default: false
+  Simplified: false, // default: false
   CheckStart: 0, // default: 0
+
+  functions: {},
 
   // fill in nonabbrs if you want to use non standard abbrs, add non-standard events here as well
   Nonabbrs: {
     srss: {
-      abbr: 'srm30s',
-      name: '30s Speed'
+      abbr: '',
+      name: ''
     },
     srse: {
-      abbr: 'srm3min',
-      name: '3 min Speed'
+      abbr: '',
+      name: ''
     },
-    // ---- BEGIN EXTRA ----
-    srsj: {
-      abbr: 'srs1min',
-      name: '1 min Speed',
-      speed: true,
-      masters: true
-    },
-    srd: {
-      abbr: 'srdr',
-      name: 'Double Unders Relay',
-      masters: true,
-      speed: true
-    },
-    // ---- END EXTRA ----
     srtu: {
       abbr: '',
       name: ''
     },
     srsf: {
       abbr: '',
-      name: 'Masters Freestyle'
+      name: ''
     },
     // ------------------
     srsr: {
@@ -50,11 +38,11 @@ var Config = {
       name: ''
     },
     srpf: {
-      abbr: 'srf2',
+      abbr: '',
       name: ''
     },
     srtf: {
-      abbr: 'srf4',
+      abbr: '',
       name: ''
     },
     ddsr: {
@@ -62,11 +50,11 @@ var Config = {
       name: ''
     },
     ddsf: {
-      abbr: 'ddf3',
+      abbr: '',
       name: ''
     },
     ddpf: {
-      abbr: 'ddf4',
+      abbr: '',
       name: ''
     }
   }
@@ -75,16 +63,25 @@ Config.country = Config.version.split('-').slice(-1)[0].substring(0, 2)
 Config.releaseRemoteUrl = function (arch, platform, country) {
   return `https://download.swant.pw/ropescore/${country || Config.country}/${platform || process.platform}/${arch || process.arch}`
 }
+Config.functions.simplifiedLevelData = function () {}
 
+function addScript (src) {
+  var s = document.createElement('script')
+  s.setAttribute('src', src)
+  document.body.appendChild(s)
+}
 
 if (typeof module === 'object' && typeof exports !== 'undefined') {
   // Node. Does not work with strict CommonJS, but
   // only CommonJS-like environments that support module.exports,
   // like Node.
   module.exports = Config
-} else if (typeof angular === 'object') {
-  angular.module('Config', [])
+} else {
+  addScript('/configs/' + Config.country + '.js')
+  if (typeof angular === 'object') {
+    angular.module('Config', [])
     .factory('Config', function () {
       return Config
     })
+  }
 }

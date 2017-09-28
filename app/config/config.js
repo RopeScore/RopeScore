@@ -1,4 +1,5 @@
-'use strict';
+/* global confirm, btoa, angular */
+'use strict'
 /**
  * @class ropescore.config
  * @memberOf ropescore
@@ -8,11 +9,11 @@ angular.module('ropescore.config', ['ngRoute'])
 
   .config([
     '$routeProvider',
-  function($routeProvider) {
+    function ($routeProvider) {
       $routeProvider.when('/config/:id?', {
         templateUrl: '/config/config.html',
         controller: 'ConfigCtrl'
-      });
+      })
     }
   ])
 
@@ -23,11 +24,11 @@ angular.module('ropescore.config', ['ngRoute'])
    * @param {service} $routeParams
    * @param {service} Db
    */
-  .controller('ConfigCtrl', function($scope, $location, $routeParams, Db, Abbr,
+  .controller('ConfigCtrl', function ($scope, $location, $routeParams, Db, Abbr,
     Config) {
     $scope.data = Db.get()
 
-    $scope.id = $routeParams.id;
+    $scope.id = $routeParams.id
     $scope.setID($scope.id)
     if (!$scope.id) {
       $scope.id = btoa(new Date()
@@ -35,7 +36,7 @@ angular.module('ropescore.config', ['ngRoute'])
       console.log(`new event with id: ${$scope.id}`)
     }
 
-    $scope.save = function() {
+    $scope.save = function () {
       Db.set($scope.data)
       $location.path('/config/participants/' + $scope.id)
     }
@@ -43,10 +44,8 @@ angular.module('ropescore.config', ['ngRoute'])
     $scope.MissJudges = Config.MissJudges
     $scope.Simplified = Config.Simplified
 
-    $scope.remove = function() {
-      if (confirm(
-          "Are you sure you want to remove this event and all of its data?"
-        )) {
+    $scope.remove = function () {
+      if (confirm('Are you sure you want to remove this event and all of its data?')) {
         console.log(`removing ${$scope.id}`)
         delete $scope.data[$scope.id]
         Db.set($scope.data)
@@ -54,5 +53,5 @@ angular.module('ropescore.config', ['ngRoute'])
       }
     }
 
-    $scope.Abbr = Abbr;
+    $scope.Abbr = Abbr
   })

@@ -58,7 +58,7 @@ angular.module('Calc', [])
           }
 
           if (typeof ld === 'string') {
-            ld = methods.levelData(ld)
+            ld = methods.levelData(ld, Config.Simplified)
           }
           console.log(ld)
 
@@ -174,7 +174,7 @@ angular.module('Calc', [])
           }
 
           if (isNaN(Number(rq))) {
-            rq = methods.levelData(rq)
+            rq = methods.levelData(rq, Config.Simplified)
               .rq
           }
 
@@ -283,7 +283,7 @@ angular.module('Calc', [])
         },
         A: function (T1, T4, T5, ld) {
           if (typeof ld === 'string') {
-            ld = methods.levelData(ld)
+            ld = methods.levelData(ld, Config.Simplified)
           }
           var output = {}
 
@@ -304,35 +304,9 @@ angular.module('Calc', [])
         }
 
         if (simplified) {
-          output.lmaxes = {
-            '0': 10,
-            '1': 20,
-            '2': 30,
-            '3': -1,
-            '4': -1,
-            '5': -1
-          }
-          output.lmin = 1
-          if (event === 'srsf') {
-            output.l = function (x) {
-              return (3 / (Math.pow(1.5, (5 - x))))
-            }
-            output.lmax = 6
-            output.rq = 50 / 14
-            output.fac = 2
-          } else if (event === 'srpf' || event === 'srtf') {
-            output.l = function (x) {
-              return (3.5 / (Math.pow(1.5, (4 - x))))
-            }
-            output.lmax = 6
-            output.rq = 50 / 16
-          } else if (event === 'ddsf' || event === 'ddpf') {
-            output.l = function (x) {
-              return (3 / (Math.pow(1.5, (4 - x))))
-            }
-            output.lmax = 5
-            output.rq = 50 / 16
-          }
+          output = Config.functions.simplifiedLevelData(event)
+          output.lev = {}
+          output.fac = 1
         } else {
           output.lmaxes = {
             '0': -1,
