@@ -5,9 +5,6 @@ var Config = {
   version: '2.0.1-au',
   Eval: false, // default: false
 
-  releaseRemoteUrl: function (arch, platform) {
-    return `https://download.swant.pw/ropescore/au/${platform || process.platform}/${arch || process.arch}`
-  },
   MissJudges: true, // default: false
   ShowRaw: false, // default: false
   ShowDC: true, // default: false, (Show Diff and Creat Scores + rank in overall table)
@@ -74,8 +71,11 @@ var Config = {
     }
   }
 }
-Config.country = Config.version.split('-')
-  .slice(-1)[0].substring(0, 2)
+Config.country = Config.version.split('-').slice(-1)[0].substring(0, 2)
+Config.releaseRemoteUrl = function (arch, platform, country) {
+  return `https://download.swant.pw/ropescore/${country || Config.country}/${platform || process.platform}/${arch || process.arch}`
+}
+
 
 if (typeof module === 'object' && typeof exports !== 'undefined') {
   // Node. Does not work with strict CommonJS, but
