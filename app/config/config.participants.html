@@ -36,6 +36,7 @@
 
 <button ng-click="save()">Save and Continue</button>
 <button ng-click="export()">Export list of participants to Excel</button>
+<p>{{ error }}</p>
 
 <div ng-show="showAll">
   <table ng-if="hasData()" id="partlist" name="overall">

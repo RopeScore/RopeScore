@@ -81,7 +81,7 @@
   </table>
 </div>
 
-<div ng-show="ShowAllTables">
+<div ng-show="ShowAllTables" class="mt">
   <div class="table">
     <table name="overall">
       <thead>
@@ -89,7 +89,7 @@
           <th bold="true" noborders colspan="{{ (3 + Abbr.header(data[id].config.subevents, 'sr', false) + Abbr.header(data[id].config.subevents, 'dd', false) + 3) }}">{{ data[id].config.name }} Overall Results</th>
         </tr>
         <tr>
-          <th bold="true" class="blank" noborders colspan="3" rowspan="2"></th>
+          <th bold="true" colspan="3" rowspan="2"></th>
           <th bold="true" colspan="{{ Abbr.header(data[id].config.subevents, 'sr', false) }}"
             ng-if="Abbr.hasType(data[id].config.subevents, 'sr')">Single Rope</th>
           <th bold="true" colspan="{{ Abbr.header(data[id].config.subevents, 'dd', false) }}"
@@ -116,21 +116,20 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="part in partArray | orderBy : ['rank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})"
+        <tr ng-repeat="part in partArray | orderBy : ['overallRank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})"
           ng-if="rankAll || inAll(data[id].config.subevents, data[id].scores[part.uid])">
           <td>{{ data[id].participants[part.uid].name }}</td>
           <td>{{ data[id].participants[part.uid].club }}</td>
           <td>{{ part.uid }}</td>
 
-          <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event)" ng-repeat-start="event in Abbr.events track by $index">{{ roundTo(finalscores[part.uid][event].Y, 2) || '' }}</td>
-          <td ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ roundTo(finalscores[part.uid][event].A, 2) || '' }}</td>
-          <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event)" class="red" argb="FFFF0000">{{ ranks[event][part.uid] }}</td>
-          <td ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)" class="red"
-            argb="FFFF0000" ng-repeat-end>{{ ranks[event][part.uid].total }}</td>
+          <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event)" ng-repeat-start="event in Abbr.events track by $index">{{ roundTo(overallFinalscores[part.uid][event].Y, 2) || '' }}</td>
+          <td ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ roundTo(overallFinalscores[part.uid][event].A, 2) || '' }}</td>
+          <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event)" class="red" argb="FFFF0000">{{ overallRanks[event][part.uid] }}</td>
+          <td ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)" class="red" argb="FFFF0000" ng-repeat-end>{{ overallRanks[event][part.uid].total }}</td>
 
-          <td>{{ roundTo(finalscores[part.uid].final, 2) || '' }}</td>
-          <td class="green" argb="FF008000">{{ ranksums[part.uid] }}</td>
-          <td class="red" argb="FFFF0000">{{ finalRanks[part.uid] || '' }}
+          <td>{{ roundTo(overallFinalscores[part.uid].final, 2) || '' }}</td>
+          <td class="green" argb="FF008000">{{ overallRanksums[part.uid] }}</td>
+          <td class="red" argb="FFFF0000">{{ overallFinalRanks[part.uid] || '' }}
           </td>
         </tr>
       </tbody>

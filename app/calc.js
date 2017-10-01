@@ -58,7 +58,6 @@ angular.module('Calc', [])
           }
 
           if (typeof ld === 'string') {
-            console.log(data)
             ld = methods.levelData(ld, simplified)
           }
           console.log(ld)
@@ -81,8 +80,6 @@ angular.module('Calc', [])
               if (typeof calcdiff[i][p] === 'undefined') {
                 calcdiff[i][p] = 0
               }
-
-              console.log(ld.lev[p], scores[i][p])
 
               calcdiff[i][p] += Math.roundTo((scores[i][p] || 0) * ld.lev[p], 4)
 
@@ -247,8 +244,7 @@ angular.module('Calc', [])
           n = keys.length
 
           for (i = 0; i < n; i++) {
-            scores.push((data.mim[keys[i]] * 12.5) + (data.mam[keys[i]] *
-              25))
+            scores.push((data.mim[keys[i]] * 12.5) + (data.mam[keys[i]] * 25))
           }
           scores.sort(function (a, b) {
             return a - b
@@ -418,6 +414,7 @@ angular.module('Calc', [])
               return Abbr.events.indexOf(abbr) >= 0 && typeof data[abbr] !==
                 'undefined'
             })
+          if (typeof subevents === 'undefined') return undefined
           var events = Object.keys(subevents)
           var enabled = events.filter(function (abbr) {
             return subevents[abbr]
@@ -457,7 +454,7 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < keys.length; i++) {
-            if (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined') {
+            if (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length > 0) {
               scores.push({
                 uid: keys[i],
                 score: data[keys[i]][event].Y || 0
@@ -628,6 +625,7 @@ angular.module('Calc', [])
       },
       inAll: function (enabled, partook) {
         var inAll = false
+        if (typeof partook === 'undefined') return inAll
         var eKeys = Object.keys(enabled)
           .filter(function (abbr) {
             return enabled[abbr]

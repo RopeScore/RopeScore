@@ -37,6 +37,10 @@ angular.module('ropescore.config', ['ngRoute'])
     }
 
     $scope.save = function () {
+      if (typeof $scope.data[$scope.id] === 'undefined' || typeof $scope.data[$scope.id].config === 'undefined') {
+        $scope.error = 'You can\'t have an empty category'
+        return
+      }
       Db.set($scope.data)
       $location.path('/config/participants/' + $scope.id)
     }
