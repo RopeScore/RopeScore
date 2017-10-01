@@ -17,7 +17,7 @@ angular.module('ropescore.about.licence', ['ngRoute'])
         })
       } else {
         $routeProvider.when('/licence', {
-          templateUrl: '/about/about.licence.html',
+          templateUrl: '/about/about.licence' + (Config.country !== undefined ? '.' + Config.country : '') + '.html',
           controller: 'LicenceCtrl'
         })
       }
@@ -28,9 +28,7 @@ angular.module('ropescore.about.licence', ['ngRoute'])
    * @class ropescore.about.licence.LicenceCtrl
    */
   .controller('LicenceCtrl', function ($scope, Config) {
-    $scope.name = 'Skipping Australia'
-    $scope.from = Config.LicenceDate
-    $scope.to = Number(Config.LicenceDate) + (30 * 24 * 60 * 60 * 1000)
+    $scope.licence = Config.licence
 
     $scope.foss = {
       MIT: [

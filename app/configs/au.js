@@ -65,6 +65,8 @@ Config.Nonabbrs = {
   }
 }
 
+Config.licence.licensee = 'Skipping Australia'
+
 Config.functions.simplifiedLevelData = function (event) {
   var output = {}
   output.lmaxes = {

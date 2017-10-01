@@ -52,13 +52,14 @@ angular.module('Calc', [])
         return output
       },
       freestyle: {
-        T1: function (data, ld) { // Difficulty, data.d
+        T1: function (data, ld, simplified) { // Difficulty, data.d
           if (typeof data === 'undefined') {
             return undefined
           }
 
           if (typeof ld === 'string') {
-            ld = methods.levelData(ld, Config.Simplified)
+            console.log(data)
+            ld = methods.levelData(ld, simplified)
           }
           console.log(ld)
 
@@ -80,6 +81,8 @@ angular.module('Calc', [])
               if (typeof calcdiff[i][p] === 'undefined') {
                 calcdiff[i][p] = 0
               }
+
+              console.log(ld.lev[p], scores[i][p])
 
               calcdiff[i][p] += Math.roundTo((scores[i][p] || 0) * ld.lev[p], 4)
 
@@ -168,13 +171,13 @@ angular.module('Calc', [])
           tempT = Math.roundTo(tempT / n, 4)
           return Math.roundTo((tempT > 40 ? 40 * 5 : tempT * 5), 4)
         },
-        T3: function (data, rq) { // Required Elements, data.b
+        T3: function (data, rq, simplified) { // Required Elements, data.b
           if (typeof data === 'undefined') {
             return undefined
           }
 
           if (isNaN(Number(rq))) {
-            rq = methods.levelData(rq, Config.Simplified)
+            rq = methods.levelData(rq, simplified)
               .rq
           }
 
@@ -281,9 +284,9 @@ angular.module('Calc', [])
 
           return Math.roundTo(miss, 4)
         },
-        A: function (T1, T4, T5, ld) {
+        A: function (T1, T4, T5, ld, simplified) {
           if (typeof ld === 'string') {
-            ld = methods.levelData(ld, Config.Simplified)
+            ld = methods.levelData(ld, simplified)
           }
           var output = {}
 

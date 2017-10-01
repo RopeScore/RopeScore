@@ -1,3 +1,4 @@
+/* global angular, FileReader, confirm */
 'use strict'
 /**
  * @class ropescore.dash

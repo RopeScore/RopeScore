@@ -38,6 +38,7 @@ angular.module('ropescore.score', ['ngRoute'])
     $scope.getNumber = Num
     $scope.roundTo = Math.roundTo
     $scope.freestyle = Calc.freestyle
+    $scope.simplified = $scope.data[$scope.id].config.simplified
 
     $scope.score = function () {
       if (typeof $scope.data[$scope.id].scores === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid] === 'undefined') {

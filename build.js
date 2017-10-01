@@ -3,10 +3,11 @@ const packager = require('electron-packager')
 const path = require('path')
 const assert = require('assert')
 const fs = require('fs-extra')
+const Package = require('./package.json')
+
 const argv = require('yargs')
   .usage('Usage: node $0 [options]')
-  .wrap(require('yargs')
-    .terminalWidth())
+  .wrap(require('yargs').terminalWidth())
   .alias('a', 'arch')
   .default('a', process.arch)
   .describe('a', 'arch to build for')
@@ -16,30 +17,33 @@ const argv = require('yargs')
   .describe('p', 'platform to build for')
   .choices('p', ['win32', 'darwin', 'linux'])
   .default('all', false)
+  .alias('c', 'country')
+  .default('c', Package.version.split('-').slice(-1)[0].substring(0, 2))
+  .describe('c', 'The country version to build')
+  .choices('c', ['au', 'se'])
   .boolean('all')
   .describe('all', 'If present all plattforms and archs will be packaged')
   .help('help')
   .alias('h', 'help')
   .argv
 
-const Package = require('./package.json')
-const Config = require('./app/config.js')
+Package.version = `${Package.version.split('-')[0]}-${argv.c}`
 
 const repositoryRootPath = path.resolve(__dirname)
-const buildOutputPath = path.join(repositoryRootPath, 'build')
-const distOutputPath = path.join(repositoryRootPath, 'dist')
-const packagedAppPath = path.join(repositoryRootPath, 'app') // eslint-disable-line
-const baseName = `${Package.name}-${argv.platform}-${argv.arch}-${Package.version}`
 const configFile = path.join(repositoryRootPath, 'app', 'config.js')
+const buildOutputPath = path.join(repositoryRootPath, 'build', argv.c)
+const distOutputPath = path.join(repositoryRootPath, 'dist', argv.c)
+const packagedAppPath = path.join(repositoryRootPath, 'app') // eslint-disable-line
+
+const Config = require('./app/config.js')
+const baseName = `${Package.name}-${argv.platform}-${argv.arch}-${Package.version}`
 
 fs.readFile(configFile, 'utf8', function (err, data) {
   if (err) {
     return console.log(err)
   }
-  var result = data.replace(/version: '.+'/g,
-      `version: '${Package.version}'`)
-    .replace(/LicenceDate: \d+/g,
-      `LicenceDate: ${new Date().getTime()}`)
+  var result = data.replace(/version: '.+'/g, `version: '${Package.version}'`)
+    .replace(/LicenceDate: \d+/g, `LicenceDate: ${new Date().getTime()}`)
     .replace(/Debug: true/g, `Debug: false`)
 
   fs.writeFile(configFile, result, 'utf8', function (err) {
@@ -57,7 +61,7 @@ const packageOptions = {
   'buildVersion': Package.version,
   'dir': path.join(repositoryRootPath),
   'icon': getIcon(),
-  'ignore': ['dist'],
+  'ignore': ['dist', 'build'],
   'name': Package.name,
   'out': buildOutputPath,
   'overwrite': true,
@@ -118,15 +122,12 @@ function renamePackagedAppDir (packageOutputDirPath) {
     const appBundleName = `${Package.name}.app`
     const newAppBundleName = `${baseName}.app`
     packagedAppPath = path.join(packageOutputDirPath, newAppBundleName)
-    var distAppPath = path.join(distOutputPath, argv.platform, argv.arch,
-      newAppBundleName)
+    var distAppPath = path.join(distOutputPath, argv.platform, argv.arch, newAppBundleName)
 
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
     if (fs.existsSync(distAppPath)) fs.removeSync(distAppPath)
-    fs.renameSync(path.join(packageOutputDirPath, appBundleName),
-      packagedAppPath)
-    fs.copySync(packagedAppPath,
-      distAppPath)
+    fs.renameSync(path.join(packageOutputDirPath, appBundleName), packagedAppPath)
+    fs.copySync(packagedAppPath, distAppPath)
   } else {
     packagedAppPath = path.join(buildOutputPath, baseName)
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)

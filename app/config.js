@@ -1,14 +1,14 @@
 /* global angular */
 var Config = {
   Debug: true, // default: false
-  LicenceDate: 1506583916141,
-  version: '2.0.2-au',
+  LicenceDate: 1506588447383,
+  version: '2.0.3-se',
   Eval: false, // default: false
 
   MissJudges: false, // default: false
   ShowRaw: false, // default: false
-  ShowDC: false, // default: false, (Show Diff and Creat Scores + rank in overall table)
-  ShowAllTables: false, // default: false
+  ShowDC: true, // default: true, (Show Diff and Creat Scores + rank in overall table)
+  ShowAllTables: true, // default: true
   Simplified: false, // default: false
   CheckStart: 0, // default: 0
 
@@ -60,10 +60,16 @@ var Config = {
   }
 }
 Config.country = Config.version.split('-').slice(-1)[0].substring(0, 2)
+Config.country = (isNaN(Number(Config.country)) ? Config.country : undefined)
 Config.releaseRemoteUrl = function (arch, platform, country) {
   return `https://download.swant.pw/ropescore/${country || Config.country}/${platform || process.platform}/${arch || process.arch}`
 }
 Config.functions.simplifiedLevelData = function () {}
+Config.licence = {
+  licensee: '',
+  dateTo: 0,
+  dateFrom: Config.LicenceDate
+}
 
 function addScript (src) {
   var s = document.createElement('script')
@@ -77,7 +83,7 @@ if (typeof module === 'object' && typeof exports !== 'undefined') {
   // like Node.
   module.exports = Config
 } else {
-  addScript('/configs/' + Config.country + '.js')
+  if (typeof Config.country !== 'undefined') addScript('/configs/' + Config.country + '.js')
   if (typeof angular === 'object') {
     angular.module('Config', [])
     .factory('Config', function () {
