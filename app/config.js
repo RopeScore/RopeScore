@@ -1,8 +1,8 @@
 /* global angular */
 var Config = {
   Debug: false, // default: false
-  LicenceDate: 1507191029051,
-  version: '2.1.1-intl',
+  LicenceDate: 1507191467961,
+  version: '2.1.1-se',
   Eval: false, // default: false
 
   MissJudges: false, // default: false
@@ -59,7 +59,7 @@ var Config = {
     }
   }
 }
-Config.country = Config.version.split('-').slice(-1)[0].substring(0, 2)
+Config.country = Config.version.split('-').slice(-1)[0]
 Config.country = (isNaN(Number(Config.country)) ? Config.country : undefined)
 Config.releaseRemoteUrl = function (arch, platform, country) {
   return `https://download.ropescore.com/${country || Config.country}/${platform || process.platform}/${arch || process.arch}`
