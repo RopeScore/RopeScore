@@ -33,8 +33,6 @@
   <button ng-click="display(uid, id, event)">Display</button>
 </form>
 
-<pre>{{ data[id].scores[uid][event]|json }}</pre>
-
 <form ng-if="!Abbr.isSpeed(event)" name="freeform">
   <div class="flex-container mb">
     <div ng-repeat="n in getNumber(data[id].config.judges[event].b) track by $index">
