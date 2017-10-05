@@ -50,6 +50,30 @@ angular.module('ropescore.score.speed', ['ngRoute'])
       $scope.data = Db.get()
     }
 
+    $scope.reskipAllowed = function (uid, id, event) {
+      if (typeof $scope.data[id].scores === 'undefined' || typeof $scope.data[id].scores[uid] === 'undefined') {
+        return undefined
+      }
+      var scores = Object.keys($scope.data[id].scores[uid][event].s).map(function (el) {
+        return $scope.data[id].scores[uid][event].s[el]
+      })
+      var bools = []
+      scores.sort(function (a, b) {
+        return a - b
+      })
+      for (var i = 0; i < scores.length - 1; i++) {
+        bools.push(scores[i + 1] - scores[i] > 3)
+      }
+      if (bools.length <= 0) {
+        return false
+      }
+      var bool = bools.reduce(function (a, b) {
+        return b && a
+      })
+      $scope.data[id].scores[uid][event].reskip = bool
+      return bool
+    }
+
     $scope.displayAll = function (participants, id, event) {
       Db.set($scope.data)
       Display.displayAll(participants, id, event)

@@ -1,4 +1,8 @@
 <h1>{{ Abbr.unabbr(event) }} Score for <u>{{ data[id].participants[uid].name }}</u> from <u>{{ data[id].participants[uid].club }}</u> ({{ uid }})</h1>
+<div class="floatbuttons">
+  <button ng-click="save()" ng-disabled="(freeform.$invalid)">Save &amp; Return</button>
+  <button ng-click="display(uid, id, event)">Display</button>
+</div>
 <form ng-if="Abbr.isSpeed(event)" class="table" name="speedform">
   <table>
     <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
@@ -9,7 +13,7 @@
     <tr>
       <td><label for="fst">False Start:</label></td>
       <td><input type="checkbox" id="fst" ng-model="data[id].scores[uid][event].start"
-        /></td>
+        ng-keydown="($event.keyCode !== 9 ? data[id].scores[uid][event].start = !data[id].scores[uid][event].start : '')"/></td>
     </tr>
     <tr ng-if="Abbr.isTeam(event)">
       <td><label for="fsw">False Switches:</label></td>
@@ -20,11 +24,16 @@
       <td>Unofficial Score:</td>
       <td>{{ score().PreY }}</td>
     </tr>
+    <tr ng-if="reskipAllowed()">
+      <td colspan="2" class="red">Reskip allowed</td>
+    </tr>
   </table>
   <span ng-show="speedform.$invalid">Check input for errors marked in red.</span>
   <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
   <button ng-click="display(uid, id, event)">Display</button>
 </form>
+
+<pre>{{ data[id].scores[uid][event]|json }}</pre>
 
 <form ng-if="!Abbr.isSpeed(event)" name="freeform">
   <div class="flex-container mb">
@@ -221,6 +230,24 @@
     </div>
   </div>
 
+  <div class="flex-container mb" ng-if="MissJudges">
+    <div ng-repeat="n in getNumber(data[id].config.judges[event].m) track by $index">
+      <h2>M{{ $index + 1 }}:</h2>
+      <table>
+        <tr>
+          <td><label for="m{{ $index }}mim">Minor Misses:</label></td>
+          <td><input type="number" id="h{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['m' + $index]"
+            /></td>
+        </tr>
+        <tr>
+          <td><label for="m{{ $index }}mam">Major Misses:</label></td>
+          <td><input type="number" id="h{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['m' + $index]"
+            /></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
   <div class="flex-container mb">
     <div ng-repeat="n in getNumber(data[id].config.judges[event].h) track by $index">
       <h2>H{{ $index + 1 }}:</h2>
@@ -246,34 +273,17 @@
         <tr>
           <td><label for="h{{ $index }}tim">Time Violation:</label></td>
           <td><input type="checkbox" id="h{{ $index }}tim" ng-model="data[id].scores[uid][event].h[$index].tim"
-            /></td>
+            ng-keydown="($event.keyCode !== 9 ? data[id].scores[uid][event].h[$index].tim = !data[id].scores[uid][event].h[$index].tim : '')"/></td>
         </tr>
         <tr ng-if="Abbr.isType(event, 'dd')">
           <td><label for="h{{ $index }}few">Less than 3 skills:</label></td>
           <td><input type="number" id="h{{ $index }}few" min="0" ng-model="data[id].scores[uid][event].h[$index].few"
-            /></td>
+            ng-keydown="data[id].scores[uid][event].h[$index].few = !data[id].scores[uid][event].h[$index].few"/></td>
         </tr>
       </table>
     </div>
   </div>
 
-  <div class="flex-container mb" ng-if="MissJudges">
-    <div ng-repeat="n in getNumber(data[id].config.judges[event].m) track by $index">
-      <h2>M{{ $index + 1 }}:</h2>
-      <table>
-        <tr>
-          <td><label for="m{{ $index }}mim">Minor Misses:</label></td>
-          <td><input type="number" id="h{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['m' + $index]"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="m{{ $index }}mam">Major Misses:</label></td>
-          <td><input type="number" id="h{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['m' + $index]"
-            /></td>
-        </tr>
-      </table>
-    </div>
-  </div>
   <div class="table">
     <table>
       <tr>

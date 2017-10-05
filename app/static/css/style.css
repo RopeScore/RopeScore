@@ -17,6 +17,22 @@ body {
   font-family: monospace;
 }
 
+.red {
+  color: #f00 !important;
+}
+
+.green {
+  color: #008000 !important;
+}
+
+.gray {
+  color: #808080 !important;
+}
+
+h1 {
+  max-width: 80%;
+}
+
 p {
   margin-bottom: .3em;
   max-width: 60%;
@@ -51,6 +67,12 @@ button, .button {
 
 button:hover, button:disabled, .button:hover {
   background-color: #ccc;
+}
+
+.floatbuttons {
+  position: fixed;
+  right: .3em;
+  top: 50px;
 }
 
 footer {
@@ -299,18 +321,6 @@ th, td {
 
 .blank, table.blank th, table.blank td {
   border: none;
-}
-
-.red {
-  color: #f00;
-}
-
-.green {
-  color: #008000;
-}
-
-.gray {
-  color: #808080;
 }
 
 .onethird {

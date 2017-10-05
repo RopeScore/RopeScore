@@ -12,7 +12,7 @@
 
   <tr ng-if="Simplified">
     <td><label for="simp">Simplified levels:</label></td>
-    <td><input type="checkbox" id="simp" ng-model="data[id].config.simplified" /></td>
+    <td><input type="checkbox" id="simp" ng-model="data[id].config.simplified" ng-keydown="($event.keyCode !== 9 ? data[id].config.simplified = !data[id].config.simplified: '')"/></td>
   </tr>
 </table>
 
@@ -33,7 +33,7 @@
   </tr>
   <tr ng-repeat="event in Abbr.events track by $index">
     <td><input type="checkbox" id="event-{{ event }}" ng-model="data[id].config.subevents[event]"
-      /></td>
+      ng-keydown="($event.keyCode !== 9 ? data[id].config.subevents[event] = !data[id].config.subevents[event] : '')"/></td>
     <td><label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label></td>
     <td><input type="number" ng-model="data[id].config.judges[event].a" placeholder="Presentation"
         ng-if="!Abbr.isSpeed(event)" /></td>

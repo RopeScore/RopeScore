@@ -1,7 +1,7 @@
 {
   "name": "RopeScore",
   "productName": "RopeScore",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A scoring system for ropeskipping",
   "author": "Svante Bengtson",
   "main": "main.js",
@@ -13,6 +13,7 @@
     "fs-extra": "^3.0.1"
   },
   "devDependencies": {
+    "archiver": "^2.0.3",
     "electron": "^1.6.2",
     "electron-packager": "^8.7.1",
     "electron-winstaller": "^2.6.2",
@@ -30,6 +31,6 @@
     "build:linux:32": "node build -p linux -a ia32",
     "build:linux:arm": "node build -p linux -a armv7l",
     "build:all": "node build --all",
-    "dist:sync": "rsync -avzcP dist/win32 lhome:"
+    "dist:sync": "rsync -avzcP dist/ lhome:ropescore"
   }
 }

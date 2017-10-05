@@ -47,6 +47,30 @@ angular.module('ropescore.score', ['ngRoute'])
       return Calc.score($scope.event, $scope.data[$scope.id].scores[$scope.uid][$scope.event], $scope.uid)
     }
 
+    $scope.reskipAllowed = function () {
+      if (typeof $scope.data[$scope.id].scores === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid] === 'undefined') {
+        return undefined
+      }
+      var scores = Object.keys($scope.data[$scope.id].scores[$scope.uid][$scope.event].s).map(function (el) {
+        return $scope.data[$scope.id].scores[$scope.uid][$scope.event].s[el]
+      })
+      var bools = []
+      scores.sort(function (a, b) {
+        return a - b
+      })
+      for (var i = 0; i < scores.length - 1; i++) {
+        bools.push(scores[i + 1] - scores[i] > 3)
+      }
+      if (bools.length <= 0) {
+        return false
+      }
+      var bool = bools.reduce(function (a, b) {
+        return b && a
+      })
+      $scope.data[$scope.id].scores[$scope.uid][$scope.event].reskip = bool
+      return bool
+    }
+
     $scope.display = function (uid, id, event) {
       Db.set($scope.data)
       Display.display(uid, id, event)

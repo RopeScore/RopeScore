@@ -1,8 +1,8 @@
 /* global angular */
 var Config = {
-  Debug: true, // default: false
-  LicenceDate: 1506868101913,
-  version: '2.0.4-se',
+  Debug: false, // default: false
+  LicenceDate: 1507191029051,
+  version: '2.1.1-intl',
   Eval: false, // default: false
 
   MissJudges: false, // default: false
@@ -62,7 +62,7 @@ var Config = {
 Config.country = Config.version.split('-').slice(-1)[0].substring(0, 2)
 Config.country = (isNaN(Number(Config.country)) ? Config.country : undefined)
 Config.releaseRemoteUrl = function (arch, platform, country) {
-  return `https://download.swant.pw/ropescore/${country || Config.country}/${platform || process.platform}/${arch || process.arch}`
+  return `https://download.ropescore.com/${country || Config.country}/${platform || process.platform}/${arch || process.arch}`
 }
 Config.functions.simplifiedLevelData = function () {}
 Config.licence = {

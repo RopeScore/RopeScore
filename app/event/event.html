@@ -1,6 +1,7 @@
 <h1>{{ data[id].config.name }}</h1>
 <a ng-href="/config/{{ id }}"><button>Configure</button></a>
 <a ng-href="/config/participants/{{ id }}"><button>Manage Participants</button></a>
+<a ng-click="complete()"><button>{{ (data[id].config.completed ? 'Unmark category as completed' : 'Mark category as completed') }}</button></a>
 <div class="table">
   <table>
     <thead>
@@ -27,7 +28,10 @@
         <td>{{ participant.club }}</td>
         <td>{{ uid }}</td>
 
-        <td ng-repeat-start="event in events track by $index" ng-if="data[id].config.subevents[events[$index]]"><a ng-href="/score/{{ id }}/{{ uid }}/{{ events[$index] }}">Edit</a></td>
+        <td ng-repeat-start="event in events track by $index" ng-if="data[id].config.subevents[events[$index]]">
+          <a ng-href="/score/{{ id }}/{{ uid }}/{{ events[$index] }}" ng-class="(blankChk == checksum(data[id].scores[uid][events[$index]], 5) ? 'red' : 'green')">Edit</a>
+          <span ng-if="data[id].scores[uid][events[$index]].reskip" class="red">&bull;</span>
+        </td>
         <td class="mono" ng-repeat-end ng-if="data[id].config.subevents[events[$index]]">{{ checksum(data[id].scores[uid][events[$index]], 5) }}</td>
 
         <td class="mono">{{ checksum(data[id].scores[uid], 10) }}</td>

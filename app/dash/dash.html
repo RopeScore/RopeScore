@@ -9,7 +9,7 @@
 <h1>Dashboard</h1>
 <div class="flex-container">
   <div ng-repeat="(id, event) in data" class="event" ng-if="id != 'globconfig'">
-    <a ng-href="/event/{{ id }}">{{ event.config.name }} <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span></a>
+    <a ng-href="/event/{{ id }}" ng-class="(data[id].config.completed ? 'green' : '')">{{ event.config.name }} <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span></a>
   </div>
 </div>
 

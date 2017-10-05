@@ -3,6 +3,7 @@ const packager = require('electron-packager')
 const path = require('path')
 const assert = require('assert')
 const fs = require('fs-extra')
+const archiver = require('archiver')
 const Package = require('./package.json')
 
 const argv = require('yargs')
@@ -122,12 +123,43 @@ function renamePackagedAppDir (packageOutputDirPath) {
     const appBundleName = `${Package.name}.app`
     const newAppBundleName = `${baseName}.app`
     packagedAppPath = path.join(packageOutputDirPath, newAppBundleName)
-    var distAppPath = path.join(distOutputPath, argv.platform, argv.arch, newAppBundleName)
+    var distAppPath = path.join(distOutputPath, argv.platform, argv.arch, `${baseName}.zip`)
 
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
     if (fs.existsSync(distAppPath)) fs.removeSync(distAppPath)
+    for (let dir of [distOutputPath, path.join(distOutputPath, argv.platform), path.join(distOutputPath, argv.platform, argv.arch)]) {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir)
+    }
     fs.renameSync(path.join(packageOutputDirPath, appBundleName), packagedAppPath)
-    fs.copySync(packagedAppPath, distAppPath)
+    // fs.copySync(packagedAppPath, distAppPath)
+    var output = fs.createWriteStream(distAppPath)
+    var archive = archiver('zip', {
+      zlib: { level: 9 } // Sets the compression level.
+    })
+    // listen for all archive data to be written
+    output.on('close', function () {
+      console.log(archive.pointer() + ' total bytes')
+      console.log('App compressed')
+    })
+
+    // good practice to catch warnings (ie stat failures and other non-blocking errors)
+    archive.on('warning', function (err) {
+      if (err.code === 'ENOENT') {
+      // log warning
+      } else {
+      // throw error
+        throw err
+      }
+    })
+
+    // good practice to catch this error explicitly
+    archive.on('error', function (err) {
+      throw err
+    })
+    // pipe archive data to the file
+    archive.pipe(output)
+    archive.directory(packagedAppPath, newAppBundleName)
+    archive.finalize()
   } else {
     packagedAppPath = path.join(buildOutputPath, baseName)
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
