@@ -244,7 +244,7 @@ angular.module('ropescore', [
       },
       unabbrNoType: function (abbr) {
         var nonabbrs = functions.nonabbrs()
-        var unabbred = (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbr[abbr].name)
+        var unabbred = (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbrs[abbr].name)
         unabbred = unabbred.replace('Single Rope ', '')
         unabbred = unabbred.replace('Double Dutch ', '')
         return unabbred

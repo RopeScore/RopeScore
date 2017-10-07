@@ -502,7 +502,7 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < keys.length; i++) {
-            if (data[keys[i]][event] && data[keys[i]][event].dns !== true) {
+            if (data[keys[i]][event] && Object.keys(data[keys[i]][event]).length !== 0 && data[keys[i]][event].dns !== true) {
               Cscores.push(data[keys[i]][event].T4 - (data[keys[i]][event]
                 .T5 / 2) || 0)
               Dscores.push(data[keys[i]][event].T1 - (data[keys[i]][event]
