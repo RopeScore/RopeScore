@@ -1,4 +1,8 @@
-/* global Config */
+/* global angular */
+if (typeof module === 'object' && typeof exports !== 'undefined') {
+  var Config = {licence: {}, functions: {}}
+}
+
 Config.MissJudges = false // default: false
 Config.ShowRaw = false // default: false
 Config.ShowDC = true // default: false, (Show Diff and Creat Scores + rank in overall table)
@@ -7,6 +11,7 @@ Config.Simplified = true // default: false
 Config.CheckStart = 0 // default: 0
 
 // Config.licence.licensee = 'Svenska Gymnastikförbundet'
+Config.licence.dateFrom = new Date('2017-09-30 00:00:00Z+0100').getTime()
 Config.licence.dateTo = Number(Config.licence.dateFrom) + (365 * 24 * 60 * 60 * 1000)
 
 Config.functions.simplifiedLevelData = function (event) {
@@ -29,4 +34,10 @@ Config.functions.simplifiedLevelData = function (event) {
     output.fac = 2
   }
   return output
+}
+
+if (typeof module === 'object' && typeof exports !== 'undefined') {
+  module.exports = Config.licence.dateTo
+} else if (typeof angular === 'object') {
+  angular.element(document.querySelector('html')).scope().reload()
 }

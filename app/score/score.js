@@ -35,6 +35,7 @@ angular.module('ropescore.score', ['ngRoute'])
     $scope.setID($scope.id)
 
     $scope.Abbr = Abbr
+    $scope.Order = Config.Order
     $scope.getNumber = Num
     $scope.roundTo = Math.roundTo
     $scope.freestyle = Calc.freestyle
@@ -48,7 +49,7 @@ angular.module('ropescore.score', ['ngRoute'])
     }
 
     $scope.reskipAllowed = function () {
-      if (typeof $scope.data[$scope.id].scores === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid] === 'undefined') {
+      if (typeof $scope.data[$scope.id].scores === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid] === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid][$scope.event] === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid][$scope.event].s === 'undefined') {
         return undefined
       }
       var scores = Object.keys($scope.data[$scope.id].scores[$scope.uid][$scope.event].s).map(function (el) {
@@ -79,8 +80,14 @@ angular.module('ropescore.score', ['ngRoute'])
 
     $scope.toMax = function (j, i, t) {
       var el = document.getElementById((j) + (i) + (t))
-      var val = Number(el.value.replace(',', '.'))
+      var regEx = /[^\d.]+/gi
+
+      var preVal = el.value.trim().replace(',', '.').replace(regEx, '')
+      var val = Number(preVal)
       var max = Number(el.max.replace(',', '.'))
+
+      $scope.data[$scope.id].scores[$scope.uid][$scope.event][j][i][t] = preVal
+
       if (typeof max !== 'undefined' && val > max) {
         $scope.data[$scope.id].scores[$scope.uid][$scope.event][j][i][t] = max
         el.classList.add('yellow')
@@ -98,11 +105,16 @@ angular.module('ropescore.score', ['ngRoute'])
         if (scope[keys[i]] !== null && typeof scope[keys[i]] === 'object') {
           scope[keys[i]] = $scope.clean(scope[keys[i]])
         }
-        if (scope[keys[i]] === null || scope[keys[i]] === '' || typeof scope[keys[i]] === 'undefined' || (typeof scope[keys[i]] === 'object' && Object.keys(scope[keys[i]]).length === 0)) {
+        if (scope[keys[i]] === null || scope[keys[i]] === '' || typeof scope[keys[i]] === 'undefined' || (typeof scope[keys[i]] === 'object' && Object.keys(scope[keys[i]]).length === 0) || (typeof scope[keys[i]] === 'boolean' && scope[keys[i]] === false)) {
           delete scope[keys[i]]
         }
       }
       return scope
+    }
+
+    $scope.dnsSave = function (uid, id, event) {
+      $scope.data[id].scores[uid][event] = {dns: true}
+      $scope.save()
     }
 
     $scope.save = function () {

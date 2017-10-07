@@ -73,10 +73,10 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < n; i++) {
+            if (typeof calcdiff[i] === 'undefined') {
+              calcdiff[i] = {}
+            }
             for (var p = ld.lmax - 1; p >= ld.lmin - 1; p--) {
-              if (typeof calcdiff[i] === 'undefined') {
-                calcdiff[i] = {}
-              }
               if (typeof calcdiff[i][p] === 'undefined') {
                 calcdiff[i][p] = 0
               }
@@ -113,10 +113,12 @@ angular.module('Calc', [])
 
           return Math.roundTo(tempT * 2.5, 4)
         },
-        T2: function (event, data) { // Presentation, data.a
+        T2: function (event, data, simplified) { // Presentation, data.a
           if (typeof data === 'undefined') {
             return undefined
           }
+
+          var order = Config.Order
 
           var keys = Object.keys(data)
           var n = keys.length
@@ -132,24 +134,16 @@ angular.module('Calc', [])
             if (typeof calcpres[i] === 'undefined') {
               calcpres[i] = 0
             }
-            // var keys = Object.keys(scores[i])
-            // for (var p = 0; p < keys.length; p++) {
-            //   calcpres[i] = calcpres[i] + (scores[i][keys[p]] || 0)
-            //   if (calcpres[i] > 40) {
-            //     calcpres[i] = 40
-            //   }
-            // }
+            var type, j, weight
             if (Abbr.isType(event, 'sr')) {
-              calcpres[i] += (scores[i].mob + scores[i].uom) * 0.75
-              calcpres[i] += scores[i].mov * 0.5
-              calcpres[i] += scores[i].ori
-              calcpres[i] += scores[i].fbe
+              type = 'sr'
             } else {
-              calcpres[i] += (scores[i].mob + scores[i].uom) * 0.75
-              calcpres[i] += scores[i].fbe * 0.75
-              calcpres[i] += scores[i].mov * 0.5
-              calcpres[i] += scores[i].int * 0.5
-              calcpres[i] += scores[i].ori * 0.75
+              type = 'dd'
+            }
+            keys = Object.keys(scores[i])
+            for (j = 0; j < keys.length; j++) {
+              weight = (simplified && order.a[keys[j]].simplWeight ? order.a[keys[j]].simplWeight[type] || order.a[keys[j]].weight[type] : order.a[keys[j]].weight[type])
+              calcpres[i] += scores[i][keys[j]] * weight
             }
           }
           calcpres.sort(function (a, b) {
@@ -224,11 +218,11 @@ angular.module('Calc', [])
 
           return Math.roundTo(Number(T2) || 0 + Number(T3) || 0, 4)
         },
-        T5: function (data) { // Deductions, data
+        T5: function (data, forceNum) { // Deductions, data
           if (typeof data === 'undefined' || typeof data.mim ===
             'undefined' || typeof data.mam === 'undefined' || typeof data
             .h === 'undefined') {
-            return undefined
+            return (forceNum ? 0 : undefined)
           }
 
           var i
@@ -303,7 +297,7 @@ angular.module('Calc', [])
         }
 
         if (simplified) {
-          output = Config.functions.simplifiedLevelData(event)
+          output = Config.functions.simplifiedLevelData(event) || {}
           output.lev = {}
           output.fac = 1
         } else {
@@ -342,6 +336,8 @@ angular.module('Calc', [])
           // lev[i] = Math.roundTo(l(i + 1), 4)
           output.lev[i] = output.l(i + 1)
         }
+
+        output.order = Config.Order
 
         return output
       },
@@ -382,7 +378,7 @@ angular.module('Calc', [])
           output.T1 = methods.freestyle.T1(data.d, levelData)
 
           /** Calc T2 */
-          output.T2 = methods.freestyle.T2(event, data.a)
+          output.T2 = methods.freestyle.T2(event, data.a, simplified)
 
           /** Calc T3 */
           output.T3 = methods.freestyle.T3(data.b, levelData.rq)
@@ -391,7 +387,9 @@ angular.module('Calc', [])
           output.T4 = methods.freestyle.T4(output.T2, output.T3)
 
           /** Calc T5 */
-          output.T5 = methods.freestyle.T5(data)
+          var T1type = typeof output.T1
+          var T4type = typeof output.T4
+          output.T5 = methods.freestyle.T5(data, (T1type !== 'undefined' || T4type !== 'undefined'))
 
           /** Calc A */
           var Aoutput = methods.freestyle.A(output.T1, output.T4, output.T5,
@@ -411,8 +409,7 @@ angular.module('Calc', [])
         if (data) {
           var keys = Object.keys(data)
             .filter(function (abbr) {
-              return Abbr.events.indexOf(abbr) >= 0 && typeof data[abbr] !==
-                'undefined'
+              return Abbr.events().indexOf(abbr) >= 0 && typeof data[abbr] !== 'undefined' && Object.keys(data[abbr]).length !== 0
             })
           if (typeof subevents === 'undefined') return undefined
           var events = Object.keys(subevents)
@@ -454,7 +451,7 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < keys.length; i++) {
-            if (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length > 0) {
+            if (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length > 0 && data[keys[i]][event].dns !== true) {
               scores.push({
                 uid: keys[i],
                 score: data[keys[i]][event].Y || 0
@@ -477,9 +474,13 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < scores.length; i++) {
-            ranks[scores[i].uid] = (scores.findIndex(function (obj) {
+            var tRank = (scores.findIndex(function (obj) {
               return obj.score === scores[i].score
-            }) + 1) * fac
+            }) + 1)
+            ranks[scores[i].uid] = {
+              rank: tRank,
+              mult: tRank * fac
+            }
           }
 
           return ranks
@@ -501,7 +502,7 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < keys.length; i++) {
-            if (data[keys[i]][event]) {
+            if (data[keys[i]][event] && data[keys[i]][event].dns !== true) {
               Cscores.push(data[keys[i]][event].T4 - (data[keys[i]][event]
                 .T5 / 2) || 0)
               Dscores.push(data[keys[i]][event].T1 - (data[keys[i]][event]
@@ -558,12 +559,16 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < ranksums.length; i++) {
-            ranks[ranksums[i].uid].total = (ranksums.findIndex(function (obj) {
+            var tRank = (ranksums.findIndex(function (obj) {
               if (rankAll && ranksums[i].score === -Infinity) {
                 return obj.ranksum === ranksums[i].ranksum
               }
               return obj.uid === ranksums[i].uid
-            }) + 1) * fac
+            }) + 1)
+            ranks[ranksums[i].uid].total = {
+              rank: tRank,
+              mult: tRank * fac
+            }
           }
 
           return ranks
@@ -597,7 +602,7 @@ angular.module('Calc', [])
             }
             var sum = Object.keys(arr[i])
               .filter(function (abbr) {
-                return Abbr.events.indexOf(abbr) >= 0
+                return Abbr.events().indexOf(abbr) >= 0
               })
               .filter(function (abbr) {
                 return typeof subevents[abbr] !== 'undefined' && subevents[abbr] === true
@@ -606,7 +611,7 @@ angular.module('Calc', [])
                 if (typeof arr[i][abbr] === 'undefined') {
                   return sum
                 }
-                return Number(sum) + Number(arr[i][abbr])
+                return Number(sum) + Number(arr[i][abbr].mult)
               }, 0)
             output[arr[i].uid] = sum
           }
@@ -633,6 +638,9 @@ angular.module('Calc', [])
         var pKeys = Object.keys(partook)
           .filter(function (abbr) {
             if (typeof partook[abbr] === 'undefined') {
+              return false
+            }
+            if (partook[abbr].dns === true) {
               return false
             }
             return true

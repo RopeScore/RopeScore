@@ -35,11 +35,6 @@ angular.module('ropescore.score.speed', ['ngRoute'])
     $scope.Abbr = Abbr
     $scope.getNumber = Num
 
-    $scope.save = function () {
-      Db.set($scope.data)
-      $location.path('/event/' + $scope.id)
-    }
-
     $scope.score = function (event, data, uid, ret) {
       return Calc.score(event, data, uid, $scope.id, ret, $scope)
     }
@@ -50,8 +45,32 @@ angular.module('ropescore.score.speed', ['ngRoute'])
       $scope.data = Db.get()
     }
 
+    $scope.clean = function (obj) {
+      var scope = obj
+      var keys = Object.keys(scope)
+
+      for (var i = 0; i < keys.length; i++) {
+        if (scope[keys[i]] !== null && typeof scope[keys[i]] === 'object') {
+          scope[keys[i]] = $scope.clean(scope[keys[i]])
+        }
+        if (scope[keys[i]] === null || scope[keys[i]] === '' || typeof scope[keys[i]] === 'undefined' || (typeof scope[keys[i]] === 'object' && Object.keys(scope[keys[i]]).length === 0) || (typeof scope[keys[i]] === 'boolean' && scope[keys[i]] === false)) {
+          delete scope[keys[i]]
+        }
+      }
+      return scope
+    }
+
+    $scope.dnsSave = function (uid, id, event) {
+      $scope.data[id].scores[uid][event] = {dns: true}
+      $scope.data[$scope.id].scores = $scope.clean($scope.data[$scope.id].scores)
+      if ($scope.data[$scope.id].scores !== null && typeof $scope.data[$scope.id].scores === 'object' && Object.keys($scope.data[$scope.id].scores).length === 0) {
+        delete $scope.data[$scope.id].scores
+      }
+      Db.set($scope.data)
+    }
+
     $scope.reskipAllowed = function (uid, id, event) {
-      if (typeof $scope.data[id].scores === 'undefined' || typeof $scope.data[id].scores[uid] === 'undefined') {
+      if (typeof $scope.data[id].scores === 'undefined' || typeof $scope.data[id].scores[uid] === 'undefined' || typeof $scope.data[id].scores[uid][event] === 'undefined' || typeof $scope.data[id].scores[uid][event].s === 'undefined') {
         return undefined
       }
       var scores = Object.keys($scope.data[id].scores[uid][event].s).map(function (el) {
@@ -78,5 +97,14 @@ angular.module('ropescore.score.speed', ['ngRoute'])
       Db.set($scope.data)
       Display.displayAll(participants, id, event)
       $scope.data = Db.get()
+    }
+
+    $scope.save = function () {
+      $scope.data[$scope.id].scores = $scope.clean($scope.data[$scope.id].scores)
+      if ($scope.data[$scope.id].scores !== null && typeof $scope.data[$scope.id].scores === 'object' && Object.keys($scope.data[$scope.id].scores).length === 0) {
+        delete $scope.data[$scope.id].scores
+      }
+      Db.set($scope.data)
+      $location.path('/event/' + $scope.id)
     }
   })

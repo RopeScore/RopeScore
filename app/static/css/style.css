@@ -29,6 +29,10 @@ body {
   color: #808080 !important;
 }
 
+.grayBg {
+  background: #808080 !important;
+}
+
 h1 {
   max-width: 80%;
 }

@@ -31,6 +31,7 @@ dbSocket.onmessage = function (evt) {
  */
 angular.module('ropescore', [
   'ngRoute',
+  'ngSanitize',
   'ropescore.dash',
   'ropescore.config',
   'ropescore.config.participants',
@@ -66,7 +67,7 @@ angular.module('ropescore', [
     }
   ])
 
-  .run(function ($location, $rootScope, Db, Config) {
+  .run(function ($location, $route, $rootScope, Db, Config) {
     /**
      * @name $rootScope.goHome
      * @function
@@ -75,6 +76,10 @@ angular.module('ropescore', [
      */
     $rootScope.goHome = function () {
       $location.path('/')
+    }
+
+    $rootScope.reload = function () {
+      $route.reload()
     }
 
     $rootScope.setID = function (id) {
@@ -228,28 +233,36 @@ angular.module('ropescore', [
         speed: false
       }
     }
-    var nonabbrs = Config.Nonabbrs
 
     var functions = {
+      nonabbrs: function () {
+        return Config.Nonabbrs
+      },
       unabbr: function (abbr) {
-        return nonabbrs[abbr].name || abbrs[abbr].name
+        var nonabbrs = functions.nonabbrs()
+        return (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbrs[abbr].name)
       },
       unabbrNoType: function (abbr) {
-        var unabbred = nonabbrs[abbr].name || abbrs[abbr].name
+        var nonabbrs = functions.nonabbrs()
+        var unabbred = (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbr[abbr].name)
         unabbred = unabbred.replace('Single Rope ', '')
         unabbred = unabbred.replace('Double Dutch ', '')
         return unabbred
       },
       abbr: function (abbr) {
         // converts a standard abbr to a non-standard abbr
+        var nonabbrs = functions.nonabbrs()
         if (nonabbrs) {
           return nonabbrs[abbr].abbr || abbr
         } else {
           return abbr
         }
       },
-      events: Object.keys(nonabbrs),
+      events: function () {
+        return Object.keys(functions.nonabbrs() || abbrs)
+      },
       isSpeed: function (abbr) {
+        var nonabbrs = functions.nonabbrs()
         if (nonabbrs && nonabbrs[abbr]) {
           return nonabbrs[abbr].speed || abbrs[abbr].speed
         } else if (abbrs[abbr]) {
@@ -259,6 +272,7 @@ angular.module('ropescore', [
         }
       },
       isTeam: function (abbr) {
+        var nonabbrs = functions.nonabbrs()
         if (nonabbrs) {
           return !(nonabbrs[abbr].masters || abbrs[abbr].masters)
         } else if (abbrs[abbr]) {
@@ -326,13 +340,14 @@ angular.module('ropescore', [
         var keys = Object.keys(obj)
         var sum = 0
         if (type) {
-          for (var i = 0; i < keys.length; i++) {
+          var i
+          for (i = 0; i < keys.length; i++) {
             if (functions.isType(keys[i], type) && obj[keys[i]]) {
               sum++
             }
           }
         } else {
-          for (var i = 0; i < keys.length; i++) {
+          for (i = 0; i < keys.length; i++) {
             if (obj[keys[i]]) {
               sum++
             }
@@ -347,13 +362,14 @@ angular.module('ropescore', [
         var keys = Object.keys(obj)
         var sum = 0
         if (type) {
-          for (var i = 0; i < keys.length; i++) {
+          var i
+          for (i = 0; i < keys.length; i++) {
             if (functions.isType(keys[i], type) && obj[keys[i]]) {
               sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 10)
             }
           }
         } else {
-          for (var i = 0; i < keys.length; i++) {
+          for (i = 0; i < keys.length; i++) {
             if (obj[keys[i]]) {
               sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 10)
             }

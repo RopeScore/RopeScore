@@ -1,24 +1,23 @@
 const logCatch = require('./log-catch')
 const {
   app,
-  shell,
   BrowserWindow,
   dialog,
   autoUpdater,
-  Menu,
-  MenuItem
+  Menu
 } = require('electron')
 const Config = require('./app/config')
 const server = require('./server')
 const path = require('path')
 const url = require('url')
 const fs = require('fs-extra')
+const dateTo = require('./app/configs/' + Config.Country + '.js')
 
 if (require('electron-squirrel-startup')) {
 
 } else {
   app.on('ready', function () {
-    if (process.platform != 'darwin') {
+    if (process.platform !== 'darwin') {
       autoUpdater.on('checking-for-update', () => {
         console.log('checking for updates')
       })
@@ -34,7 +33,7 @@ if (require('electron-squirrel-startup')) {
           title: 'Update Available',
           cancelId: 1
         }, function (button) {
-          if (button == 0) {
+          if (button === 0) {
             autoUpdater.quitAndInstall()
           }
         })
@@ -56,10 +55,9 @@ if (require('electron-squirrel-startup')) {
 let win = []
 
 function createWindow () {
-  if (Config.Eval && Config.LicenceDate && new Date()
-    .getTime() > (Number(Config.LicenceDate) + (30 * 24 * 60 * 60 * 1000))) {
+  if ((Config.Eval && Config.BuildDate && new Date().getTime() > (Number(Config.LicenceDate) + (30 * 24 * 60 * 60 * 1000))) || new Date().getTime() > (Number(dateTo))) {
     dialog.showErrorBox('Expired Licence',
-      'This copy of RopeScore has an expired licence,\n Please contact ropescore@swant.pw'
+      'This copy of RopeScore has an expired licence,\n Please contact contact@ropescore.com'
     )
     app.quit()
   } else {

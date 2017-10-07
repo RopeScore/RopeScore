@@ -32,7 +32,7 @@ angular.module('ropescore.event', ['ngRoute'])
     $scope.setID($scope.id)
     $scope.Abbr = Abbr
 
-    $scope.events = Abbr.events
+    $scope.events = Abbr.events()
 
     $scope.checksum = Checksum
     $scope.blankChk = $scope.checksum()

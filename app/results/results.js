@@ -96,8 +96,8 @@ angular.module('ropescore.results', ['ngRoute'])
           }
         }
 
-        for (j = 0; j < Abbr.events.length; j++) {
-          event = Abbr.events[j]
+        for (j = 0; j < Abbr.events().length; j++) {
+          event = Abbr.events()[j]
 
           if (typeof $scope.finalscores[uid][event] === 'undefined') {
             $scope.finalscores[uid][event] = {}
@@ -105,8 +105,11 @@ angular.module('ropescore.results', ['ngRoute'])
               $scope.overallFinalscores[uid][event] = {}
             }
           }
-          if (typeof $scope.data[$scope.id].scores !== 'undefined' && typeof $scope.data[$scope.id].scores[uid] !== 'undefined') {
-            $scope.finalscores[uid][event] = Calc.score(event, $scope.data[$scope.id].scores[uid][event], uid, $scope.data[$scope.id].config.simplified)
+          if (typeof $scope.data[$scope.id].scores !== 'undefined' && typeof $scope.data[$scope.id].scores[uid] !== 'undefined' && typeof $scope.data[$scope.id].scores[uid][event] !== 'undefined') {
+            $scope.finalscores[uid][event] = Calc.score(event, $scope.data[$scope.id].scores[uid][event], uid, $scope.data[$scope.id].config.simplified) || {}
+            if (typeof $scope.data[$scope.id].scores[uid][event].dns !== 'undefined') {
+              $scope.finalscores[uid][event].dns = $scope.data[$scope.id].scores[uid][event].dns
+            }
             if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid])) {
               $scope.overallFinalscores[uid][event] = $scope.finalscores[uid][event]
             }
@@ -114,17 +117,17 @@ angular.module('ropescore.results', ['ngRoute'])
         }
       }
 
-      for (i = 0; i < Abbr.events.length; i++) {
-        $scope.ranks[Abbr.events[i]] = $scope.rank($scope.finalscores, Abbr.events[i])
-        $scope.overallRanks[Abbr.events[i]] = $scope.rank($scope.overallFinalscores, Abbr.events[i])
+      for (i = 0; i < Abbr.events().length; i++) {
+        $scope.ranks[Abbr.events()[i]] = $scope.rank($scope.finalscores, Abbr.events()[i])
+        $scope.overallRanks[Abbr.events()[i]] = $scope.rank($scope.overallFinalscores, Abbr.events()[i])
       }
 
       for (i = 0; i < $scope.partArray.length; i++) {
         obj = {
           uid: $scope.partArray[i].uid
         }
-        for (j = 0; j < Abbr.events.length; j++) {
-          event = Abbr.events[j]
+        for (j = 0; j < Abbr.events().length; j++) {
+          event = Abbr.events()[j]
           if (Abbr.isSpeed(event)) {
             obj[event] = $scope.ranks[event][obj.uid]
           } else if (typeof $scope.ranks[event][obj.uid] !== 'undefined') {
@@ -138,8 +141,8 @@ angular.module('ropescore.results', ['ngRoute'])
         obj = {
           uid: $scope.partArray[i].uid
         }
-        for (j = 0; j < Abbr.events.length; j++) {
-          event = Abbr.events[j]
+        for (j = 0; j < Abbr.events().length; j++) {
+          event = Abbr.events()[j]
           if (Abbr.isSpeed(event)) {
             obj[event] = $scope.overallRanks[event][obj.uid]
           } else if (typeof $scope.overallRanks[event][obj.uid] !== 'undefined') {

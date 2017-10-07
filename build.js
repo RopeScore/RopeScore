@@ -44,7 +44,7 @@ fs.readFile(configFile, 'utf8', function (err, data) {
     return console.log(err)
   }
   var result = data.replace(/version: '.+'/g, `version: '${Package.version}'`)
-    .replace(/LicenceDate: \d+/g, `LicenceDate: ${new Date().getTime()}`)
+    .replace(/BuildDate: \d+/g, `BuildDate: ${new Date().getTime()}`)
     .replace(/Debug: true/g, `Debug: false`)
 
   fs.writeFile(configFile, result, 'utf8', function (err) {

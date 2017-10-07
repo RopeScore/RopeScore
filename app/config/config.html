@@ -31,7 +31,7 @@
     <th ng-if="MissJudges">Misses</th>
     <th>Speed </th>
   </tr>
-  <tr ng-repeat="event in Abbr.events track by $index">
+  <tr ng-repeat="event in Abbr.events() track by $index">
     <td><input type="checkbox" id="event-{{ event }}" ng-model="data[id].config.subevents[event]"
       ng-keydown="($event.keyCode !== 9 ? data[id].config.subevents[event] = !data[id].config.subevents[event] : '')"/></td>
     <td><label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label></td>
