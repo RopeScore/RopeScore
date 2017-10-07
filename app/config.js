@@ -1,8 +1,8 @@
 /* global angular */
 var Config = {
-  Debug: true, // default: false
-  BuildDate: 1507191467961,
-  version: '2.1.1-se',
+  Debug: false, // default: false
+  BuildDate: 1507396347385,
+  version: '2.1.2-intl',
   Eval: false, // default: false
 
   MissJudges: false, // default: false

@@ -30,7 +30,7 @@
     "build:linux:64": "node build -p linux -a x64",
     "build:linux:32": "node build -p linux -a ia32",
     "build:linux:arm": "node build -p linux -a armv7l",
-    "build:all": "node build --all",
+    "build:all": "node build -a x64 && node build -a x64 -c se && node build -a x64 -c au && node build -a ia32 && node build -a ia32 -c se && node build -a ia32 -c au",
     "dist:sync": "rsync -avzcP dist/ lhome:ropescore"
   }
 }
