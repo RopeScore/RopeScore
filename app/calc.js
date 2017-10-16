@@ -60,7 +60,6 @@ angular.module('Calc', [])
           if (typeof ld === 'string') {
             ld = methods.levelData(ld, simplified)
           }
-          console.log(ld)
 
           var i
           var calcdiff = []
@@ -86,9 +85,10 @@ angular.module('Calc', [])
               if (ld.lmaxes[p] !== -1 && calcdiff[i][p] > ld.lmaxes[p]) {
                 var temp = calcdiff[i][p] - ld.lmaxes[p] || 0
                 calcdiff[i][p] = ld.lmaxes[p]
-                calcdiff[i][p - 1] = temp
+                if (p !== ld.lmin - 1) calcdiff[i][p - 1] = temp
               }
             }
+
             temp = Object.keys(calcdiff[i])
               .reduce(function (a, b) {
                 return Number(a) + Number(calcdiff[i][b])
@@ -214,8 +214,9 @@ angular.module('Calc', [])
           // if (typeof T2 === 'undefined' && typeof T3 === 'undefined') {
           //   return undefined
           // }
+          var T4 = (Number(T2) || 0) + (Number(T3))
 
-          return Math.roundTo(Number(T2) || 0 + Number(T3) || 0, 4)
+          return Math.roundTo(T4 || 0, 4)
         },
         T5: function (data, forceNum) { // Deductions, data
           if (typeof data === 'undefined' ||
@@ -601,7 +602,6 @@ angular.module('Calc', [])
         },
         sum: function (arr, finalscores, subevents, simplified) {
           var output = {}
-          console.log(arr)
           for (var i = 0; i < arr.length; i++) {
             if (typeof finalscores[arr[i].uid].final === 'undefined') {
               continue

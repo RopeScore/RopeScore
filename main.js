@@ -11,7 +11,7 @@ const server = require('./server')
 const path = require('path')
 const url = require('url')
 const fs = require('fs-extra')
-const dateTo = require('./app/configs/' + Config.Country + '.js')
+const dateTo = (Config.Country !== 'intl' ? require('./app/configs/' + Config.Country + '.js') : undefined)
 
 if (require('electron-squirrel-startup')) {
 
