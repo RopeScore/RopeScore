@@ -16,10 +16,9 @@ angular.module('Calc', [])
         var diff
         var i
 
-        for (i = 0; i < Object.keys(data.s)
-          .length; i++) {
+        for (i = 0; i < Object.keys(data.s).length; i++) {
           scores.push(data.s[i])
-          if (!data.s[i] || data.s[i] < 0) {
+          if (typeof data.s[i] === 'undefined' || data.s[i] < 0) {
             return undefined
           }
         }

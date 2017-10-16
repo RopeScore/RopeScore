@@ -8,6 +8,9 @@ Math.roundTo = function (n, digits) {
   n = parseFloat((n * multiplicator))
   var test = (Math.round(n) / multiplicator)
   // console.log(`rounded ${init} to ${test}`)
+  if (isNaN(test)) {
+    return undefined
+  }
   return test
 }
 
