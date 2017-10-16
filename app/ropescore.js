@@ -236,7 +236,7 @@ angular.module('ropescore', [
 
     var functions = {
       nonabbrs: function () {
-        return Config.Nonabbrs
+        return Config.Nonabbrs || abbrs
       },
       unabbr: function (abbr) {
         var nonabbrs = functions.nonabbrs()

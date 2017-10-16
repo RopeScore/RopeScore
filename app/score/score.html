@@ -53,7 +53,7 @@
           </tr>
         </tbody>
 
-        <tr ng-repeat="(key, elem) in order" ng-if="elem.dd == undefined || (elem.dd && Abbr.isType(event, 'dd'))">
+        <tr ng-repeat="(key, elem) in order" ng-if="(elem.dd == undefined && elem.sr == undefined) || ((elem.dd && Abbr.isType(event, 'dd')) || (elem.sr && Abbr.isType(event, 'sr')))">
           <td><label for="a{{ $parent.$parent.$index }}{{ key }}">{{ elem.desc }}</label></td>
           <td><input type="text" id="a{{ $parent.$parent.$index }}{{ key }}" min="0" max="10" step="0.5"
               ng-model="data[id].scores[uid][event].a[$parent.$parent.$index][key]" ng-change="toMax('a', $parent.$parent.$index, key)" /></td>

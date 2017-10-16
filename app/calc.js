@@ -81,7 +81,7 @@ angular.module('Calc', [])
                 calcdiff[i][p] = 0
               }
 
-              calcdiff[i][p] += Math.roundTo((scores[i][p] || 0) * ld.lev[p], 4)
+              calcdiff[i][p] += Math.roundTo((Number(scores[i][p]) || 0) * ld.lev[p], 4)
 
               if (ld.lmaxes[p] !== -1 && calcdiff[i][p] > ld.lmaxes[p]) {
                 var temp = calcdiff[i][p] - ld.lmaxes[p] || 0
@@ -118,7 +118,7 @@ angular.module('Calc', [])
             return undefined
           }
 
-          var order = Config.Order
+          var order = (simplified ? Config.SimplOrder || Config.Order : Config.Order)
 
           var keys = Object.keys(data)
           var n = keys.length
@@ -142,8 +142,8 @@ angular.module('Calc', [])
             }
             keys = Object.keys(scores[i])
             for (j = 0; j < keys.length; j++) {
-              weight = (simplified && order.a[keys[j]].simplWeight ? order.a[keys[j]].simplWeight[type] || order.a[keys[j]].weight[type] : order.a[keys[j]].weight[type])
-              calcpres[i] += scores[i][keys[j]] * weight
+              weight = order.a[keys[j]].weight[type]
+              calcpres[i] += Number(scores[i][keys[j]]) * weight
             }
           }
           calcpres.sort(function (a, b) {
@@ -168,8 +168,7 @@ angular.module('Calc', [])
           }
 
           if (isNaN(Number(rq))) {
-            rq = methods.levelData(rq, simplified)
-              .rq
+            rq = methods.levelData(rq, simplified).rq
           }
 
           var keys = Object.keys(data)
@@ -192,7 +191,7 @@ angular.module('Calc', [])
               if (!calcrq[i]) {
                 calcrq[i] = 0
               }
-              calcrq[i] = calcrq[i] + (scores[i][keys[p]] || 0)
+              calcrq[i] = Number(calcrq[i]) + (Number(scores[i][keys[p]]) || 0)
             }
           }
           calcrq.sort(function (a, b) {
@@ -219,9 +218,10 @@ angular.module('Calc', [])
           return Math.roundTo(Number(T2) || 0 + Number(T3) || 0, 4)
         },
         T5: function (data, forceNum) { // Deductions, data
-          if (typeof data === 'undefined' || typeof data.mim ===
-            'undefined' || typeof data.mam === 'undefined' || typeof data
-            .h === 'undefined') {
+          if (typeof data === 'undefined' ||
+          typeof data.mim === 'undefined' ||
+          typeof data.mam === 'undefined' ||
+          typeof data.h === 'undefined') {
             return (forceNum ? 0 : undefined)
           }
 
@@ -238,7 +238,7 @@ angular.module('Calc', [])
           n = keys.length
 
           for (i = 0; i < n; i++) {
-            scores.push((data.mim[keys[i]] * 12.5) + (data.mam[keys[i]] * 25))
+            scores.push((Number(data.mim[keys[i]]) * 12.5) + (Number(data.mam[keys[i]]) * 25) || 0)
           }
           scores.sort(function (a, b) {
             return a - b
@@ -536,6 +536,8 @@ angular.module('Calc', [])
               var tempRanksum = Number(CtempRank) + Number(DtempRank)
               ranksums.push({
                 ranksum: tempRanksum,
+                cRank: Number(CtempRank),
+                dRank: Number(DtempRank),
                 score: TtempScore,
                 uid: keys[i]
               })
@@ -567,7 +569,10 @@ angular.module('Calc', [])
             }) + 1)
             ranks[ranksums[i].uid].total = {
               rank: tRank,
-              mult: tRank * fac
+              mult: tRank * fac,
+
+              cRank: ranksums[i].cRank,
+              dRank: ranksums[i].dRank
             }
           }
 
@@ -594,8 +599,9 @@ angular.module('Calc', [])
 
           return output
         },
-        sum: function (arr, finalscores, subevents) {
+        sum: function (arr, finalscores, subevents, simplified) {
           var output = {}
+          console.log(arr)
           for (var i = 0; i < arr.length; i++) {
             if (typeof finalscores[arr[i].uid].final === 'undefined') {
               continue
@@ -611,7 +617,7 @@ angular.module('Calc', [])
                 if (typeof arr[i][abbr] === 'undefined') {
                   return sum
                 }
-                return Number(sum) + Number(arr[i][abbr].mult)
+                return (simplified && Config.functions.simplRankSum ? Config.functions.simplRankSum(sum, arr[i][abbr], abbr) || Number(sum) + Number(arr[i][abbr].mult) : Number(sum) + Number(arr[i][abbr].mult))
               }, 0)
             output[arr[i].uid] = sum
           }

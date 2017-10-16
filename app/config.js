@@ -1,8 +1,8 @@
 /* global angular */
 var Config = {
   Debug: true, // default: false
-  BuildDate: 1507396513959,
-  version: '2.1.2-se',
+  BuildDate: 1507397202906,
+  version: '2.1.3-intl',
   Eval: false, // default: false
 
   MissJudges: false, // default: false
@@ -173,6 +173,7 @@ var Config = {
     h: true
   }
 }
+Config.SimplOrder = Config.Order
 Config.Country = Config.version.split('-').slice(-1)[0]
 Config.Country = (isNaN(Number(Config.Country)) ? Config.Country : undefined)
 Config.releaseRemoteUrl = function (arch, platform, country) {
