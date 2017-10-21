@@ -22,14 +22,7 @@
   "scripts": {
     "start": "electron .",
     "build": "node build",
-    "build:win": "node build -p win32",
-    "build:win:64": "node build -p win32 -a x64",
-    "build:win:32": "node build -p win32 -a ia32",
-    "build:mac": "node build -p darwin",
-    "build:linux": "node build -p linux",
-    "build:linux:64": "node build -p linux -a x64",
-    "build:linux:32": "node build -p linux -a ia32",
-    "build:linux:arm": "node build -p linux -a armv7l",
+    "build:all:mac": "node build -a x64 -p darwin && node build -a x64 -c se -p darwin && node build -a x64 -c au -p darwin",
     "build:all": "node build -a x64 && node build -a x64 -c se && node build -a x64 -c au && node build -a ia32 && node build -a ia32 -c se && node build -a ia32 -c au",
     "dist:sync": "rsync -avzcP dist/ lhome:ropescore"
   }
