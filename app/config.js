@@ -64,15 +64,15 @@ var Config = {
       mob: {
         desc: 'Music on the beat',
         weight: {
-          sr: 0.5,
-          dd: 0.5
+          sr: 0.75,
+          dd: 0.75
         }
       },
       uom: {
         desc: 'Using the Music',
         weight: {
-          sr: 0.5,
-          dd: 0.5
+          sr: 0.75,
+          dd: 0.75
         }
       },
       mov: {
@@ -86,20 +86,21 @@ var Config = {
         desc: 'Form of Body & Execution',
         weight: {
           sr: 1,
-          dd: 1
+          dd: 0.75
         }
       },
       ori: {
         desc: 'Originality',
         weight: {
           sr: 1,
-          dd: 1
+          dd: 0.75
         }
       },
       int: {
-        desc: 'Overall Impression and Entertainment Value',
+        desc: 'Interaction',
+        dd: true,
         weight: {
-          sr: 0.5,
+          sr: 0,
           dd: 0.5
         }
       }
