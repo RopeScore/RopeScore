@@ -182,14 +182,14 @@
       </tr>
       <tr>
         <th>Unofficial Scores:</th>
-        <td>{{ scores.T3 = roundTo(freestyle.T3(data[id].scores[uid][event].b, event, simplified), 2) || '' }}</td>
-        <td>{{ scores.T2 = roundTo(freestyle.T2(event, data[id].scores[uid][event].a, simplified), 2) || '' }}</td>
-        <td>{{ scores.T1 = roundTo(freestyle.T1(data[id].scores[uid][event].d, event, simplified), 2) || '' }}</td>
+        <td>{{ scores.T3 = roundTo(freestyle.T3(data[id].scores[uid][event].b, event, simplified), 2) }}</td>
+        <td>{{ scores.T2 = roundTo(freestyle.T2(event, data[id].scores[uid][event].a, simplified), 2) }}</td>
+        <td>{{ scores.T1 = roundTo(freestyle.T1(data[id].scores[uid][event].d, event, simplified), 2) }}</td>
         <td>{{ scores.T5 = (freestyle.T5(data[id].scores[uid][event], '', simplified) !== undefined ? -roundTo(freestyle.T5(data[id].scores[uid][event], '', simplified), 2) : '') }}</td>
-        <td>{{ roundTo(freestyle.T4(scores.T2, scores.T3) - (-scores.T5 / 2), 2) || '' }}</td>
-        <td>{{ roundTo(scores.T1 + (scores.T5 / 2), 2) || '' }}</td>
+        <td>{{ roundTo(freestyle.T4(scores.T2, scores.T3) + (scores.T5 / 2), 2) }}</td>
+        <td>{{ roundTo(scores.T1 + (scores.T5 / 2), 2) }}</td>
         <td>{{ roundTo(freestyle.A(scores.T1, freestyle.T4(scores.T2, scores.T3), -scores.T5,
-          event).PreA, 2) || '' }}</td>
+          event).PreA, 2) }}</td>
       </tr>
     </table>
   </div>

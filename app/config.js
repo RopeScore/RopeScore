@@ -2,7 +2,7 @@
 var Config = {
   Debug: true, // default: false
   BuildDate: 1507397202906,
-  version: '2.1.3-intl',
+  version: '2.1.3-se',
   Eval: false, // default: false
 
   MissJudges: false, // default: false
@@ -64,15 +64,15 @@ var Config = {
       mob: {
         desc: 'Music on the beat',
         weight: {
-          sr: 0.75,
-          dd: 0.75
+          sr: 0.5,
+          dd: 0.5
         }
       },
       uom: {
         desc: 'Using the Music',
         weight: {
-          sr: 0.75,
-          dd: 0.75
+          sr: 0.5,
+          dd: 0.5
         }
       },
       mov: {
@@ -86,21 +86,20 @@ var Config = {
         desc: 'Form of Body & Execution',
         weight: {
           sr: 1,
-          dd: 0.75
+          dd: 1
         }
       },
       ori: {
         desc: 'Originality',
         weight: {
           sr: 1,
-          dd: 0.75
+          dd: 1
         }
       },
       int: {
-        desc: 'Interaction',
-        dd: true,
+        desc: 'Overall Impression and Entertainment Value',
         weight: {
-          sr: 0,
+          sr: 0.5,
           dd: 0.5
         }
       }
