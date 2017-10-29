@@ -186,52 +186,62 @@ angular.module('ropescore', [
     var abbrs = {
       srss: {
         name: 'Single Rope Speed Sprint',
+        weight: 0,
         masters: true,
         speed: true
       },
       srse: {
         name: 'Single Rope Speed Endurance',
+        weight: 2,
         masters: true,
         speed: true
       },
       srtu: {
         name: 'Single Rope Triple Unders',
+        weight: 0,
         masters: true,
         speed: true
       },
       srsf: {
         name: 'Single Rope Single Freestyle',
+        weight: 4,
         masters: true,
         speed: false
       },
       // ------------------
       srsr: {
         name: 'Single Rope Speed Relay',
+        weight: 1,
         masters: false,
         speed: true
       },
       srpf: {
         name: 'Single Rope Pair Freestyle',
+        weight: 5,
         masters: false,
         speed: false
       },
       srtf: {
         name: 'Single Rope Team Freestyle',
+        weight: 6,
         masters: false,
         speed: false
       },
       ddsr: {
         name: 'Double Dutch Speed Relay',
+        weight: 3,
         masters: false,
         speed: true
       },
       ddsf: {
         name: 'Double Dutch Single Freestyle',
+        weight: 7,
         masters: false,
         speed: false
       },
       ddpf: {
         name: 'Double Dutch Pair Freestyle',
+        weight: 8,
         masters: false,
         speed: false
       }
@@ -263,6 +273,22 @@ angular.module('ropescore', [
       },
       events: function () {
         return Object.keys(functions.nonabbrs() || abbrs)
+      },
+      weightedOrder: function () {
+        var nonabbrs = functions.nonabbrs()
+        var arr = Object.keys(nonabbrs || abbrs)
+        var finalWeight = 100
+        arr.push('final')
+        arr = arr.sort(function (a, b) {
+          if (a === 'final') {
+            return (nonabbrs[b].weight || abbrs[b].weight) - finalWeight
+          }
+          if (b === 'final') {
+            return finalWeight - (nonabbrs[a].weight || abbrs[a].weight)
+          }
+          return (nonabbrs[b].weight || abbrs[b].weight) - (nonabbrs[a].weight || abbrs[a].weight)
+        }) // sort descending
+        return arr
       },
       isSpeed: function (abbr) {
         var nonabbrs = functions.nonabbrs()

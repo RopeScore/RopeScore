@@ -136,6 +136,7 @@ angular.module('ropescore.config.participants', ['ngRoute'])
     $scope.delete = function (uid) {
       console.log(`removing participant ${uid}`)
       $scope.$apply(delete $scope.data[$scope.id].participants[uid])
+      $scope.$apply(delete $scope.data[$scope.id].scores[uid])
     }
 
     $scope.save = function () {

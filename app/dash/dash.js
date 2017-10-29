@@ -42,6 +42,34 @@ angular.module('ropescore.dash', ['ngRoute'])
 
     $scope.checksum = Checksum
 
+    $scope.getEventsArray = function () {
+      if (typeof $scope.data !== 'undefined') {
+        var arr = Object.keys($scope.data)
+        arr = arr.filter(function (str) {
+          return str !== 'globconfig'
+        })
+        return arr
+      }
+    }
+
+    $scope.getOrder = function (id) {
+      if (typeof $scope.data === 'undefined' ||
+      typeof $scope.data.globconfig === 'undefined' ||
+      typeof $scope.data.globconfig.order === 'undefined') {
+        return $scope.getEventsArray().indexOf(id)
+      }
+      return $scope.data.globconfig.order[id] + $scope.getEventsArray().indexOf(id) * 2 || $scope.getEventsArray().indexOf(id) * 2
+    }
+
+    $scope.resetOrder = function () {
+      delete $scope.data.globconfig.order
+      $scope.save()
+    }
+
+    $scope.save = function () {
+      Db.set($scope.data)
+    }
+
     console.log(Config)
 
     document.getElementById('import-file')

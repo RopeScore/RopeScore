@@ -49,6 +49,15 @@ fs.readFile(configFile, 'utf8', function (err, data) {
 
   fs.writeFile(configFile, result, 'utf8', function (err) {
     if (err) return console.log(err)
+    console.log(`Building ${baseName}`)
+    runPackager(packageOptions)
+      .then((packagedAppPath) => {
+        console.log('app packaged')
+        if (argv.platform === 'win32') {
+          winstallerOptions.appDirectory = packagedAppPath
+          winstaller.createWindowsInstaller(winstallerOptions)
+        }
+      })
   })
 })
 
@@ -167,13 +176,3 @@ function renamePackagedAppDir (packageOutputDirPath) {
   }
   return packagedAppPath
 }
-
-console.log(`Building ${baseName}`)
-runPackager(packageOptions)
-  .then((packagedAppPath) => {
-    console.log('app packaged')
-    if (argv.platform === 'win32') {
-      winstallerOptions.appDirectory = packagedAppPath
-      winstaller.createWindowsInstaller(winstallerOptions)
-    }
-  })

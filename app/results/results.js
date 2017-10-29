@@ -168,10 +168,10 @@ angular.module('ropescore.results', ['ngRoute'])
       }
 
       $scope.ranksums = Calc.rank.sum($scope.rankArray, $scope.finalscores, $scope.data[$scope.id].config.subevents, $scope.data[$scope.id].config.simplified)
-      $scope.finalRanks = Calc.rank.overall($scope.ranksums)
+      $scope.finalRanks = Calc.rank.overall($scope.ranksums, $scope.finalscores)
 
       $scope.overallRanksums = Calc.rank.sum($scope.overallRankArray, $scope.overallFinalscores, $scope.data[$scope.id].config.subevents, $scope.data[$scope.id].config.simplified)
-      $scope.overallFinalRanks = Calc.rank.overall($scope.overallRanksums)
+      $scope.overallFinalRanks = Calc.rank.overall($scope.overallRanksums, $scope.overallFinalscores)
 
       for (i = 0; i < $scope.partArray.length; i++) {
         $scope.partArray[i].rank = $scope.finalRanks[$scope.partArray[i].uid] || undefined

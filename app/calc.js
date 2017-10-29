@@ -161,13 +161,13 @@ angular.module('Calc', [])
           tempT = Math.roundTo(tempT / n, 4)
           return Math.roundTo((tempT > 40 ? 40 * 5 : tempT * 5), 4)
         },
-        T3: function (data, rq, simplified) { // Required Elements, data.b
+        T3: function (data, ld, simplified) { // Required Elements, data.b
           if (typeof data === 'undefined') {
             return undefined
           }
 
-          if (isNaN(Number(rq))) {
-            rq = methods.levelData(rq, simplified).rq
+          if (isNaN(Number(ld.rq))) {
+            ld = methods.levelData(ld, simplified)
           }
 
           var keys = Object.keys(data)
@@ -180,18 +180,24 @@ angular.module('Calc', [])
             scores.push(data[i])
           }
 
+          var isDD = Abbr.isType(ld.event, 'dd')
+
           for (i = 0; i < scores.length; i++) {
             if (typeof scores[i] === 'undefined') {
               calcrq[i] = 0
-              continue
             }
             keys = Object.keys(scores[i])
             for (var p = 0; p < keys.length; p++) {
               if (!calcrq[i]) {
                 calcrq[i] = 0
               }
-              calcrq[i] = Number(calcrq[i]) + (Number(scores[i][keys[p]]) || 0)
+              if (keys[p] !== 'tis') calcrq[i] = Number(calcrq[i]) + ((Number(scores[i][keys[p]]) || 0) * (isDD && (keys[p] === 'rel' || keys[p] === 'spd') ? 2 : 1))
             }
+            if (typeof scores[i].nae !== 'undefined' && typeof scores[i].aer !== 'undefined' && (scores[i].nae + scores[i].aer) > 3) calcrq[i] -= (scores[i].nae + scores[i].aer) - 3
+            if (typeof scores[i].tis !== 'undefined' && calcrq[i] > ld.rqMax - 6) calcrq[i] = ld.rqMax - 6
+            if (typeof scores[i].tis !== 'undefined') calcrq[i] += scores[i].tis
+            if (calcrq[i] > ld.rqMax) calcrq[i] = ld.rqMax
+            if (typeof scores[i].pai !== 'undefined' && scores[i].pai < 2) calcrq[i] -= -scores[i].pai + 2
           }
           calcrq.sort(function (a, b) {
             return a - b
@@ -207,7 +213,7 @@ angular.module('Calc', [])
             return a + b
           })
           tempT = Math.roundTo(tempT / n, 4)
-          return Math.roundTo((tempT * rq > 50 ? 50 : tempT * rq), 4)
+          return Math.roundTo((tempT * ld.rq > 50 ? 50 : tempT * ld.rq), 4)
         },
         T4: function (T2, T3) { // Creativity
           // if (typeof T2 === 'undefined' && typeof T3 === 'undefined') {
@@ -220,8 +226,7 @@ angular.module('Calc', [])
         T5: function (data, forceNum) { // Deductions, data
           if (typeof data === 'undefined' ||
           typeof data.mim === 'undefined' ||
-          typeof data.mam === 'undefined' ||
-          typeof data.h === 'undefined') {
+          typeof data.mam === 'undefined') {
             return (forceNum ? 0 : undefined)
           }
 
@@ -258,19 +263,21 @@ angular.module('Calc', [])
           scores = []
           keys = []
 
-          keys = Object.keys(data.h)
-          n = keys.length
-          for (i = 0; i < n; i++) {
-            few = few + (data.h[keys[i]].few || 0)
-            spc = spc + (data.h[keys[i]].spc || 0)
-            tim = tim + (data.h[keys[i]].tim ? 1 : 0)
-          }
-          few = Math.roundTo(few / n, 4)
-          spc = Math.roundTo(spc / n, 4)
-          tim = Math.roundTo(tim / n, 4)
+          if (typeof data.h !== 'undefined') {
+            keys = Object.keys(data.h)
+            n = keys.length
+            for (i = 0; i < n; i++) {
+              few = few + (data.h[keys[i]].few || 0)
+              spc = spc + (data.h[keys[i]].spc || 0)
+              tim = tim + (data.h[keys[i]].tim ? 1 : 0)
+            }
+            few = Math.roundTo(few / n, 4)
+            spc = Math.roundTo(spc / n, 4)
+            tim = Math.roundTo(tim / n, 4)
 
-          miss = miss + (spc * 12.5)
-          miss = miss + ((tim + few) * 25)
+            miss = miss + (spc * 12.5)
+            miss = miss + ((tim + few) * 25)
+          }
 
           return Math.roundTo(miss, 4)
         },
@@ -310,26 +317,28 @@ angular.module('Calc', [])
             '5': -1
           }
           output.lmin = 2
+          output.event = event
           if (event === 'srsf') {
             output.l = function (x) {
               return (3 / (Math.pow(1.5, (6 - x))))
             }
             output.lmax = 6
-            output.rq = 50 / 14
+            output.rqMax = 14
             output.fac = 2
           } else if (event === 'srpf' || event === 'srtf') {
             output.l = function (x) {
               return (3.5 / (Math.pow(1.5, (5 - x))))
             }
             output.lmax = 6
-            output.rq = 50 / 16
+            output.rqMax = 16
           } else if (event === 'ddsf' || event === 'ddpf') {
             output.l = function (x) {
               return (3 / (Math.pow(1.5, (5 - x))))
             }
             output.lmax = 5
-            output.rq = 50 / 16
+            output.rqMax = 16
           }
+          output.rq = 50 / output.rqMax
         }
 
         for (var i = output.lmin - 1; i < output.lmax; i++) {
@@ -381,7 +390,7 @@ angular.module('Calc', [])
           output.T2 = methods.freestyle.T2(event, data.a, simplified)
 
           /** Calc T3 */
-          output.T3 = methods.freestyle.T3(data.b, levelData.rq)
+          output.T3 = methods.freestyle.T3(data.b, levelData)
 
           /** Calc T4 */
           output.T4 = methods.freestyle.T4(output.T2, output.T3)
@@ -578,8 +587,9 @@ angular.module('Calc', [])
 
           return ranks
         },
-        overall: function (data) {
+        overall: function (data, scores) {
           var output = {}
+          var eventOrder = Abbr.weightedOrder()
           var ranksums = Object.keys(data)
             .map(function (uid) {
               return {
@@ -589,11 +599,20 @@ angular.module('Calc', [])
             })
 
           ranksums.sort(function (a, b) {
+            if (a.ranksum === b.ranksum) {
+              for (var i = 0; i < eventOrder.length; i++) {
+                if (scores[a.uid][eventOrder[i]] === scores[b.uid][eventOrder[i]] ||
+                  scores[a.uid][eventOrder[i]].Y === scores[b.uid][eventOrder[i]].Y ||
+                scores[a.uid][eventOrder[i]].A === scores[b.uid][eventOrder[i]].A) {
+                  return b.ranksum - a.ranksum
+                }
+              }
+            }
             return a.ranksum - b.ranksum
           })
           for (var i = 0; i < ranksums.length; i++) {
             output[ranksums[i].uid] = ranksums.findIndex(function (obj) {
-              return obj.ranksum === ranksums[i].ranksum
+              return obj.uid === ranksums[i].uid
             }) + 1
           }
 

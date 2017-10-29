@@ -1,8 +1,8 @@
 /* global angular */
 var Config = {
   Debug: true, // default: false
-  BuildDate: 1507397202906,
-  version: '2.1.3-se',
+  BuildDate: 1508957888784,
+  version: '2.1.4-se',
   Eval: false, // default: false
 
   MissJudges: false, // default: false
@@ -18,44 +18,54 @@ var Config = {
   /* Nonabbrs: {
     srss: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 0
     },
     srse: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 2
     },
     srtu: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 0
     },
     srsf: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 4
     },
     // ------------------
     srsr: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 1
     },
     srpf: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 5
     },
     srtf: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 6
     },
     ddsr: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 3
     },
     ddsf: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 7
     },
     ddpf: {
       abbr: '',
-      name: ''
+      name: '',
+      weight: 8
     }
   }, */
 

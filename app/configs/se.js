@@ -38,7 +38,11 @@ Config.functions.simplifiedLevelData = function (event) {
 
 Config.functions.simplRankSum = function (sum, obj) {
   console.log(sum, obj)
-  return Number(sum) + Number(obj.cRank) + Number(obj.dRank)
+  if (typeof obj.cRank !== 'undefined' || typeof obj.dRank !== 'undefined') {
+    return Number(sum) + Number(obj.cRank) + Number(obj.dRank)
+  } else {
+    return Number(sum) + Number(obj.mult)
+  }
 }
 
 Config.SimplOrder = {

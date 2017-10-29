@@ -69,6 +69,10 @@ button, .button {
   outline: none;
 }
 
+.inltbl {
+  display: inline-table;
+}
+
 button:hover, button:disabled, .button:hover {
   background-color: #ccc;
 }
@@ -238,22 +242,50 @@ nav ul li:hover:not(:first-child) {
 
 .event {
   min-width: 10em;
-  /*width: 100%;*/
   text-align: center;
-  background: #ddd;
   margin: .3em;
   border-radius: 10px;
-}
-
-.event:hover {
-  background: #ccc;
+  position: relative;
 }
 
 .event a {
   color: #222;
   display: block;
-  width: 100%;
+  width: calc(100% - 2em);
   padding: .3em;
+}
+
+.event a.part {
+  background: #ddd;
+}
+
+.event a.part:hover {
+  background: #ccc;
+}
+
+.event a.center {
+  margin-right: 1em;
+  margin-left: 1em;
+}
+
+.event a.edge {
+  width: 1em;
+  position: absolute;
+  height: 100%;
+  top: 0;
+  padding-top: .8em;
+}
+
+.event a.right {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  right: 0;
+}
+
+.event a.left {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  left: 0;
 }
 
 
