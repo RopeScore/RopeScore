@@ -141,7 +141,7 @@ angular.module('Calc', [])
             }
             keys = Object.keys(scores[i])
             for (j = 0; j < keys.length; j++) {
-              weight = order.a[keys[j]].weight[type]
+              weight = order.a[keys[j]].weight[type] || 0
               calcpres[i] += Number(scores[i][keys[j]]) * weight
             }
           }
@@ -180,7 +180,7 @@ angular.module('Calc', [])
             scores.push(data[i])
           }
 
-          var isDD = Abbr.isType(ld.event, 'dd')
+          var isDD = (typeof ld.event !== 'undefined' ? Abbr.isType(ld.event, 'dd') : false)
 
           for (i = 0; i < scores.length; i++) {
             if (typeof scores[i] === 'undefined') {
@@ -224,44 +224,47 @@ angular.module('Calc', [])
           return Math.roundTo(T4 || 0, 4)
         },
         T5: function (data, forceNum) { // Deductions, data
-          if (typeof data === 'undefined' ||
-          typeof data.mim === 'undefined' ||
-          typeof data.mam === 'undefined') {
+          if (typeof data === 'undefined') {
             return (forceNum ? 0 : undefined)
           }
+          if (typeof data.mim === 'undefined') data.mim = {}
+          if (typeof data.mam === 'undefined') data.mam = {}
 
           var i
           var n = 0
           var keys = []
+          var keysMim = []
+          var keysMam = []
           var scores = []
           var miss = 0
           var few = 0
           var spc = 0
           var tim = 0
 
-          keys = Object.keys(data.mim)
-          n = keys.length
+          keysMim = Object.keys(data.mim)
+          keysMam = Object.keys(data.mam)
+          n = (keysMim.length > keysMam.length ? keysMim.length : keysMam.length)
+          if (n > 0) {
+            for (i = 0; i < n; i++) {
+              scores.push(((Number(data.mim[keysMim[i]]) || 0) * 12.5) + ((Number(data.mam[keysMam[i]]) || 0) * 25) || 0)
+            }
+            scores.sort(function (a, b) {
+              return a - b
+            })
 
-          for (i = 0; i < n; i++) {
-            scores.push((Number(data.mim[keys[i]]) * 12.5) + (Number(data.mam[keys[i]]) * 25) || 0)
+            if (n >= 4) {
+              scores.shift()
+              scores.pop()
+              n = n - 2
+            }
+
+            miss = scores.reduce(function (a, b) {
+              return a + b
+            })
+            miss = Math.roundTo(miss / n, 4)
           }
-          scores.sort(function (a, b) {
-            return a - b
-          })
-
-          if (n >= 4) {
-            scores.shift()
-            scores.pop()
-            n = n - 2
-          }
-
-          miss = scores.reduce(function (a, b) {
-            return a + b
-          })
-          miss = Math.roundTo(miss / n, 4)
 
           scores = []
-          keys = []
 
           if (typeof data.h !== 'undefined') {
             keys = Object.keys(data.h)
