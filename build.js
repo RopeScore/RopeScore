@@ -35,9 +35,8 @@ const configFile = path.join(repositoryRootPath, 'app', 'config.js')
 const buildOutputPath = path.join(repositoryRootPath, 'build', argv.c)
 const distOutputPath = path.join(repositoryRootPath, 'dist', argv.c)
 const packagedAppPath = path.join(repositoryRootPath, 'app') // eslint-disable-line
-
-const Config = require('./app/config.js')
 const baseName = `${Package.name}-${argv.platform}-${argv.arch}-${Package.version}`
+var Config, packageOptions, winstallerOptions
 
 fs.readFile(configFile, 'utf8', function (err, data) {
   if (err) {
@@ -49,7 +48,44 @@ fs.readFile(configFile, 'utf8', function (err, data) {
 
   fs.writeFile(configFile, result, 'utf8', function (err) {
     if (err) return console.log(err)
+    Config = require('./app/config.js')
     console.log(`Building ${baseName}`)
+
+    packageOptions = {
+      'appBundleId': 'pw.swant.ropescore',
+      'appCopyright': `Copyright © ${((new Date()).getFullYear() === 2017 ? '2017' : '2017-' + ((new Date()).getFullYear()))} Svante Bengtson.`,
+      'appVersion': Package.version,
+      'arch': argv.platform === 'darwin' ? 'x64' : argv.arch, // OS X is 64-bit only
+      'asar': true,
+      'all': argv.all,
+      'buildVersion': Package.version,
+      'dir': path.join(repositoryRootPath),
+      'icon': getIcon(),
+      'ignore': ['dist', 'build'],
+      'name': Package.name,
+      'out': buildOutputPath,
+      'overwrite': true,
+      'platform': argv.platform,
+      'version-string': {
+        'CompanyName': Package.name,
+        'FileDescription': Package.name,
+        'ProductName': Package.name
+      }
+    }
+
+    winstallerOptions = {
+      appDirectory: path.join(buildOutputPath, baseName),
+      iconUrl: getIcon(),
+      loadingGif: path.join(repositoryRootPath, 'app', 'static', 'img', 'gif',
+        'installing.gif'),
+      outputDirectory: path.join(distOutputPath, argv.platform, argv.arch),
+      noMsi: true,
+      setupExe: `${baseName}-Setup.exe`,
+      remoteReleases: Config.releaseRemoteUrl(argv.arch, argv.platform),
+      setupIcon: path.join(repositoryRootPath, 'app', 'static', 'img', 'icon.ico'),
+      version: Package.version
+    }
+
     runPackager(packageOptions)
       .then((packagedAppPath) => {
         console.log('app packaged')
@@ -60,41 +96,6 @@ fs.readFile(configFile, 'utf8', function (err, data) {
       })
   })
 })
-
-const packageOptions = {
-  'appBundleId': 'pw.swant.ropescore',
-  'appCopyright': `Copyright © ${((new Date()).getFullYear() === 2017 ? '2017' : '2017-' + ((new Date()).getFullYear()))} Svante Bengtson.`,
-  'appVersion': Package.version,
-  'arch': argv.platform === 'darwin' ? 'x64' : argv.arch, // OS X is 64-bit only
-  'asar': true,
-  'all': argv.all,
-  'buildVersion': Package.version,
-  'dir': path.join(repositoryRootPath),
-  'icon': getIcon(),
-  'ignore': ['dist', 'build'],
-  'name': Package.name,
-  'out': buildOutputPath,
-  'overwrite': true,
-  'platform': argv.platform,
-  'version-string': {
-    'CompanyName': Package.name,
-    'FileDescription': Package.name,
-    'ProductName': Package.name
-  }
-}
-
-const winstallerOptions = {
-  appDirectory: path.join(buildOutputPath, baseName),
-  iconUrl: getIcon(),
-  loadingGif: path.join(repositoryRootPath, 'app', 'static', 'img', 'gif',
-    'installing.gif'),
-  outputDirectory: path.join(distOutputPath, argv.platform, argv.arch),
-  noMsi: true,
-  setupExe: `${baseName}-Setup.exe`,
-  remoteReleases: Config.releaseRemoteUrl(argv.arch, argv.platform),
-  setupIcon: path.join(repositoryRootPath, 'app', 'static', 'img', 'icon.ico'),
-  version: Package.version
-}
 
 function getIcon () {
   switch (argv.platform) {
