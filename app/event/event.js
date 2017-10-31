@@ -35,8 +35,16 @@ angular.module('ropescore.event', ['ngRoute'])
     $scope.events = Abbr.events()
 
     $scope.checksum = Checksum
+    /**
+     * checksum of nothing, used to find out ewhen there is no data
+     * @type {String}
+     */
     $scope.blankChk = $scope.checksum()
 
+    /**
+     * marks a category as complete
+     * @return {undefined}
+     */
     $scope.complete = function () {
       $scope.data[$scope.id].config.completed = !$scope.data[$scope.id].config.completed
       Db.set($scope.data)

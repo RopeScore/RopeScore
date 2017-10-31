@@ -31,13 +31,17 @@ angular.module('ropescore.config.participants', ['ngRoute'])
     $scope.id = $routeParams.id
     $scope.setID($scope.id)
 
-    $scope.data[$scope.id].config.idStart = $scope.data[$scope.id].config.idStart ||
-      100
+    $scope.data[$scope.id].config.idStart = $scope.data[$scope.id].config.idStart || 100
 
     $scope.getNumber = Num
     $scope.showAll = Config.ShowAllTables
 
     $scope.addNum = 25
+
+    /**
+     * adds participants to $scope.data[$scope.id].participants
+     * @return {undefined} does not return
+     */
     $scope.add = function () {
       console.log(`adding ${$scope.addNum} participants`)
       var max = 0
@@ -58,6 +62,10 @@ angular.module('ropescore.config.participants', ['ngRoute'])
       }
     }
 
+    /**
+     * imports data from input box, copied tsv from excel supported
+     * @return {undefined} does not return
+     */
     $scope.import = function () {
       console.log(`attempting import`)
       var data = Papa.parse($scope.csv, {
@@ -65,12 +73,19 @@ angular.module('ropescore.config.participants', ['ngRoute'])
       })
       console.log(data)
 
+      /**
+       * @type {string[]}
+       */
       var ids = ($scope.hasData() ? Object.keys($scope.data[$scope.id].participants) : [$scope.data[$scope.id].config.idStart])
       ids = ids.sort(function (a, b) {
         return b - a
       })
       var max = Number(ids[0]) + 1
 
+      /**
+       * indexes of certain headers
+       * @type {Object.<String, Number>}
+       */
       var indexes = {
         name: data.data[0].findIndex(function (el) {
           return el.toLowerCase() === 'name'
@@ -117,12 +132,20 @@ angular.module('ropescore.config.participants', ['ngRoute'])
       }
     }
 
+    /**
+     * export participant list to excel
+     * @return {undefined} does not return
+     */
     $scope.export = function () {
       var tables = [document.getElementById('partlist')]
       tablesToExcel(tables, $scope.data[$scope.id].config.name +
         '-participants')
     }
 
+    /**
+     * checks if there are any participants
+     * @return {boolean} true if there are participants
+     */
     $scope.hasData = function () {
       if (typeof $scope.data[$scope.id].participants === 'undefined') {
         return false
@@ -133,12 +156,21 @@ angular.module('ropescore.config.participants', ['ngRoute'])
       return true
     }
 
+    /**
+     * removes a participant with a particular uid and its accociated data
+     * @param  {String} uid uid of participant to remove
+     * @return {undefined}  does not return
+     */
     $scope.delete = function (uid) {
       console.log(`removing participant ${uid}`)
       $scope.$apply(delete $scope.data[$scope.id].participants[uid])
       $scope.$apply(delete $scope.data[$scope.id].scores[uid])
     }
 
+    /**
+     * Saves data and goes to event dashboard, doublechecks if no participants have been added
+     * @return {undefined} does not return
+     */
     $scope.save = function () {
       if (!$scope.overrideSave && !$scope.hasData()) {
         $scope.error = 'No participants? Sounds lonely... Press save again to override'

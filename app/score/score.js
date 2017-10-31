@@ -25,7 +25,7 @@ angular.module('ropescore.score', ['ngRoute'])
    * @param {service} Db
    */
   .controller('ScoreCtrl', function ($scope, $location, $routeParams, Db, Abbr,
-    Num, Config, Calc, Display) {
+    Num, Config, Calc, Display, Cleaner) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id
@@ -40,8 +40,12 @@ angular.module('ropescore.score', ['ngRoute'])
     $scope.freestyle = Calc.freestyle
     $scope.simplified = $scope.data[$scope.id].config.simplified
     $scope.Order = ($scope.simplified ? Config.SimplOrder || Config.Order : Config.Order)
-    console.log(Config.SimplOrder, $scope.Order)
+    console.log('simplORder:', Config.SimplOrder, 'Order:', $scope.Order)
 
+    /**
+     * calculate scores, used for speed scores
+     * @return {?Object} object with score
+     */
     $scope.score = function () {
       if (typeof $scope.data[$scope.id].scores === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid] === 'undefined') {
         return undefined
@@ -49,9 +53,14 @@ angular.module('ropescore.score', ['ngRoute'])
       return Calc.score($scope.event, $scope.data[$scope.id].scores[$scope.uid][$scope.event], $scope.uid)
     }
 
+    /**
+     * returns true if a reskip is allowed i.e if the scores varies by more than
+     * 3 between all judges
+     * @return {Boolean}
+     */
     $scope.reskipAllowed = function () {
       if (typeof $scope.data[$scope.id].scores === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid] === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid][$scope.event] === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid][$scope.event].s === 'undefined') {
-        return undefined
+        return false
       }
       var scores = Object.keys($scope.data[$scope.id].scores[$scope.uid][$scope.event].s).map(function (el) {
         return $scope.data[$scope.id].scores[$scope.uid][$scope.event].s[el]
@@ -73,12 +82,27 @@ angular.module('ropescore.score', ['ngRoute'])
       return bool
     }
 
+    /**
+     * sends a message to the backend that notifies all other messages to update
+     * the live display
+     * @param  {String} uid   participant id
+     * @param  {String} id    category id
+     * @param  {String} event
+     * @return {undefined}
+     */
     $scope.display = function (uid, id, event) {
       Db.set($scope.data)
       Display.display(uid, id, event)
       $scope.data = Db.get()
     }
 
+    /**
+     * rounds a score input to its max="" value if it is above it's max
+     * @param  {String} j judge type (a,b,d,m,h)
+     * @param  {Number} i judge number (index)
+     * @param  {String} t type (Interactions,releases,use of music...)
+     * @return {undefined}
+     */
     $scope.toMax = function (j, i, t) {
       var el = document.getElementById((j) + (i) + (t))
       var regEx = /[^\d.]+/gi
@@ -89,6 +113,7 @@ angular.module('ropescore.score', ['ngRoute'])
 
       $scope.data[$scope.id].scores[$scope.uid][$scope.event][j][i][t] = preVal
 
+      /* mark the input with a yellow border for 5 seconds */
       if (typeof max !== 'undefined' && val > max) {
         $scope.data[$scope.id].scores[$scope.uid][$scope.event][j][i][t] = max
         el.classList.add('yellow')
@@ -98,26 +123,24 @@ angular.module('ropescore.score', ['ngRoute'])
       }
     }
 
-    $scope.clean = function (obj) {
-      var scope = obj
-      var keys = Object.keys(scope)
+    $scope.clean = Cleaner
 
-      for (var i = 0; i < keys.length; i++) {
-        if (scope[keys[i]] !== null && typeof scope[keys[i]] === 'object') {
-          scope[keys[i]] = $scope.clean(scope[keys[i]])
-        }
-        if (scope[keys[i]] === null || scope[keys[i]] === '' || typeof scope[keys[i]] === 'undefined' || (typeof scope[keys[i]] === 'object' && Object.keys(scope[keys[i]]).length === 0) || (typeof scope[keys[i]] === 'boolean' && scope[keys[i]] === false)) {
-          delete scope[keys[i]]
-        }
-      }
-      return scope
-    }
-
+    /**
+     * mark that the participant did not skip and save
+     * @param  {String} uid   participant id
+     * @param  {String} id    category id
+     * @param  {String} event
+     * @return {undefined}
+     */
     $scope.dnsSave = function (uid, id, event) {
       $scope.data[id].scores[uid][event] = {dns: true}
       $scope.save()
     }
 
+    /**
+     * Clean data, Save data and return to category page
+     * @return {undefined}
+     */
     $scope.save = function () {
       $scope.data[$scope.id].scores = $scope.clean($scope.data[$scope.id].scores)
       if ($scope.data[$scope.id].scores !== null && typeof $scope.data[$scope.id].scores === 'object' && Object.keys($scope.data[$scope.id].scores).length === 0) {

@@ -1,7 +1,6 @@
 <h1>{{ data[id].config.name }} Results</h1>
 
 <button ng-click="toExcel()">Export to Excel</button>
-<button ng-click="live()">{{ (isLive ? 'Stop Updating Live' : 'Update Live' ) }}</button>
 <button ng-click="toggleRankAll()">{{ (rankAll ? 'Stop Ranking Everyone in Everything' : 'Rank Everyone in Everything') }}</button>
 
 <div class="table">
@@ -170,7 +169,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="part in rankArray | orderBy : ['uid', event + '.rank', 'uid']" ng-style="($even ? {} : { 'background-color': '#eee'})"
+        <tr ng-repeat="part in rankArray | orderBy : [event + '.rank', 'uid']" ng-style="($even ? {} : { 'background-color': '#eee'})"
           ng-if="part[event]">
           <td>{{ data[id].participants[part.uid].name }}</td>
           <td>{{ data[id].participants[part.uid].club }}</td>

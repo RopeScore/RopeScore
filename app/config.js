@@ -1,20 +1,34 @@
 /* global angular */
 var Config = {
-  Debug: true, // default: false
-  BuildDate: 1509280757845,
-  version: '2.2.0-intl',
+  /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
+  Debug: false, // default: false
+  /** @type {Number} Datetime when the build was made */
+  BuildDate: 1509485921976,
+  /** @type {String} current version and country */
+  version: '2.2.1-intl',
+  /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
 
+  /** @type {Boolean} If misses are counted by separate judges */
   MissJudges: false, // default: false
+  /** @type {Boolean} If raw scores should be shown in the final overall table */
   ShowRaw: false, // default: false
+  /** @type {Boolean} Show Diff, pres, rq, and miss scores and ranks in master table */
   ShowDC: true, // default: true, (Show Diff and Creat Scores + rank in overall table)
+  /** @type {Boolean} Display all result tables in the program and not just exported */
   ShowAllTables: true, // default: true
+  /** @type {Boolean} Specifies if there are simplified rules avilable */
   Simplified: false, // default: false
+  /** @type {Number} Position to start checksums on */
   CheckStart: 0, // default: 0
 
+  /** @type {Object} custom functions */
   functions: {},
 
-  // fill in nonabbrs if you want to use non standard abbrs, add non-standard events here as well
+  /**
+   * fill in nonabbrs if you want to use non standard abbrs, add non-standard events here as well
+   * @type {Object}
+   */
   /* Nonabbrs: {
     srss: {
       abbr: '',
@@ -69,6 +83,10 @@ var Config = {
     }
   }, */
 
+  /**
+   * Order and weigths for judges and what they judge
+   * @type {Object}
+   */
   Order: {
     a: {
       mob: {
@@ -183,19 +201,33 @@ var Config = {
     h: true
   }
 }
+/** @type {Object} The order for simplified rules */
 Config.SimplOrder = Config.Order
+/** @type {?String} Gets the country from the version */
 Config.Country = Config.version.split('-').slice(-1)[0]
 Config.Country = (isNaN(Number(Config.Country)) ? Config.Country : undefined)
+/**
+ * Get the Squirrel Update URL
+ * @param  {String} arch     architecture (ia32, x64, armv7l...)
+ * @param  {String} platform platform (linux, win32, darwin)
+ * @param  {String} country  the country version
+ * @return {String}          URL
+ */
 Config.releaseRemoteUrl = function (arch, platform, country) {
   return `https://download.ropescore.com/${country || Config.Country}/${platform || process.platform}/${arch || process.arch}`
 }
 Config.functions.simplifiedLevelData = function () {}
+/** @type {Object} Info on who can use this version */
 Config.licence = {
   licensee: '',
   dateTo: 0,
   dateFrom: Config.BuildDate
 }
 
+/**
+ * Function to add a script to the current page, used to add country version's conf
+ * @param {String} src URL/path
+ */
 function addScript (src) {
   var s = document.createElement('script')
   s.setAttribute('src', src)

@@ -1,6 +1,12 @@
 /* global angular, WebSocket, store, XLSX, sha1 */
 'use strict'
 
+/**
+ * rounds a number n to digit decimal places
+ * @param  {Number} n
+ * @param  {?Number} digits deciimal places
+ * @return {Number}        Rounded number
+ */
 Math.roundTo = function (n, digits) {
   digits = digits || 0
 
@@ -14,6 +20,7 @@ Math.roundTo = function (n, digits) {
   return test
 }
 
+/* listen to the error websocket and log backend errors to devTools */
 var errorSocket = new WebSocket('ws://localhost:3333/errors')
 errorSocket.onmessage = function (evt) {
   var data = JSON.parse(evt.data)
@@ -21,6 +28,7 @@ errorSocket.onmessage = function (evt) {
   console.log('backend error:', data)
 }
 
+/* listen for db updates */
 var dbSocket = new WebSocket('ws://localhost:3333/db')
 dbSocket.onmessage = function (evt) {
   var data = JSON.parse(evt.data)
@@ -58,8 +66,7 @@ angular.module('ropescore', [
        * @description ngRoute with html5 mode (no hashbang, but with fallback)
        * @memberOf ropescore.ropescore
        */
-      $locationProvider.html5Mode(true)
-        .hashPrefix('!')
+      $locationProvider.html5Mode(true).hashPrefix('!')
 
       $routeProvider.otherwise({
         redirectTo: '/'
@@ -71,25 +78,23 @@ angular.module('ropescore', [
   ])
 
   .run(function ($location, $route, $rootScope, Db, Config) {
-    /**
-     * @name $rootScope.goHome
-     * @function
-     * @memberOf ropescore
-     * @description function to go to /
-     */
+    /** return to dashboard */
     $rootScope.goHome = function () {
       $location.path('/')
     }
 
+    /** reload route */
     $rootScope.reload = function () {
       $route.reload()
     }
 
+    /** set category id */
     $rootScope.setID = function (id) {
       console.log(`id: ${id}`)
       $rootScope.id = id
     }
 
+    /** generate copyright text */
     $rootScope.copyright = function () {
       if (new Date().getFullYear() === 2017) {
         return 2017
@@ -105,17 +110,20 @@ angular.module('ropescore', [
   })
 
   .factory('Db',
-    /**
-     * @function Db
-     * @memberOf ropescore.ropescore
-     * @return {object} Return database
-     */
     function ($rootScope, $q) {
       var methods = {
+        /**
+         * @return {Object} contents of database
+         */
         get: function () {
           console.log('got data from database')
           return store.get('ropescore') || {}
         },
+        /**
+         * Overwrite database with new data
+         * @param  {Object} newData
+         * @return {Promise}        sending data update message to backend via socket
+         */
         set: function (newData) {
           console.log('saved data to databse')
           store.set('ropescore', newData)
@@ -123,6 +131,9 @@ angular.module('ropescore', [
           return dbSocket.send('{"type":"update"}')
         }
       }
+      /**
+       * @type {Object} contents of databse
+       */
       methods.data = methods.get()
 
       dbSocket.onmessage = function (evt) {
@@ -135,8 +146,42 @@ angular.module('ropescore', [
       return methods
     })
 
+  .factory('Cleaner', function (obj) {
+    /**
+     * deletes false, null, empty strings from an object recursively to get a
+     * clean object suitable for checksumming
+     * @param  {Object} obj
+     * @return {Object}
+     */
+    var clean = function (obj) {
+      var scope = obj
+      var keys = Object.keys(scope)
+
+      for (var i = 0; i < keys.length; i++) {
+        if (scope[keys[i]] !== null && typeof scope[keys[i]] === 'object') {
+          scope[keys[i]] = clean(scope[keys[i]])
+        }
+        if (scope[keys[i]] === null || scope[keys[i]] === '' || typeof scope[keys[i]] === 'undefined' || (typeof scope[keys[i]] === 'object' && Object.keys(scope[keys[i]]).length === 0) || (typeof scope[keys[i]] === 'boolean' && scope[keys[i]] === false)) {
+          delete scope[keys[i]]
+        }
+      }
+      return scope
+    }
+    return clean
+  })
+
   .factory('tablesToExcel', function (Abbr) {
+    /**
+     * [description]
+     * @param  {Object[]} tables array of tables
+     * @param  {String} name     category name
+     * @return {undefined}
+     */
     return function (tables, name) {
+      /**
+       * Workbook
+       * @type {Object}
+       */
       var wb = XLSX.utils.book_new()
       var wopts = {
         bookType: 'xlsx',
@@ -144,17 +189,14 @@ angular.module('ropescore', [
         type: 'base64'
       }
       if (!wb.Props) wb.Props = {}
-      wb.Props.Title = (name ? 'Results for ' + (name) + ' - ' : '') +
-        'RopeScore'
-      wb.Props.CreatedDate = new Date()
-        .toISOString()
+      wb.Props.Title = (name ? 'Results for ' + (name) + ' - ' : '') + 'RopeScore'
+      wb.Props.CreatedDate = new Date().toISOString()
       var uri = 'data:application/octet-streaml;base64,'
       for (var i = 0; i < tables.length; i++) {
         var sheetName = (tables[i].getAttribute('name') === 'overall' ? 'Overall' : Abbr.abbr(tables[i].getAttribute('name')) || ('Sheet' + (i + 1)))
         XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(tables[i], {
           cellStyles: true
-        }),
-          sheetName)
+        }), sheetName)
       }
       console.log(wb)
       var wbout = XLSX.write(wb, wopts)
@@ -173,8 +215,14 @@ angular.module('ropescore', [
   })
 
   .factory('Checksum', function (Config) {
+    /**
+     * Calculate the checksum of an object
+     * @param  {Object} obj
+     * @param  {Number} [n=5] amount of hexdigits starting on Config.CheckStart to keep
+     * @return {String}
+     */
     return function (obj, n = 5) {
-      var string = (obj ? JSON.stringify(obj) : '')
+      var string = (typeof obj !== 'undefined' ? JSON.stringify(obj) : '')
       var hash = sha1(string)
       var o = Config.CheckStart
       var checksum = hash.substring(o, o + n)
@@ -183,6 +231,10 @@ angular.module('ropescore', [
   })
 
   .factory('Abbr', function (Config) {
+    /**
+     * Standard abbr definition
+     * @type {Object}
+     */
     var abbrs = {
       srss: {
         name: 'Single Rope Speed Sprint',
@@ -248,13 +300,27 @@ angular.module('ropescore', [
     }
 
     var functions = {
+      /**
+       * get nonabbrs from (countr)y config
+       * @return {Object}
+       */
       nonabbrs: function () {
         return Config.Nonabbrs || abbrs
       },
+      /**
+       * convert an abbreviation to a long string
+       * @param  {String} abbr
+       * @return {String}
+       */
       unabbr: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         return (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbrs[abbr].name)
       },
+      /**
+       * convert an abbreviation to a long string without SIngle Rope or Double Dutch in it
+       * @param  {String} abbr
+       * @return {String}
+       */
       unabbrNoType: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         var unabbred = (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbrs[abbr].name)
@@ -262,8 +328,13 @@ angular.module('ropescore', [
         unabbred = unabbred.replace('Double Dutch ', '')
         return unabbred
       },
+      /**
+       * converts a standard abbr to a non-standard abbr from nonabbrs
+       * should always be used for display purposes but never for internal purposes
+       * @param  {String} abbr
+       * @return {String}
+       */
       abbr: function (abbr) {
-        // converts a standard abbr to a non-standard abbr
         var nonabbrs = functions.nonabbrs()
         if (nonabbrs) {
           return nonabbrs[abbr].abbr || abbr
@@ -271,9 +342,15 @@ angular.module('ropescore', [
           return abbr
         }
       },
+      /**
+       * @return {String[]} Array of event abbrs
+       */
       events: function () {
         return Object.keys(functions.nonabbrs() || abbrs)
       },
+      /**
+       * @return {String[]} Array sorted based on their weight, for tie resolver
+       */
       weightedOrder: function () {
         var nonabbrs = functions.nonabbrs()
         var arr = Object.keys(nonabbrs || abbrs)
@@ -286,10 +363,29 @@ angular.module('ropescore', [
           if (b === 'final') {
             return finalWeight - (nonabbrs[a].weight || abbrs[a].weight)
           }
-          return (nonabbrs[b].weight || abbrs[b].weight) - (nonabbrs[a].weight || abbrs[a].weight)
+
+          var x, y
+
+          if (typeof nonabbrs === 'undefined' || typeof nonabbrs[a] === 'undefined' || typeof nonabbrs[a].weight === 'undefined') {
+            x = (typeof abbrs[a] === 'undefined' ? 0 : abbrs[a].weight)
+          } else {
+            x = nonabbrs[a].weight
+          }
+
+          if (typeof nonabbrs === 'undefined' || typeof nonabbrs[b] === 'undefined' || typeof nonabbrs[b].weight === 'undefined') {
+            y = (typeof abbrs[b] === 'undefined' ? 0 : abbrs[b].weight)
+          } else {
+            y = nonabbrs[b].weight
+          }
+
+          return y - x
         }) // sort descending
         return arr
       },
+      /**
+       * @param  {String} abbr
+       * @return {boolean}      if the event is a speed event or not
+       */
       isSpeed: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         if (nonabbrs && nonabbrs[abbr]) {
@@ -300,6 +396,10 @@ angular.module('ropescore', [
           return false
         }
       },
+      /**
+       * @param  {String} abbr
+       * @return {Boolean}      if the event is a team event or not
+       */
       isTeam: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         if (nonabbrs) {
@@ -310,10 +410,21 @@ angular.module('ropescore', [
           return false
         }
       },
+      /**
+       * is it single rope or double dutch, based on first two letters (dd/sr)
+       * @param  {String} abbr
+       * @param  {String} type dd or sr (or technically anything else...)
+       * @return {Boolean}
+       */
       isType: function (abbr, type) {
         var abbrType = abbr.substring(0, 2)
         return (abbrType.toLowerCase() === type.toLowerCase())
       },
+      /**
+       * @param  {Object} obj  Object with events as keys
+       * @param  {String} type dd or sr
+       * @return {Boolean}     object have at least one event of type type
+       */
       hasType: function (obj, type) {
         if (!obj) {
           return false
@@ -326,6 +437,10 @@ angular.module('ropescore', [
         }
         return false
       },
+      /**
+       * @param  {Object} obj Object with events as keys
+       * @return {Boolean}    if the object includes at least one team event
+       */
       hasTeams: function (obj) {
         if (!obj) {
           return false

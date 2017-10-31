@@ -14,6 +14,11 @@ Config.CheckStart = 0 // default: 0
 Config.licence.dateFrom = new Date('2017-09-30 00:00:00Z+0100').getTime()
 Config.licence.dateTo = Number(Config.licence.dateFrom) + (365 * 24 * 60 * 60 * 1000)
 
+/**
+ * LevelData equivalent for simplified rules
+ * @param  {String} event the event the data is requested for
+ * @return {Object}       an object with multiplication factors, maxes and alike
+ */
 Config.functions.simplifiedLevelData = function (event) {
   var output = {}
   output.lmaxes = {
@@ -36,6 +41,13 @@ Config.functions.simplifiedLevelData = function (event) {
   return output
 }
 
+/**
+ * different function to use in array.reduce to calculate a participants ranksum
+ * to be used for simplified rules
+ * @param  {Number} sum current sum
+ * @param  {Object} obj Object to add values to the sum from
+ * @return {Number}     returns the new sum
+ */
 Config.functions.simplRankSum = function (sum, obj) {
   console.log(sum, obj)
   if (typeof obj.cRank !== 'undefined' || typeof obj.dRank !== 'undefined') {
@@ -45,6 +57,10 @@ Config.functions.simplRankSum = function (sum, obj) {
   }
 }
 
+/**
+ * Order to display score enterers in, also maxes and weights for simplified rules
+ * @type {Object}
+ */
 Config.SimplOrder = {
   a: {
     mob: {

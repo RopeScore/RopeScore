@@ -26,15 +26,19 @@ angular.module('ropescore.dash', ['ngRoute'])
   .controller('DashCtrl', function ($scope, $location, Checksum, Db, Config) {
     $scope.data = Db.get()
 
+    /** unset the category id */
     $scope.setID(null)
 
-    $scope.linkData = 'data:application/json;base64,' +
-      window.btoa(unescape(encodeURIComponent(JSON.stringify($scope.data))))
+    /**
+     * make a link for a file to save the data as json
+     * @type {String}
+     */
+    $scope.linkData = 'data:application/json;base64,' + window.btoa(unescape(encodeURIComponent(JSON.stringify($scope.data))))
 
-    $scope.save = function () {
-      Db.set($scope.data)
-    }
-
+    /**
+     * resets the system by deleting all data
+     * @return {undefined}
+     */
     $scope.reset = function () {
       $scope.data = {}
       Db.set($scope.data)
@@ -42,6 +46,11 @@ angular.module('ropescore.dash', ['ngRoute'])
 
     $scope.checksum = Checksum
 
+    /**
+     * make a new array with every category's id from the data object, to use in
+     * ng-repeat with ngSort
+     * @return {String[]}
+     */
     $scope.getEventsArray = function () {
       if (typeof $scope.data !== 'undefined') {
         var arr = Object.keys($scope.data)
@@ -52,6 +61,11 @@ angular.module('ropescore.dash', ['ngRoute'])
       }
     }
 
+    /**
+     * get the resulting position of an ordered event based on it's id and offset
+     * @param  {String} id
+     * @return {Number}    index * 2 + offset
+     */
     $scope.getOrder = function (id) {
       if (typeof $scope.data === 'undefined' ||
       typeof $scope.data.globconfig === 'undefined' ||
@@ -61,11 +75,19 @@ angular.module('ropescore.dash', ['ngRoute'])
       return $scope.data.globconfig.order[id] + $scope.getEventsArray().indexOf(id) * 2 || $scope.getEventsArray().indexOf(id) * 2
     }
 
+    /**
+     * reset the ordering
+     * @return {undefined}
+     */
     $scope.resetOrder = function () {
       delete $scope.data.globconfig.order
       $scope.save()
     }
 
+    /**
+     * saves the data
+     * @return {undefined}
+     */
     $scope.save = function () {
       Db.set($scope.data)
     }

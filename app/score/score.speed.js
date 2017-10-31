@@ -25,7 +25,7 @@ angular.module('ropescore.score.speed', ['ngRoute'])
    * @param {service} Db
    */
   .controller('SpeedScoreCtrl', function ($scope, $location, $routeParams, Db,
-    Abbr, Display, Calc, Num, Config) {
+    Abbr, Display, Calc, Num, Config, Cleaner) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id
@@ -35,31 +35,43 @@ angular.module('ropescore.score.speed', ['ngRoute'])
     $scope.Abbr = Abbr
     $scope.getNumber = Num
 
-    $scope.score = function (event, data, uid, ret) {
-      return Calc.score(event, data, uid, $scope.id, ret, $scope)
+    /**
+     * calculate spped score for a particular event with given data for a particular uid
+     * @param  {String} event
+     * @param  {Object} data
+     * @param  {String} uid
+     * @return {Object}
+     */
+    $scope.score = function (event, data, uid) {
+      if (typeof data === 'undefined') {
+        return undefined
+      }
+      return Calc.score(event, data, uid)
     }
 
+    /**
+     * sends a message to the backend that notifies all other messages to update
+     * the live display
+     * @param  {String} uid   participant id
+     * @param  {String} id    category id
+     * @param  {String} event
+     * @return {undefined}
+     */
     $scope.display = function (uid, id, event) {
       Db.set($scope.data)
       Display.display(uid, id, event)
       $scope.data = Db.get()
     }
 
-    $scope.clean = function (obj) {
-      var scope = obj
-      var keys = Object.keys(scope)
+    $scope.clean = Cleaner
 
-      for (var i = 0; i < keys.length; i++) {
-        if (scope[keys[i]] !== null && typeof scope[keys[i]] === 'object') {
-          scope[keys[i]] = $scope.clean(scope[keys[i]])
-        }
-        if (scope[keys[i]] === null || scope[keys[i]] === '' || typeof scope[keys[i]] === 'undefined' || (typeof scope[keys[i]] === 'object' && Object.keys(scope[keys[i]]).length === 0) || (typeof scope[keys[i]] === 'boolean' && scope[keys[i]] === false)) {
-          delete scope[keys[i]]
-        }
-      }
-      return scope
-    }
-
+    /**
+     * mark that the participant did not skip and save
+     * @param  {String} uid   participant id
+     * @param  {String} id    category id
+     * @param  {String} event
+     * @return {undefined}
+     */
     $scope.dnsSave = function (uid, id, event) {
       $scope.data[id].scores[uid][event] = {dns: true}
       $scope.data[$scope.id].scores = $scope.clean($scope.data[$scope.id].scores)
@@ -69,6 +81,14 @@ angular.module('ropescore.score.speed', ['ngRoute'])
       Db.set($scope.data)
     }
 
+    /**
+     * returns true if a reskip is allowed i.e if the scores varies by more than
+     * 3 between all judges
+     * @param  {uid}    participant id
+     * @param  {id}     category id
+     * @param  {event}
+     * @return {Boolean}
+     */
     $scope.reskipAllowed = function (uid, id, event) {
       if (typeof $scope.data[id].scores === 'undefined' || typeof $scope.data[id].scores[uid] === 'undefined' || typeof $scope.data[id].scores[uid][event] === 'undefined' || typeof $scope.data[id].scores[uid][event].s === 'undefined') {
         return undefined
@@ -99,6 +119,10 @@ angular.module('ropescore.score.speed', ['ngRoute'])
       $scope.data = Db.get()
     }
 
+    /**
+     * Clean data, Save data and return to category page
+     * @return {undefined}
+     */
     $scope.save = function () {
       $scope.data[$scope.id].scores = $scope.clean($scope.data[$scope.id].scores)
       if ($scope.data[$scope.id].scores !== null && typeof $scope.data[$scope.id].scores === 'object' && Object.keys($scope.data[$scope.id].scores).length === 0) {

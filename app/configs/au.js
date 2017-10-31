@@ -6,11 +6,14 @@ if (typeof module === 'object' && typeof exports !== 'undefined') {
 Config.MissJudges = true // default: false
 Config.ShowRaw = false // default: false
 Config.ShowDC = true // default: false, (Show Diff and Creat Scores + rank in overall table)
-Config.ShowAllTables = true // default: false
+Config.ShowAllTables = true // default: true
 Config.Simplified = true // default: false
 Config.CheckStart = 0 // default: 0
 
-// fill in nonabbrs if you want to use non standard abbrs, add non-standard events here as well
+/**
+ * fill in nonabbrs if you want to use non standard abbrs, add non-standard events here as well
+ * @type {Object}
+ */
 Config.Nonabbrs = {
   srss: {
     abbr: 'srm30s',
@@ -25,7 +28,8 @@ Config.Nonabbrs = {
     abbr: 'srs1min',
     name: '1 min Speed',
     speed: true,
-    masters: true
+    masters: true,
+    weight: 0
   },
   srd: {
     abbr: 'srdr',
@@ -69,6 +73,10 @@ Config.Nonabbrs = {
   }
 }
 
+/**
+ * Order to display score enterers in, also maxes and weights
+ * @type {Object}
+ */
 Config.Order = {
   b: {
     dd: {
@@ -187,6 +195,10 @@ Config.SimplOrder = Config.Order
 
 Config.licence.licensee = 'Skipping Australia'
 
+/**
+ * @param  {String} event the event the data is requested for
+ * @return {Object}       an object with multiplication factors, maxes and alike
+ */
 Config.functions.simplifiedLevelData = function (event) {
   var output = {}
   output.lmaxes = {

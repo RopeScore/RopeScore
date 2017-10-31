@@ -29,13 +29,16 @@ angular.module('ropescore.config', ['ngRoute'])
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id
-    $scope.setID($scope.id)
     if (!$scope.id) {
-      $scope.id = btoa(new Date()
-        .getTime())
+      $scope.id = btoa(new Date().getTime())
       console.log(`new event with id: ${$scope.id}`)
     }
+    $scope.setID($scope.id)
 
+    /**
+     * Saves data and continues to articipant configuration. won't save empty data
+     * @return {undefined} function does not return
+     */
     $scope.save = function () {
       if (typeof $scope.data[$scope.id] === 'undefined' || typeof $scope.data[$scope.id].config === 'undefined') {
         $scope.error = 'You can\'t have an empty category'

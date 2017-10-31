@@ -30,6 +30,10 @@ angular.module('ropescore.about.licence', ['ngRoute'])
   .controller('LicenceCtrl', function ($scope, Config) {
     $scope.licence = Config.licence
 
+    /**
+     * list of FOSS projects used in RopeScore, for proper credits
+     * @type {Object}
+     */
     $scope.foss = {
       MIT: [
         {

@@ -2,30 +2,43 @@
 angular.module('Calc', [])
   .factory('Calc', function (Abbr, Db, Config) {
     var methods = {
+      /**
+       * Calculate speed scores
+       * @param  {String} event
+       * @param  {Object} data
+       * @return {?Object}
+       */
       speed: function (event, data) {
         if (typeof data.s === 'undefined') {
           return undefined
         }
         var scores = []
         var output = {
+          /** @type {Number} Raw score */
           T: 0,
+          /** @type {Number} Deductions */
           W: 0,
+          /** @type {Number} (Raw score - deductions) * factor */
           Y: 0,
+          /** @type {Number} (Raw score - deductions) before multiplication */
           PreY: 0
         }
         var diff
         var i
 
+        /* move all scores into an array */
         for (i = 0; i < Object.keys(data.s).length; i++) {
           scores.push(data.s[i])
           if (typeof data.s[i] === 'undefined' || data.s[i] < 0) {
             return undefined
           }
         }
+        /* sort them ascending */
         scores = scores.sort(function (a, b) {
           return a - b
         })
 
+        /* average the two closest scores */
         for (i = 1; i < scores.length; i++) {
           var cdiff = Math.abs(scores[i] - scores[i - 1])
           if (typeof diff === 'undefined' || cdiff <= diff) {
@@ -33,10 +46,12 @@ angular.module('Calc', [])
             output.T = (scores[i] + scores[i - 1]) / 2
           }
         }
+        /* special case if there's only one score entered */
         if (scores.length === 1) {
           output.T = scores[0]
         }
 
+        /* deductions */
         if (data.start) {
           output.W += 5
         }
@@ -51,6 +66,13 @@ angular.module('Calc', [])
         return output
       },
       freestyle: {
+        /**
+         * Diff score, T1
+         * @param  {Object} data
+         * @param  {Object|String} ld   levelData
+         * @param  {Boolean} simplified if the event uses simplified rules
+         * @return {?Number}
+         */
         T1: function (data, ld, simplified) { // Difficulty, data.d
           if (typeof data === 'undefined') {
             return undefined
@@ -70,17 +92,21 @@ angular.module('Calc', [])
             scores.push(data[i])
           }
 
+          /* for every judge */
           for (i = 0; i < n; i++) {
             if (typeof calcdiff[i] === 'undefined') {
               calcdiff[i] = {}
             }
+            /* for every level */
             for (var p = ld.lmax - 1; p >= ld.lmin - 1; p--) {
               if (typeof calcdiff[i][p] === 'undefined') {
                 calcdiff[i][p] = 0
               }
 
+              /* multiply entered ammount of skills by points per level */
               calcdiff[i][p] += Math.roundTo((Number(scores[i][p]) || 0) * ld.lev[p], 4)
 
+              /* if level is capped, add to level below's score */
               if (ld.lmaxes[p] !== -1 && calcdiff[i][p] > ld.lmaxes[p]) {
                 var temp = calcdiff[i][p] - ld.lmaxes[p] || 0
                 calcdiff[i][p] = ld.lmaxes[p]
@@ -88,6 +114,7 @@ angular.module('Calc', [])
               }
             }
 
+            /* sum all level's scores for this judge */
             temp = Object.keys(calcdiff[i])
               .reduce(function (a, b) {
                 return Number(a) + Number(calcdiff[i][b])
@@ -95,16 +122,19 @@ angular.module('Calc', [])
             calcdiff[i] = temp
             temp = undefined
           }
+          /* sort all the scores ascending */
           calcdiff.sort(function (a, b) {
             return a - b
           })
 
+          /* frop highest and lowest scores if there are 4 or more judges */
           if (n >= 4) {
             calcdiff.shift()
             calcdiff.pop()
             n = n - 2
           }
 
+          /* average the remaining judges scores */
           var tempT = calcdiff.reduce(function (a, b) {
             return a + b
           })
@@ -112,6 +142,13 @@ angular.module('Calc', [])
 
           return Math.roundTo(tempT * 2.5, 4)
         },
+        /**
+         * Presentation score, T2
+         * @param  {String} event
+         * @param  {Object} data
+         * @param  {Boolean} simplified if the event uses simplified rules
+         * @return {?Number}
+         */
         T2: function (event, data, simplified) { // Presentation, data.a
           if (typeof data === 'undefined') {
             return undefined
@@ -122,8 +159,14 @@ angular.module('Calc', [])
           var keys = Object.keys(data)
           var n = keys.length
           var scores = []
-          var i
+          var i, type
           var calcpres = []
+
+          if (Abbr.isType(event, 'sr')) {
+            type = 'sr'
+          } else {
+            type = 'dd'
+          }
 
           for (i = keys[0]; i <= keys[keys.length - 1]; i++) {
             scores.push(data[i])
@@ -133,34 +176,40 @@ angular.module('Calc', [])
             if (typeof calcpres[i] === 'undefined') {
               calcpres[i] = 0
             }
-            var type, j, weight
-            if (Abbr.isType(event, 'sr')) {
-              type = 'sr'
-            } else {
-              type = 'dd'
-            }
+            var j, weight
             keys = Object.keys(scores[i])
             for (j = 0; j < keys.length; j++) {
+              /* multiply the scores by their weights */
               weight = order.a[keys[j]].weight[type] || 0
               calcpres[i] += Number(scores[i][keys[j]]) * weight
             }
           }
+          /* sort ascending */
           calcpres.sort(function (a, b) {
             return a - b
           })
 
+          /* drop highest and lowest "if possible" */
           if (n >= 4) {
             calcpres.shift()
             calcpres.pop()
             n = n - 2
           }
 
+          /* average the scores */
           var tempT = calcpres.reduce(function (a, b) {
             return a + b
           })
           tempT = Math.roundTo(tempT / n, 4)
           return Math.roundTo((tempT > 40 ? 40 * 5 : tempT * 5), 4)
         },
+        /**
+         * Required Elements, T3
+         * @param  {Object} data
+         * @param  {Object} ld         levelData
+         * @param  {Boolean} simplified if the event uses simplified rules
+         * @return {?Numebr}
+         */
         T3: function (data, ld, simplified) { // Required Elements, data.b
           if (typeof data === 'undefined') {
             return undefined
@@ -182,47 +231,67 @@ angular.module('Calc', [])
 
           var isDD = (typeof ld.event !== 'undefined' ? Abbr.isType(ld.event, 'dd') : false)
 
+          /* for every judge */
           for (i = 0; i < scores.length; i++) {
             if (typeof scores[i] === 'undefined') {
               calcrq[i] = 0
             }
             keys = Object.keys(scores[i])
+            /* add all scores to calcrq[i], except turner involement skills.
+            in double dutch speed dances and releases are worth 2 pts */
             for (var p = 0; p < keys.length; p++) {
               if (!calcrq[i]) {
                 calcrq[i] = 0
               }
               if (keys[p] !== 'tis') calcrq[i] = Number(calcrq[i]) + ((Number(scores[i][keys[p]]) || 0) * (isDD && (keys[p] === 'rel' || keys[p] === 'spd') ? 2 : 1))
             }
+            /* aerials + not aereals = gymnastics which is max 3 */
             if (typeof scores[i].nae !== 'undefined' && typeof scores[i].aer !== 'undefined' && (scores[i].nae + scores[i].aer) > 3) calcrq[i] -= (scores[i].nae + scores[i].aer) - 3
-            if (typeof scores[i].tis !== 'undefined' && calcrq[i] > ld.rqMax - 6) calcrq[i] = ld.rqMax - 6
-            if (typeof scores[i].tis !== 'undefined') calcrq[i] += scores[i].tis
+            /* Max without turner involvement skills is 10 */
+            if (isDD && calcrq[i] > ld.rqMax - 6) calcrq[i] = ld.rqMax - 6
+            /* add turner involvement skills */
+            if (isDD && typeof scores[i].tis !== 'undefined') calcrq[i] += scores[i].tis
+            /* round to max */
             if (calcrq[i] > ld.rqMax) calcrq[i] = ld.rqMax
+            /* deductions are made if less than 2 pairs interactions were made (pairs interaction - 2) */
             if (typeof scores[i].pai !== 'undefined' && scores[i].pai < 2) calcrq[i] -= -scores[i].pai + 2
           }
+          /* sort ascending */
           calcrq.sort(function (a, b) {
             return a - b
           })
 
+          /* drop highest and lowest scores 'if possible' */
           if (n >= 4) {
             calcrq.shift()
             calcrq.pop()
             n = n - 2
           }
 
+          /* average scores */
           var tempT = calcrq.reduce(function (a, b) {
             return a + b
           })
           tempT = Math.roundTo(tempT / n, 4)
           return Math.roundTo((tempT * ld.rq > 50 ? 50 : tempT * ld.rq), 4)
         },
+        /**
+         * Total creativity score, Pres + Rq
+         * @param  {?Number} T2 Presentation score
+         * @param  {?Number} T3 Required Elements Score
+         * @return {?Number}
+         */
         T4: function (T2, T3) { // Creativity
-          // if (typeof T2 === 'undefined' && typeof T3 === 'undefined') {
-          //   return undefined
-          // }
-          var T4 = (Number(T2) || 0) + (Number(T3))
+          var T4 = (Number(T2) || 0) + (Number(T3) || 0)
 
           return Math.roundTo(T4 || 0, 4)
         },
+        /**
+         * Deductions (misses)
+         * @param  {Object} data
+         * @param  {Boolean} forceNum if true the function MUST return a number
+         * @return {?Number}
+         */
         T5: function (data, forceNum) { // Deductions, data
           if (typeof data === 'undefined') {
             return (forceNum ? 0 : undefined)
@@ -245,19 +314,23 @@ angular.module('Calc', [])
           keysMam = Object.keys(data.mam)
           n = (keysMim.length > keysMam.length ? keysMim.length : keysMam.length)
           if (n > 0) {
+            /* push every miss judges score to an array */
             for (i = 0; i < n; i++) {
               scores.push(((Number(data.mim[keysMim[i]]) || 0) * 12.5) + ((Number(data.mam[keysMam[i]]) || 0) * 25) || 0)
             }
+            /* sort ascending */
             scores.sort(function (a, b) {
               return a - b
             })
 
+            /* drop highest and lowest "if possible" */
             if (n >= 4) {
               scores.shift()
               scores.pop()
               n = n - 2
             }
 
+            /* average */
             miss = scores.reduce(function (a, b) {
               return a + b
             })
@@ -266,24 +339,34 @@ angular.module('Calc', [])
 
           scores = []
 
+          /* add Head judges deductions */
           if (typeof data.h !== 'undefined') {
             keys = Object.keys(data.h)
             n = keys.length
             for (i = 0; i < n; i++) {
-              few = few + (data.h[keys[i]].few || 0)
-              spc = spc + (data.h[keys[i]].spc || 0)
-              tim = tim + (data.h[keys[i]].tim ? 1 : 0)
+              few += data.h[keys[i]].few || 0
+              spc += data.h[keys[i]].spc || 0
+              tim += (data.h[keys[i]].tim ? 1 : 0)
             }
             few = Math.roundTo(few / n, 4)
             spc = Math.roundTo(spc / n, 4)
             tim = Math.roundTo(tim / n, 4)
 
-            miss = miss + (spc * 12.5)
-            miss = miss + ((tim + few) * 25)
+            miss += spc * 12.5
+            miss += (tim + few) * 25
           }
 
           return Math.roundTo(miss, 4)
         },
+        /**
+         * Final score
+         * @param  {?Number} T1         Diff score
+         * @param  {?Number} T4         Crea score
+         * @param  {?Number} T5         Deductions
+         * @param  {Object} ld          levelData
+         * @param  {Boolean} simplified if the event uses simplified rules
+         * @return {?Number}
+         */
         A: function (T1, T4, T5, ld, simplified) {
           if (typeof ld === 'string') {
             ld = methods.levelData(ld, simplified)
@@ -292,14 +375,18 @@ angular.module('Calc', [])
 
           output.PreA = T1 + T4 - T5 // equal to (T1 - (T5/2)) + (T4 - (T5/2))
           output.A = output.PreA * ld.fac
-          // output.A = (output.A < 0 ? 0 : output.A)
-          // output.PreA = (output.PreA < 0 ? 0 : output.PreA)
           output.PreA = Math.roundTo(output.PreA, 4)
           output.A = Math.roundTo(output.A, 4)
 
           return output
         }
       },
+      /**
+       * Object with level maxes, ponts per level, multiplication factors
+       * @param  {String} event
+       * @param  {Boolean} simplified if the event uses simplified rules
+       * @return {Object}
+       */
       levelData: function (event, simplified) {
         var output = {
           lev: {},
@@ -353,15 +440,24 @@ angular.module('Calc', [])
 
         return output
       },
+      /**
+       * Calculates the scores for a user for an event. Wrapper function
+       * @param  {String} event
+       * @param  {Object} data
+       * @param  {String} uid         the participant's id
+       * @param  {Boolean} simplified if the event uses simplified levels
+       * @return {Object}             returns all the scores in an object
+       */
       score: function (event, data, uid, simplified) {
-        var output = {
-          T: 0,
-          W: 0,
-          PreY: 0,
-          Y: 0
-        }
+        var output
 
         if (Abbr.isSpeed(event) && data && data.s) {
+          output = {
+            T: 0,
+            W: 0,
+            PreY: 0,
+            Y: 0
+          }
           output = methods.speed(event, data)
 
           if (typeof output === 'undefined') {
@@ -404,8 +500,7 @@ angular.module('Calc', [])
           output.T5 = methods.freestyle.T5(data, (T1type !== 'undefined' || T4type !== 'undefined'))
 
           /** Calc A */
-          var Aoutput = methods.freestyle.A(output.T1, output.T4, output.T5,
-            levelData)
+          var Aoutput = methods.freestyle.A(output.T1, output.T4, output.T5, levelData)
           output.PreA = Aoutput.PreA
           output.A = Aoutput.A
 
@@ -417,12 +512,20 @@ angular.module('Calc', [])
           return output
         }
       },
+      /**
+       * calculate a users final score
+       * @param  {Object} data
+       * @param  {Object} subevents what event's are enabled
+       * @param  {Boolean} rankAll  if scores should be calculated for everyone
+       * @param  {String} uid
+       * @return {Number}
+       */
       finalscore: function (data, subevents, rankAll, uid) {
-        if (data) {
-          var keys = Object.keys(data)
-            .filter(function (abbr) {
-              return Abbr.events().indexOf(abbr) >= 0 && typeof data[abbr] !== 'undefined' && Object.keys(data[abbr]).length !== 0
-            })
+        if (typeof data !== 'undefined') {
+          /* only existing and enabled events with scores */
+          var keys = Object.keys(data).filter(function (abbr) {
+            return Abbr.events().indexOf(abbr) >= 0 && typeof data[abbr] !== 'undefined' && Object.keys(data[abbr]).length !== 0
+          })
           if (typeof subevents === 'undefined') return undefined
           var events = Object.keys(subevents)
           var enabled = events.filter(function (abbr) {
@@ -431,11 +534,11 @@ angular.module('Calc', [])
           var i
           var total
 
+          /* cal the final score if the participant participated in all events, or if rankAll is true */
           if (rankAll || keys.length === enabled.length) {
             total = 0
             for (i = 0; i < keys.length; i++) {
-              if (Abbr.isSpeed(keys[i]) && typeof data[keys[i]] !==
-                'undefined') {
+              if (Abbr.isSpeed(keys[i]) && typeof data[keys[i]] !== 'undefined') {
                 total += Number(data[keys[i]].Y || 0) || 0
               } else if (typeof data[keys[i]] !== 'undefined') {
                 total += Number(data[keys[i]].A || 0) || 0
@@ -446,6 +549,15 @@ angular.module('Calc', [])
         }
       },
       rank: {
+        /**
+         * Rank speed events
+         * @param  {Object} data
+         * @param  {String} event
+         * @param  {Object} config       category's config
+         * @param  {Boolean} rankAll     if everyone should be ranked, even those without scores
+         * @param  {Object} participants Object of participants
+         * @return {Object}              object of ranks
+         */
         speed: function (data, event, config, rankAll, participants) {
           if (typeof data === 'undefined') {
             return undefined
@@ -471,20 +583,23 @@ angular.module('Calc', [])
             } else if (rankAll) {
               scores.push({
                 uid: keys[i],
-                score: -1
+                score: -Infinity
               })
             }
           }
 
+          /* sort descending */
           scores.sort(function (a, b) {
             return b.score - a.score // sort descending
           })
 
+          /* should the rank be multiplied by some factor? */
           if ((config.simplified || config.showFactors) &&
-            config.factors && config.factors[event]) {
+          typeof config.factors !== 'undefined' && typeof config.factors[event] !== 'undefined') {
             fac = config.factors[event]
           }
 
+          /* find rank and add to object */
           for (i = 0; i < scores.length; i++) {
             var tRank = (scores.findIndex(function (obj) {
               return obj.score === scores[i].score
@@ -497,11 +612,19 @@ angular.module('Calc', [])
 
           return ranks
         },
+        /**
+         * Rank freestyle events
+         * @param  {Object} data
+         * @param  {String} event
+         * @param  {Object} config       category's config
+         * @param  {Boolean} rankAll     if everyone should be ranked, even those without scores
+         * @param  {Object} participants object with participants
+         * @return {Object}              object with ranks
+         */
         freestyle: function (data, event, config, rankAll, participants) {
           var keys
           var Cscores = []
           var Dscores = []
-          // var Tscores = {}
           var ranksums = []
           var fac = 1
           var ranks = {}
@@ -515,16 +638,15 @@ angular.module('Calc', [])
 
           for (i = 0; i < keys.length; i++) {
             if (data[keys[i]][event] && Object.keys(data[keys[i]][event]).length !== 0 && data[keys[i]][event].dns !== true) {
-              Cscores.push(data[keys[i]][event].T4 - (data[keys[i]][event]
-                .T5 / 2) || 0)
-              Dscores.push(data[keys[i]][event].T1 - (data[keys[i]][event]
-                .T5 / 2) || 0)
-              // Tscores[keys[i]] = data[keys[i]][event].A
+              Cscores.push(data[keys[i]][event].T4 - (data[keys[i]][event].T5 / 2) || 0)
+              Dscores.push(data[keys[i]][event].T1 - (data[keys[i]][event].T5 / 2) || 0)
             } else if (rankAll) {
+              /* for those who don't have a score push infinity */
               Cscores.push(-Infinity)
               Dscores.push(-Infinity)
             }
           }
+          /* sort descending */
           Cscores.sort(function (a, b) {
             return b - a // sort descending
           })
@@ -532,7 +654,7 @@ angular.module('Calc', [])
             return b - a // sort descending
           })
 
-          // calc everyones Crank and Drank and push sum into an array
+          /* calc everyones Crank and Drank and push tham and their sum into an array */
           for (i = 0; i < keys.length; i++) {
             var CtempScore = (data[keys[i]] && data[keys[i]][event] ? data[keys[i]][event].T4 - (data[keys[i]][event].T5 / 2) || 0 : -Infinity)
             var DtempScore = (data[keys[i]] && data[keys[i]][event] ? data[keys[i]][event].T1 - (data[keys[i]][event].T5 / 2) || 0 : -Infinity)
@@ -556,8 +678,8 @@ angular.module('Calc', [])
             }
           }
 
+          /* sort ascending on rank but descending on score if ranksums are equal */
           ranksums.sort(function (a, b) {
-            // sort ascending on rank but descending on score if ranksums are equal
             if (a.ranksum === b.ranksum) {
               return b.score - a.score
             } else {
@@ -565,6 +687,7 @@ angular.module('Calc', [])
             }
           })
 
+          /* find out if the ranks should be multiplied by a factor */
           if ((config.simplified || config.showFactors) && config.factors &&
             config.factors[event]) {
             fac = config.factors[event] || 1
@@ -573,6 +696,7 @@ angular.module('Calc', [])
           }
 
           for (i = 0; i < ranksums.length; i++) {
+            /* rank ranksums */
             var tRank = (ranksums.findIndex(function (obj) {
               if (rankAll && ranksums[i].score === -Infinity) {
                 return obj.ranksum === ranksums[i].ranksum
@@ -590,6 +714,12 @@ angular.module('Calc', [])
 
           return ranks
         },
+        /**
+         * rank overall based on ranksum
+         * @param  {Object} data
+         * @param  {Object} scores
+         * @return {Object}
+         */
         overall: function (data, scores) {
           var output = {}
           var eventOrder = Abbr.weightedOrder()
@@ -603,10 +733,11 @@ angular.module('Calc', [])
 
           ranksums.sort(function (a, b) {
             if (a.ranksum === b.ranksum) {
+              /* resolve ties */
               for (var i = 0; i < eventOrder.length; i++) {
                 if (scores[a.uid][eventOrder[i]] === scores[b.uid][eventOrder[i]] ||
                   scores[a.uid][eventOrder[i]].Y === scores[b.uid][eventOrder[i]].Y ||
-                scores[a.uid][eventOrder[i]].A === scores[b.uid][eventOrder[i]].A) {
+                  scores[a.uid][eventOrder[i]].A === scores[b.uid][eventOrder[i]].A) {
                   return b.ranksum - a.ranksum
                 }
               }
@@ -621,10 +752,18 @@ angular.module('Calc', [])
 
           return output
         },
+        /**
+         * calculate ranksums
+         * @param  {Object[]} arr        Object of participats
+         * @param  {Object} finalscores
+         * @param  {Object} subevents    enabled events in category
+         * @param  {Boolean} simplified  if the category uses simplified rules
+         * @return {Object}
+         */
         sum: function (arr, finalscores, subevents, simplified) {
           var output = {}
           for (var i = 0; i < arr.length; i++) {
-            if (typeof finalscores[arr[i].uid].final === 'undefined') {
+            if (typeof finalscores[arr[i].uid] === 'undefined' || typeof finalscores[arr[i].uid].final === 'undefined') {
               continue
             }
             var sum = Object.keys(arr[i])
@@ -645,6 +784,11 @@ angular.module('Calc', [])
           return output
         }
       },
+      /**
+       * Get the factor to multiply a speed score with, should move to Abbr
+       * @param  {String} event
+       * @return {Number}
+       */
       speedFactor: function (event) {
         if (event === 'srss') {
           return 5
@@ -655,6 +799,12 @@ angular.module('Calc', [])
         }
         return 1
       },
+      /**
+       * check if the participant has been in all events
+       * @param  {String[]} enabled enabled events
+       * @param  {String[]} partook events the participant has partaken in
+       * @return {Boolean}
+       */
       inAll: function (enabled, partook) {
         var inAll = false
         if (typeof partook === 'undefined') return inAll
@@ -678,9 +828,6 @@ angular.module('Calc', [])
         }
 
         return inAll
-      },
-      clearData: function (id, scope) {
-        delete scope.data[id].finalscores
       }
     }
     return methods
