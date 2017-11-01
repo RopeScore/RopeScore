@@ -1,4 +1,4 @@
-const logCatch = require('./log-catch')
+const logCatch = require('./log-catch') // eslint-disable-line
 const {
   app,
   BrowserWindow,
@@ -7,9 +7,9 @@ const {
   Menu
 } = require('electron')
 const Config = require('./app/config')
-const server = require('./server')
+const server = require('./server') // eslint-disable-line
 const path = require('path')
-const url = require('url')
+const url = require('url') // eslint-disable-line
 const fs = require('fs-extra')
 const dateTo = (Config.Country !== 'intl' ? require('./app/configs/' + Config.Country + '.js') : undefined)
 
@@ -131,6 +131,13 @@ function createWindow () {
               createWindow()
             }
           },
+          {
+            label: 'Print',
+            accelerator: 'CmdOrCtrl+P',
+            click: () => {
+              win[win.length - 1].webContents.print()
+            }
+          },
           {role: 'minimize'},
           {role: 'close'}
         ]
@@ -177,7 +184,7 @@ function createWindow () {
     if (process.platform === 'darwin') {
       const name = app.getName()
       menu.unshift({
-        label: app.getName(),
+        label: name,
         submenu: [
           {role: 'about'},
           {type: 'separator'},

@@ -146,7 +146,7 @@ angular.module('ropescore', [
       return methods
     })
 
-  .factory('Cleaner', function (obj) {
+  .factory('Cleaner', function () {
     /**
      * deletes false, null, empty strings from an object recursively to get a
      * clean object suitable for checksumming
@@ -453,6 +453,10 @@ angular.module('ropescore', [
         }
         return false
       },
+      /**
+       * @param  {Object} obj Object with events as keys
+       * @return {Boolean}    if the object includes at least one speed event
+       */
       hasSpeed: function (obj) {
         if (!obj) {
           return false
@@ -465,6 +469,10 @@ angular.module('ropescore', [
         }
         return false
       },
+      /**
+       * @param  {Object} obj Object with events as keys
+       * @return {Boolean}    if the object includes at least one freestyle event
+       */
       hasFreestyle: function (obj) {
         if (!obj) {
           return false
@@ -477,6 +485,11 @@ angular.module('ropescore', [
         }
         return false
       },
+      /**
+       * @param  {Object} obj   object with events as keys and if enabled as property
+       * @param  {?String} type sr, dd...
+       * @return {Number}       number of enabled events ot type type
+       */
       count: function (obj, type) {
         if (!obj) {
           return 0
@@ -499,6 +512,12 @@ angular.module('ropescore', [
         }
         return sum
       },
+      /**
+       * @param  {Object} obj  object with event as keys and enabled bool as property
+       * @param  {Strin} type  dd, sr...
+       * @param  {Boolean} DC  if all coulmns should be displayed
+       * @return {Number}      number of Columns the header should span
+       */
       header: function (obj, type, DC) {
         if (!obj) {
           return 0
@@ -528,6 +547,10 @@ angular.module('ropescore', [
 
   .factory('Num',
     function () {
+      /**
+       * @param  {?Number} num
+       * @return {Undefined[]} An array of length num or length 0 in number isn't specified
+       */
       return function (num) {
         if (num) {
           return new Array(num)
@@ -539,6 +562,13 @@ angular.module('ropescore', [
 
   .factory('Display', function ($rootScope, Abbr, Db) {
     return {
+      /**
+       * adds a participant's score in event from category id to the object to be displayed
+       * @param  {String} uid   poarticipant id
+       * @param  {String} id    category id
+       * @param  {String} event
+       * @return {Undefined}
+       */
       display: function (uid, id, event) {
         var data = Db.get()
         if (typeof data.globconfig === 'undefined') {
@@ -574,6 +604,13 @@ angular.module('ropescore', [
         }
         Db.set(data)
       },
+      /**
+       * adds multiple participant's scores in event from category id to the object to be displayed
+       * @param  {Object} participants  object with participants id's as keys
+       * @param  {String} id            category id
+       * @param  {String} event
+       * @return {Undefined}
+       */
       displayAll: function (participants, id, event) {
         if (!Abbr.isSpeed(event)) throw new Error('this function can only be used on multiple speed events')
 
@@ -614,6 +651,13 @@ angular.module('ropescore', [
   .directive('ngConfirmClick', [
     function () {
       return {
+        /**
+         * gives a confirm prompt before executing the action
+         * @param  {Object} scope
+         * @param  {Object} element
+         * @param  {Object} attr
+         * @return {Undefined}
+         */
         link: function (scope, element, attr) {
           var msg = attr.ngConfirmClick || 'Are you sure?'
           var clickAction = attr.confirmedClick

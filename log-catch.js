@@ -6,23 +6,23 @@ console._error = console.error
 console._debug = console.debug
 
 /* Redirect all calls to the collector. */
-console.log = function() {
+console.log = function () {
   return console._collect('log', arguments)
 }
-console.info = function() {
+console.info = function () {
   return console._collect('info', arguments)
 }
-console.warn = function() {
+console.warn = function () {
   return console._collect('warn', arguments)
 }
-console.error = function() {
+console.error = function () {
   return console._collect('error', arguments)
 }
-console.debug = function() {
+console.debug = function () {
   return console._collect('debug', arguments)
 }
 
-console._collect = function(type, args) {
+console._collect = function (type, args) {
   // WARNING: When debugging this function, DO NOT call a modified console.log
   // function, all hell will break loose.
   // Instead use the original console._log functions.
