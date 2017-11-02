@@ -50,7 +50,7 @@ angular.module('ropescore.results', ['ngRoute'])
     if ($scope.data[$scope.id].participants) {
       $scope.partArray = Object.keys($scope.data[$scope.id].participants)
         .map(function (key) {
-          $scope.data[$scope.id].participants[key].uid = key
+          $scope.data[$scope.id].participants[key].uid = Number(key)
           return $scope.data[$scope.id].participants[key]
         })
     } else {
@@ -143,15 +143,15 @@ angular.module('ropescore.results', ['ngRoute'])
             obj[event] = $scope.ranks[event][obj.uid].total
           }
 
-          if (Abbr.isSpeed(event) && typeof $scope.overallRanks[event][obj.uid] !== 'undefined') {
-            overallObj[event] = $scope.overallRanks[event][obj.uid]
+          if (Abbr.isSpeed(event) && typeof $scope.overallRanks[event][overallObj.uid] !== 'undefined') {
+            overallObj[event] = $scope.overallRanks[event][overallObj.uid]
           } else if (typeof $scope.overallRanks[event][obj.uid] !== 'undefined') {
-            obj[event] = $scope.overallRanks[event][obj.uid].total
+            overallObj[event] = $scope.overallRanks[event][overallObj.uid].total
           }
         }
         $scope.rankArray.push(obj)
-        if (typeof $scope.data[$scope.id].scores !== 'undefined' && Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[obj.uid])) {
-          $scope.overallRankArray.push(obj)
+        if (typeof $scope.data[$scope.id].scores !== 'undefined' && Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[overallObj.uid])) {
+          $scope.overallRankArray.push(overallObj)
         }
 
         uid = $scope.partArray[i].uid

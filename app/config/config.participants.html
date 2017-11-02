@@ -21,7 +21,7 @@
     <td><a ng-confirm-click="Remove participant {{ uid }}?" confirmed-click="delete(uid)">Remove</a></td>
   </tr>
 </table>
-<div><input type="number" ng-model="addNum" step="1" min="0"><button ng-click="add()">Add participants</button></div>
+<div><input type="number" ng-model="addNum" step="1" min="0"><button ng-click="add()" id="add">Add participants</button></div>
 <div>
   <button ng-click="excelButton = !excelButton" ng-show="!excelButton">Import from excel</button>
   <div ng-show="excelButton">

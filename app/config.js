@@ -5,7 +5,7 @@ var Config = {
   /** @type {Number} Datetime when the build was made */
   BuildDate: 1509488834566,
   /** @type {String} current version and country */
-  version: '2.2.2-au',
+  version: '2.2.2-2018',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
 
@@ -205,7 +205,7 @@ var Config = {
 Config.SimplOrder = Config.Order
 /** @type {?String} Gets the country from the version */
 Config.Country = Config.version.split('-').slice(-1)[0]
-Config.Country = (isNaN(Number(Config.Country)) ? Config.Country : undefined)
+Config.Country = Config.Country
 /**
  * Get the Squirrel Update URL
  * @param  {String} arch     architecture (ia32, x64, armv7l...)

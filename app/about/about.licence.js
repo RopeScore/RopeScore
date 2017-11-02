@@ -17,7 +17,7 @@ angular.module('ropescore.about.licence', ['ngRoute'])
         })
       } else {
         $routeProvider.when('/licence', {
-          templateUrl: '/about/about.licence' + (Config.Country !== undefined ? '.' + Config.Country : '') + '.html',
+          templateUrl: '/about/about.licence' + (Config.Country !== 'intl' ? '.' + Config.Country : '') + '.html',
           controller: 'LicenceCtrl'
         })
       }
