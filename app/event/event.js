@@ -34,6 +34,8 @@ angular.module('ropescore.event', ['ngRoute'])
 
     $scope.events = Abbr.events()
 
+    $scope.hasSpeed = Abbr.hasSpeed($scope.data[$scope.id].config.subevents)
+
     $scope.checksum = Checksum
     /**
      * checksum of nothing, used to find out ewhen there is no data

@@ -10,7 +10,7 @@ angular.module('ropescore.score.speed', ['ngRoute'])
   .config([
     '$routeProvider',
     function ($routeProvider) {
-      $routeProvider.when('/speedscore/:id/:event', {
+      $routeProvider.when('/speedscore/:id/:event?', {
         templateUrl: '/score/score.speed.html',
         controller: 'SpeedScoreCtrl'
       })
@@ -29,8 +29,14 @@ angular.module('ropescore.score.speed', ['ngRoute'])
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id
-    $scope.event = $routeParams.event
+    $scope.events = [$routeParams.event]
     $scope.setID($scope.id)
+
+    if ($scope.events[0] === undefined) {
+      $scope.events = Abbr.events().filter(function (evt) {
+        return Abbr.isSpeed(evt) && $scope.data[$scope.id].config.subevents[evt]
+      })
+    }
 
     $scope.Abbr = Abbr
     $scope.getNumber = Num
@@ -120,7 +126,7 @@ angular.module('ropescore.score.speed', ['ngRoute'])
     }
 
     /**
-     * Clean data, Save data and return to category page
+     * Clean data, Save data
      * @return {undefined}
      */
     $scope.save = function () {
@@ -129,6 +135,14 @@ angular.module('ropescore.score.speed', ['ngRoute'])
         delete $scope.data[$scope.id].scores
       }
       Db.set($scope.data)
+    }
+
+    /**
+     * Clean data, Save data and return to category page
+     * @return {undefined}
+     */
+    $scope.saveReturn = function () {
+      $scope.save()
       $location.path('/event/' + $scope.id)
     }
   })

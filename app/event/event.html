@@ -2,6 +2,7 @@
 <a ng-href="/config/{{ id }}"><button>Configure</button></a>
 <a ng-href="/config/participants/{{ id }}"><button>Manage Participants</button></a>
 <a ng-click="complete()"><button>{{ (data[id].config.completed ? 'Unmark category as completed' : 'Mark category as completed') }}</button></a>
+<a ng-href="/speedscore/{{ id }}" ng-if="hasSpeed"><button>Enter All Speed Scores</button></a>
 <div class="table">
   <table>
     <thead>

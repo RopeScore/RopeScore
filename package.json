@@ -1,7 +1,7 @@
 {
   "name": "RopeScore",
   "productName": "RopeScore",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "A scoring system for ropeskipping",
   "author": "Svante Bengtson",
   "main": "main.js",
@@ -17,7 +17,8 @@
     "electron": "^1.6.2",
     "electron-packager": "^8.7.1",
     "electron-winstaller": "^2.6.2",
-    "yargs": "^8.0.1"
+    "yargs": "^8.0.1",
+    "protractor": "^5.2.0"
   },
   "scripts": {
     "start": "electron .",

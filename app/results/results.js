@@ -210,7 +210,6 @@ angular.module('ropescore.results', ['ngRoute'])
      * @return {undefined}
      */
     $scope.toExcel = function () {
-      $scope.live(true)
       $scope.toggleRankAll(true)
       setTimeout(function () {
         var tables = document.getElementsByTagName('table')
