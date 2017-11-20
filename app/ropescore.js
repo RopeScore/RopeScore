@@ -402,7 +402,7 @@ angular.module('ropescore', [
        */
       isTeam: function (abbr) {
         var nonabbrs = functions.nonabbrs()
-        if (nonabbrs) {
+        if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[abbr] !== 'undefined') {
           return !(nonabbrs[abbr].masters || abbrs[abbr].masters)
         } else if (abbrs[abbr]) {
           return abbrs[abbr].masters
