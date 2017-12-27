@@ -143,12 +143,10 @@
       <thead>
         <tr>
           <th bold="true" colspan="5" ng-if="Abbr.isSpeed(event)">{{ data[id].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
-          <th bold="true" colspan="13" ng-if="!Abbr.isSpeed(event)">{{ data[id].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
+          <th bold="true" colspan="14" ng-if="!Abbr.isSpeed(event)">{{ data[id].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
         </tr>
         <tr>
-          <th bold="true">{{ (Abbr.hasTeam(data[id].config.subevents) ? " Team Name " : "Name ")
-            }}
-          </th>
+          <th bold="true">{{ (Abbr.hasTeam(data[id].config.subevents) ? " Team Name " : "Name ") }}</th>
           <th bold="true">Club</th>
           <th bold="true">id</th>
 
@@ -162,6 +160,7 @@
           <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event)">Rank</th>
 
           <th bold="true">Score</th>
+          <th bold="true" class="green" argb="FF008000" ng-if="!Abbr.isSpeed(event)">Rank Sum</th>
           <th bold="true" class="red" argb="FFFF0000">
             <!--{{ (data[id].config.simplified && data[id].config.factors && data[id].config.factors[event]
             ? (data[id].config.factors[event] != 1 ? data[id].config.factors[event]
@@ -192,6 +191,7 @@
           <td ng-if="!Abbr.isSpeed(event)">{{ roundTo(finalscores[part.uid][event].A, 2) }}</td>
 
           <td class="red" argb="FFFF0000" ng-if="Abbr.isSpeed(event)">{{ ranks[event][part.uid].rank }}</td>
+          <td class="green" argb="FF008000" ng-if="!Abbr.isSpeed(event)">{{ ranks[event][part.uid].total.cRank + ranks[event][part.uid].total.dRank }}</td>
           <td class="red" argb="FFFF0000" ng-if="!Abbr.isSpeed(event)">{{ ranks[event][part.uid].total.rank }}</td>
         </tr>
       </tbody>

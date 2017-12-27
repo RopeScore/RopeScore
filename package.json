@@ -1,7 +1,7 @@
 {
   "name": "RopeScore",
   "productName": "RopeScore",
-  "version": "2.2.6",
+  "version": "2.3.0",
   "description": "A scoring system for ropeskipping",
   "author": "Svante Bengtson",
   "main": "main.js",

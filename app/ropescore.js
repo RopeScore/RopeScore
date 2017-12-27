@@ -55,6 +55,7 @@ angular.module('ropescore', [
   'ropescore.about.docs',
   'ropescore.about.changelog',
   'ropescore.bugreport',
+  'ropescore.combine',
   'Config',
   'Calc'
 ])
