@@ -56,6 +56,10 @@ angular.module('ropescore.about.licence', ['ngRoute'])
           name: 'js-sha1 (modified)',
           licence: 'https://github.com/emn178/js-sha1/blob/master/LICENSE.txt'
         },
+        {
+          name: 'lsbridge',
+          licence: 'https://github.com/krasimir/lsbridge/blob/master/LICENSE'
+        },
         // Node Modules
         {
           name: 'electron',

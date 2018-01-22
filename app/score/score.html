@@ -150,8 +150,7 @@
         </tr>
         <tr ng-if="Abbr.isType(event, 'dd')">
           <td><label for="h{{ $index }}few">Less than 3 skills:</label></td>
-          <td><input type="number" id="h{{ $index }}few" min="0" ng-model="data[id].scores[uid][event].h[$index].few"
-            ng-keydown="data[id].scores[uid][event].h[$index].few = !data[id].scores[uid][event].h[$index].few"/></td>
+          <td><input type="number" id="h{{ $index }}few" min="0" ng-model="data[id].scores[uid][event].h[$index].few" /></td>
         </tr>
       </table>
 

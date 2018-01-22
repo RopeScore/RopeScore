@@ -1,4 +1,4 @@
-/* global angular, dbSocket */
+/* global angular, lsbridge */
 'use strict'
 /**
  * @class ropescore.results
@@ -33,14 +33,13 @@ angular.module('ropescore.results', ['ngRoute'])
      * @param  {Object} evt
      * @return {undefined}
      */
-    dbSocket.onmessage = function (evt) {
-      var data = JSON.parse(evt.data)
+    lsbridge.subscribe('ropescore-updates', function (data) {
       if (data.type !== 'update') return
       console.log('Update ng')
       $scope.data = Db.get()
       updateScores()
       $scope.$apply()
-    }
+    })
 
     $scope.id = $routeParams.id
     $scope.setID($scope.id)

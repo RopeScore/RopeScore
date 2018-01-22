@@ -8,6 +8,8 @@ var Config = {
   version: '2.3.0-intl',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
+  /** @type {String} What year(s) of rules the system is using */
+  Ruleset: '2017-2018',
 
   /** @type {Boolean} If misses are counted by separate judges */
   MissJudges: false, // default: false
@@ -92,15 +94,15 @@ var Config = {
       mob: {
         desc: 'Music on the beat',
         weight: {
-          sr: 0.75,
-          dd: 0.75
+          sr: 0.5,
+          dd: 0.5
         }
       },
       uom: {
         desc: 'Using the Music',
         weight: {
-          sr: 0.75,
-          dd: 0.75
+          sr: 0.5,
+          dd: 0.5
         }
       },
       mov: {
@@ -114,21 +116,20 @@ var Config = {
         desc: 'Form of Body & Execution',
         weight: {
           sr: 1,
-          dd: 0.75
+          dd: 1
         }
       },
       ori: {
         desc: 'Originality',
         weight: {
           sr: 1,
-          dd: 0.75
+          dd: 1
         }
       },
-      int: {
-        desc: 'Interaction',
-        dd: true,
+      imp: {
+        desc: 'Overall Impression and Entertainment value',
         weight: {
-          sr: 0,
+          sr: 0.5,
           dd: 0.5
         }
       }
@@ -143,17 +144,17 @@ var Config = {
           desc: 'Amount of different <b>Turner / Jumper Switches</b>',
           max: 5
         },
-        aer: {
-          desc: 'Amount of <b>Gymnastics that are aerials</b>',
-          max: 3
-        },
         nae: {
           desc: 'Amount of <b>Gymnastics that are <em>NOT</em> aerials</b>',
           max: 2
         },
+        aer: {
+          desc: 'Amount of <b>Gymnastics that are aerials</b>',
+          max: 3
+        },
         spd: {
-          desc: '<b>Speed Dance</b>',
-          max: 1
+          desc: '<b>Speed Dances</b>',
+          max: 2
         },
         rel: {
           desc: '<b>Release</b>',

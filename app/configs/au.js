@@ -98,7 +98,7 @@ Config.Order = {
       },
       spd: {
         desc: '<b>Speed Dance</b>',
-        max: 1
+        max: 2
       },
       rel: {
         desc: '<b>Release</b>',
@@ -146,15 +146,15 @@ Config.Order = {
     mob: {
       desc: 'Music on the beat',
       weight: {
-        sr: 0.75,
-        dd: 0.75
+        sr: 0.5,
+        dd: 0.5
       }
     },
     uom: {
       desc: 'Using the Music',
       weight: {
-        sr: 0.75,
-        dd: 0.75
+        sr: 0.5,
+        dd: 0.5
       }
     },
     mov: {
@@ -168,22 +168,21 @@ Config.Order = {
       desc: 'Form of Body & Execution',
       weight: {
         sr: 1,
-        dd: 0.75
-      }
-    },
-    int: {
-      desc: 'Interaction',
-      dd: true,
-      weight: {
-        sr: 0,
-        dd: 0.5
+        dd: 1
       }
     },
     ori: {
       desc: 'Originality',
       weight: {
         sr: 1,
-        dd: 0.75
+        dd: 1
+      }
+    },
+    imp: {
+      desc: 'Overall Impression and Entertainment value',
+      weight: {
+        sr: 0.5,
+        dd: 0.5
       }
     }
   },

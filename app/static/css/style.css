@@ -37,6 +37,10 @@ h1 {
   max-width: 80%;
 }
 
+h1.full {
+  max-width: 100%;
+}
+
 p {
   margin-bottom: .3em;
   max-width: 60%;
@@ -147,7 +151,6 @@ table.center {
   margin: auto;
 }
 
-
 /* nav */
 
 nav {
@@ -230,7 +233,6 @@ nav ul li:hover:not(:first-child) {
   background-color: #bbb;
 }
 
-
 /* dash */
 
 .flex-container {
@@ -288,7 +290,6 @@ nav ul li:hover:not(:first-child) {
   left: 0;
 }
 
-
 /* forms */
 
 label {
@@ -334,7 +335,6 @@ input.ng-invalid {
 input.yellow {
   border: 2px solid orange;
 }
-
 
 /* tables */
 

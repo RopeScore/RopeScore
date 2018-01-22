@@ -1,4 +1,4 @@
-/* global angular, WebSocket, store, XLSX, sha1 */
+/* global angular, WebSocket, lsbridge, store, XLSX, sha1 */
 'use strict'
 
 /**
@@ -29,12 +29,10 @@ errorSocket.onmessage = function (evt) {
 }
 
 /* listen for db updates */
-var dbSocket = new WebSocket('ws://localhost:3333/db')
-dbSocket.onmessage = function (evt) {
-  var data = JSON.parse(evt.data)
+lsbridge.subscribe('ropescore-updates', function (data) {
   if (data.type !== 'update') return
   console.log('Update')
-}
+})
 
 /**
  * @namespace ropescore
@@ -97,13 +95,10 @@ angular.module('ropescore', [
 
     /** generate copyright text */
     $rootScope.copyright = function () {
-      if (new Date().getFullYear() === 2017) {
-        return 2017
-      } else {
-        return '2017-' + ((new Date()).getFullYear())
-      }
+      return '2017-' + ((new Date()).getFullYear())
     }
     $rootScope.version = Config.version
+    $rootScope.Ruleset = Config.Ruleset
 
     $rootScope.$on('$routeChangeStart', function (next, current) {
       console.log(`Navigated to ${$location.path()}`)
@@ -129,7 +124,8 @@ angular.module('ropescore', [
           console.log('saved data to databse')
           store.set('ropescore', newData)
           methods.data = methods.get()
-          return dbSocket.send('{"type":"update"}')
+          lsbridge.send('ropescore-updates', { type: 'update' })
+          // return dbSocket.send('{"type":"update"}')
         }
       }
       /**
@@ -137,13 +133,13 @@ angular.module('ropescore', [
        */
       methods.data = methods.get()
 
-      dbSocket.onmessage = function (evt) {
-        var data = JSON.parse(evt.data)
+      lsbridge.subscribe('ropescore-updates', function (data) {
         if (data.type !== 'update') return
         console.log('Update ng')
 
         methods.data = methods.get()
-      }
+      })
+
       return methods
     })
 

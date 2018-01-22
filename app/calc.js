@@ -18,7 +18,6 @@ angular.module('Calc', [])
           T: 0,
           /** @type {Number} Deductions */
           W: 0,
-          /** @type {Number} (Raw score - deductions) * factor */
           Y: 0,
           /** @type {Number} (Raw score - deductions) before multiplication */
           PreY: 0
@@ -180,7 +179,7 @@ angular.module('Calc', [])
             keys = Object.keys(scores[i])
             for (j = 0; j < keys.length; j++) {
               /* multiply the scores by their weights */
-              weight = order.a[keys[j]].weight[type] || 0
+              weight = (order.a[keys[j]] && order.a[keys[j]].weight ? order.a[keys[j]].weight[type] || 0 : 0)
               calcpres[i] += Number(scores[i][keys[j]]) * weight
             }
           }
@@ -243,18 +242,18 @@ angular.module('Calc', [])
               if (!calcrq[i]) {
                 calcrq[i] = 0
               }
-              if (keys[p] !== 'tis') calcrq[i] = Number(calcrq[i]) + ((Number(scores[i][keys[p]]) || 0) * (isDD && (keys[p] === 'rel' || keys[p] === 'spd') ? 2 : 1))
+              if (keys[p] !== 'tis') calcrq[i] = Number(calcrq[i]) + ((Number(scores[i][keys[p]]) || 0) * (isDD && keys[p] === 'rel' ? 2 : 1))
             }
             /* aerials + not aereals = gymnastics which is max 3 */
-            if (typeof scores[i].nae !== 'undefined' && typeof scores[i].aer !== 'undefined' && (scores[i].nae + scores[i].aer) > 3) calcrq[i] -= (scores[i].nae + scores[i].aer) - 3
+            if (typeof scores[i].nae !== 'undefined' && typeof scores[i].aer !== 'undefined' && (Number(scores[i].nae) + Number(scores[i].aer)) > 3) calcrq[i] -= (Number(scores[i].nae) + Number(scores[i].aer)) - 3
             /* Max without turner involvement skills is 10 */
             if (isDD && calcrq[i] > ld.rqMax - 6) calcrq[i] = ld.rqMax - 6
             /* add turner involvement skills */
-            if (isDD && typeof scores[i].tis !== 'undefined') calcrq[i] += scores[i].tis
+            if (isDD && typeof scores[i].tis !== 'undefined') calcrq[i] += Number(scores[i].tis)
             /* round to max */
             if (calcrq[i] > ld.rqMax) calcrq[i] = ld.rqMax
             /* deductions are made if less than 2 pairs interactions were made (pairs interaction - 2) */
-            if (typeof scores[i].pai !== 'undefined' && scores[i].pai < 2) calcrq[i] -= -scores[i].pai + 2
+            if (typeof scores[i].pai !== 'undefined' && scores[i].pai < 2) calcrq[i] -= -Number(scores[i].pai) + 2
           }
           /* sort ascending */
           calcrq.sort(function (a, b) {

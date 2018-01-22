@@ -28,6 +28,7 @@
       <li><a href="#live.free">Freestyle</a></li>
     </ol>
   </li>
+  <li><a href="#combine">Category Combining</a></li>
   <li><a href="#misc">Miscellaneous</a>
     <ol>
       <li><a href="#misc.key">Keyboard Shortcuts</a></li>
@@ -45,7 +46,7 @@
   are avilable.</p>
 <p>The first row of buttons gives you various tools manage your categories.</p>
 <ul class="docs">
-  <li><b>New</b>: This button will create a new category</li>
+  <li><b><a href="#config">New</a></b>: This button will create a new category</li>
   <li><b>Import</b>: This button will allow you to choose an exportfile from ropescore,
     saved on your computer, and REPLACE ALL categories with those in the export file.
     Make sure to export your current categories before importing new ones</li>
@@ -53,13 +54,18 @@
     you will be prompted to select where the file should be saved</li>
   <li><b>Reset</b>: This button resets the program, it removes ALL saved data. It's highly
     reccomended to do an export before resetting</li>
-  <li><b>Display Live Unofficial Scores</b>: This will take you to a page thatcan be
+  <li><b><a href="#live">Display Live Unofficial Scores</a></b>: This will take you to a page thatcan be
     displayed for instance on an external projector, it will show unofficial scores,
     live when they are set to be displayed in the program</li>
+  <li><b><a href="#combine">Combine Two Categories</a></b>: Allows you to combine multiple categories
+    into one</li>
+  <li><b>Reset Category Order</b>: Resets the order the categories are displayed
+    on the dashboard to be ordered by creation date, oldest first</li>
 </ul>
-<p>The row of buttons below "Dashboard" (here "test1", "Test2" etc.) will, once clicked,
+<p>The row of buttons below "Dashboard" (here "Masters", "Teams" etc.) will, once clicked,
   open the category view for that particular category. The hexadecimal number below
   them are their checksum, more info on this is avilable under <a href="#event">Category</a></p>
+<p>You can click the arrows (&lsaquo; and &rsaquo;) on the sides of every category to sort your Dashboard</p>
 
 
 
@@ -112,7 +118,6 @@
   in the column of an event on the row of a participant will open <a href="#score">Score Entering</a>.</p>
 <p>Edit multiple is avilable for Speed events, where you can enter multiple speed scores
   at once</p>
-
 <img src="/static/img/docs/checksums.png" />
 <p>The checksums is a value calculated from the data entered, it can be compared to
   a second instance of RopeScore, if the two values match, then the entered data
@@ -133,6 +138,7 @@
 <h2 id="score">4. Score Entering</h2>
 <p>The view to enter scores does differ for speed events and freestyle events</p>
 <p>For all numerical inputs both decimal point (.) and decimal comma (,) are allowed</p>
+
 <h3 id="score.speed">4.1 Speed</h3>
 <h4 id="score.speed.single">4.1.1 Single</h4>
 <img src="/static/img/docs/score.png" />
@@ -141,6 +147,7 @@
   be checked. For team speed, false switches is avilable, if the judges have marked
   any false switches, the appropriate number of false switches should be entered.
   The last row shows the unofficial score, calculated on the fly</p>
+
 <h4 id="score.speed.mult">4.1.2 Multiple</h4>
 <img src="/static/img/docs/score2.png" />
 <p>Scores are entered the same way as for a single speed entry, however multiple participant's
@@ -150,7 +157,6 @@
   <a href="#live">Live Display</a>. Clicking display all will add all speed scores
   from the current event to the currently displayed speed events.
 </p>
-
 
 <h3 id="score.free">4.2 Freestyle</h3>
 <img src="/static/img/docs/score1.png" />
@@ -168,6 +174,7 @@
   see <a href="#live">Live Display</a></p>
 
 
+
 <h2 id="result">5. Results</h2>
 <img src="/static/img/docs/results.png" />
 <p>Results and ranking are generated for every event where a participant have complete
@@ -183,7 +190,13 @@
   as set in the <a href="#config.event">category Configuration</a>.</p>
 
 
+
 <h2 id="live">6. Live Display</h2>
+<p>It's reccommended to open up a live display in a separate window, see
+  <a href="#misc.key">Keyboard Shortcuts</a>, also avilable via the "Window" menu</p>
+<p>Controlling what is currently displayed is controlled from the
+  <a href="#score">Score Entering</a></p>
+
 <h3 id="live.speed">6.1 Speed</h3>
 <img src="/static/img/docs/live.png" />
 
@@ -191,14 +204,24 @@
 <img src="/static/img/docs/live1.png" />
 
 
-<h2 id="misc">7. Miscellaneous</h2>
-<h3 id="misc.key">7.1 Keyboard Shortcuts</h3>
+
+<h2 id="combine">7. Category Combining</h2>
+<p>Multiple categories can be combined into one by clicking the "Combine Two Categories"
+  button on the <a href="#dash">Dashboard</a></p>
+<img src="/static/img/docs/combine.png" />
+
+
+
+<h2 id="misc">8. Miscellaneous</h2>
+<h3 id="misc.key">8.1 Keyboard Shortcuts</h3>
 <ul class="docs">
   <li><b>Ctrl+N/&#x2318;+N</b>: Opens a new window, an aditional window can for example
     be used on a separate monitor to show results updated live.</li>
 </ul>
-<h3 id="misc.bugs">7.2 Bugs</h3>
+
+<h3 id="misc.bugs">8.2 Bugs</h3>
 <p>See <a href="/bugreport">Bugs</a></p>
-<h3 id="misc.update">7.3 Updates</h3>
+
+<h3 id="misc.update">8.3 Updates</h3>
 <p>The program will automatically search for and download updates when it is started,
   if there is an update avilable the program will prompt the user before installing.</p>
