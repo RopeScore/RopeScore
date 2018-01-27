@@ -137,7 +137,7 @@ function renamePackagedAppDir (packageOutputDirPath) {
 
     if (fs.existsSync(packagedAppPath)) fs.removeSync(packagedAppPath)
     if (fs.existsSync(distAppPath)) fs.removeSync(distAppPath)
-    for (let dir of [distOutputPath, path.join(distOutputPath, argv.platform), path.join(distOutputPath, argv.platform, argv.arch)]) {
+    for (let dir of [path.join(repositoryRootPath, 'dist'), distOutputPath, path.join(distOutputPath, argv.platform), path.join(distOutputPath, argv.platform, argv.arch)]) {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir)
     }
     fs.renameSync(path.join(packageOutputDirPath, appBundleName), packagedAppPath)
