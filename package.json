@@ -4,6 +4,10 @@
   "version": "2.3.0",
   "description": "A scoring system for ropeskipping",
   "author": "Svante Bengtson",
+  "repository": "svbeon/RopeScore",
+  "bugs": {
+    "email": "contact@ropescore.com"
+  },
   "main": "main.js",
   "postinstall": "install-app-deps",
   "dependencies": {
@@ -14,11 +18,11 @@
   },
   "devDependencies": {
     "archiver": "^2.0.3",
-    "electron": "^1.6.2",
+    "electron": "^1.7.10",
     "electron-packager": "^8.7.1",
     "electron-winstaller": "^2.6.2",
-    "yargs": "^8.0.1",
-    "protractor": "^5.2.0"
+    "protractor": "^5.2.0",
+    "yargs": "^8.0.1"
   },
   "scripts": {
     "start": "electron .",
