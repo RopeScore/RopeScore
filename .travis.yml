@@ -9,7 +9,7 @@ deploy:
   api_key:
     secure: k65upJ16Pylqp8L4kibmgcLXMTxNoTA6AX4MsZcoNYkt/WBXseUISL7Geb7SUI7tpJDvsTuns/OVjOgbL42PPFYPHReUpGQqd0v5QrD0TF2qCfwGLvGMz41yYGvGGVWe6fj2LQUBqRI3U25xD8S7PgoQpfmMtFutU3o8tL8LDpf1/ZNpm4B2suDxNeTkwY2nTv2p57NMH652wB1M91IZLWsFfCfWQoNTBtLTwaEgFL9EP7bNMwDH404m4KQVnrdFeADBP3R2kiQxPlqANMYVerD+f6Sr5Mhyrn+joJC0yUpYD7ibE04Ry8lBqU37l15lFcn84CNCyNeN1i4B6ceYZXea0QTFnTk1bgNMTL7qG6A2iBr4OlJGMrXPp1+MEKjofPSiE2Z1DOdXPaErOkTfcv5+d85pZ3usaaHmT3PxojMmXY14gykmen/YyEczqYw5KplfHOf4og9aKz7v7FhDtaC3S9lyeH/+tqjdF0Y+MqFqAS3auQVWTNfASdp2SAuFMNS3yBGR+Mapx0OhhH5Toe1zblZxkClJu5R5lqy66xBkszGcB4NoaehMMzmbbmRGM8slBqPYFbP8kNmdOLMQaeeQMqs5/Q4o47rfw1ynP/6wklZlqA+NhHMnvy18KSa/5o4ZAwd6swOpihslpeX1jrsUR0lOuP85IzRA0lWtmqk=
   file_glob: true
-  file: dist/*/x64/*.zip
+  file: dist/*/darwin/x64/*.zip
   skip_cleanup: true
   on:
     tags: true
