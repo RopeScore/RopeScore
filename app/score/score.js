@@ -40,7 +40,9 @@ angular.module('ropescore.score', ['ngRoute'])
     $scope.freestyle = Calc.freestyle
     $scope.simplified = $scope.data[$scope.id].config.simplified
     $scope.Order = ($scope.simplified ? Config.SimplOrder || Config.Order : Config.Order)
-    console.log('simplORder:', Config.SimplOrder, 'Order:', $scope.Order)
+    $scope.NoMisses = ($scope.simplified ? Config.SimplNoMisses || Config.NoMisses : Config.NoMisses)
+    console.log('simplOrder:', Config.SimplOrder, 'Order:', $scope.Order)
+    console.log('NoMisses:', $scope.NoMisses)
 
     /**
      * calculate scores, used for speed scores

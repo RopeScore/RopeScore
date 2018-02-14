@@ -60,7 +60,7 @@ angular.module('Calc', [])
 
         output.PreY = output.T - output.W
 
-        output.Y = output.PreY * methods.speedFactor(event)
+        output.Y = output.PreY * Abbr.speedFactor(event)
 
         return output
       },
@@ -126,8 +126,8 @@ angular.module('Calc', [])
             return a - b
           })
 
-          /* frop highest and lowest scores if there are 4 or more judges */
-          if (n >= 4) {
+          /* drop highest and lowest scores if there are 4 or more judges */
+          if (n >= 4 && !ld.noDrop) {
             calcdiff.shift()
             calcdiff.pop()
             n = n - 2
@@ -139,7 +139,9 @@ angular.module('Calc', [])
           })
           tempT = Math.roundTo(tempT / n, 4)
 
-          return Math.roundTo(tempT * 2.5, 4)
+          var fac = (ld.freestyleFac && ld.freestyleFac.T1 ? ld.freestyleFac.T1 || 2.5 : 2.5)
+
+          return Math.roundTo(tempT * fac, 4)
         },
         /**
          * Presentation score, T2
@@ -154,6 +156,7 @@ angular.module('Calc', [])
           }
 
           var order = (simplified ? Config.SimplOrder || Config.Order : Config.Order)
+          var ld = methods.levelData(event, simplified)
 
           var keys = Object.keys(data)
           var n = keys.length
@@ -189,7 +192,7 @@ angular.module('Calc', [])
           })
 
           /* drop highest and lowest "if possible" */
-          if (n >= 4) {
+          if (n >= 4 && !ld.noDrop) {
             calcpres.shift()
             calcpres.pop()
             n = n - 2
@@ -200,7 +203,10 @@ angular.module('Calc', [])
             return a + b
           })
           tempT = Math.roundTo(tempT / n, 4)
-          return Math.roundTo((tempT > 40 ? 40 * 5 : tempT * 5), 4)
+
+          var fac = (ld.freestyleFac && ld.freestyleFac.T2 ? ld.freestyleFac.T2 || 5 : 5)
+
+          return Math.roundTo((tempT > 40 && !ld.noMaxes ? 40 * fac : tempT * fac), 4)
         },
         /**
          * Required Elements, T3
@@ -782,21 +788,6 @@ angular.module('Calc', [])
           }
           return output
         }
-      },
-      /**
-       * Get the factor to multiply a speed score with, should move to Abbr
-       * @param  {String} event
-       * @return {Number}
-       */
-      speedFactor: function (event) {
-        if (event === 'srss') {
-          return 5
-        } else if (event === 'srsr') {
-          return 3
-        } else if (event === 'ddsr') {
-          return 2
-        }
-        return 1
       },
       /**
        * check if the participant has been in all events

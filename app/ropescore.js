@@ -237,7 +237,8 @@ angular.module('ropescore', [
         name: 'Single Rope Speed Sprint',
         weight: 0,
         masters: true,
-        speed: true
+        speed: true,
+        speedFactor: 5
       },
       srse: {
         name: 'Single Rope Speed Endurance',
@@ -262,7 +263,8 @@ angular.module('ropescore', [
         name: 'Single Rope Speed Relay',
         weight: 1,
         masters: false,
-        speed: true
+        speed: true,
+        speedFactor: 3
       },
       srpf: {
         name: 'Single Rope Pair Freestyle',
@@ -280,7 +282,8 @@ angular.module('ropescore', [
         name: 'Double Dutch Speed Relay',
         weight: 3,
         masters: false,
-        speed: true
+        speed: true,
+        speedFactor: 2
       },
       ddsf: {
         name: 'Double Dutch Single Freestyle',
@@ -536,6 +539,15 @@ angular.module('ropescore', [
           }
         }
         return sum
+      },
+      /**
+       * Get the factor to multiply a speed score with, should move to Abbr
+       * @param  {String} event
+       * @return {Number}
+       */
+      speedFactor: function (abbr) {
+        var nonabbrs = functions.nonabbrs()
+        return (nonabbrs ? nonabbrs[abbr].speedFactor || abbrs[abbr].speedFactor || 1 : abbrs[abbr].speedFactor) || 1
       }
     }
 

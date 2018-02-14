@@ -40,7 +40,7 @@
     <div ng-repeat="n in getNumber(data[id].config.judges[event][type]) track by $index">
       <h2>{{ type | uppercase }}{{ $index + 1 }}:</h2>
       <table ng-if="type === 'a'">
-        <tbody ng-if="!MissJudges">
+        <tbody ng-if="!MissJudges && !NoMisses">
           <tr>
             <td><label for="a{{ $index }}mim">Minor Misses:</label></td>
             <td><input type="number" id="a{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['a' + $index]"

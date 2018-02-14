@@ -1,11 +1,11 @@
 /* global angular */
 var Config = {
   /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
-  Debug: false, // default: false
+  Debug: true, // default: false
   /** @type {Number} Datetime when the build was made */
   BuildDate: 1516700239004,
   /** @type {String} current version and country */
-  version: '2.3.0-au',
+  version: '2.3.0-se',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
   /** @type {String} What year(s) of rules the system is using */

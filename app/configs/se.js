@@ -26,8 +26,14 @@ Config.functions.simplifiedLevelData = function (event) {
   }
   output.lmin = 1
   output.lmax = 5
+  output.noDrop = true
+  output.noMaxes = true
   output.l = function (x) {
     return (0.5 * x) + 0.5
+  }
+  output.freestyleFac = {
+    T1: 1,
+    T2: 1
   }
   output.rq = 0
   if (event === 'srsf') {
@@ -35,6 +41,8 @@ Config.functions.simplifiedLevelData = function (event) {
   }
   return output
 }
+
+Config.SimplNoMisses = true
 
 /**
  * different function to use in array.reduce to calculate a participants ranksum
@@ -56,7 +64,63 @@ Config.functions.simplRankSum = function (sum, obj) {
  * Order to display score enterers in, also maxes and weights for simplified rules
  * @type {Object}
  */
-Config.SimplOrder = Config.Order
+Config.SimplOrder = {
+  a: {
+    mob: {
+      desc: 'Hoppar i takt till musiken',
+      weight: {
+        sr: 1,
+        dd: 1
+      }
+    },
+    uom: {
+      desc: 'Använder Musiken',
+      sr: true,
+      weight: {
+        sr: 1,
+        dd: 1
+      }
+    },
+    int: {
+      desc: 'Interaktioner',
+      dd: true,
+      weigtht: {
+        sr: 1,
+        dd: 1
+      }
+    },
+    mov: {
+      desc: 'Rörelse',
+      weight: {
+        sr: 1,
+        dd: 1
+      }
+    },
+    fbe: {
+      desc: 'Utförande, Teknik',
+      weight: {
+        sr: 1,
+        dd: 1
+      }
+    },
+    imp: {
+      desc: 'Helhetsintryck',
+      weight: {
+        sr: 1,
+        dd: 1
+      }
+    },
+    mis: {
+      desc: 'Missar',
+      weight: {
+        sr: 1,
+        dd: 1
+      }
+    }
+  },
+  d: true,
+  h: true
+}
 
 if (typeof module === 'object' && typeof exports !== 'undefined') {
   module.exports = Config.licence.dateTo
