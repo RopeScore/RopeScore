@@ -513,34 +513,6 @@ angular.module('ropescore', [
         return sum
       },
       /**
-       * @param  {Object} obj  object with event as keys and enabled bool as property
-       * @param  {Strin} type  dd, sr...
-       * @param  {Boolean} DC  if all coulmns should be displayed
-       * @return {Number}      number of Columns the header should span
-       */
-      header: function (obj, type, DC) {
-        if (!obj) {
-          return 0
-        }
-        var keys = Object.keys(obj)
-        var sum = 0
-        if (type) {
-          var i
-          for (i = 0; i < keys.length; i++) {
-            if (functions.isType(keys[i], type) && obj[keys[i]]) {
-              sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 10)
-            }
-          }
-        } else {
-          for (i = 0; i < keys.length; i++) {
-            if (obj[keys[i]]) {
-              sum += (!DC || functions.isSpeed(keys[i]) ? 2 : 10)
-            }
-          }
-        }
-        return sum
-      },
-      /**
        * Get the factor to multiply a speed score with, should move to Abbr
        * @param  {String} event
        * @return {Number}

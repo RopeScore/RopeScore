@@ -15,12 +15,12 @@ var Config = {
   MissJudges: false, // default: false
   /** @type {Boolean} If raw scores should be shown in the final overall table */
   ShowRaw: false, // default: false
-  /** @type {Boolean} Show Diff, pres, rq, and miss scores and ranks in master table */
-  ShowDC: true, // default: true, (Show Diff and Creat Scores + rank in overall table)
   /** @type {Boolean} Display all result tables in the program and not just exported */
   ShowAllTables: true, // default: true
   /** @type {Boolean} Specifies if there are simplified rules avilable */
   Simplified: false, // default: false
+  /** @type {Boolean} if true all speed scores will be shown unmultiplied */
+  SimplRawSpeed: false,
   /** @type {Number} Position to start checksums on */
   CheckStart: 0, // default: 0
 
@@ -200,10 +200,61 @@ var Config = {
     },
     d: true,
     h: true
+  },
+  /**
+   * If a specific column should be shown in the results tables
+   * @type {Object}
+   */
+  ResultsCols: {
+    overall: {
+      speed: {
+        score: true,
+        rank: true
+      },
+      freestyle: {
+        rq: false,
+        pres: false,
+        diff: false,
+        deduc: false,
+
+        cScore: false,
+        cRank: false,
+        dScore: false,
+        dRank: false,
+
+        score: true,
+        rsum: false,
+        rank: true
+      }
+    },
+    events: {
+      speed: {
+        score: true,
+        rank: true
+      },
+      freestyle: {
+        rq: true,
+        pres: true,
+        diff: true,
+        deduc: true,
+
+        cScore: true,
+        cRank: true,
+        dScore: true,
+        dRank: true,
+
+        score: true,
+        rsum: true,
+        rank: true
+      }
+    }
   }
 }
+
 /** @type {Object} The order for simplified rules */
 Config.SimplOrder = Config.Order
+/** @type {Object} if a specific column should be shown in the simplified results */
+Config.SimplResultsCols = Config.ResultsCols
 /** @type {?String} Gets the country from the version */
 Config.Country = Config.version.split('-').slice(-1)[0]
 Config.Country = Config.Country

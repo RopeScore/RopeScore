@@ -8,7 +8,7 @@ angular.module('Calc', [])
        * @param  {Object} data
        * @return {?Object}
        */
-      speed: function (event, data) {
+      speed: function (event, data, simplified) {
         if (typeof data.s === 'undefined') {
           return undefined
         }
@@ -60,7 +60,7 @@ angular.module('Calc', [])
 
         output.PreY = output.T - output.W
 
-        output.Y = output.PreY * Abbr.speedFactor(event)
+        output.Y = output.PreY * (simplified && Config.SimplRawSpeed ? 1 : Abbr.speedFactor(event))
 
         return output
       },
@@ -463,7 +463,7 @@ angular.module('Calc', [])
             PreY: 0,
             Y: 0
           }
-          output = methods.speed(event, data)
+          output = methods.speed(event, data, simplified)
 
           if (typeof output === 'undefined') {
             return undefined

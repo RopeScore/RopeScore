@@ -56,6 +56,48 @@ angular.module('ropescore.results', ['ngRoute'])
       $scope.partArray = []
     }
 
+    $scope.showCol = function (grade, type, col) {
+      if ($scope.data[$scope.id].config.simplified && typeof Config.SimplResultsCols[grade] !== 'undefined' && typeof Config.SimplResultsCols[grade][type] !== 'undefined' && typeof Config.SimplResultsCols[grade][type][col] !== 'undefined') {
+        return Config.SimplResultsCols[grade][type][col]
+      }
+      return Config.ResultsCols[grade][type][col] || false
+    }
+
+    if ($scope.data[$scope.id].config.simplified) {
+      $scope.enabledCols = Config.SimplResultsCols
+    } else {
+      $scope.enabledCols = Config.ResultsCols
+    }
+
+    $scope.colCount = function (event, overall) {
+      var type = (Abbr.isSpeed(event) ? 'speed' : 'freestyle')
+      var cat = (overall ? 'overall' : 'events')
+      var raw = (overall === 2)
+      var active = Object.keys($scope.enabledCols[cat][type]).filter(function (col) { return (raw && col !== 'rsum') || $scope.enabledCols[cat][type][col] })
+      return active.length
+    }
+
+    /**
+     * @param  {Object} obj  object with event as keys and enabled bool as property
+     * @param  {Strin} type  dd, sr...
+     * @return {Number}      number of Columns the header should span
+     */
+    $scope.header = function (obj, type, mode) {
+      if (typeof obj === 'undefined' || typeof type === 'undefined') {
+        console.warn('obj or type not fed to header function')
+        return 0
+      }
+      var keys = Object.keys(obj)
+      var sum = 0
+      var i
+      for (i = 0; i < keys.length; i++) {
+        if (Abbr.isType(keys[i], type) && obj[keys[i]]) {
+          sum += $scope.colCount(keys[i], mode)
+        }
+      }
+      return sum
+    }
+
     /**
      * Calculates per event ranks
      * @param  {Object} data  scores to rank

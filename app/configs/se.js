@@ -43,6 +43,7 @@ Config.functions.simplifiedLevelData = function (event) {
 }
 
 Config.SimplNoMisses = true
+Config.SimplRawSpeed = true
 
 /**
  * different function to use in array.reduce to calculate a participants ranksum
@@ -120,6 +121,51 @@ Config.SimplOrder = {
   },
   d: true,
   h: true
+}
+
+Config.SimplResultsCols = {
+  overall: {
+    speed: {
+      score: true,
+      rank: true
+    },
+    freestyle: {
+      rq: false,
+      pres: false,
+      diff: false,
+      deduc: false,
+
+      cScore: true,
+      cRank: true,
+      dScore: true,
+      dRank: true,
+
+      score: false,
+      rsum: false,
+      rank: false
+    }
+  },
+  events: {
+    speed: {
+      score: true,
+      rank: true
+    },
+    freestyle: {
+      rq: false,
+      pres: false,
+      diff: false,
+      deduc: false,
+
+      cScore: true,
+      cRank: true,
+      dScore: true,
+      dRank: true,
+
+      score: false,
+      rsum: false,
+      rank: false
+    }
+  }
 }
 
 if (typeof module === 'object' && typeof exports !== 'undefined') {
