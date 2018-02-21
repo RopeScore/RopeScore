@@ -21,6 +21,8 @@ var Config = {
   Simplified: false, // default: false
   /** @type {Boolean} if true all speed scores will be shown unmultiplied */
   SimplRawSpeed: false,
+  /** @type {Boolean} if true Misses won't be shown when entering scores using simpl. rules */
+  SimplNoMisses: false,
   /** @type {Number} Position to start checksums on */
   CheckStart: 0, // default: 0
 
