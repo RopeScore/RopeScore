@@ -30,6 +30,6 @@
     "build:all:mac": "node build -a x64 -p darwin && node build -a x64 -c se -p darwin && node build -a x64 -c au -p darwin",
     "build:all": "node build -a x64 && node build -a x64 -c se && node build -a x64 -c au && node build -a ia32 && node build -a ia32 -c se && node build -a ia32 -c au",
     "dist:sync": "rsync -avzcP --exclude-from .rsyncignore dist/ lhome:ropescore",
-    "dist:sync:travis": "rsync -avzcP --exclude-from .rsyncignore dist/ pi@ddns.swant.pw:ropescore"
+    "dist:sync:travis": "yes | rsync -avzcP --exclude-from .rsyncignore dist/ pi@ddns.swant.pw:ropescore"
   }
 }
