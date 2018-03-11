@@ -314,7 +314,13 @@ angular.module('ropescore', [
        */
       unabbr: function (abbr) {
         var nonabbrs = functions.nonabbrs()
-        return (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbrs[abbr].name)
+        if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[abbr] !== 'undefined' && typeof nonabbrs[abbr].name !== 'undefined' && nonabbrs[abbr].name !== '') {
+          return nonabbrs[abbr].name || ''
+        } else if (typeof abbrs[abbr] !== 'undefined') {
+          return abbrs[abbr].name || ''
+        } else {
+          return ''
+        }
       },
       /**
        * convert an abbreviation to a long string without SIngle Rope or Double Dutch in it
@@ -519,7 +525,13 @@ angular.module('ropescore', [
        */
       speedFactor: function (abbr) {
         var nonabbrs = functions.nonabbrs()
-        return (nonabbrs ? nonabbrs[abbr].speedFactor || abbrs[abbr].speedFactor || 1 : abbrs[abbr].speedFactor) || 1
+        if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[abbr] !== 'undefined') {
+          return nonabbrs[abbr].speedFactor || 1
+        } else if (typeof abbrs[abbr] !== 'undefined') {
+          return abbrs[abbr].speedFactor || 1
+        } else {
+          return 1
+        }
       }
     }
 

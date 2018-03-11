@@ -37,38 +37,21 @@ Config.Nonabbrs = {
     speed: true
   },
     // ---- END EXTRA ----
-  srtu: {
-    abbr: '',
-    name: ''
-  },
   srsf: {
-    abbr: '',
     name: 'Masters Freestyle'
   },
     // ------------------
-  srsr: {
-    abbr: '',
-    name: ''
-  },
   srpf: {
-    abbr: 'srf2',
-    name: ''
+    abbr: 'srf2'
   },
   srtf: {
-    abbr: 'srf4',
-    name: ''
-  },
-  ddsr: {
-    abbr: '',
-    name: ''
+    abbr: 'srf4'
   },
   ddsf: {
-    abbr: 'ddf3',
-    name: ''
+    abbr: 'ddf3'
   },
   ddpf: {
-    abbr: 'ddf4',
-    name: ''
+    abbr: 'ddf4'
   }
 }
 
