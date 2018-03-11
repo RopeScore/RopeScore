@@ -4,6 +4,7 @@ node_js:
 - node
 script:
 - npm run build:all:mac
+- ssh-keyscan -H ddns.swant.pw >> ~/.ssh/known_hosts
 - npm run dist:sync:travis
 deploy:
   provider: releases
