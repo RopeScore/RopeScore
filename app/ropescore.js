@@ -363,11 +363,25 @@ angular.module('ropescore', [
         var finalWeight = 100
         arr.push('final')
         arr = arr.sort(function (a, b) {
+          var aw = 1
+          var bw = 1
+
+          if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[a] !== 'undefined' && typeof nonabbrs[a].weigth !== 'undefined') {
+            aw = nonabbrs[a].weight
+          } else if (typeof abbrs[a] !== 'undefined' && typeof abbrs[a].weight !== 'undefined') {
+            aw = abbrs[a].weight
+          }
+
+          if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[b] !== 'undefined' && typeof nonabbrs[b].weigth !== 'undefined') {
+            aw = nonabbrs[b].weight
+          } else if (typeof abbrs[b] !== 'undefined' && typeof abbrs[b].weight !== 'undefined') {
+            aw = abbrs[b].weight
+          }
           if (a === 'final') {
-            return (nonabbrs[b].weight || abbrs[b].weight) - finalWeight
+            return bw - finalWeight
           }
           if (b === 'final') {
-            return finalWeight - (nonabbrs[a].weight || abbrs[a].weight)
+            return finalWeight - aw
           }
 
           var x, y
