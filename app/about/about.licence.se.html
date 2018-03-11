@@ -1,14 +1,22 @@
 <h1>Hyresavtal</h1>
 <p>Denna version av RopeScore är uthyrd till {{ licence.licensee }} från och med {{ licence.dateFrom | date }},
-  till och med {{ licence.licensee }} from {{ licence.dateTo | date }} enligt följande överenskommelse:</p>
-<ol>
-  <li></li>
-</ol>
+  till och med {{ licence.dateTo | date }} enligt följande överenskommelse:</p>
+<ul>
+  <li>Hyran ger hyrestagaren tillstånd att skapa en oändlig mängd kopior av programmet;</li>
+  <li>Programmet får distribueras av hyrestagaren;</li>
+  <li>Programmet får användas kommersiellt;</li>
+  <li>Källkoden får modifieras vid behov, men modifierade kopior får inte distribueras till tredje part</li>
+  <li>Uppdateringar och support kostnadsfritt utifrån internationella regler i samråd med hyrestagaren;</li>
+  <li>Eventuell uppdatering som blir ny funktion och nya funktioner sker enligt överenskommelse med hyrestagaren;</li>
+  <li>"&copy; Svante Bengtson {{ copyright() }}" måste stå kvar i programmet;</li>
+  <li>Hyresgivaren kan inte hållas ansvarig för hyrestagarens användning av programmet.</li>
+</ul>
+<p>Ovanstående hyresavtal har upprättats i två likatydande resultat där Hyresgivaren erhållit det ena exemplaret
+  och hyrestagaren det andra</p>
 
 <h2>Open Source</h2>
 <div ng-repeat="(licence, subs) in foss">
-  <p>RopeScore use the following Open source projects released under the {{ licence
-    }} licence:</p>
+  <p>RopeScore use the following open source projects released under the {{ licence }} licence:</p>
   <ul>
     <li ng-repeat="s in subs"><a ng-href="{{ s.licence }}" target="_blank">{{ s.name }}</a></li>
   </ul>

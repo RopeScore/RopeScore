@@ -7,7 +7,7 @@ Config.Simplified = true // default: false
 
 Config.licence.licensee = 'Kämpinge Gymnastikförening'
 Config.licence.dateFrom = new Date('2018-01-01 00:00:00Z+0100').getTime()
-Config.licence.dateTo = Number(Config.licence.dateFrom) + (365 * 24 * 60 * 60 * 1000)
+Config.licence.dateTo = Number(Config.licence.dateFrom) + (365 * 24 * 60 * 60 * 1000) - 1
 
 /**
  * LevelData equivalent for simplified rules
