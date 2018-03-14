@@ -22,13 +22,12 @@ Config.Nonabbrs = {
     abbr: 'srm3min',
     name: '3 min Speed'
   },
-    // ---- BEGIN EXTRA ----
+  // ---- BEGIN EXTRA ----
   srsj: {
     abbr: 'srs1min',
     name: '1 min Speed',
     speed: true,
-    masters: true,
-    weight: 0
+    masters: true
   },
   srd: {
     abbr: 'srdr',
@@ -36,17 +35,20 @@ Config.Nonabbrs = {
     masters: true,
     speed: true
   },
-    // ---- END EXTRA ----
+  // ---- END EXTRA ----
+  srtu: {},
   srsf: {
     name: 'Masters Freestyle'
   },
-    // ------------------
+  // ------------------
+  srsr: {},
   srpf: {
     abbr: 'srf2'
   },
   srtf: {
     abbr: 'srf4'
   },
+  ddsr: {},
   ddsf: {
     abbr: 'ddf3'
   },

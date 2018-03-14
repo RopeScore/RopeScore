@@ -3,7 +3,7 @@ var Config = {
   /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
   Debug: true, // default: false
   /** @type {Number} Datetime when the build was made */
-  BuildDate: 1520771414297,
+  BuildDate: 1520774447075,
   /** @type {String} current version and country */
   version: '2.4.2-au',
   /** @type {Boolean} If this is an evaluation version */
