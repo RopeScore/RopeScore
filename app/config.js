@@ -5,7 +5,7 @@ var Config = {
   /** @type {Number} Datetime when the build was made */
   BuildDate: 1520774447075,
   /** @type {String} current version and country */
-  version: '2.4.2-au',
+  version: '2.4.2-se',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
   /** @type {String} What year(s) of rules the system is using */

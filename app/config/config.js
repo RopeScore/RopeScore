@@ -25,7 +25,7 @@ angular.module('ropescore.config', ['ngRoute'])
    * @param {service} Db
    */
   .controller('ConfigCtrl', function ($scope, $location, $routeParams, Db, Abbr,
-    Config) {
+    Config, Cleaner) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id
@@ -44,6 +44,17 @@ angular.module('ropescore.config', ['ngRoute'])
         $scope.error = 'You can\'t have an empty category'
         return
       }
+
+      $scope.data[$scope.id].config = Cleaner($scope.data[$scope.id].config)
+      if ($scope.data[$scope.id].config !== null && typeof $scope.data[$scope.id].config === 'object' && Object.keys($scope.data[$scope.id].config).length === 0) {
+        delete $scope.data[$scope.id].config
+      }
+
+      if (typeof $scope.data[$scope.id] === 'undefined' || typeof $scope.data[$scope.id].config === 'undefined') {
+        $scope.error = 'You can\'t have an empty category'
+        return
+      }
+
       Db.set($scope.data)
       $location.path('/config/participants/' + $scope.id)
     }

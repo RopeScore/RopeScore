@@ -50,9 +50,9 @@
   </tr>
 </table>
 
-<div ng-if="!data[id].config.simplified"><button ng-click="data[id].config.showFactors = !data[id].config.showFactors">{{ (data[id].config.showFactors ? 'Hide' : 'Show') }} Rank Factors</button></div>
+<div ng-if="!data[id].config.simplified"><button ng-click="data[id].config.enableFactors = !data[id].config.enableFactors">{{ (data[id].config.enableFactors ? 'Disable' : 'Enable') }} Rank Factors</button></div>
 
-<div ng-if="data[id].config.simplified || data[id].config.showFactors">
+<div ng-if="data[id].config.simplified || data[id].config.enableFactors">
   <h2>Rank factors</h2>
   <p>If these values are left blank the ones defined in fisac-irsf's judging manual
     will be used. For non-standard events a factor of 1 will be used</p>
@@ -65,7 +65,7 @@
   </table>
 </div>
 <button ng-click="save()" id="next">Save and Continue</button>
-<button ng-click="remove()">Remove event</button>
+<button ng-click="remove()">Remove Category</button>
 <p>{{ error }}</p>
 
 <!-- <pre>{{data[id].config|json}}</pre> -->

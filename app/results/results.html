@@ -32,7 +32,7 @@
         <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">Rank</th>
         <th bold="true" ng-if="data[id].config.subevents[event]">Score</th>
         <th bold="true" ng-if="data[id].config.subevents[event]" class="red" argb="FFFF0000"
-          ng-repeat-end>{{ (data[id].config.simplified && data[id].config.factors && data[id].config.factors[event]
+          ng-repeat-end>{{ ((data[id].config.simplified || data[id].config.enableFactors) && data[id].config.factors && data[id].config.factors[event]
           ? (data[id].config.factors[event] != 1 ? data[id].config.factors[event]
           + 'x' : '') : (event == 'srsf' ? '2x' : '')) }} Rank</th>
 
@@ -62,7 +62,7 @@
 
         <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event)" ng-class="{gray: finalscores[part.uid][event].dns}">{{ roundTo(finalscores[part.uid][event].PreY, 2) }}{{ (finalscores[part.uid][event].dns ? 'DNS' : '') }}</td>
         <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event)" class="red" argb="FFFF0000"
-          ng-repeat-end>{{ ranks[event][part.uid].rank }}</td>
+          ng-repeat-end>{{ ranks[event][part.uid].mult }}</td>
 
 
         <td>{{ roundTo(finalscores[part.uid].final, 2) }}</td>

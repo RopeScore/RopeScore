@@ -151,7 +151,7 @@ angular.module('ropescore', [
      * @return {Object}
      */
     var clean = function (obj) {
-      var scope = obj
+      var scope = obj || {}
       var keys = Object.keys(scope)
 
       for (var i = 0; i < keys.length; i++) {
@@ -615,41 +615,49 @@ angular.module('ropescore', [
        * adds multiple participant's scores in event from category id to the object to be displayed
        * @param  {Object} participants  object with participants id's as keys
        * @param  {String} id            category id
-       * @param  {String} event
+       * @param  {String} events
        * @return {Undefined}
        */
-      displayAll: function (participants, id, event) {
-        if (!Abbr.isSpeed(event)) throw new Error('this function can only be used on multiple speed events')
+      displayAll: function (participants, id, events) {
+        var i
+        for (i = 0; i < events.length; i++) {
+          if (!Abbr.isSpeed(events[i])) throw new Error('this function can only be used on multiple speed events')
+        }
 
         var data = Db.get()
-        var keys = Object.keys(participants)
         if (typeof data.globconfig === 'undefined') {
-          data
-          .globconfig = {}
+          data.globconfig = {}
         }
-        if (typeof data.globconfig.display === 'undefined' || id !==
-          data.globconfig.display.id) {
-          data
-          .globconfig.display = {}
+        if (typeof data.globconfig.display === 'undefined' || id !== data.globconfig.display.id) {
+          data.globconfig.display = {}
         }
         if (typeof data.globconfig.display.events === 'undefined') { data.globconfig.display.events = [] }
-
         data.globconfig.display.id = id
         data.globconfig.display.speed = true
-        for (var i = 0; i < keys.length; i++) {
-          var child = {
-            uid: keys[i],
-            event: event
-          }
-          var ioc = data.globconfig.display.events.findIndex(
-            function (obj) {
-              return obj.uid === keys[i] && obj.event === event
+
+        for (i = 0; i < events.length; i++) {
+          var event = events[i]
+
+          for (var j = 0; j < participants.length; j++) {
+            var child = {
+              uid: participants[j],
+              event: event
+            }
+            // remove old same copy
+            var ioc = data.globconfig.display.events.findIndex(function (obj) {
+              return obj.uid === participants[j] && obj.event === event
             })
-          if (ioc !== -1) {
-            data.globconfig.display.events.splice(ioc, 1)
+            if (ioc !== -1) {
+              data.globconfig.display.events.splice(ioc, 1)
+            }
+            data.globconfig.display.events.push(child)
           }
-          data.globconfig.display.events.push(child)
         }
+
+        data.globconfig.display.events = data.globconfig.display.events.filter(function (event) {
+          return (typeof data[id].scores !== 'undefined' && typeof data[id].scores[event.uid] !== 'undefined' && typeof data[id].scores[event.uid][event.event] !== 'undefined')
+        })
+
         Db.set(data)
       }
     }

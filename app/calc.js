@@ -599,9 +599,9 @@ angular.module('Calc', [])
           })
 
           /* should the rank be multiplied by some factor? */
-          if ((config.simplified || config.showFactors) &&
+          if ((config.simplified || config.enableFactors) &&
           typeof config.factors !== 'undefined' && typeof config.factors[event] !== 'undefined') {
-            fac = config.factors[event]
+            fac = config.factors[event] || 1
           }
 
           /* find rank and add to object */
@@ -646,7 +646,7 @@ angular.module('Calc', [])
               Cscores.push((data[keys[i]][event].T4 - (data[keys[i]][event].T5 / 2)))
               Dscores.push((data[keys[i]][event].T1 - (data[keys[i]][event].T5 / 2)))
             } else if (rankAll) {
-              /* for those who don't have a score push infinity */
+              /* for those who don't have a score push negative infinity */
               Cscores.push(-Infinity)
               Dscores.push(-Infinity)
             }
@@ -661,9 +661,9 @@ angular.module('Calc', [])
 
           /* calc everyones Crank and Drank and push tham and their sum into an array */
           for (i = 0; i < keys.length; i++) {
-            var CtempScore = (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length !== 0 && data[keys[i]][event].dns !== true ? data[keys[i]][event].T4 - (data[keys[i]][event].T5 / 2) : undefined)
-            var DtempScore = (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length !== 0 && data[keys[i]][event].dns !== true ? data[keys[i]][event].T1 - (data[keys[i]][event].T5 / 2) : undefined)
-            var TtempScore = (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length !== 0 && data[keys[i]][event].dns !== true ? data[keys[i]][event].A : undefined)
+            var CtempScore = (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length !== 0 && data[keys[i]][event].dns !== true ? data[keys[i]][event].T4 - (data[keys[i]][event].T5 / 2) : (rankAll ? -Infinity : undefined))
+            var DtempScore = (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length !== 0 && data[keys[i]][event].dns !== true ? data[keys[i]][event].T1 - (data[keys[i]][event].T5 / 2) : (rankAll ? -Infinity : undefined))
+            var TtempScore = (typeof data[keys[i]] !== 'undefined' && typeof data[keys[i]][event] !== 'undefined' && Object.keys(data[keys[i]][event]).length !== 0 && data[keys[i]][event].dns !== true ? data[keys[i]][event].A : (rankAll ? -Infinity : undefined))
             var CtempRank = (typeof CtempScore !== 'undefined' ? Cscores.indexOf(CtempScore) + 1 : undefined)
             var DtempRank = (typeof DtempScore !== 'undefined' ? Dscores.indexOf(DtempScore) + 1 : undefined)
             if (DtempRank > 0 && CtempRank > 0) {
@@ -693,7 +693,7 @@ angular.module('Calc', [])
           })
 
           /* find out if the ranks should be multiplied by a factor */
-          if ((config.simplified || config.showFactors) && config.factors &&
+          if ((config.simplified || config.enableFactors) && config.factors &&
             config.factors[event]) {
             fac = config.factors[event] || 1
           } else if (event === 'srsf') {
@@ -771,6 +771,7 @@ angular.module('Calc', [])
             if (typeof finalscores[arr[i].uid] === 'undefined' || typeof finalscores[arr[i].uid].final === 'undefined') {
               continue
             }
+            console.log(arr[i])
             var sum = Object.keys(arr[i])
               .filter(function (abbr) {
                 return Abbr.events().indexOf(abbr) >= 0

@@ -119,9 +119,16 @@ angular.module('ropescore.score.speed', ['ngRoute'])
       return bool
     }
 
-    $scope.displayAll = function (participants, id, event) {
-      Db.set($scope.data)
-      Display.displayAll(participants, id, event)
+    $scope.displayAll = function (participants, id, events) {
+      $scope.save()
+
+      if (typeof participants === 'undefined') {
+        participants = []
+      } else {
+        participants = Object.keys(participants)
+      }
+
+      Display.displayAll(participants, id, events)
       $scope.data = Db.get()
     }
 

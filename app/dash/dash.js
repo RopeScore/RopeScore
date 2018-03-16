@@ -23,7 +23,7 @@ angular.module('ropescore.dash', ['ngRoute'])
    * @param {service} $location
    * @param {service} Db
    */
-  .controller('DashCtrl', function ($scope, $location, Checksum, Db, Config) {
+  .controller('DashCtrl', function ($scope, $route, $location, Checksum, Db, Config) {
     $scope.data = Db.get()
 
     /** unset the category id */
@@ -41,6 +41,7 @@ angular.module('ropescore.dash', ['ngRoute'])
      */
     $scope.reset = function () {
       $scope.data = {}
+      $route.reload()
       Db.set($scope.data)
     }
 
@@ -52,12 +53,14 @@ angular.module('ropescore.dash', ['ngRoute'])
      * @return {String[]}
      */
     $scope.getEventsArray = function () {
-      if (typeof $scope.data !== 'undefined') {
+      if (typeof $scope.data !== 'undefined' || (typeof $scope.data === 'object' && Object.keys($scope.data).length > 0)) {
         var arr = Object.keys($scope.data)
         arr = arr.filter(function (str) {
           return str !== 'globconfig'
         })
         return arr
+      } else {
+        return []
       }
     }
 

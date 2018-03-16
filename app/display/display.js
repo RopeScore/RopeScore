@@ -20,8 +20,9 @@ angular.module('ropescore.display', ['ngRoute'])
   /**
    * @class ropescore.display.DisplayCtrl
    */
-  .controller('DisplayCtrl', function ($scope, Db, Calc, Abbr, Config) {
+  .controller('DisplayCtrl', function ($scope, $interval, Db, Calc, Abbr, Config) {
     $scope.data = Db.get()
+    var interval
 
     /**
      * update the display on backend message
@@ -42,8 +43,14 @@ angular.module('ropescore.display', ['ngRoute'])
      * @return {undefined}
      */
     var updateScores = function () {
+      if (angular.isDefined(interval)) {
+        $interval.cancel(interval)
+        interval = undefined
+      }
       /** @type {Object} */
       $scope.data = Db.get()
+      if (typeof $scope.data.globconfig === 'undefined') $scope.data.globconfig = {}
+      if (typeof $scope.data.globconfig.display === 'undefined') $scope.data.globconfig.display = {}
       /** @type {String} id of category to display */
       var id = $scope.data.globconfig.display.id
       /** @type {Boolean} if speed or freestyles are currently displayed */
@@ -51,16 +58,26 @@ angular.module('ropescore.display', ['ngRoute'])
       var i
       $scope.scores = {}
 
-      if (speed) {
+      if (speed && typeof $scope.data.globconfig.display.events !== 'undefined') {
         /** @type {Object[]} */
         var events = $scope.data.globconfig.display.events
         for (i = 0; i < events.length; i++) {
           if (typeof $scope.scores[events[i].uid] === 'undefined') {
             $scope.scores[events[i].uid] = {}
           }
-          $scope.scores[events[i].uid][events[i].event] = Calc.score(events[i].event, $scope.data[id].scores[events[i].uid][events[i].event], events[i].uid, $scope.data[id].config.simplified)
+          if (typeof $scope.data[id].scores === 'undefined' || typeof $scope.data[id].scores[events[i].uid] === 'undefined' || typeof $scope.data[id].scores[events[i].uid][events[i].event] === 'undefined') {
+            $scope.scores[events[i].uid][events[i].event] = {hide: true}
+          } else if ($scope.data[id].scores[events[i].uid][events[i].event].dns) {
+            $scope.scores[events[i].uid][events[i].event] = {dns: true}
+          } else {
+            $scope.scores[events[i].uid][events[i].event] = Calc.score(events[i].event, $scope.data[id].scores[events[i].uid][events[i].event], events[i].uid, $scope.data[id].config.simplified)
+          }
         }
-      } else {
+
+        interval = $interval(function () {
+          $scope.data.globconfig.display.events.push($scope.data.globconfig.display.events.shift())
+        }, 5000)
+      } else if (typeof $scope.data.globconfig.display.event !== 'undefined') {
         /** @type {Object[]} */
         var event = $scope.event = $scope.data.globconfig.display.event
 

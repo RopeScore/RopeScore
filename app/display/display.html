@@ -2,11 +2,9 @@
   <h1 class="full">Unofficial Speed Scores - {{ data[data.globconfig.display.id].config.name }}</h1>
   <table>
     <tr ng-repeat="event in data.globconfig.display.events | orderBy : '-'">
-      <td class="onethird">{{ Abbr.unabbr(event.event) }}</td>
-      <td class="onethird">{{ data[data.globconfig.display.id].participants[event.uid].name }}, {{ data[data.globconfig.display.id].participants[event.uid].club
-        }}
-      </td>
-      <td class="onethird">{{ scores[event.uid][event.event].PreY }}</td>
+      <td class="onethird" ng-class="{gray: scores[event.uid][event.event].dns}">{{ Abbr.unabbr(event.event) }}</td>
+      <td class="onethird" ng-class="{gray: scores[event.uid][event.event].dns}">{{ data[data.globconfig.display.id].participants[event.uid].name }}, {{ data[data.globconfig.display.id].participants[event.uid].club }}</td>
+      <td class="onethird" ng-class="{gray: scores[event.uid][event.event].dns}">{{ (scores[event.uid][event.event].dns ? 'DNS' : scores[event.uid][event.event].PreY) }}</td>
     </tr>
   </table>
 </div>
@@ -33,10 +31,8 @@
     </tr>
     <tr>
       <th class="ra">Total</th>
-      <td>{{ roundTo(scores[event.uid][event.event].T1 - (scores[event.uid][event.event].T5
-        / 2), 2) || 0 }}</td>
-      <td>{{ roundTo(scores[event.uid][event.event].T4 - (scores[event.uid][event.event].T5
-        / 2), 2) || 0 }}</td>
+      <td>{{ roundTo(scores[event.uid][event.event].T1 - (scores[event.uid][event.event].T5 / 2), 2) || 0 }}</td>
+      <td>{{ roundTo(scores[event.uid][event.event].T4 - (scores[event.uid][event.event].T5 / 2), 2) || 0 }}</td>
     </tr>
     <tr>
       <td colspan="3">&nbsp;</td>
