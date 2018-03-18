@@ -56,7 +56,24 @@ angular.module('ropescore.dash', ['ngRoute'])
       if (typeof $scope.data !== 'undefined' || (typeof $scope.data === 'object' && Object.keys($scope.data).length > 0)) {
         var arr = Object.keys($scope.data)
         arr = arr.filter(function (str) {
-          return str !== 'globconfig'
+          return str !== 'globconfig' && !$scope.data[str].config.completed
+        })
+        return arr
+      } else {
+        return []
+      }
+    }
+
+    /**
+     * make a new array with every category's id from the data object, to use in
+     * ng-repeat with ngSort
+     * @return {String[]}
+     */
+    $scope.getCompletedEventsArray = function () {
+      if (typeof $scope.data !== 'undefined' || (typeof $scope.data === 'object' && Object.keys($scope.data).length > 0)) {
+        var arr = Object.keys($scope.data)
+        arr = arr.filter(function (str) {
+          return str !== 'globconfig' && $scope.data[str].config.completed
         })
         return arr
       } else {

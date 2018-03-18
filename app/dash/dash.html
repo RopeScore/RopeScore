@@ -19,4 +19,17 @@
   </div>
 </div>
 
+<h2>Completed Categories</h2>
+
+<div class="flex-container">
+  <div ng-repeat="id in getCompletedEventsArray() | orderBy:getOrder track by $index" class="event">
+    <a class="right edge part" ng-click="data.globconfig.order[id] = (data.globconfig.order[id] || 0) + 3; save()">&rsaquo;</a>
+    <a class="left edge part" ng-click="data.globconfig.order[id] = (data.globconfig.order[id] || 0) - 3; save()">&lsaquo;</a>
+    <a ng-href="/event/{{ id }}" ng-class="(data[id].config.completed ? 'green' : '')"
+      class="center part">{{ data[id].config.name }}
+      <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span>
+    </a>
+  </div>
+</div>
+
 <input type="file" class="hidden" id="import-file" enctype="multipart/form-data" />

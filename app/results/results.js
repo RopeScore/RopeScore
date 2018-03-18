@@ -224,6 +224,10 @@ angular.module('ropescore.results', ['ngRoute'])
     $scope.roundTo = Math.roundTo
     $scope.inAll = Calc.inAll
 
+    $scope.toMinScore = function (score) {
+      return ($scope.data[$scope.id].config.simplified && typeof Config.SimplMinScore !== 'undefined' && score < Config.SimplMinScore ? Config.SimplMinScore : score)
+    }
+
     $scope.ShowDC = Config.ShowDC
     $scope.ShowAllTables = Config.ShowAllTables
 

@@ -3,9 +3,9 @@ var Config = {
   /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
   Debug: true, // default: false
   /** @type {Number} Datetime when the build was made */
-  BuildDate: 1520774447075,
+  BuildDate: 1521225645289,
   /** @type {String} current version and country */
-  version: '2.4.2-se',
+  version: '2.5.0-se',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
   /** @type {String} What year(s) of rules the system is using */
@@ -19,12 +19,15 @@ var Config = {
   ShowAllTables: true, // default: true
   /** @type {Boolean} Specifies if there are simplified rules avilable */
   Simplified: false, // default: false
+  /** @type {Number} Position to start checksums on */
+  CheckStart: 0, // default: 0
+
   /** @type {Boolean} if true all speed scores will be shown unmultiplied */
   SimplRawSpeed: false,
   /** @type {Boolean} if true Misses won't be shown when entering scores using simpl. rules */
   SimplNoMisses: false,
-  /** @type {Number} Position to start checksums on */
-  CheckStart: 0, // default: 0
+  /** @type {Number} A minimum score for Y, T1 - T5/2, T4 - T5/2 */
+  SimplMinScore: undefined,
 
   /** @type {Object} custom functions */
   functions: {},

@@ -44,6 +44,7 @@ Config.functions.simplifiedLevelData = function (event) {
 
 Config.SimplNoMisses = true
 Config.SimplRawSpeed = true
+Config.SimplMinScore = 0
 
 /**
  * different function to use in array.reduce to calculate a participants ranksum
@@ -161,9 +162,9 @@ Config.SimplResultsCols = {
       dScore: true,
       dRank: true,
 
-      score: false,
-      rsum: false,
-      rank: false
+      score: true,
+      rsum: true,
+      rank: true
     }
   }
 }

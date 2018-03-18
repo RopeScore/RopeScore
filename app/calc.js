@@ -60,6 +60,8 @@ angular.module('Calc', [])
 
         output.PreY = output.T - output.W
 
+        output.PreY = (simplified && typeof Config.SimplMinScore !== 'undefined' && output.PreY < Config.SimplMinScore ? Config.SimplMinScore : output.PreY)
+
         output.Y = output.PreY * (simplified && Config.SimplRawSpeed ? 1 : Abbr.speedFactor(event))
 
         return output
@@ -379,6 +381,8 @@ angular.module('Calc', [])
           var output = {}
 
           output.PreA = T1 + T4 - T5 // equal to (T1 - (T5/2)) + (T4 - (T5/2))
+          output.PreA = (simplified && typeof Config.SimplMinScore !== 'undefined' && output.PreA < Config.SimplMinScore ? Config.SimplMinScore : output.PreA)
+
           output.A = output.PreA * ld.fac
           output.PreA = Math.roundTo(output.PreA, 4)
           output.A = Math.roundTo(output.A, 4)
@@ -505,7 +509,7 @@ angular.module('Calc', [])
           output.T5 = methods.freestyle.T5(data, (T1type !== 'undefined' || T4type !== 'undefined'))
 
           /** Calc A */
-          var Aoutput = methods.freestyle.A(output.T1, output.T4, output.T5, levelData)
+          var Aoutput = methods.freestyle.A(output.T1, output.T4, output.T5, levelData, simplified)
           output.PreA = Aoutput.PreA
           output.A = Aoutput.A
 
@@ -647,8 +651,10 @@ angular.module('Calc', [])
               Dscores.push((data[keys[i]][event].T1 - (data[keys[i]][event].T5 / 2)))
             } else if (rankAll) {
               /* for those who don't have a score push negative infinity */
-              Cscores.push(-Infinity)
-              Dscores.push(-Infinity)
+              if ((typeof data[keys[i]] === 'undefined' || typeof data[keys[i]][event] === 'undefined' || Object.keys(data[keys[i]][event]).length === 0 || data[keys[i]][event].dns !== true)) {
+                Cscores.push(-Infinity)
+                Dscores.push(-Infinity)
+              }
             }
           }
           /* sort descending */
@@ -771,7 +777,6 @@ angular.module('Calc', [])
             if (typeof finalscores[arr[i].uid] === 'undefined' || typeof finalscores[arr[i].uid].final === 'undefined') {
               continue
             }
-            console.log(arr[i])
             var sum = Object.keys(arr[i])
               .filter(function (abbr) {
                 return Abbr.events().indexOf(abbr) >= 0

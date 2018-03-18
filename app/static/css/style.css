@@ -340,6 +340,7 @@ input.yellow {
 
 table {
   border-collapse: collapse;
+  overflow: hidden;
 }
 
 div.table {
@@ -365,4 +366,23 @@ th, td {
 
 tbody tr:nth-child(even) {
   background-color: #eee;
+}
+
+tbody tr.hoverhl:hover {
+  background-color: #ccc;
+}
+
+tr.hoverhl td, tr.hoverhl th {
+  position: relative;
+}
+
+tr.hoverhl td:hover::after, tr.hoverhl th:hover::after {
+  content: "";
+  position: absolute;
+  background-color: #ccc;
+  left: 0;
+  top: -5000px;
+  height: 10000px;
+  width: 100%;
+  z-index: -1;
 }
