@@ -746,11 +746,9 @@ angular.module('Calc', [])
             if (a.ranksum === b.ranksum) {
               /* resolve ties */
               for (var i = 0; i < eventOrder.length; i++) {
-                if (scores[a.uid][eventOrder[i]] === scores[b.uid][eventOrder[i]] ||
-                  scores[a.uid][eventOrder[i]].Y === scores[b.uid][eventOrder[i]].Y ||
-                  scores[a.uid][eventOrder[i]].A === scores[b.uid][eventOrder[i]].A) {
-                  return b.ranksum - a.ranksum
-                }
+                if (eventOrder[i] === 'final' && scores[a.uid][eventOrder[i]] !== scores[b.uid][eventOrder[i]]) return scores[b.uid][eventOrder[i]] - scores[a.uid][eventOrder[i]]
+                if (Abbr.isSpeed(eventOrder[i]) && scores[a.uid][eventOrder[i]].Y !== scores[b.uid][eventOrder[i]].Y) return scores[b.uid][eventOrder[i]].Y - scores[a.uid][eventOrder[i]].Y
+                if (!Abbr.isSpeed(eventOrder[i]) && scores[a.uid][eventOrder[i]].A !== scores[b.uid][eventOrder[i]].A) return scores[b.uid][eventOrder[i]].A - scores[a.uid][eventOrder[i]].A
               }
             }
             return a.ranksum - b.ranksum

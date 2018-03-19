@@ -10,4 +10,4 @@ A long-term goal would be to transfer the program to more modern technology than
   - The program should be highly configurable
     - A simplified ruleset should be supported
     - Custom events should be supported
-  - The program should be able to run either as an electron app, or as a standalone website (replace websockets with [lsbridge](https://github.com/krasimir/lsbridge)?)
+  - The program should be able to run either as an electron app, or as a standalone website
