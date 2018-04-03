@@ -3,9 +3,9 @@ var Config = {
   /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
   Debug: true, // default: false
   /** @type {Number} Datetime when the build was made */
-  BuildDate: 1521225645289,
+  BuildDate: 1522261953376,
   /** @type {String} current version and country */
-  version: '2.5.0-se',
+  version: '2.5.2-au',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
   /** @type {String} What year(s) of rules the system is using */
@@ -300,8 +300,8 @@ if (typeof module === 'object' && typeof exports !== 'undefined') {
   if (typeof Config.Country !== 'undefined' && Config.Country !== 'intl') addScript('/configs/' + Config.Country + '.js')
   if (typeof angular === 'object') {
     angular.module('Config', [])
-    .factory('Config', function () {
-      return Config
-    })
+      .factory('Config', function () {
+        return Config
+      })
   }
 }

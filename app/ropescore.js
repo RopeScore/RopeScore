@@ -39,6 +39,7 @@ lsbridge.subscribe('ropescore-updates', function (data) {
  * @requires ngRoute
  */
 angular.module('ropescore', [
+  'ngRaven',
   'ngRoute',
   'ngSanitize',
   'ropescore.dash',

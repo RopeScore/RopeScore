@@ -115,3 +115,6 @@ dist
 build
 .idea
 package-lock.json
+.electron-symbols
+*.key
+*pub

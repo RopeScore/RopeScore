@@ -6,12 +6,15 @@ const {
   autoUpdater,
   Menu
 } = require('electron')
+const { SentryClient } = require('@sentry/electron')
 const Config = require('./app/config')
 const server = require('./server') // eslint-disable-line
 const path = require('path')
 const url = require('url') // eslint-disable-line
 const fs = require('fs-extra')
 const dateTo = (Config.Country !== 'intl' ? require('./app/configs/' + Config.Country + '.js') : undefined)
+
+SentryClient.create('https://dde56038805e456bb0f9bc120547ea07:bf3b46f23666469cb7e1d511721f388b@sentry.io/1045868')
 
 if (require('electron-squirrel-startup')) {
 
@@ -42,8 +45,7 @@ if (require('electron-squirrel-startup')) {
         console.log(error)
       })
       autoUpdater.setFeedURL(Config.releaseRemoteUrl())
-      if (fs.existsSync(path.resolve(path.dirname(process.execPath), '..',
-          'Update.exe'))) {
+      if (fs.existsSync(path.resolve(path.dirname(process.execPath), '..', 'Update.exe'))) {
         autoUpdater.checkForUpdates()
       }
     }

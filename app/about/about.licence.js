@@ -80,7 +80,12 @@ angular.module('ropescore.about.licence', ['ngRoute'])
         {
           name: 'fs-extra',
           licence: 'https://github.com/jprichardson/node-fs-extra/blob/master/LICENSE'
+        },
+        {
+          name: '@sentry/electron',
+          licence: 'https://github.com/getsentry/sentry-electron/blob/master/LICENSE'
         }
+
       ],
       Apache: [
         {
@@ -102,6 +107,16 @@ angular.module('ropescore.about.licence', ['ngRoute'])
         {
           name: 'electron-packager',
           licence: 'https://github.com/electron-userland/electron-packager/blob/master/LICENSE'
+        },
+        {
+          name: '@sentry/core',
+          licence: 'https://github.com/getsentry/raven-js/blob/master/LICENSE'
+        }
+      ],
+      'BSD 3-Clause': [
+        {
+          name: 'electron-download',
+          licence: 'https://github.com/electron-userland/electron-download/blob/master/LICENSE'
         }
       ]
     }

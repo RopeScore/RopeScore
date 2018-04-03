@@ -8,7 +8,7 @@
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="theme-color" content="#efefef">
-    <link rel="manifest" href="/static/manifest.json">
+    <!-- <link rel="manifest" href="/static/manifest.json"> -->
     <link rel="icon" href="/static/img/icon.png">
     <title>RopeScore</title>
     <!-- Resources -->
@@ -23,6 +23,9 @@
     <script src="/static/js/jszip.js"></script>
     <script src="/static/js/xlsx.js"></script>
     <script src="/static/js/lsbridge.min.js"></script>
+    <script src="/static/js/raven.min.js"></script>
+
+    <script>Raven.config('https://dde56038805e456bb0f9bc120547ea07@sentry.io/1045868').install()</script>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/static/css/style.css">
   </head>
