@@ -1,4 +1,4 @@
-/* global angular */
+/* global angular, Raven */
 var Config = {
   /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
   Debug: true, // default: false
@@ -291,6 +291,7 @@ function addScript (src) {
   document.body.appendChild(s)
 }
 
+Raven.setRelease(Config.version)
 if (typeof module === 'object' && typeof exports !== 'undefined') {
   // Node. Does not work with strict CommonJS, but
   // only CommonJS-like environments that support module.exports,

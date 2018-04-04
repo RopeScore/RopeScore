@@ -14,7 +14,10 @@ const url = require('url') // eslint-disable-line
 const fs = require('fs-extra')
 const dateTo = (Config.Country !== 'intl' ? require('./app/configs/' + Config.Country + '.js') : undefined)
 
-SentryClient.create('https://dde56038805e456bb0f9bc120547ea07:bf3b46f23666469cb7e1d511721f388b@sentry.io/1045868')
+SentryClient.create({
+  dsn: 'https://dde56038805e456bb0f9bc120547ea07:bf3b46f23666469cb7e1d511721f388b@sentry.io/1045868',
+  release: Config.version
+})
 
 if (require('electron-squirrel-startup')) {
 
