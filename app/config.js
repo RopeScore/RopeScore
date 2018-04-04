@@ -291,13 +291,13 @@ function addScript (src) {
   document.body.appendChild(s)
 }
 
-Raven.setRelease(Config.version)
 if (typeof module === 'object' && typeof exports !== 'undefined') {
   // Node. Does not work with strict CommonJS, but
   // only CommonJS-like environments that support module.exports,
   // like Node.
   module.exports = Config
 } else {
+  Raven.setRelease(Config.version)
   if (typeof Config.Country !== 'undefined' && Config.Country !== 'intl') addScript('/configs/' + Config.Country + '.js')
   if (typeof angular === 'object') {
     angular.module('Config', [])
