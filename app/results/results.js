@@ -1,4 +1,4 @@
-/* global angular, lsbridge */
+/* global angular, lsbridge, confirm */
 'use strict'
 /**
  * @class ropescore.results
@@ -132,7 +132,7 @@ angular.module('ropescore.results', ['ngRoute'])
         /* init participants subobjects */
         if (typeof $scope.finalscores[uid] === 'undefined' && typeof $scope.data[$scope.id].scores !== 'undefined') {
           $scope.finalscores[uid] = {}
-          if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid])) {
+          if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid]) || $scope.rankAll) {
             $scope.overallFinalscores[uid] = {}
           }
         }
@@ -143,7 +143,7 @@ angular.module('ropescore.results', ['ngRoute'])
           /* init the participants scoreobject */
           if (typeof $scope.finalscores[uid] !== 'undefined' && typeof $scope.finalscores[uid][event] === 'undefined') {
             $scope.finalscores[uid][event] = {}
-            if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid])) {
+            if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid]) || $scope.rankAll) {
               $scope.overallFinalscores[uid][event] = {}
             }
           }
@@ -155,7 +155,7 @@ angular.module('ropescore.results', ['ngRoute'])
             if (typeof $scope.data[$scope.id].scores[uid][event].dns !== 'undefined') {
               $scope.finalscores[uid][event].dns = $scope.data[$scope.id].scores[uid][event].dns
             }
-            if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid])) {
+            if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid]) || $scope.rankAll) {
               $scope.overallFinalscores[uid][event] = $scope.finalscores[uid][event]
             }
           }
@@ -191,7 +191,7 @@ angular.module('ropescore.results', ['ngRoute'])
           }
         }
         $scope.rankArray.push(obj)
-        if (typeof $scope.data[$scope.id].scores !== 'undefined' && Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[overallObj.uid])) {
+        if (typeof $scope.data[$scope.id].scores !== 'undefined' && (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[overallObj.uid]) || $scope.rankAll)) {
           $scope.overallRankArray.push(overallObj)
         }
 
@@ -202,7 +202,7 @@ angular.module('ropescore.results', ['ngRoute'])
           continue
         }
         $scope.finalscores[uid][event] = Calc.finalscore($scope.finalscores[uid], $scope.data[$scope.id].config.subevents, $scope.rankAll, uid)
-        if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid])) {
+        if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid]) || $scope.rankAll) {
           $scope.overallFinalscores[uid][event] = $scope.finalscores[uid][event]
         }
       }
@@ -255,12 +255,14 @@ angular.module('ropescore.results', ['ngRoute'])
      * @return {undefined}
      */
     $scope.toExcel = function () {
-      $scope.toggleRankAll(true)
-      setTimeout(function () {
-        var tables = document.getElementsByTagName('table')
-        tables = Array.prototype.slice.call(tables)
-        tables.shift()
-        tablesToExcel(tables, $scope.data[$scope.id].config.name)
-      })
+      if (($scope.rankAll ? confirm('You have turned on "Rank Everyone in Everything", click OK to export anyways\nNote that if you export results with "Rank Everyone in Everything" turned on it is important that those are NOT considered official, final results') : true)) {
+        // $scope.toggleRankAll(true)
+        setTimeout(function () {
+          var tables = document.getElementsByTagName('table')
+          tables = Array.prototype.slice.call(tables)
+          tables.shift()
+          tablesToExcel(tables, $scope.data[$scope.id].config.name)
+        })
+      }
     }
   })

@@ -7,7 +7,7 @@
   <table name="raw">
     <thead>
       <tr>
-        <th bold="true" class="blank" noborders colspan="3" rowspan="2"></th>
+        <th bold="true" class="blank" noborders colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}" rowspan="2"></th>
         <th bold="true" colspan="{{ header(data[id].config.subevents, 'sr', 2) }}" ng-if="Abbr.hasType(data[id].config.subevents, 'sr')">Single Rope</th>
         <th bold="true" colspan="{{ header(data[id].config.subevents, 'dd', 2) }}" ng-if="Abbr.hasType(data[id].config.subevents, 'dd')">Double Dutch</th>
         <th bold="true" colspan="3" rowspan="2">Overall</th>
@@ -17,7 +17,8 @@
         <th bold="true" colspan="{{ (Abbr.isSpeed(event) ? 2 : 10) }}" ng-repeat="event in Abbr.events() track by $index" ng-if="data[id].config.subevents[event]">{{ Abbr.unabbr(event)}}</th>
       </tr>
       <tr>
-        <th bold="true">{{ (Abbr.hasTeam(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
+        <th bold="true">{{ (Abbr.hasTeams(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
+        <th bold="true" ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
         <th bold="true">Club</th>
         <th bold="true">id</th>
 
@@ -44,6 +45,7 @@
     <tbody>
       <tr ng-repeat="part in partArray | orderBy : ['rank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})">
         <td>{{ part.name }}</td>
+        <td class="sm" ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ part.members }}</td>
         <td>{{ part.club }}</td>
         <td>{{ part.uid }}</td>
 
@@ -77,10 +79,10 @@
     <table name="overall">
       <thead>
         <tr>
-          <th bold="true" noborders colspan="{{ (3 + header(data[id].config.subevents, 'sr', true) + header(data[id].config.subevents, 'dd', true) + 3) }}">{{ data[id].config.name }} Overall Results</th>
+          <th bold="true" noborders colspan="{{ (3 + (Abbr.hasTeams(data[id].config.subevents) ? 1 : 0) + header(data[id].config.subevents, 'sr', true) + header(data[id].config.subevents, 'dd', true) + 3) }}">{{ data[id].config.name }} Overall Results</th>
         </tr>
         <tr>
-          <th bold="true" colspan="3" rowspan="2"></th>
+          <th bold="true" colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}" rowspan="2"></th>
           <th bold="true" colspan="{{ header(data[id].config.subevents, 'sr', true) }}"
             ng-if="Abbr.hasType(data[id].config.subevents, 'sr')">Single Rope</th>
           <th bold="true" colspan="{{ header(data[id].config.subevents, 'dd', true) }}"
@@ -91,7 +93,8 @@
           <th bold="true" colspan="{{ colCount(event, true) }}" ng-repeat="event in Abbr.events() track by $index" ng-if="data[id].config.subevents[event]">{{ Abbr.unabbrNoType(event)}}</th>
         </tr>
         <tr>
-          <th bold="true">{{ (Abbr.hasTeam(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
+          <th bold="true">{{ (Abbr.hasTeams(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
+          <th bold="true" ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
           <th bold="true">Club</th>
           <th bold="true">id</th>
 
@@ -119,6 +122,7 @@
         <tr ng-repeat="part in partArray | orderBy : ['overallRank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})"
           ng-if="rankAll || inAll(data[id].config.subevents, data[id].scores[part.uid])">
           <td>{{ data[id].participants[part.uid].name }}</td>
+          <td class="sm" ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ data[id].participants[part.uid].members }}</td>
           <td>{{ data[id].participants[part.uid].club }}</td>
           <td>{{ part.uid }}</td>
 
@@ -150,10 +154,11 @@
     <table name="{{ event }}" class="mt">
       <thead>
         <tr>
-          <th bold="true" colspan="{{ colCount(event) + 3 }}">{{ data[id].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
+          <th bold="true" colspan="{{ 3 + (Abbr.hasTeams(data[id].config.subevents) ? 1 : 0) + colCount(event) }}">{{ data[id].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
         </tr>
         <tr>
-          <th bold="true">{{ (Abbr.hasTeam(data[id].config.subevents) ? " Team Name " : "Name ") }}</th>
+          <th bold="true">{{ (Abbr.hasTeams(data[id].config.subevents) ? " Team Name " : "Name ") }}</th>
+          <th bold="true" ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
           <th bold="true">Club</th>
           <th bold="true">id</th>
 
@@ -177,6 +182,7 @@
         <tr ng-repeat="part in rankArray | orderBy : [event + '.rank', 'uid']" ng-style="($even ? {} : { 'background-color': '#eee'})"
           ng-if="part[event]">
           <td>{{ data[id].participants[part.uid].name }}</td>
+          <td class="sm" ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ data[id].participants[part.uid].members }}</td>
           <td>{{ data[id].participants[part.uid].club }}</td>
           <td>{{ part.uid }}</td>
 

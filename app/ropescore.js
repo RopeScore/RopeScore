@@ -331,9 +331,9 @@ angular.module('ropescore', [
       unabbrNoType: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         var unabbred = (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbrs[abbr].name)
-        unabbred = unabbred.replace('Single Rope ', '')
-        unabbred = unabbred.replace('Double Dutch ', '')
-        return unabbred
+        unabbred = unabbred.replace('Single Rope', '')
+        unabbred = unabbred.replace('Double Dutch', '')
+        return unabbred.trim()
       },
       /**
        * converts a standard abbr to a non-standard abbr from nonabbrs
@@ -426,7 +426,7 @@ angular.module('ropescore', [
         if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[abbr] !== 'undefined') {
           return !(nonabbrs[abbr].masters || abbrs[abbr].masters)
         } else if (abbrs[abbr]) {
-          return abbrs[abbr].masters
+          return !abbrs[abbr].masters
         } else {
           return false
         }

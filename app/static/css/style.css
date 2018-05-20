@@ -125,9 +125,13 @@ ul.docs, ol.docs {
   max-width: 60%;
 }
 
-ol li:before {
+ol li::before {
   content: counters(item, ".") " ";
   counter-increment: item
+}
+
+.changelog ul li {
+  display: list-item;
 }
 
 img {
@@ -137,6 +141,10 @@ img {
 
 .lg {
   font-size: 1.5em;
+}
+
+.sm {
+  font-size: 0.75em;
 }
 
 .ra {

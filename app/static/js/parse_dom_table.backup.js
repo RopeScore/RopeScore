@@ -48,7 +48,7 @@ function parse_dom_table(table, _opts) {
 
                 if (v != null && v.length) {
                     if (!isNaN(Number(v))) o = {t: 'n', v: Number(v)};
-                    else if (!v.startsWith('denmark') && !isNaN(fuzzydate(v).getDate())) {
+                    else if (!v.toLowerCase().match(/lag/) && !v.toLowerCase().match(/denmark/) && !isNaN(fuzzydate(v).getDate())) {
                         o = ({t: 'd', v: parseDate(v)});
                         if (!opts.cellDates) o = ({t: 'n', v: datenum(o.v)});
                         o.z = opts.dateNF || SSF._table[14];

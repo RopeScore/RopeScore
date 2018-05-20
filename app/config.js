@@ -5,7 +5,7 @@ var Config = {
   /** @type {Number} Datetime when the build was made */
   BuildDate: 1522261953376,
   /** @type {String} current version and country */
-  version: '2.5.2-au',
+  version: '2.5.2-se',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
   /** @type {String} What year(s) of rules the system is using */
@@ -277,7 +277,7 @@ Config.functions.simplifiedLevelData = function () {}
 /** @type {Object} Info on who can use this version */
 Config.licence = {
   licensee: '',
-  dateTo: 0,
+  dateTo: undefined,
   dateFrom: Config.BuildDate
 }
 

@@ -8,6 +8,7 @@
     <thead>
       <tr>
         <th>{{ (Abbr.hasTeams(data[id].config.subevents) ? 'Team ' : '' ) }} Name</th>
+        <th ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
         <th>Club</th>
         <th>id</th>
 
@@ -18,7 +19,7 @@
     </thead>
     <tbody>
       <tr class="hoverhl">
-        <td colspan="3"></td>
+        <td colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}"></td>
 
         <td ng-repeat="event in events track by $index" colspan="2" ng-if="data[id].config.subevents[events[$index]]"><a ng-href="/speedscore/{{ id }}/{{ events[$index] }}" ng-if="Abbr.isSpeed(events[$index])">Edit Multiple</a></td>
 
@@ -26,6 +27,7 @@
       </tr>
       <tr ng-repeat="(uid, participant) in data[id].participants" class="hoverhl">
         <td>{{ participant.name }}</td>
+        <td ng-if="Abbr.hasTeams(data[id].config.subevents)" class="sm">{{ participant.members }}</td>
         <td>{{ participant.club }}</td>
         <td>{{ uid }}</td>
 

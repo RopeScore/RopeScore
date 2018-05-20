@@ -25,7 +25,7 @@ angular.module('ropescore.config.participants', ['ngRoute'])
    * @param {service} Db
    */
   .controller('ParticipantsCtrl', function ($scope, $location, $routeParams, Db,
-    Num, Config, tablesToExcel) {
+    Num, Config, Abbr, tablesToExcel) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id
@@ -35,6 +35,7 @@ angular.module('ropescore.config.participants', ['ngRoute'])
 
     $scope.getNumber = Num
     $scope.showAll = Config.ShowAllTables
+    $scope.Abbr = Abbr
 
     $scope.addNum = 25
 

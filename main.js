@@ -12,7 +12,7 @@ const server = require('./server') // eslint-disable-line
 const path = require('path')
 const url = require('url') // eslint-disable-line
 const fs = require('fs-extra')
-const dateTo = (Config.Country !== 'intl' ? require('./app/configs/' + Config.Country + '.js') : undefined)
+const dateTo = (Config.Country !== 'intl' ? require('./app/configs/' + Config.Country + '.js') : Config.licence.dateTo)
 
 SentryClient.create({
   dsn: 'https://dde56038805e456bb0f9bc120547ea07:bf3b46f23666469cb7e1d511721f388b@sentry.io/1045868',
@@ -60,11 +60,10 @@ if (require('electron-squirrel-startup')) {
 let win = []
 
 function createWindow () {
-  if ((Config.Eval && Config.BuildDate && new Date().getTime() > (Number(Config.LicenceDate) + (30 * 24 * 60 * 60 * 1000))) || new Date().getTime() > (Number(dateTo))) {
-    dialog.showErrorBox('Expired Licence',
-      'This copy of RopeScore has an expired licence,\n Please contact contact@ropescore.com'
-    )
+  if (typeof dateTo !== 'undefined' && new Date().getTime() > (Number(dateTo) + (30 * 24 * 60 * 60 * 1000))) {
+    dialog.showErrorBox('Expired Licence', 'This copy of RopeScore has an expired licence,\n Please contact contact@ropescore.com')
     app.quit()
+    throw new Error('Expired Licence')
   } else {
     // Create the browser window.
     win.push(new BrowserWindow({
