@@ -11,7 +11,7 @@
   "main": "main.js",
   "postinstall": "install-app-deps",
   "dependencies": {
-    "@sentry/core": "^0.5.0-beta.4",
+    "@sentry/core": "^0.5.4",
     "@sentry/electron": "^0.4.2",
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.15.2",
