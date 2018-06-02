@@ -63,10 +63,12 @@ fs.readFile(configFile, 'utf8', function (err, data) {
       'icon': getIcon(),
       'ignore': path => {
         if (/build/.test(path)) return true
+        if (/\.key/.test(path)) return true
+        if (/\.pub/.test(path)) return true
         if (/dist/.test(path) && !/node_modules/.test(path)) return true
         if (new RegExp(buildOutputPath).test(path)) return true
         if (/node_modules\/.bin/.test(path) ||
-          /node_modules\/electron/.test(path) ||
+          /node_modules\/electron$/.test(path) ||
           /node_modules\/electron-prebuilt/.test(path) ||
           /node_modules\/electron-prebuilt-compile/.test(path) ||
           /node_modules\/electron-packager/.test(path) ||

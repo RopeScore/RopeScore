@@ -1,11 +1,11 @@
 /* global angular, Raven */
 var Config = {
   /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
-  Debug: true, // default: false
+  Debug: false, // default: false
   /** @type {Number} Datetime when the build was made */
-  BuildDate: 1522261953376,
+  BuildDate: 1527932339128,
   /** @type {String} current version and country */
-  version: '2.5.2-se',
+  version: '2.6.1-au',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
   /** @type {String} What year(s) of rules the system is using */

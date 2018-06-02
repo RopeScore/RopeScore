@@ -75,7 +75,7 @@ angular.module('ropescore.display', ['ngRoute'])
         }
 
         interval = $interval(function () {
-          $scope.data.globconfig.display.events.push($scope.data.globconfig.display.events.shift())
+          $scope.data.globconfig.display.events.unshift($scope.data.globconfig.display.events.pop())
         }, 5000)
       } else if (typeof $scope.data.globconfig.display.event !== 'undefined') {
         /** @type {Object[]} */

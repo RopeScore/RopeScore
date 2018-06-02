@@ -20,7 +20,6 @@ SentryClient.create({
 })
 
 if (require('electron-squirrel-startup')) {
-
 } else {
   app.on('ready', function () {
     if (process.platform !== 'darwin') {

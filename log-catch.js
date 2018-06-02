@@ -1,3 +1,7 @@
+const fs = require('fs')
+const path = require('path')
+const {app} = require('electron')
+
 /* Store the original log functions. */
 console._log = console.log
 console._info = console.info
@@ -79,4 +83,6 @@ console._collect = function (type, args) {
       arguments: args,
       stack: stack
     })
+
+  fs.appendFileSync(path.join(app.getPath('userData'), 'logs', 'electron.log'), JSON.stringify({arguments}) + '\n')
 }

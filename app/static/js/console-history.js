@@ -9,7 +9,7 @@
  * https://git.io/console
  * https://sander.tech - https://doorbell.io
  */
-
+/* global store */
 'use strict'
 
 /* Allow only one instance of console-history.js */
@@ -23,9 +23,6 @@ console._info = console.info
 console._warn = console.warn
 console._error = console.error
 console._debug = console.debug
-
-/* Declare our console history variable. */
-console.history = []
 
 /* Redirect all calls to the collector. */
 console.log = function () { return console._intercept('log', arguments) }
@@ -46,6 +43,9 @@ console._intercept = function (type, args) {
 
 /* Define the main log catcher. */
 console._collect = function (type, args) {
+  /* Declare our console history variable. */
+  console.history = store.get('console-history') || []
+
   // WARNING: When debugging this function, DO NOT call a modified console.log
   // function, all hell will break loose.
   // Instead use the original console._log functions.
@@ -93,4 +93,9 @@ console._collect = function (type, args) {
 
   // Add the log to our history.
   console.history.push({type: type, timestamp: time, arguments: args, stack: stack})
+  // and save it in localstorage
+  if (console.history.length > 3000) {
+    console.history.pop()
+  }
+  store.set('console-history', console.history)
 }
