@@ -55,6 +55,7 @@ angular.module('ropescore', [
   'ropescore.about.changelog',
   'ropescore.bugreport',
   'ropescore.combine',
+  'ropescore.globconfig',
   'Config',
   'Calc'
 ])
@@ -660,6 +661,25 @@ angular.module('ropescore', [
         })
 
         Db.set(data)
+      }
+    }
+  })
+
+  .factory('Live', function ($rootScope, $timeout, Db) {
+    return {
+      scores: function (id) {
+        return new Promise(function (resolve, reject) {
+          $rootScope.networkStatus = 'Updating'
+          $timeout(function () {
+            $rootScope.networkStatus = ''
+            resolve()
+          }, 10000)
+        })
+      },
+      participants: function (id) {
+        return new Promise(function (resolve, reject) {
+          $rootScope.networkStatus = 'Updating'
+        })
       }
     }
   })

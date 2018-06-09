@@ -1,0 +1,19 @@
+<h2>RopeScore Live</h2>
+<table>
+  <tr>
+    <td><label for="apikey">API key:</label></td>
+    <td><input type="text" id="apikey" ng-model="data.globconfig.live.apikey" /></td>
+  </tr>
+
+  <tr>
+    <td><label for="ctoggle">Not using RopeScore Live:</label></td>
+    <td><input type="checkbox" id="ctoggle" ng-click="toggleCustom()" ng-model="customURL" /></td>
+  </tr>
+
+  <tr ng-if="customURL || data.globconfig.live.url">
+    <td><label for="cURL">Custom API URL:</label></td>
+    <td><input type="url" id="cURL" ng-model="data.globconfig.live.url" placeholder="https://live.ropescore.com/api" /></td>
+  </tr>
+</table>
+
+<button ng-click="save()" id="save">Save and Return</button>

@@ -25,12 +25,14 @@ angular.module('ropescore.event', ['ngRoute'])
    * @param {service} Db
    */
   .controller('EventCtrl', function ($scope, $location, $routeParams, Db, Abbr,
-    Checksum, Config) {
+    Checksum, Live, Config) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id
     $scope.setID($scope.id)
     $scope.Abbr = Abbr
+
+    Live.scores($scope.id)
 
     $scope.events = Abbr.events()
 

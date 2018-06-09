@@ -23,6 +23,7 @@ console._info = console.info
 console._warn = console.warn
 console._error = console.error
 console._debug = console.debug
+console.c = 0
 
 /* Redirect all calls to the collector. */
 console.log = function () { return console._intercept('log', arguments) }
@@ -41,11 +42,11 @@ console._intercept = function (type, args) {
   console._collect(type, args)
 }
 
+/* Declare our console history variable. */
+console.history = []
+
 /* Define the main log catcher. */
 console._collect = function (type, args) {
-  /* Declare our console history variable. */
-  console.history = store.get('console-history') || []
-
   // WARNING: When debugging this function, DO NOT call a modified console.log
   // function, all hell will break loose.
   // Instead use the original console._log functions.
@@ -94,8 +95,17 @@ console._collect = function (type, args) {
   // Add the log to our history.
   console.history.push({type: type, timestamp: time, arguments: args, stack: stack})
   // and save it in localstorage
-  if (console.history.length > 3000) {
-    console.history.pop()
+  if (console.c >= 50) {
+    console._log('Saving log')
+    let hist = console.history
+    console.history = []
+    console.c = 0
+    let prom = new Promise(function (resolve, reject) { // eslint-disable-line
+      let db = store.get('console-history') || []
+      store.set('console-history', db.concat(hist))
+      resolve()
+    })
   }
-  store.set('console-history', console.history)
+  // increment counter until nest save
+  console.c++
 }

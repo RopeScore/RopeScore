@@ -1,9 +1,9 @@
 /* global angular, Raven */
 var Config = {
   /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
-  Debug: false, // default: false
+  Debug: true, // default: false
   /** @type {Number} Datetime when the build was made */
-  BuildDate: 1527932339128,
+  BuildDate: 1527934835156,
   /** @type {String} current version and country */
   version: '2.6.1-au',
   /** @type {Boolean} If this is an evaluation version */
@@ -28,6 +28,10 @@ var Config = {
   SimplNoMisses: false,
   /** @type {Number} A minimum score for Y, T1 - T5/2, T4 - T5/2 */
   SimplMinScore: undefined,
+
+  Live: {
+    URL: 'https://live.ropescore.com/api'
+  },
 
   /** @type {Object} custom functions */
   functions: {},
