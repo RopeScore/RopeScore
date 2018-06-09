@@ -1,20 +1,10 @@
-# Test against the latest version of this Node.js version
 environment:
   nodejs_version: "8"
-
-# skip_non_tags: true
-
-# Install scripts. (runs after repo cloning)
-install:
-  # Get the latest stable version of Node.js or io.js
-  - ps: Install-Product node $env:nodejs_version
-  # install modules
-  - npm install
-
-test: off
-
 build_script:
-- sh: npm run build:all
-# - sh: npm run dist:sync
+  - sh: npm run build:all
+install:
+  - ps: Install-Product node $env:nodejs_version
+  - npm install
+test: off
 artifacts:
-- path: dist/*/*/*/*
+  - path: dist/*/*/*/*
