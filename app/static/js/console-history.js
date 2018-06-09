@@ -95,7 +95,7 @@ console._collect = function (type, args) {
   // Add the log to our history.
   console.history.push({type: type, timestamp: time, arguments: args, stack: stack})
   // and save it in localstorage
-  if (console.c >= 50) {
+  if (console.c >= 50 || type === 'error' || type === 'warn') {
     console._log('Saving log')
     let hist = console.history
     console.history = []

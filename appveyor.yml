@@ -11,6 +11,7 @@ install:
   # install modules
   - npm install
 
+test: off
 
 build_script:
 - sh: npm run build:all
