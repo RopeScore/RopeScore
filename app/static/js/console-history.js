@@ -102,7 +102,11 @@ console._collect = function (type, args) {
     console.c = 0
     let prom = new Promise(function (resolve, reject) { // eslint-disable-line
       let db = store.get('console-history') || []
-      store.set('console-history', db.concat(hist))
+      let tot = db.concat(hist)
+      if (tot.length > 3000) {
+        tot = tot.splice(0, tot.length - 3000)
+      }
+      store.set('console-history', tot)
       resolve()
     })
   }

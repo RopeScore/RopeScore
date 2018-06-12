@@ -1,8 +1,8 @@
 <div>
-  <a ng-href="/config"><button>New</button></a>
+  <a ng-href="/config"><button>New Category</button></a>
   <label class="button inltbl" for="import-file">Import</label>
-  <a ng-href="{{ linkData }}" download="ropescore-export.json"><button>Export</button></a>
-  <button ng-confirm-click="Are you sure you want to remove ALL data? If you haven't made an export there will be no way of restoring it. Please do an export before resetting." confirmed-click="reset()">Reset</button>
+  <a ng-href="{{ linkData }}" download="ropescore-export-{{ today }}{{ (computerName ? '-' + nameCleaner(computerName) : '') }}.json"><button>Export</button></a>
+  <button ng-confirm-click="Are you sure you want to remove ALL data? If you haven't made an export there will be no way of restoring it. Please do an export before resetting. This will not reset the System Configuration such as RopeScore Live API details and this computers name." confirmed-click="reset()">Reset</button>
   <a ng-href="/display"><button>Display Live Unofficial Scores</button></a>
   <a ng-href="/combine"><button>Combine Two Categories</button></a>
   <button ng-click="resetOrder()">Reset Category order</button>
@@ -20,7 +20,7 @@
   </div>
 </div>
 
-<h2>Completed Categories</h2>
+<h2 ng-if="getCompletedEventsArray().length > 0">Completed Categories</h2>
 
 <div class="flex-container">
   <div ng-repeat="id in getCompletedEventsArray() | orderBy:getOrder track by $index" class="event">
@@ -31,6 +31,10 @@
       <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span>
     </a>
   </div>
+</div>
+
+<div ng-if="getEventsArray().length + getCompletedEventsArray().length === 0">
+  Welcome to RopeScore. To get the most out of RopeScore, read the <a href="/docs">Documentation</a>
 </div>
 
 <input type="file" class="hidden" id="import-file" enctype="multipart/form-data" />

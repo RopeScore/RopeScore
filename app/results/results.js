@@ -1,4 +1,4 @@
-/* global angular, lsbridge, confirm */
+/* global angular, lsbridge, confirm, performance */
 'use strict'
 /**
  * @class ropescore.results
@@ -117,6 +117,8 @@ angular.module('ropescore.results', ['ngRoute'])
      * @return {undefined}
      */
     var updateScores = function () {
+      var start = performance.now()
+
       var i, j, event, obj
       $scope.ranks = {}
       $scope.overallRanks = {}
@@ -217,6 +219,8 @@ angular.module('ropescore.results', ['ngRoute'])
         $scope.partArray[i].rank = $scope.finalRanks[$scope.partArray[i].uid] || undefined
         $scope.partArray[i].overallRank = $scope.overallFinalRanks[$scope.partArray[i].uid] || undefined
       }
+      var end = performance.now()
+      console.log('Score calculation took ' + (end - start) + ' milliseconds.')
     }
 
     updateScores()

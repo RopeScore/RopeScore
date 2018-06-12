@@ -24,7 +24,7 @@ angular.module('ropescore.score.speed', ['ngRoute'])
    * @param {service} $routeParams
    * @param {service} Db
    */
-  .controller('SpeedScoreCtrl', function ($scope, $location, $routeParams, Db,
+  .controller('SpeedScoreCtrl', function ($scope, $location, $routeParams, $timeout, Db,
     Abbr, Display, Calc, Num, Config, Cleaner) {
     $scope.data = Db.get()
 
@@ -53,6 +53,39 @@ angular.module('ropescore.score.speed', ['ngRoute'])
         return undefined
       }
       return Calc.score(event, data, uid)
+    }
+
+    $scope.scores = {}
+    $scope.calcCache = {}
+
+    $scope.calc = function (event, data, uid) {
+      if (typeof $scope.scores[uid] === 'undefined') {
+        $scope.scores[uid] = {}
+      }
+      if (typeof $scope.calcCache[uid] === 'undefined') {
+        $scope.calcCache[uid] = {}
+      }
+      if (typeof $scope.calcCache[uid][event] !== 'undefined') {
+        $timeout.cancel($scope.calcCache[uid][event])
+      }
+
+      $scope.calcCache[uid][event] = $timeout(function () {
+        $scope.scores[uid][event] = $scope.score(event, data, uid)
+      }, 500)
+    }
+
+    let participants = Object.keys($scope.data[$scope.id].participants)
+    for (let i = 0; i < participants.length; i++) {
+      let uid = participants[i]
+
+      if (typeof $scope.scores[uid] === 'undefined') {
+        $scope.scores[uid] = {}
+      }
+
+      for (let j = 0; j < $scope.events.length; j++) {
+        let event = $scope.events[j]
+        $scope.scores[uid][event] = $scope.score(event, $scope.data[$scope.id].scores[uid][event], uid)
+      }
     }
 
     /**

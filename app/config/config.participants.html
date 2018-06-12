@@ -36,7 +36,7 @@
 <button ng-click="export()">Export list of participants to Excel</button>
 <p>{{ error }}</p>
 
-<div ng-show="showAll">
+<div ng-show="false">
   <table ng-if="hasData()" id="partlist" name="overall">
     <tr>
       <th colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}">{{ data[id].config.name }}</th>

@@ -8,10 +8,11 @@
 <form class="table" name="speedform">
   <div class="table">
   <table>
-    <tr ng-if="events.length > 1">
-      <th colspan="3"></th>
-      <th ng-repeat="event in events" colspan="{{ (getNumber(data[id].config.judges[event].s).length + (Abbr.isTeam(event) ? 1 : 0) + 5) }}">{{ Abbr.unabbr(event) }}</th>
-    </tr>
+    <thead>
+      <tr ng-if="events.length > 1">
+        <th colspan="3"></th>
+        <th ng-repeat="event in events" colspan="{{ (getNumber(data[id].config.judges[event].s).length + (Abbr.isTeam(event) ? 1 : 0) + 5) }}">{{ Abbr.unabbr(event) }}</th>
+      </tr>
       <tr>
         <th>Name</th>
         <th>Club</th>
@@ -25,16 +26,17 @@
         <th>Did Not Skip</th>
         <th ng-repeat-end>Reskip</th>
       </tr>
+    </thead>
     <tbody>
         <tr ng-repeat="(uid, participant) in data[id].participants">
           <td>{{ participant.name }}</td>
           <td>{{ participant.club }}</td>
           <td>{{ uid }}</td>
           <th ng-repeat-start="event in events" class="hidden"></th>
-          <td ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index"><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]" ng-if="!data[id].scores[uid][event].dns"/></td>
-          <td><input type="checkbox" id="fst" ng-model="data[id].scores[uid][event].start" ng-keydown="($event.keyCode !== 9 ?data[id].scores[uid][event].start = !data[id].scores[uid][event].start : '')" ng-if="!data[id].scores[uid][event].dns" /></td>
-          <td ng-if="Abbr.isTeam(event)"><input type="number" id="fsw" min="0" max="3" ng-model="data[id].scores[uid][event].switches" ng-if="!data[id].scores[uid][event].dns"/></td>
-          <td><span ng-class="{gray: data[id].scores[uid][event].dns}">{{ (data[id].scores[uid][event].dns ? 'DNS' : score(event, data[id].scores[uid][event]).PreY) }}</span></td>
+          <td ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index"><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]" ng-if="!data[id].scores[uid][event].dns" ng-change="calc(event, data[id].scores[uid][event], uid)" /></td>
+          <td><input type="checkbox" id="fst" ng-model="data[id].scores[uid][event].start" ng-keydown="($event.keyCode === 9 || $event.keyCode === 16 ? '' : data[id].scores[uid][event].start = !data[id].scores[uid][event].start)" ng-if="!data[id].scores[uid][event].dns" ng-change="calc(event, data[id].scores[uid][event], uid)" /></td>
+          <td ng-if="Abbr.isTeam(event)"><input type="number" id="fsw" min="0" max="3" ng-model="data[id].scores[uid][event].switches" ng-if="!data[id].scores[uid][event].dns" ng-change="calc(event, data[id].scores[uid][event], uid)" /></td>
+          <td><span ng-class="{gray: data[id].scores[uid][event].dns}">{{ (data[id].scores[uid][event].dns ? 'DNS' : scores[uid][event].PreY) }}</span></td>
           <td><a ng-click="display(uid, id, event)">Display</a></td>
           <td><a ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? dnsSave(uid, id, event) : '')" ng-class="{gray: data[id].scores[uid][event].dns}">Did {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</a></td>
           <td ng-repeat-end><span ng-if="reskipAllowed(uid, id, event)" class="red">Reskip Allowed</span></td>

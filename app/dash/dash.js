@@ -1,4 +1,4 @@
-/* global angular, FileReader, confirm */
+/* global angular, FileReader, confirm, pad, nameCleaner */
 'use strict'
 /**
  * @class ropescore.dash
@@ -29,6 +29,9 @@ angular.module('ropescore.dash', ['ngRoute'])
     /** unset the category id */
     $scope.setID(null)
 
+    let date = new Date()
+    $scope.today = pad(date.getFullYear(), 4) + '' + pad(date.getMonth() + 1, 2) + '' + pad(date.getDate(), 2)
+
     /**
      * make a link for a file to save the data as json
      * @type {String}
@@ -43,9 +46,13 @@ angular.module('ropescore.dash', ['ngRoute'])
       $scope.data = {}
       $route.reload()
       Db.set($scope.data)
+      // Db.set({}, 'rslive-config')
+      // Db.set('', 'computer-name')
+      // $scope.updateGlobConfig()
     }
 
     $scope.checksum = Checksum
+    $scope.nameCleaner = nameCleaner
 
     /**
      * make a new array with every category's id from the data object, to use in
@@ -122,7 +129,7 @@ angular.module('ropescore.dash', ['ngRoute'])
         var reader = new FileReader()
         reader.onload = function () {
           var data = JSON.parse(this.result)
-          if (confirm('This will overwrite ALL your existing data')) {
+          if (confirm('This will overwrite ALL your existing data.\nRopeScore Live API details and the computers name will be reset.')) {
             Db.set(data)
             $scope.$apply(function () {
               $scope.data = data

@@ -37,6 +37,8 @@ angular.module('ropescore.combine', ['ngRoute'])
       'new': {}
     }
 
+    $scope.Simplified = Config.Simplified
+
     $scope.combine = function (obj) {
       if (typeof obj['0'].id === 'undefined' || typeof obj['1'].id === 'undefined') {
         return

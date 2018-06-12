@@ -1,4 +1,4 @@
-/* global angular, WebSocket, lsbridge, store, XLSX, sha1 */
+/* global angular, WebSocket, lsbridge, store, XLSX, sha1, performance */
 'use strict'
 
 /**
@@ -18,6 +18,29 @@ Math.roundTo = function (n, digits) {
     return undefined
   }
   return test
+}
+
+/**
+ * take a number or string and make it a specified length by prefixing a character
+ * @param  {String|Number} n     The number or string to pad
+ * @param  {Number}        width How long the string should be (at least)
+ * @param  {String}        z     The prefix character, defaults to 0
+ * @return {String}              The padded number as a string
+ */
+function pad (n, width, z) { // eslint-disable-line
+  z = z || '0'
+  n = n + ''
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n
+}
+
+/**
+ * Takes a string and makes it "safe" to store as a filename
+ * @param  {String} str
+ * @return {String}
+ */
+function nameCleaner (str) {
+  str.replace(/[#%&{}\\<>*?/$!'":@|\s]/gi, '_')
+  return str
 }
 
 /* listen to the error websocket and log backend errors to devTools */
@@ -78,7 +101,7 @@ angular.module('ropescore', [
     }
   ])
 
-  .run(function ($location, $route, $rootScope, Db, Config) {
+  .run(function ($location, $route, $rootScope, Config, Db) {
     /** return to dashboard */
     $rootScope.goHome = function () {
       $location.path('/')
@@ -95,14 +118,45 @@ angular.module('ropescore', [
       $rootScope.id = id
     }
 
+    $rootScope.isNew = function (bool) {
+      if (bool) {
+        console.log(`New category`)
+        $rootScope.newCat = true
+      } else {
+        $rootScope.newCat = false
+      }
+    }
+
     /** generate copyright text */
     $rootScope.copyright = function () {
       return '2017-' + ((new Date()).getFullYear())
     }
+
+    $rootScope.netList = function (obj) {
+      return Object.keys(obj).filter(function (key) {
+        return $rootScope.networkStatus[key]
+      }).join(', ')
+    }
+
+    $rootScope.any = function (obj) {
+      let keys = Object.keys(obj)
+      if (keys.length === 0) return false
+      return keys.reduce(function (a, curr) {
+        return obj[curr] || a
+      }, false)
+    }
+
+    $rootScope.updateGlobConfig = function () {
+      $rootScope.computerName = Db.get('computer-name')
+      $rootScope.liveConfig = Db.get('rslive-config')
+    }
+
     $rootScope.version = Config.version
     $rootScope.Ruleset = Config.Ruleset
+    $rootScope.updateGlobConfig()
 
     $rootScope.$on('$routeChangeStart', function (next, current) {
+      $rootScope.isNew(false)
       console.log(`Navigated to ${$location.path()}`)
     })
   })
@@ -111,21 +165,23 @@ angular.module('ropescore', [
     function ($rootScope, $q) {
       var methods = {
         /**
-         * @return {Object} contents of database
+         * @param  {String} storeName what store name to save to
+         * @return {Object}           contents of database
          */
-        get: function () {
+        get: function (storeName) {
           console.log('got data from database')
-          return store.get('ropescore') || {}
+          return store.get(storeName || 'ropescore') || (storeName ? undefined : {})
         },
         /**
          * Overwrite database with new data
          * @param  {Object} newData
+         * @param  {String} store   what store name to save to
          * @return {Promise}        sending data update message to backend via socket
          */
-        set: function (newData) {
+        set: function (newData, storeName) {
           console.log('saved data to databse')
-          store.set('ropescore', newData)
-          methods.data = methods.get()
+          store.set(storeName || 'ropescore', newData)
+          // methods.data = methods.get()
           lsbridge.send('ropescore-updates', { type: 'update' })
           // return dbSocket.send('{"type":"update"}')
         }
@@ -133,13 +189,13 @@ angular.module('ropescore', [
       /**
        * @type {Object} contents of databse
        */
-      methods.data = methods.get()
+      // methods.data = methods.get()
 
       lsbridge.subscribe('ropescore-updates', function (data) {
         if (data.type !== 'update') return
         console.log('Update ng')
 
-        methods.data = methods.get()
+        // methods.data = methods.get()
       })
 
       return methods
@@ -169,7 +225,7 @@ angular.module('ropescore', [
     return clean
   })
 
-  .factory('tablesToExcel', function (Abbr) {
+  .factory('tablesToExcel', function ($rootScope, Abbr, Db) {
     /**
      * [description]
      * @param  {Object[]} tables array of tables
@@ -201,7 +257,7 @@ angular.module('ropescore', [
       var wbout = XLSX.write(wb, wopts)
 
       var link = document.createElement('a')
-      link.download = 'ropescore' + (name ? '-' + (name) : '') + '.xlsx'
+      link.download = 'ropescore' + (name ? '-' + nameCleaner(name) : '') + ($rootScope.computerName ? '-' + nameCleaner($rootScope.computerName) : '') + '.xlsx'
       link.href = uri + wbout
 
       document.body.appendChild(link)
@@ -665,20 +721,362 @@ angular.module('ropescore', [
     }
   })
 
-  .factory('Live', function ($rootScope, $timeout, Db) {
+  .factory('Live', function ($rootScope, $http, $timeout, Db, Abbr, Config, Calc) {
+    $rootScope.networkStatus = {
+      scores: false,
+      participants: false,
+      config: false
+    }
+    var checker = function (data, id) {
+      let msg
+      if (typeof $rootScope.liveConfig === 'undefined' ||
+          !$rootScope.liveConfig.federation) msg = 'federation not set'
+      if (typeof $rootScope.liveConfig === 'undefined' ||
+          !$rootScope.liveConfig.apikey) msg = 'apikey not set'
+
+      if (typeof msg !== 'undefined') {
+        $rootScope.networkError = msg
+        $timeout(function () {
+          $rootScope.networkError = ''
+        }, 7500)
+        return msg
+      }
+
+      if (!data[id].config.live) msg = 'Category not configured for RSLive'
+      if (typeof msg !== 'undefined') return msg
+    }
     return {
       scores: function (id) {
+        var start = performance.now()
         return new Promise(function (resolve, reject) {
-          $rootScope.networkStatus = 'Updating'
-          $timeout(function () {
-            $rootScope.networkStatus = ''
-            resolve()
-          }, 10000)
+          let data = Db.get()
+          var chk = checker(data, id)
+          if (typeof chk !== 'undefined') return resolve(chk)
+          let url = $rootScope.liveConfig.url || Config.Live.URL
+
+          $rootScope.networkStatus.scores = true
+
+          var i, j, event, obj, partArray
+          var ranks = {}
+          var overallRanks = {}
+          var finalscores = {}
+          var overallFinalscores = {}
+          var rankArray = []
+          var overallRankArray = []
+          var bodies = {}
+
+          var rank = function (scores, event) {
+            if (Abbr.isSpeed(event)) {
+              return Calc.rank.speed(scores, event, data[id].config, false, data[id].participants)
+            } else if (!Abbr.isSpeed(event)) {
+              return Calc.rank.freestyle(scores, event, data[id].config, false, data[id].participants)
+            }
+          }
+
+          if (data[id].participants) {
+            partArray = Object.keys(data[id].participants)
+              .map(function (key) {
+                data[id].participants[key].uid = Number(key)
+                return data[id].participants[key]
+              })
+          } else {
+            partArray = []
+          }
+
+          /* calculates for every participant */
+          for (i = 0; i < partArray.length; i++) {
+            var uid = partArray[i].uid
+
+            /* init participants subobjects */
+            if (typeof finalscores[uid] === 'undefined' && typeof data[id].scores !== 'undefined') {
+              finalscores[uid] = {}
+              if (Calc.inAll(data[id].config.subevents, data[id].scores[uid])) {
+                overallFinalscores[uid] = {}
+              }
+            }
+
+            for (j = 0; j < Abbr.events().length; j++) {
+              event = Abbr.events()[j]
+
+              /* init the participants scoreobject */
+              if (typeof finalscores[uid] !== 'undefined' && typeof finalscores[uid][event] === 'undefined') {
+                finalscores[uid][event] = {}
+                if (Calc.inAll(data[id].config.subevents, data[id].scores[uid])) {
+                  overallFinalscores[uid][event] = {}
+                }
+              }
+
+              /* calculate the participants score */
+              if (typeof data[id].scores !== 'undefined' && typeof data[id].scores[uid] !== 'undefined' && typeof data[id].scores[uid][event] !== 'undefined') {
+                finalscores[uid][event] = Calc.score(event, data[id].scores[uid][event], uid, data[id].config.simplified) || {}
+                /** did not skip check */
+                if (typeof data[id].scores[uid][event].dns !== 'undefined') {
+                  finalscores[uid][event].dns = data[id].scores[uid][event].dns
+                }
+                if (Calc.inAll(data[id].config.subevents, data[id].scores[uid])) {
+                  overallFinalscores[uid][event] = finalscores[uid][event]
+                }
+              }
+
+              // console._log(data[id].scores, data[id].scores[uid][event], finalscores[uid][event])
+            }
+          }
+
+          /* rank every event */
+          for (i = 0; i < Abbr.events().length; i++) {
+            ranks[Abbr.events()[i]] = rank(finalscores, Abbr.events()[i])
+            overallRanks[Abbr.events()[i]] = rank(overallFinalscores, Abbr.events()[i])
+          }
+
+          /* assemble array for orderBy with ranks and calculate final scores */
+          for (i = 0; i < partArray.length; i++) {
+            obj = {
+              uid: partArray[i].uid
+            }
+            var overallObj = {
+              uid: partArray[i].uid
+            }
+            for (j = 0; j < Abbr.events().length; j++) {
+              event = Abbr.events()[j]
+              if (Abbr.isSpeed(event) && typeof ranks[event][obj.uid] !== 'undefined') {
+                obj[event] = ranks[event][obj.uid]
+              } else if (typeof ranks[event][obj.uid] !== 'undefined') {
+                obj[event] = ranks[event][obj.uid].total
+              }
+
+              if (Abbr.isSpeed(event) && typeof overallRanks[event][overallObj.uid] !== 'undefined') {
+                overallObj[event] = overallRanks[event][overallObj.uid]
+              } else if (typeof overallRanks[event][obj.uid] !== 'undefined') {
+                overallObj[event] = overallRanks[event][overallObj.uid].total
+              }
+            }
+            rankArray.push(obj)
+            if (typeof data[id].scores !== 'undefined' && (Calc.inAll(data[id].config.subevents, data[id].scores[overallObj.uid]))) {
+              overallRankArray.push(overallObj)
+            }
+
+            uid = partArray[i].uid
+            event = 'final'
+
+            if (typeof finalscores[uid] === 'undefined') {
+              continue
+            }
+            finalscores[uid][event] = Calc.finalscore(finalscores[uid], data[id].config.subevents, false, uid)
+            if (Calc.inAll(data[id].config.subevents, data[id].scores[uid])) {
+              overallFinalscores[uid][event] = finalscores[uid][event]
+            }
+          }
+
+          // var ranksums = Calc.rank.sum(rankArray, finalscores, data[id].config.subevents, data[id].config.simplified)
+          // var finalRanks = Calc.rank.overall(ranksums, finalscores)
+
+          var overallRanksums = Calc.rank.sum(overallRankArray, overallFinalscores, data[id].config.subevents, data[id].config.simplified)
+          var overallFinalRanks = Calc.rank.overall(overallRanksums, overallFinalscores)
+
+          // for (i = 0; i < partArray.length; i++) {
+          //   partArray[i].rank = finalRanks[partArray[i].uid] || undefined
+          //   partArray[i].overallRank = overallFinalRanks[partArray[i].uid] || undefined
+          // }
+
+          for (let part of partArray) {
+            let overall = {
+              uid: part.uid,
+              events: []
+            }
+            for (let abbr of Abbr.events()) {
+              if (typeof finalscores[part.uid] === 'undefined' ||
+                  typeof finalscores[part.uid][abbr] === 'undefined' ||
+                  typeof ranks[abbr] === 'undefined' ||
+                  typeof ranks[abbr][part.uid] === 'undefined' ||
+                  Object.keys(finalscores[part.uid][abbr]).length === 0) continue
+              if (typeof bodies[abbr] === 'undefined') bodies[abbr] = {scores: []}
+
+              let score = finalscores[part.uid][abbr]
+              let overallScore = (overallFinalscores[part.uid] || {})[abbr] || {}
+              let rank = ranks[abbr][part.uid]
+              let overallRank = (overallRanks[abbr] || {})[part.uid] || {}
+              let event = {
+                uid: part.uid
+              }
+              let overallEvent = {
+                abbr: abbr
+              }
+
+              if (typeof score.T1 !== 'undefined') event.T1 = Math.roundTo(score.T1, 2)
+              if (typeof score.T2 !== 'undefined') event.T2 = Math.roundTo(score.T2, 2)
+              if (typeof score.T3 !== 'undefined') event.T3 = Math.roundTo(score.T3, 2)
+              if (typeof score.T4 !== 'undefined') event.T4 = Math.roundTo(score.T4, 2)
+              if (typeof score.T5 !== 'undefined') event.T5 = Math.roundTo(score.T5, 2)
+              if (typeof overallScore.T1 !== 'undefined') overallEvent.T1 = Math.roundTo(overallScore.T1, 2)
+              if (typeof overallScore.T2 !== 'undefined') overallEvent.T2 = Math.roundTo(overallScore.T2, 2)
+              if (typeof overallScore.T3 !== 'undefined') overallEvent.T3 = Math.roundTo(overallScore.T3, 2)
+              if (typeof overallScore.T4 !== 'undefined') overallEvent.T4 = Math.roundTo(overallScore.T4, 2)
+              if (typeof overallScore.T5 !== 'undefined') overallEvent.T5 = Math.roundTo(overallScore.T5, 2)
+
+              if (typeof score.T4 !== 'undefined' && typeof score.T5 !== 'undefined') event.cScore = Math.roundTo(score.T4 - (score.T5 / 2), 2)
+              if (typeof score.T1 !== 'undefined' && typeof score.T5 !== 'undefined') event.dScore = Math.roundTo(score.T1 - (score.T5 / 2), 2)
+              if (typeof overallScore.T4 !== 'undefined' && typeof overallScore.T5 !== 'undefined') overallEvent.cScore = Math.roundTo(overallScore.T4 - (overallScore.T5 / 2), 2)
+              if (typeof overallScore.T1 !== 'undefined' && typeof overallScore.T5 !== 'undefined') overallEvent.dScore = Math.roundTo(overallScore.T1 - (overallScore.T5 / 2), 2)
+
+              if (typeof score.PreA !== 'undefined') event.PreA = Math.roundTo(score.PreA, 2)
+              if (typeof score.PreY !== 'undefined') event.PreY = Math.roundTo(score.PreY, 2)
+              if (typeof overallScore.PreA !== 'undefined') overallEvent.PreA = Math.roundTo(overallScore.PreA, 2)
+              if (typeof overallScore.PreY !== 'undefined') overallEvent.PreY = Math.roundTo(overallScore.PreY, 2)
+
+              if (typeof score.A !== 'undefined') event.A = Math.roundTo(score.A, 2)
+              if (typeof score.Y !== 'undefined') event.Y = Math.roundTo(score.Y, 2)
+              if (typeof overallScore.A !== 'undefined') overallEvent.A = Math.roundTo(overallScore.A, 2)
+              if (typeof overallScore.Y !== 'undefined') overallEvent.Y = Math.roundTo(overallScore.Y, 2)
+
+              if (typeof rank.total !== 'undefined' && typeof rank.total.cRank !== 'undefined') event.cRank = Math.roundTo(rank.total.cRank, 2)
+              if (typeof rank.total !== 'undefined' && typeof rank.total.dRank !== 'undefined') event.dRank = Math.roundTo(rank.total.dRank, 2)
+              if (typeof rank.total !== 'undefined' && typeof rank.total.cRank !== 'undefined' && typeof rank.total.dRank !== 'undefined') event.rsum = Math.roundTo(rank.total.cRank + rank.total.dRank, 2)
+              if (typeof rank.total !== 'undefined' && typeof rank.total.rank !== 'undefined') event.rank = Math.roundTo(rank.total.rank, 2)
+              if (typeof rank.rank !== 'undefined') event.rank = Math.roundTo(rank.rank, 2)
+              if (typeof overallRank.total !== 'undefined' && typeof overallRank.total.cRank !== 'undefined') overallEvent.cRank = Math.roundTo(overallRank.total.cRank, 2)
+              if (typeof overallRank.total !== 'undefined' && typeof overallRank.total.dRank !== 'undefined') overallEvent.dRank = Math.roundTo(overallRank.total.dRank, 2)
+              if (typeof overallRank.total !== 'undefined' && typeof overallRank.total.cRank !== 'undefined' && typeof overallRank.total.dRank !== 'undefined') overallEvent.rsum = Math.roundTo(overallRank.total.cRank + overallRank.total.dRank, 2)
+              if (typeof overallRank.total !== 'undefined' && typeof overallRank.total.rank !== 'undefined') overallEvent.rank = Math.roundTo(overallRank.total.rank, 2)
+              if (typeof overallRank.rank !== 'undefined') overallEvent.rank = Math.roundTo(overallRank.rank, 2)
+
+              bodies[abbr].scores.push(event)
+              if (Object.keys(overallEvent).length > 1) overall.events.push(overallEvent)
+            }
+
+            if (typeof overallFinalscores[part.uid] !== 'undefined' && typeof overallFinalscores[part.uid].final !== 'undefined') overall.score = Math.roundTo(overallFinalscores[part.uid].final, 2)
+            if (typeof overallRanksums[part.uid] !== 'undefined') overall.rsum = Math.roundTo(overallRanksums[part.uid], 2)
+            if (typeof overallFinalRanks[part.uid] !== 'undefined') overall.rank = Math.roundTo(overallFinalRanks[part.uid], 2)
+
+            if (overall.events.length > 0 && typeof bodies.overall === 'undefined') bodies.overall = {scores: []}
+            if (overall.events.length > 0) bodies.overall.scores.push(overall)
+          }
+
+          var end = performance.now()
+          console.log('Score calculation took ' + (end - start) + ' milliseconds.')
+
+          console.log('RSLive scores', bodies)
+          let bodyAbbrs = Object.keys(bodies)
+          let promises = []
+          for (let event of bodyAbbrs) {
+            promises.push($http.post(url + '/' + $rootScope.liveConfig.federation + '/' + id + '/scores/' + event, bodies[event], {
+              headers: {
+                'Authorization': 'Bearer ' + $rootScope.liveConfig.apikey
+              }
+            }))
+            promises[promises.length - 1].then(function (response) {
+              console.log(response.status, response.data.message)
+            }).catch(function (err) {
+              reject(err)
+            })
+          }
+          Promise.all(promises).then(function (messages) {
+            resolve(messages)
+          })
+        }).then(function (msg) {
+          $rootScope.networkStatus.scores = false
+          $rootScope.$apply()
+          // console.log(msg)
+        }).catch(function (err) {
+          $rootScope.networkStatus.scores = false
+          $rootScope.$apply()
+          if (err) throw err
         })
       },
       participants: function (id) {
         return new Promise(function (resolve, reject) {
-          $rootScope.networkStatus = 'Updating'
+          let data = Db.get()
+          var chk = checker(data, id)
+          if (typeof chk !== 'undefined') return resolve(chk)
+
+          let url = $rootScope.liveConfig.url || Config.Live.URL
+
+          $rootScope.networkStatus.participants = true
+
+          var body = {
+            participants: Object.keys(data[id].participants).map(function (uid) {
+              return {
+                uid: uid,
+                name: data[id].participants[uid].name,
+                club: data[id].participants[uid].club,
+                members: data[id].participants[uid].members
+              }
+            })
+          }
+
+          console.log('RSLive participants', body)
+          $http.post(url + '/' + $rootScope.liveConfig.federation + '/' + id + '/participants', body, {
+            headers: {
+              'Authorization': 'Bearer ' + $rootScope.liveConfig.apikey
+            }
+          }).then(function (response) {
+            resolve(response.status + ' ' + response.data.message)
+          }).catch(function (err) {
+            reject(err)
+          })
+        }).then(function (msg) {
+          $rootScope.networkStatus.participants = false
+          $rootScope.$apply()
+          console.log(msg)
+        }).catch(function (err) {
+          $rootScope.networkStatus.participants = false
+          $rootScope.$apply()
+          if (err) throw err
+        })
+      },
+      config: function (id) {
+        return new Promise(function (resolve, reject) {
+          let data = Db.get()
+          var chk = checker(data, id)
+          if (typeof chk !== 'undefined') return resolve(chk)
+          let url = $rootScope.liveConfig.url || Config.Live.URL
+
+          $rootScope.networkStatus.config = true
+
+          let cols = (data[id].config.simplified ? Config.SimplResultsCols || Config.ResultsCols : Config.ResultsCols)
+          let body = {
+            name: data[id].config.name,
+            events: Object.keys(data[id].config.subevents || {}).filter(function (abbr) {
+              return data[id].config.subevents[abbr]
+            }).map(function (abbr) {
+              let obj = {
+                abbr: abbr,
+                name: Abbr.unabbr(abbr),
+                speed: Abbr.isSpeed(abbr),
+                cols: {
+                  overall: [],
+                  event: []
+                }
+              }
+
+              obj.cols.overall = Object.keys(cols.overall[(obj.speed ? 'speed' : 'freestyle')]).filter(function (abbr) {
+                return cols.overall[(obj.speed ? 'speed' : 'freestyle')][abbr]
+              })
+              obj.cols.event = Object.keys(cols.events[(obj.speed ? 'speed' : 'freestyle')]).filter(function (abbr) {
+                return cols.events[(obj.speed ? 'speed' : 'freestyle')][abbr]
+              })
+
+              return obj
+            })
+          }
+
+          console.log('RSLive config', body)
+          $http.post(url + '/' + $rootScope.liveConfig.federation + '/' + id, body, {
+            headers: {
+              'Authorization': 'Bearer ' + $rootScope.liveConfig.apikey
+            }
+          }).then(function (response) {
+            resolve(response.status + ' ' + response.data.message)
+          }).catch(function (err) {
+            reject(err)
+          })
+        }).then(function (msg) {
+          $rootScope.networkStatus.config = false
+          $rootScope.$apply()
+          console.log(msg)
+        }).catch(function (err) {
+          $rootScope.networkStatus.config = false
+          $rootScope.$apply()
+          if (err) throw err
         })
       }
     }

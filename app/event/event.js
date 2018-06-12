@@ -32,8 +32,6 @@ angular.module('ropescore.event', ['ngRoute'])
     $scope.setID($scope.id)
     $scope.Abbr = Abbr
 
-    Live.scores($scope.id)
-
     $scope.events = Abbr.events()
 
     $scope.hasSpeed = Abbr.hasSpeed($scope.data[$scope.id].config.subevents)
@@ -53,4 +51,8 @@ angular.module('ropescore.event', ['ngRoute'])
       $scope.data[$scope.id].config.completed = !$scope.data[$scope.id].config.completed
       Db.set($scope.data)
     }
+
+    setTimeout(function () {
+      Live.scores($scope.id)
+    })
   })

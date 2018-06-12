@@ -25,12 +25,13 @@ angular.module('ropescore.config', ['ngRoute'])
    * @param {service} Db
    */
   .controller('ConfigCtrl', function ($scope, $location, $routeParams, Db, Abbr,
-    Config, Cleaner) {
+    Config, Live, Cleaner) {
     $scope.data = Db.get()
 
     $scope.id = $routeParams.id
     if (!$scope.id) {
       $scope.id = btoa(new Date().getTime())
+      $scope.isNew(true)
       console.log(`new event with id: ${$scope.id}`)
     }
     $scope.setID($scope.id)
@@ -56,6 +57,7 @@ angular.module('ropescore.config', ['ngRoute'])
       }
 
       Db.set($scope.data)
+      Live.config($scope.id)
       $location.path('/config/participants/' + $scope.id)
     }
 

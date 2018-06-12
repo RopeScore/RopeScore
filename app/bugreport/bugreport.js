@@ -1,4 +1,4 @@
-/* global angular, store */
+/* global angular */
 'use strict'
 /**
  * @class ropescore.bugreport
@@ -24,7 +24,7 @@ angular.module('ropescore.bugreport', ['ngRoute'])
    */
   .controller('BugCtrl', function ($scope, Db) {
     $scope.data = Db.get()
-    $scope.log = store.get('console-history')
+    $scope.log = Db.get('console-history')
     $scope.show = {}
 
     $scope.linkData = 'data:application/json;base64,' + window.btoa(unescape(encodeURIComponent(JSON.stringify($scope.data))))

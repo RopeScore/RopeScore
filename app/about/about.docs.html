@@ -6,6 +6,7 @@
     <ol class="docs">
       <li><a href="#config.event">Category Data</a></li>
       <li><a href="#config.part">Participants</a></li>
+      <li><a href="#config.system">System</a></li>
     </ol>
   </li>
   <li><a href="#event">Category</a></li>
@@ -22,13 +23,14 @@
   </li>
   </li>
   <li><a href="#result">Results</a></li>
-  <li><a href="#live">Live Display</a>
+  <li><a href="#display">Live Display</a>
     <ol class="docs">
-      <li><a href="#live.speed">Speed</a></li>
-      <li><a href="#live.free">Freestyle</a></li>
+      <li><a href="#display.speed">Speed</a></li>
+      <li><a href="#display.free">Freestyle</a></li>
     </ol>
   </li>
   <li><a href="#combine">Category Combining</a></li>
+  <li><a href="#live">RopeScore Live</a></li>
   <li><a href="#misc">Miscellaneous</a>
     <ol>
       <li><a href="#misc.key">Keyboard Shortcuts</a></li>
@@ -46,7 +48,7 @@
   are avilable.</p>
 <p>The first row of buttons gives you various tools manage your categories.</p>
 <ul class="docs">
-  <li><b><a href="#config">New</a></b>: This button will create a new category</li>
+  <li><b><a href="#config">New Category</a></b>: This button will create a new category</li>
   <li><b>Import</b>: This button will allow you to choose an exportfile from ropescore,
     saved on your computer, and REPLACE ALL categories with those in the export file.
     Make sure to export your current categories before importing new ones</li>
@@ -54,13 +56,15 @@
     you will be prompted to select where the file should be saved</li>
   <li><b>Reset</b>: This button resets the program, it removes ALL saved data. It's highly
     reccomended to do an export before resetting</li>
-  <li><b><a href="#live">Display Live Unofficial Scores</a></b>: This will take you to a page thatcan be
+  <li><b><a href="#display">Display Live Unofficial Scores</a></b>: This will take you to a page thatcan be
     displayed for instance on an external projector, it will show unofficial scores,
     live when they are set to be displayed in the program</li>
   <li><b><a href="#combine">Combine Two Categories</a></b>: Allows you to combine multiple categories
     into one</li>
   <li><b>Reset Category Order</b>: Resets the order the categories are displayed
     on the dashboard to be ordered by creation date, oldest first</li>
+  <li><b><a href="#onfig.system">System Configuration</a></b>: Opens global settings that are preserved when the system
+    is reset or scores are imported. Those settings won't be included in exports.</li>
 </ul>
 <p>The row of buttons below "Dashboard" (here "Masters", "Teams" etc.) will, once clicked,
   open the category view for that particular category. The hexadecimal number below
@@ -92,7 +96,8 @@
 
 <h3 id="config.part">2.2 Participants</h3>
 <img src="/static/img/docs/participants.png" />
-<p>Upon clicking "Save and Continue" on the <a href="#config.event">Category Data</a>  Configuration participants can be added, you have the option to select what id
+<p>Upon clicking "Save and Continue" on the <a href="#config.event">Category Data</a>
+  Configuration participants can be added, you have the option to select what id
   the participants will start with, this id is used for internal purposes, but is
   displayed as a tool for the Competition organiser. The id of a participant will
   never change, however the participant's name and club may, thus the id of the participant
@@ -103,10 +108,34 @@
   as the id is used by the program.</p>
 <img src="/static/img/docs/participants-import.png" />
 <p>Participants can also be imported from excel, or similar spreadsheet software. See
-  <a href="/static/import-examples.xlsx" target="_blank" download="import-examples.xlsx">import-examples.xlsx</a>&nbsp;
+  <a href="/static/import-examples.xlsx" target="_blank" download="import-examples.xlsx">import-examples.xlsx</a>
   for examples. Note that the header id will be ignored, this is to ensure that ther
   won't be any conflicts. the data pasted into the input area will be treated as
   tab separated content (tsv) and every value must be separated by a tab character.</p>
+
+<h3 id="config.system">2.3 System Configuration</h3>
+<img src="/static/img/docs/config-system.png" />
+<p>The system configuration is not connected to any single category, it sets values
+  that are used across the whole system. This settings page is reached from the
+  <a href="#dash">Dashboard</a>. These settings will not be reset when the reset button
+  is pressed on the <a href="#dash">Dashboard</a>, nor will they be overwritten by
+  importing data. These configuration values are tied to the specific computer
+  they're set on, they will thus not be included in exports.</p>
+<ul class="docs">
+  <li><b>Federation></b>: The federation to send RopeScore Live data to, see
+    <a href="#live">RopeScore Live</a></li>
+  <li><b>API key></b>: API key required to authenticate with RopeScore Live, see
+    <a href="#live">RopeScore Live</a></li>
+  <li><b>Not using RopeScore Live</b>: Select this option if you want data to be sent to
+    some other API that follows the same specification as RopeScore Live
+    (<span class="mono">https://live.ropescore.com/apidoc/</span>)</li>
+  <li><b>Custom API URL</b>: If <span class="mono">Not using RopeScore Live</span> is selected
+    this option will be avilable. Enter the url to the API basepoint. The defaul
+     is <span class="mono">https://live.ropescore.com/api</span>, see <a href="#live">RopeScore Live</a></li>
+  <li><b>Computer Name</b>: The name of the computer running the system. If this
+    has been set it will be shown in the top left corner throughout the program.
+    It will also be added last in the filenames of export files and excel workbooks (like results)</li>
+</ul>
 
 
 
@@ -154,7 +183,7 @@
   scores can be entered at once. The second-to-rightmost column shows the unofficial
   scores, calculated on the fly. pressing Display in the rightmost column will add
   that participant's speed score to the currently displayed speed events, see
-  <a href="#live">Live Display</a>. Clicking display all will add all speed scores
+  <a href="#display">Live Display</a>. Clicking display all will add all speed scores
   from the current event to the currently displayed speed events.
 </p>
 
@@ -171,7 +200,7 @@
 <p>it is highly reccomended that zero (0) is entered instead of leaving a field blank</p>
 <p>The bottom row calculates and displays Unofficial scores on the fly.</p>
 <p>Pressing Display will display that participant's score only on the live display,
-  see <a href="#live">Live Display</a></p>
+  see <a href="#display">Live Display</a></p>
 
 
 
@@ -191,17 +220,17 @@
 
 
 
-<h2 id="live">6. Live Display</h2>
+<h2 id="display">6. Live Display</h2>
 <p>It's reccommended to open up a live display in a separate window, see
   <a href="#misc.key">Keyboard Shortcuts</a>, also avilable via the "Window" menu</p>
 <p>Controlling what is currently displayed is controlled from the
   <a href="#score">Score Entering</a></p>
 
-<h3 id="live.speed">6.1 Speed</h3>
-<img src="/static/img/docs/live.png" />
+<h3 id="display.speed">6.1 Speed</h3>
+<img src="/static/img/docs/display.png" />
 
-<h3 id="live.free">6.2 Freestyle</h3>
-<img src="/static/img/docs/live1.png" />
+<h3 id="display.free">6.2 Freestyle</h3>
+<img src="/static/img/docs/display1.png" />
 
 
 
@@ -209,19 +238,37 @@
 <p>Multiple categories can be combined into one by clicking the "Combine Two Categories"
   button on the <a href="#dash">Dashboard</a></p>
 <img src="/static/img/docs/combine.png" />
+<p>By selecting two categories (A and B) and pressing combine a new category will be created,
+  preserving the two original categories.</p>
+<p>By default the created categorys name will be a combination of the two origin categories names,
+  this can be overridden by entering a new category name</p>
+<p>By default the new category will start with the lowest participant id of category A and assign
+  new id's to all participants, starting with category A. A new starting id can be set, in that case
+  category A's participants will get the lower id's</p>
+<p>By default the new category will use simplified rules if any of the categories does, if not overridden.</p>
 
 
 
-<h2 id="misc">8. Miscellaneous</h2>
-<h3 id="misc.key">8.1 Keyboard Shortcuts</h3>
+<h2 id="live">8. RopeScore Live</h2>
+<p>RopeScore Live is a companion service to RopeScore, it makes live results publishable
+  online and provides the same functionality as RopeScores inbuilt <a href="#display">Live Display</a>.</p>
+<p>The benefits include a more engaged audience, and it removes a burden from the
+  score enterers that no longer has to press <span class="mono">Display</span> when a separate
+  computer operator can do it.</p>
+<p>To get access to RopeScore Live for your federation, email <span class="mono">live@ropescore.com</span></p>
+
+
+
+<h2 id="misc">9. Miscellaneous</h2>
+<h3 id="misc.key">9.1 Keyboard Shortcuts</h3>
 <ul class="docs">
   <li><b>Ctrl+N/&#x2318;+N</b>: Opens a new window, an aditional window can for example
     be used on a separate monitor to show results updated live.</li>
 </ul>
 
-<h3 id="misc.bugs">8.2 Bugs</h3>
+<h3 id="misc.bugs">9.2 Bugs</h3>
 <p>See <a href="/bugreport">Bugs</a></p>
 
-<h3 id="misc.update">8.3 Updates</h3>
+<h3 id="misc.update">9.3 Updates</h3>
 <p>The program will automatically search for and download updates when it is started,
   if there is an update avilable the program will prompt the user before installing.</p>

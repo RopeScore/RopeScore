@@ -10,7 +10,7 @@
     <td><input type="number" id="idStart" ng-model="toCombine.new.idStart" /></td>
     <td>If left blank the starting id will be <em>{{ data[toCombine['0'].id].config.idStart || 'the same as Category A' }}</em></td>
   </tr>
-  <tr>
+  <tr ng-if="Simplified">
     <td><label>Simplified rules:</label></td>
     <td>
       <label><input type="radio" ng-model="toCombine.new.simplified" value="simplified"/> Force simplified</label><br/>

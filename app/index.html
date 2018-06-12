@@ -36,12 +36,12 @@
     <nav>
       <ul class="topnav">
         <li ng-click="goHome()" class="pointer">
-          <div>RopeScore</div>
+          <div>RopeScore {{ (computerName ? '- ' + computerName : '') }}</div>
         </li>
         <li><a ng-href="/">Dashboard</a></li>
         <li><a ng-href="/config">New Category</a></li>
-        <li ng-if="id"><a ng-href="/event/{{ id }}">Category</a></li>
-        <li ng-if="id"><a ng-href="/results/{{ id }}">Results</a></li>
+        <li ng-if="id && !newCat"><a ng-href="/event/{{ id }}">Category</a></li>
+        <li ng-if="id && !newCat"><a ng-href="/results/{{ id }}">Results</a></li>
       </ul>
     </nav>
 
@@ -50,7 +50,9 @@
     </div>
 
     <footer>
-      {{ networkStatus }} <br/>
+      {{ (any(networkStatus || {}) ? 'Updating' : '') }}
+      {{ netList(networkStatus || {}) }}
+      <span class="red" ng-if="networkError">RopeScore Live Error: {{ networkError }}</span><br/>
       {{ version }} ({{ Ruleset }} Rules) &copy; Svante Bengtson {{ copyright() }} <a ng-href="/licence">Licence</a>      &ndash; <a ng-href="/bugreport">Bugs</a> &ndash; <a ng-href="/docs#toc">Documentation</a>      &ndash; <a ng-href="/changelog">Changelog</a>
     </footer>
 

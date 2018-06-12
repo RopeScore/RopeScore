@@ -27,14 +27,11 @@ angular.module('ropescore.globconfig', ['ngRoute'])
     Config, Cleaner) {
     $scope.data = Db.get()
 
-    if (typeof $scope.data.globconfig === 'undefined') $scope.data.globconfig = {}
-    if (typeof $scope.data.globconfig.live === 'undefined') $scope.data.globconfig.live = {}
-
-    $scope.customURL = typeof $scope.data.globconfig.live.url !== 'undefined'
+    $scope.customURL = typeof $scope.liveConfig.url !== 'undefined'
 
     $scope.toggleCustom = function () {
       if ($scope.customURL === false) {
-        delete $scope.data.globconfig.live.url
+        delete $scope.data.liveConfig.url
       }
     }
 
@@ -49,6 +46,9 @@ angular.module('ropescore.globconfig', ['ngRoute'])
       }
 
       Db.set($scope.data)
+      Db.set($scope.computerName, 'computer-name')
+      Db.set($scope.liveConfig, 'rslive-config')
+      $scope.updateGlobConfig()
       $location.path('/')
     }
   })
