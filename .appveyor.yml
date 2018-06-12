@@ -1,0 +1,19 @@
+environment:
+  nodejs_version: "8"
+skip_non_tags: true
+build_script:
+  - npm run build:all
+install:
+  - ps: Install-Product node $env:nodejs_version
+  - npm install
+test: off
+artifacts:
+  - path: dist\**\*
+deploy:
+  - provider: GitHub
+    artifact: dist\**\*.exe
+    draft: false
+    prerelease: false
+    on:
+      branch: master
+      appveyor_repo_tag: true
