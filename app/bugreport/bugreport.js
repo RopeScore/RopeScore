@@ -1,4 +1,4 @@
-/* global angular */
+/* global angular, pad, nameCleaner */
 'use strict'
 /**
  * @class ropescore.bugreport
@@ -26,6 +26,10 @@ angular.module('ropescore.bugreport', ['ngRoute'])
     $scope.data = Db.get()
     $scope.log = Db.get('console-history')
     $scope.show = {}
+
+    let date = new Date()
+    $scope.today = pad(date.getFullYear(), 4) + '' + pad(date.getMonth() + 1, 2) + '' + pad(date.getDate(), 2)
+    $scope.nameCleaner = nameCleaner
 
     $scope.linkData = 'data:application/json;base64,' + window.btoa(unescape(encodeURIComponent(JSON.stringify($scope.data))))
     $scope.logLinkData = 'data:application/json;base64,' + window.btoa(unescape(encodeURIComponent(JSON.stringify($scope.log))))

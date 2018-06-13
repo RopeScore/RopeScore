@@ -11,9 +11,16 @@ artifacts:
   - path: dist\**\*
 deploy:
   - provider: GitHub
-    artifact: dist\**\*.exe
     draft: false
     prerelease: false
     on:
-      branch: master
       appveyor_repo_tag: true
+  - provider: FTP
+    protocol: ftp
+    host: ddns.swant.pw
+    username: appveyor
+    password:
+      secure: EHnwIjBlFTEKi2xZmcpTYb5YJzgQaTT6X3n+RTl8OTs=
+    active_mode: false
+    beta: true
+    debug: true

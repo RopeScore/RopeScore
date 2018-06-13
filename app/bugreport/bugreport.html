@@ -2,14 +2,14 @@
   <p>To report a bug with RopeScore, please email <a href="mailto:bugs@ropescore.com">bugs@ropescore.com</a>.</p>
   <p>to better understand your issue please also include the logfile and an export of
     the data saved in RopeScore.</p>
-  <a ng-href="{{ logLinkData }}" download="ropescore.log.json"><button>Export Logfile</button></a>
-  <a ng-href="{{ linkData }}" download="ropescore-export.json"><button>Export Data</button></a>
+  <a ng-href="{{ logLinkData }}" download="ropescore-{{ today }}.log.json"><button>Export Logfile</button></a>
+  <a ng-href="{{ linkData }}" download="ropescore-export-{{ today }}{{ (computerName ? '-' + nameCleaner(computerName) : '') }}.json"><button>Export Data</button></a>
 </div>
 
 <div>
   <p>You can preview the data that will be sent below</p>
-  <button ng-click="toggle('data')">{{ show.data ? 'Hide' : 'Display' }} data</button>
   <button ng-click="toggle('log')">{{ show.log ? 'Hide' : 'Display' }} log</button>
+  <button ng-click="toggle('data')">{{ show.data ? 'Hide' : 'Display' }} data</button>
 </div>
 <div>
   <textarea ng-show="show.data">{{ data | json }}</textarea>
