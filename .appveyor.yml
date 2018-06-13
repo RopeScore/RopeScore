@@ -13,6 +13,7 @@ deploy:
   - provider: GitHub
     draft: false
     prerelease: false
+    artifact: /.*\.exe/
     auth_token:
       secure: aipdtUhvhIdExDPpqwlwzOUtZtXEsPJPyTH3QTd/YOVQaWWGF7u7NPtqzdVIjxx2
     on:
