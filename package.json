@@ -33,6 +33,9 @@
     "build": "node build",
     "build:all:mac": "node build -a x64 -p darwin && node build -a x64 -c se -p darwin && node build -a x64 -c au -p darwin",
     "build:all": "node build -a x64 && node build -a x64 -c se && node build -a x64 -c au && node build -a ia32 && node build -a ia32 -c se && node build -a ia32 -c au",
+    "build:intl": "node build -a x64 && node build -a ia32",
+    "build:au": "node build -a x64 -c au && node build -a ia32 -c au",
+    "build:se": "node build -a x64 -c se && node build -a ia32 -c se",
     "dist:sync": "rsync -avzcP --exclude-from .rsyncignore dist/ appveyor@ddns.swant.pw:dist"
   }
 }
