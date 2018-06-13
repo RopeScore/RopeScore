@@ -13,6 +13,8 @@ deploy:
   - provider: GitHub
     draft: false
     prerelease: false
+    auth_token:
+      secure: Em7ZoynKAHdVyfiLQX2nsjPvhjtqtQjtNVfjLxhdxG7sc8GbhLlMCO0KeTYtn5HQ
     on:
       appveyor_repo_tag: true
   - provider: FTP
