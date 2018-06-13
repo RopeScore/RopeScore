@@ -1,11 +1,10 @@
 environment:
   nodejs_version: "8"
-skip_non_tags: true
-environment:
   matrix:
   - command: build:intl
   - command: build:au
   - command: build:se
+skip_non_tags: true
 cache: node_modules
 install:
   - ps: Install-Product node $env:nodejs_version
