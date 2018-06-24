@@ -27,14 +27,6 @@ angular.module('ropescore.globconfig', ['ngRoute'])
     Config, Cleaner) {
     $scope.data = Db.get()
 
-    $scope.customURL = typeof $scope.liveConfig.url !== 'undefined'
-
-    $scope.toggleCustom = function () {
-      if ($scope.customURL === false) {
-        delete $scope.data.liveConfig.url
-      }
-    }
-
     /**
      * Saves data and continues to articipant configuration. won't save empty data
      * @return {undefined} function does not return

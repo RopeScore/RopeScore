@@ -11,11 +11,6 @@
   </tr>
 
   <tr>
-    <td><label for="ctoggle">Not using RopeScore Live:</label></td>
-    <td><input type="checkbox" id="ctoggle" ng-change="toggleCustom()" ng-keydown="($event.keyCode === 9 || $event.keyCode === 16 ? '' : customURL = !customURL)"  ng-model="customURL" /></td>
-  </tr>
-
-  <tr ng-if="customURL || liveConfig.url">
     <td><label for="cURL">Custom API URL:</label></td>
     <td><input type="url" id="cURL" ng-model="liveConfig.url" placeholder="https://live.ropescore.com/api" /></td>
   </tr>

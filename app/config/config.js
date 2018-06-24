@@ -65,12 +65,21 @@ angular.module('ropescore.config', ['ngRoute'])
     $scope.Simplified = Config.Simplified
 
     $scope.remove = function () {
-      if (confirm('Are you sure you want to remove this event and all of its data?')) {
+      if (confirm('Are you sure you want to remove this category and all of its data?\nThis will NOT remove the category from RopeScore Live if it has been synced')) {
         console.log(`removing ${$scope.id}`)
         delete $scope.data[$scope.id]
         Db.set($scope.data)
         $location.path('/')
       }
+    }
+
+    $scope.removeLive = function () {
+      if (!confirm('Are you sure you want to queue this category from deletion in RopeScore Live')) return
+      Live.delete($scope.id)
+      if (typeof $scope.data[$scope.id].config !== 'undefined' && typeof $scope.data[$scope.id].config.live !== 'undefined') {
+        $scope.data[$scope.id].config.live = false
+      }
+      $scope.save()
     }
 
     $scope.Abbr = Abbr

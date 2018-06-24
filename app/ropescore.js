@@ -750,7 +750,7 @@ angular.module('ropescore', [
         var start = performance.now()
         return new Promise(function (resolve, reject) {
           let data = Db.get()
-          var chk = checker(data, id)
+          let chk = checker(data, id)
           if (typeof chk !== 'undefined') return resolve(chk)
           let url = $rootScope.liveConfig.url || Config.Live.URL
 
@@ -884,23 +884,34 @@ angular.module('ropescore', [
               events: []
             }
             for (let abbr of Abbr.events()) {
-              if (typeof finalscores[part.uid] === 'undefined' ||
-                  typeof finalscores[part.uid][abbr] === 'undefined' ||
-                  typeof ranks[abbr] === 'undefined' ||
-                  typeof ranks[abbr][part.uid] === 'undefined' ||
-                  Object.keys(finalscores[part.uid][abbr]).length === 0) continue
-              if (typeof bodies[abbr] === 'undefined') bodies[abbr] = {scores: []}
-
-              let score = finalscores[part.uid][abbr]
-              let overallScore = (overallFinalscores[part.uid] || {})[abbr] || {}
-              let rank = ranks[abbr][part.uid]
-              let overallRank = (overallRanks[abbr] || {})[part.uid] || {}
+              if (typeof bodies[abbr] === 'undefined' && data[id].config.subevents[abbr] === true) bodies[abbr] = {scores: []}
               let event = {
                 uid: part.uid
               }
               let overallEvent = {
                 abbr: abbr
               }
+
+              if (typeof finalscores[part.uid] === 'undefined' ||
+                  typeof finalscores[part.uid][abbr] === 'undefined' ||
+                  typeof ranks[abbr] === 'undefined' ||
+                  typeof ranks[abbr][part.uid] === 'undefined' ||
+                  Object.keys(finalscores[part.uid][abbr]).length === 0) {
+                if (typeof data[id].scores[part.uid] !== 'undefined' &&
+                    typeof data[id].scores[part.uid][abbr] !== 'undefined' &&
+                    data[id].scores[part.uid][abbr].dns === true) {
+                  event.dns = true
+                } else {
+                  event.delete = true
+                }
+                if (typeof bodies[abbr] !== 'undefined') bodies[abbr].scores.push(event)
+                continue
+              }
+
+              let score = finalscores[part.uid][abbr]
+              let overallScore = (overallFinalscores[part.uid] || {})[abbr] || {}
+              let rank = ranks[abbr][part.uid]
+              let overallRank = (overallRanks[abbr] || {})[part.uid] || {}
 
               if (typeof score.T1 !== 'undefined') event.T1 = Math.roundTo(score.T1, 2)
               if (typeof score.T2 !== 'undefined') event.T2 = Math.roundTo(score.T2, 2)
@@ -939,16 +950,18 @@ angular.module('ropescore', [
               if (typeof overallRank.total !== 'undefined' && typeof overallRank.total.rank !== 'undefined') overallEvent.rank = Math.roundTo(overallRank.total.rank, 2)
               if (typeof overallRank.rank !== 'undefined') overallEvent.rank = Math.roundTo(overallRank.rank, 2)
 
-              bodies[abbr].scores.push(event)
+              if (Object.keys(event).length === 1) event.delete = true
               if (Object.keys(overallEvent).length > 1) overall.events.push(overallEvent)
+              bodies[abbr].scores.push(event)
             }
 
             if (typeof overallFinalscores[part.uid] !== 'undefined' && typeof overallFinalscores[part.uid].final !== 'undefined') overall.score = Math.roundTo(overallFinalscores[part.uid].final, 2)
             if (typeof overallRanksums[part.uid] !== 'undefined') overall.rsum = Math.roundTo(overallRanksums[part.uid], 2)
             if (typeof overallFinalRanks[part.uid] !== 'undefined') overall.rank = Math.roundTo(overallFinalRanks[part.uid], 2)
 
-            if (overall.events.length > 0 && typeof bodies.overall === 'undefined') bodies.overall = {scores: []}
-            if (overall.events.length > 0) bodies.overall.scores.push(overall)
+            if (typeof bodies.overall === 'undefined') bodies.overall = {scores: []}
+            if (overall.events.length === 0) overall.delete = true
+            bodies.overall.scores.push(overall)
           }
 
           var end = performance.now()
@@ -985,7 +998,7 @@ angular.module('ropescore', [
       participants: function (id) {
         return new Promise(function (resolve, reject) {
           let data = Db.get()
-          var chk = checker(data, id)
+          let chk = checker(data, id)
           if (typeof chk !== 'undefined') return resolve(chk)
 
           let url = $rootScope.liveConfig.url || Config.Live.URL
@@ -1009,6 +1022,7 @@ angular.module('ropescore', [
               'Authorization': 'Bearer ' + $rootScope.liveConfig.apikey
             }
           }).then(function (response) {
+            console.log(response.status, response.data.message)
             resolve(response.status + ' ' + response.data.message)
           }).catch(function (err) {
             reject(err)
@@ -1016,7 +1030,6 @@ angular.module('ropescore', [
         }).then(function (msg) {
           $rootScope.networkStatus.participants = false
           $rootScope.$apply()
-          console.log(msg)
         }).catch(function (err) {
           $rootScope.networkStatus.participants = false
           $rootScope.$apply()
@@ -1026,7 +1039,7 @@ angular.module('ropescore', [
       config: function (id) {
         return new Promise(function (resolve, reject) {
           let data = Db.get()
-          var chk = checker(data, id)
+          let chk = checker(data, id)
           if (typeof chk !== 'undefined') return resolve(chk)
           let url = $rootScope.liveConfig.url || Config.Live.URL
 
@@ -1065,6 +1078,7 @@ angular.module('ropescore', [
               'Authorization': 'Bearer ' + $rootScope.liveConfig.apikey
             }
           }).then(function (response) {
+            console.log(response.status, response.data.message)
             resolve(response.status + ' ' + response.data.message)
           }).catch(function (err) {
             reject(err)
@@ -1072,7 +1086,35 @@ angular.module('ropescore', [
         }).then(function (msg) {
           $rootScope.networkStatus.config = false
           $rootScope.$apply()
-          console.log(msg)
+        }).catch(function (err) {
+          $rootScope.networkStatus.config = false
+          $rootScope.$apply()
+          if (err) throw err
+        })
+      },
+      delete: function (id) {
+        return new Promise(function (resolve, reject) {
+          let data = Db.get()
+          let chk = checker(data, id)
+          if (typeof chk !== 'undefined') return resolve(chk)
+          let url = $rootScope.liveConfig.url || Config.Live.URL
+
+          $rootScope.networkStatus.config = true
+
+          console.log('Queuing category ' + id + 'for removal from RSLive')
+          $http.delete(url + '/' + $rootScope.liveConfig.federation + '/' + id, {
+            headers: {
+              'Authorization': 'Bearer ' + $rootScope.liveConfig.apikey
+            }
+          }).then(function (response) {
+            console.log(response.status, response.data.message)
+            resolve(response.status + ' ' + response.data.message)
+          }).catch(function (err) {
+            reject(err)
+          })
+        }).then(function (msg) {
+          $rootScope.networkStatus.config = false
+          $rootScope.$apply()
         }).catch(function (err) {
           $rootScope.networkStatus.config = false
           $rootScope.$apply()
