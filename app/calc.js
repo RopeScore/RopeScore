@@ -1,4 +1,4 @@
-/* global angular */
+/* global angular, performance */
 angular.module('Calc', [])
   .factory('Calc', function (Abbr, Db, Config) {
     var methods = {
@@ -822,6 +822,160 @@ angular.module('Calc', [])
         }
 
         return inAll
+      },
+      results: function (data, rankAll) {
+        if (typeof data === 'undefined') {
+          console.log('data for results is undefined')
+          return undefined
+        }
+
+        let start = performance.now()
+        let i, j, event, obj, partArray
+        let ranks = {}
+        let overallRanks = {}
+        let finalscores = {}
+        let overallFinalscores = {}
+        let rankArray = []
+        let overallRankArray = []
+        let output = {}
+        let ranksums, finalRanks, overallRanksums, overallFinalRanks
+
+        var rank = function (scores, event) {
+          if (Abbr.isSpeed(event)) {
+            return methods.rank.speed(scores, event, data.config, false, data.participants)
+          } else if (!Abbr.isSpeed(event)) {
+            return methods.rank.freestyle(scores, event, data.config, false, data.participants)
+          }
+        }
+
+        if (data.participants) {
+          partArray = Object.keys(data.participants)
+            .map(function (key) {
+              data.participants[key].uid = Number(key)
+              return data.participants[key]
+            })
+        } else {
+          partArray = []
+        }
+
+        /* methodsulates for every participant */
+        for (i = 0; i < partArray.length; i++) {
+          var uid = partArray[i].uid
+
+          /* init participants subobjects */
+          if (typeof finalscores[uid] === 'undefined' && typeof data.scores !== 'undefined') {
+            finalscores[uid] = {}
+            if (methods.inAll(data.config.subevents, data.scores[uid]) || rankAll) {
+              overallFinalscores[uid] = {}
+            }
+          }
+
+          for (j = 0; j < Abbr.events().length; j++) {
+            event = Abbr.events()[j]
+
+            /* init the participants scoreobject */
+            if (typeof finalscores[uid] !== 'undefined' && typeof finalscores[uid][event] === 'undefined') {
+              finalscores[uid][event] = {}
+              if (methods.inAll(data.config.subevents, data.scores[uid]) || rankAll) {
+                overallFinalscores[uid][event] = {}
+              }
+            }
+
+            /* calculate the participants score */
+            if (typeof data.scores !== 'undefined' && typeof data.scores[uid] !== 'undefined' && typeof data.scores[uid][event] !== 'undefined') {
+              finalscores[uid][event] = methods.score(event, data.scores[uid][event], uid, data.config.simplified) || {}
+              /** did not skip check */
+              if (typeof data.scores[uid][event].dns !== 'undefined') {
+                finalscores[uid][event].dns = data.scores[uid][event].dns
+              }
+              if (methods.inAll(data.config.subevents, data.scores[uid]) || rankAll) {
+                overallFinalscores[uid][event] = finalscores[uid][event]
+              }
+            }
+
+            // console._log(data.scores, data.scores[uid][event], finalscores[uid][event])
+          }
+        }
+
+        /* rank every event */
+        for (i = 0; i < Abbr.events().length; i++) {
+          ranks[Abbr.events()[i]] = rank(finalscores, Abbr.events()[i])
+          overallRanks[Abbr.events()[i]] = rank(overallFinalscores, Abbr.events()[i])
+        }
+
+        /* assemble array for orderBy with ranks and methodsulate final scores */
+        for (i = 0; i < partArray.length; i++) {
+          obj = {
+            uid: partArray[i].uid
+          }
+          var overallObj = {
+            uid: partArray[i].uid
+          }
+          for (j = 0; j < Abbr.events().length; j++) {
+            event = Abbr.events()[j]
+            if (Abbr.isSpeed(event) && typeof ranks[event][obj.uid] !== 'undefined') {
+              obj[event] = ranks[event][obj.uid]
+            } else if (typeof ranks[event][obj.uid] !== 'undefined') {
+              obj[event] = ranks[event][obj.uid].total
+            }
+
+            if (Abbr.isSpeed(event) && typeof overallRanks[event][overallObj.uid] !== 'undefined') {
+              overallObj[event] = overallRanks[event][overallObj.uid]
+            } else if (typeof overallRanks[event][obj.uid] !== 'undefined') {
+              overallObj[event] = overallRanks[event][overallObj.uid].total
+            }
+          }
+          rankArray.push(obj)
+          if (typeof data.scores !== 'undefined' && (methods.inAll(data.config.subevents, data.scores[overallObj.uid]) || rankAll)) {
+            overallRankArray.push(overallObj)
+          }
+
+          uid = partArray[i].uid
+          event = 'final'
+
+          if (typeof finalscores[uid] === 'undefined') {
+            continue
+          }
+          finalscores[uid][event] = methods.finalscore(finalscores[uid], data.config.subevents, rankAll, uid)
+          if (methods.inAll(data.config.subevents, data.scores[uid]) || rankAll) {
+            overallFinalscores[uid][event] = finalscores[uid][event]
+          }
+        }
+
+        ranksums = methods.rank.sum(rankArray, finalscores, data.config.subevents, data.config.simplified)
+        finalRanks = methods.rank.overall(ranksums, finalscores)
+
+        overallRanksums = methods.rank.sum(overallRankArray, overallFinalscores, data.config.subevents, data.config.simplified)
+        overallFinalRanks = methods.rank.overall(overallRanksums, overallFinalscores)
+
+        for (i = 0; i < partArray.length; i++) {
+          partArray[i].rank = finalRanks[partArray[i].uid] || undefined
+          partArray[i].overallRank = overallFinalRanks[partArray[i].uid] || undefined
+        }
+
+        output = {
+          partArray: partArray,
+
+          ranks: ranks,
+          overallRanks: overallRanks,
+
+          finalscores: finalscores,
+          overallFinalscores: overallFinalscores,
+
+          rankArray: rankArray,
+          overallRankArray: overallRankArray,
+
+          ranksums: ranksums,
+          overallRanksums: overallRanksums,
+
+          finalRanks: finalRanks,
+          overallFinalRanks: overallFinalRanks
+        }
+
+        let end = performance.now()
+        console.log('Results calculation took', Math.roundTo(end - start, 2), 'milliseconds.')
+
+        return output
       }
     }
     return methods

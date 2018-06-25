@@ -410,6 +410,18 @@ tr.hoverhl td:hover::after, tr.hoverhl th:hover::after {
   margin-bottom: 1em;
   margin-right: 1em;
   width: 400px;
+  transition: opacity .3s, height .3s, padding-top .3s, padding-bottom .3s, font-size .3s, border .3s;
+}
+
+.notif-hide, .notif-hide a {
+  opacity: 0;
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: .1pt;
+  border: none;
+  background-color: rgba(255, 255, 255, 0);
+  color: rgba(255, 255, 255, 0);
 }
 
 .notif.notif-green {

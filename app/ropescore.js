@@ -101,7 +101,7 @@ angular.module('ropescore', [
     }
   ])
 
-  .run(function ($location, $route, $rootScope, Config, Db) {
+  .run(function ($location, $route, $rootScope, Config, Db, Notif) {
     /** return to dashboard */
     $rootScope.goHome = function () {
       $location.path('/')
@@ -229,25 +229,36 @@ angular.module('ropescore', [
   .factory('Notif',
     function ($rootScope, $timeout, Checksum) {
       $rootScope.notifs = []
-      return function Notif (title, msg, type, time = 10000) {
-        let id = Checksum(title + Math.roundTo(Math.random() * 100000, 0))
+      return function Notif (title, msg, type = 'info', time = 10000) {
         if (typeof title === 'undefined' && typeof msg === 'undefined') return
-        if (typeof $rootScope.disabledNotifs !== 'undefined' && $rootScope.disabledNotifs[type || 'info'] === true) return
+        if (typeof $rootScope.disabledNotifs !== 'undefined' && $rootScope.disabledNotifs[type] === true) return
+
+        let id = Checksum(title + Math.roundTo(Math.random() * 100000, 0))
+
         $rootScope.notifs.push({
           title: title || '',
           msg: msg || '',
-          type: type || 'info',
+          type: type,
           id: id,
-          timeout: $timeout(function () {
+          hide: true,
+          timeout: (time === -1 ? undefined : $timeout(function () {
             let index = $rootScope.notifs.findIndex(function (obj) { return obj.id === id })
-            if (index >= 0) $rootScope.notifs.splice(index, 1)
-          }, time),
+            if (index >= 0) $rootScope.notifs[index].close()
+          }, time)),
           close: function () {
             let self = this
-            $timeout.cancel(this.timeout)
-            let index = $rootScope.notifs.findIndex(function (obj) { return obj.id === self.id })
-            if (index >= 0) $rootScope.notifs.splice(index, 1)
+            self.hide = true
+            if (typeof this.timeout !== 'undefined') $timeout.cancel(this.timeout)
+            $timeout(function () {
+              let index = $rootScope.notifs.findIndex(function (obj) { return obj.id === self.id })
+              if (index >= 0) $rootScope.notifs.splice(index, 1)
+            }, 300)
           }
+        })
+
+        $timeout(function () {
+          let index = $rootScope.notifs.findIndex(function (obj) { return obj.id === id })
+          if (index >= 0) $rootScope.notifs[index].hide = false
         })
       }
     })
@@ -275,7 +286,7 @@ angular.module('ropescore', [
       wb.Props.CreatedDate = new Date().toISOString()
       var uri = 'data:application/octet-streaml;base64,'
       for (var i = 0; i < tables.length; i++) {
-        var sheetName = (tables[i].getAttribute('name') === 'overall' ? 'Overall' : Abbr.abbr(tables[i].getAttribute('name')) || ('Sheet' + (i + 1)))
+        var sheetName = (tables[i].getAttribute('name').startsWith('overall') ? tables[i].getAttribute('name') : Abbr.abbr(tables[i].getAttribute('name').substring(0, 4)) + tables[i].getAttribute('name').substring(4) || ('Sheet' + (i + 1)))
         XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(tables[i], {
           cellStyles: true
         }), sheetName)
@@ -774,7 +785,7 @@ angular.module('ropescore', [
     }
     return {
       scores: function (id) {
-        var start = performance.now()
+        let start = performance.now()
         return new Promise(function (resolve, reject) {
           let data = Db.get()
           let chk = checker(data, id)
@@ -783,129 +794,12 @@ angular.module('ropescore', [
 
           $rootScope.networkStatus.scores = true
 
-          var i, j, event, obj, partArray
-          var ranks = {}
-          var overallRanks = {}
-          var finalscores = {}
-          var overallFinalscores = {}
-          var rankArray = []
-          var overallRankArray = []
-          var bodies = {}
+          let bodies = {}
+          let results = Calc.results(data[id])
 
-          var rank = function (scores, event) {
-            if (Abbr.isSpeed(event)) {
-              return Calc.rank.speed(scores, event, data[id].config, false, data[id].participants)
-            } else if (!Abbr.isSpeed(event)) {
-              return Calc.rank.freestyle(scores, event, data[id].config, false, data[id].participants)
-            }
-          }
+          if (typeof results === 'undefined') return reject(new Error('error calculating scores'))
 
-          if (data[id].participants) {
-            partArray = Object.keys(data[id].participants)
-              .map(function (key) {
-                data[id].participants[key].uid = Number(key)
-                return data[id].participants[key]
-              })
-          } else {
-            partArray = []
-          }
-
-          /* calculates for every participant */
-          for (i = 0; i < partArray.length; i++) {
-            var uid = partArray[i].uid
-
-            /* init participants subobjects */
-            if (typeof finalscores[uid] === 'undefined' && typeof data[id].scores !== 'undefined') {
-              finalscores[uid] = {}
-              if (Calc.inAll(data[id].config.subevents, data[id].scores[uid])) {
-                overallFinalscores[uid] = {}
-              }
-            }
-
-            for (j = 0; j < Abbr.events().length; j++) {
-              event = Abbr.events()[j]
-
-              /* init the participants scoreobject */
-              if (typeof finalscores[uid] !== 'undefined' && typeof finalscores[uid][event] === 'undefined') {
-                finalscores[uid][event] = {}
-                if (Calc.inAll(data[id].config.subevents, data[id].scores[uid])) {
-                  overallFinalscores[uid][event] = {}
-                }
-              }
-
-              /* calculate the participants score */
-              if (typeof data[id].scores !== 'undefined' && typeof data[id].scores[uid] !== 'undefined' && typeof data[id].scores[uid][event] !== 'undefined') {
-                finalscores[uid][event] = Calc.score(event, data[id].scores[uid][event], uid, data[id].config.simplified) || {}
-                /** did not skip check */
-                if (typeof data[id].scores[uid][event].dns !== 'undefined') {
-                  finalscores[uid][event].dns = data[id].scores[uid][event].dns
-                }
-                if (Calc.inAll(data[id].config.subevents, data[id].scores[uid])) {
-                  overallFinalscores[uid][event] = finalscores[uid][event]
-                }
-              }
-
-              // console._log(data[id].scores, data[id].scores[uid][event], finalscores[uid][event])
-            }
-          }
-
-          /* rank every event */
-          for (i = 0; i < Abbr.events().length; i++) {
-            ranks[Abbr.events()[i]] = rank(finalscores, Abbr.events()[i])
-            overallRanks[Abbr.events()[i]] = rank(overallFinalscores, Abbr.events()[i])
-          }
-
-          /* assemble array for orderBy with ranks and calculate final scores */
-          for (i = 0; i < partArray.length; i++) {
-            obj = {
-              uid: partArray[i].uid
-            }
-            var overallObj = {
-              uid: partArray[i].uid
-            }
-            for (j = 0; j < Abbr.events().length; j++) {
-              event = Abbr.events()[j]
-              if (Abbr.isSpeed(event) && typeof ranks[event][obj.uid] !== 'undefined') {
-                obj[event] = ranks[event][obj.uid]
-              } else if (typeof ranks[event][obj.uid] !== 'undefined') {
-                obj[event] = ranks[event][obj.uid].total
-              }
-
-              if (Abbr.isSpeed(event) && typeof overallRanks[event][overallObj.uid] !== 'undefined') {
-                overallObj[event] = overallRanks[event][overallObj.uid]
-              } else if (typeof overallRanks[event][obj.uid] !== 'undefined') {
-                overallObj[event] = overallRanks[event][overallObj.uid].total
-              }
-            }
-            rankArray.push(obj)
-            if (typeof data[id].scores !== 'undefined' && (Calc.inAll(data[id].config.subevents, data[id].scores[overallObj.uid]))) {
-              overallRankArray.push(overallObj)
-            }
-
-            uid = partArray[i].uid
-            event = 'final'
-
-            if (typeof finalscores[uid] === 'undefined') {
-              continue
-            }
-            finalscores[uid][event] = Calc.finalscore(finalscores[uid], data[id].config.subevents, false, uid)
-            if (Calc.inAll(data[id].config.subevents, data[id].scores[uid])) {
-              overallFinalscores[uid][event] = finalscores[uid][event]
-            }
-          }
-
-          // var ranksums = Calc.rank.sum(rankArray, finalscores, data[id].config.subevents, data[id].config.simplified)
-          // var finalRanks = Calc.rank.overall(ranksums, finalscores)
-
-          var overallRanksums = Calc.rank.sum(overallRankArray, overallFinalscores, data[id].config.subevents, data[id].config.simplified)
-          var overallFinalRanks = Calc.rank.overall(overallRanksums, overallFinalscores)
-
-          // for (i = 0; i < partArray.length; i++) {
-          //   partArray[i].rank = finalRanks[partArray[i].uid] || undefined
-          //   partArray[i].overallRank = overallFinalRanks[partArray[i].uid] || undefined
-          // }
-
-          for (let part of partArray) {
+          for (let part of results.partArray) {
             let overall = {
               uid: part.uid,
               events: []
@@ -919,11 +813,11 @@ angular.module('ropescore', [
                 abbr: abbr
               }
 
-              if (typeof finalscores[part.uid] === 'undefined' ||
-                  typeof finalscores[part.uid][abbr] === 'undefined' ||
-                  typeof ranks[abbr] === 'undefined' ||
-                  typeof ranks[abbr][part.uid] === 'undefined' ||
-                  Object.keys(finalscores[part.uid][abbr]).length === 0) {
+              if (typeof results.finalscores[part.uid] === 'undefined' ||
+                  typeof results.finalscores[part.uid][abbr] === 'undefined' ||
+                  typeof results.ranks[abbr] === 'undefined' ||
+                  typeof results.ranks[abbr][part.uid] === 'undefined' ||
+                  Object.keys(results.finalscores[part.uid][abbr]).length === 0) {
                 if (typeof data[id].scores[part.uid] !== 'undefined' &&
                     typeof data[id].scores[part.uid][abbr] !== 'undefined' &&
                     data[id].scores[part.uid][abbr].dns === true) {
@@ -935,10 +829,10 @@ angular.module('ropescore', [
                 continue
               }
 
-              let score = finalscores[part.uid][abbr]
-              let overallScore = (overallFinalscores[part.uid] || {})[abbr] || {}
-              let rank = ranks[abbr][part.uid]
-              let overallRank = (overallRanks[abbr] || {})[part.uid] || {}
+              let score = results.finalscores[part.uid][abbr]
+              let overallScore = (results.overallFinalscores[part.uid] || {})[abbr] || {}
+              let rank = results.ranks[abbr][part.uid]
+              let overallRank = (results.overallRanks[abbr] || {})[part.uid] || {}
 
               if (typeof score.T1 !== 'undefined') event.T1 = Math.roundTo(score.T1, 2)
               if (typeof score.T2 !== 'undefined') event.T2 = Math.roundTo(score.T2, 2)
@@ -982,17 +876,17 @@ angular.module('ropescore', [
               bodies[abbr].scores.push(event)
             }
 
-            if (typeof overallFinalscores[part.uid] !== 'undefined' && typeof overallFinalscores[part.uid].final !== 'undefined') overall.score = Math.roundTo(overallFinalscores[part.uid].final, 2)
-            if (typeof overallRanksums[part.uid] !== 'undefined') overall.rsum = Math.roundTo(overallRanksums[part.uid], 2)
-            if (typeof overallFinalRanks[part.uid] !== 'undefined') overall.rank = Math.roundTo(overallFinalRanks[part.uid], 2)
+            if (typeof results.overallFinalscores[part.uid] !== 'undefined' && typeof results.overallFinalscores[part.uid].final !== 'undefined') overall.score = Math.roundTo(results.overallFinalscores[part.uid].final, 2)
+            if (typeof results.overallRanksums[part.uid] !== 'undefined') overall.rsum = Math.roundTo(results.overallRanksums[part.uid], 2)
+            if (typeof results.overallFinalRanks[part.uid] !== 'undefined') overall.rank = Math.roundTo(results.overallFinalRanks[part.uid], 2)
 
             if (typeof bodies.overall === 'undefined') bodies.overall = {scores: []}
             if (overall.events.length === 0) overall.delete = true
             bodies.overall.scores.push(overall)
           }
 
-          var end = performance.now()
-          console.log('Score calculation took ' + (end - start) + ' milliseconds.')
+          let end = performance.now()
+          console.log('HTTP body preparation took ' + Math.roundTo(end - start, 2) + ' milliseconds.')
 
           console.log('RSLive scores', bodies)
           let bodyAbbrs = Object.keys(bodies)

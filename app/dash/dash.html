@@ -4,6 +4,7 @@
   <a ng-href="{{ linkData }}" download="ropescore-export-{{ today }}{{ (computerName ? '-' + nameCleaner(computerName) : '') }}.json"><button>Export</button></a>
   <button ng-confirm-click="Are you sure you want to remove ALL data? If you haven't made an export there will be no way of restoring it. Please do an export before resetting. This will not reset the System Configuration such as RopeScore Live API details and this computers name." confirmed-click="reset()">Reset</button>
   <a ng-href="/display"><button>Display Live Unofficial Scores</button></a>
+  <a ng-href="/results"><button>Show Results for all Categories</button></a>
   <a ng-href="/combine"><button>Combine Two Categories</button></a>
   <button ng-click="resetOrder()">Reset Category order</button>
   <a ng-href="/globconfig"><button>System Configuration</button></a>

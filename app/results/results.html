@@ -1,40 +1,40 @@
-<h1>{{ data[id].config.name }} Results</h1>
+<h1 ng-if="categories.length === 1">{{ data[id].config.name }} Results</h1>
 
 <button ng-click="toExcel()">Export to Excel</button>
 <button ng-click="toggleRankAll()">{{ (rankAll ? 'Stop Ranking Everyone in Everything' : 'Rank Everyone in Everything') }}</button>
 
-<div class="table">
-  <table name="raw">
+<div class="table" ng-if="categories.length === 1">
+  <table name="raw" ng-repeat="category in categories">
     <thead>
       <tr>
-        <th bold="true" class="blank" noborders colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}" rowspan="2"></th>
-        <th bold="true" colspan="{{ header(data[id].config.subevents, 'sr', 2) }}" ng-if="Abbr.hasType(data[id].config.subevents, 'sr')">Single Rope</th>
-        <th bold="true" colspan="{{ header(data[id].config.subevents, 'dd', 2) }}" ng-if="Abbr.hasType(data[id].config.subevents, 'dd')">Double Dutch</th>
+        <th bold="true" class="blank" noborders colspan="{{ (Abbr.hasTeams(data[category].config.subevents) ? 4 : 3) }}" rowspan="2"></th>
+        <th bold="true" colspan="{{ header(category, data[category].config.subevents, 'sr', 2) }}" ng-if="Abbr.hasType(data[category].config.subevents, 'sr')">Single Rope</th>
+        <th bold="true" colspan="{{ header(category, data[category].config.subevents, 'dd', 2) }}" ng-if="Abbr.hasType(data[category].config.subevents, 'dd')">Double Dutch</th>
         <th bold="true" colspan="3" rowspan="2">Overall</th>
       </tr>
       <tr>
         <!-- FIXME? -->
-        <th bold="true" colspan="{{ (Abbr.isSpeed(event) ? 2 : 10) }}" ng-repeat="event in Abbr.events() track by $index" ng-if="data[id].config.subevents[event]">{{ Abbr.unabbr(event)}}</th>
+        <th bold="true" colspan="{{ (Abbr.isSpeed(event) ? 2 : 10) }}" ng-repeat="event in Abbr.events() track by $index" ng-if="data[category].config.subevents[event]">{{ Abbr.unabbr(event)}}</th>
       </tr>
       <tr>
-        <th bold="true">{{ (Abbr.hasTeams(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
-        <th bold="true" ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
+        <th bold="true">{{ (Abbr.hasTeams(data[category].config.subevents) ? "Team Name" : "Name") }}</th>
+        <th bold="true" ng-if="Abbr.hasTeams(data[category].config.subevents)">Team Members</th>
         <th bold="true">Club</th>
         <th bold="true">id</th>
 
-        <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)"
+        <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)"
           ng-repeat-start="event in Abbr.events() track by $index">Required Elements</th>
-        <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">Presentation</th>
-        <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">Difficulty</th>
-        <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">Deductions</th>
-        <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">Creativity - (deductions / 2)</th>
-        <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">Rank</th>
-        <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">Difficulty - (deductions / 2)</th>
-        <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">Rank</th>
-        <th bold="true" ng-if="data[id].config.subevents[event]">Score</th>
-        <th bold="true" ng-if="data[id].config.subevents[event]" class="red" argb="FFFF0000"
-          ng-repeat-end>{{ ((data[id].config.simplified || data[id].config.enableFactors) && data[id].config.factors && data[id].config.factors[event]
-          ? (data[id].config.factors[event] != 1 ? data[id].config.factors[event]
+        <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">Presentation</th>
+        <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">Difficulty</th>
+        <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">Deductions</th>
+        <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">Creativity - (deductions / 2)</th>
+        <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">Rank</th>
+        <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">Difficulty - (deductions / 2)</th>
+        <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">Rank</th>
+        <th bold="true" ng-if="data[category].config.subevents[event]">Score</th>
+        <th bold="true" ng-if="data[category].config.subevents[event]" class="red" argb="FFFF0000"
+          ng-repeat-end>{{ ((data[category].config.simplified || data[category].config.enableFactors) && data[category].config.factors && data[category].config.factors[event]
+          ? (data[category].config.factors[event] != 1 ? data[category].config.factors[event]
           + 'x' : '') : (event == 'srsf' ? '2x' : '')) }} Rank</th>
 
         <th bold="true">Score</th>
@@ -43,75 +43,76 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="part in partArray | orderBy : ['rank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})">
+      <tr ng-repeat="part in results[category].partArray | orderBy : ['rank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})">
         <td>{{ part.name }}</td>
-        <td class="sm" ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ part.members }}</td>
+        <td class="sm" ng-if="Abbr.hasTeams(data[category].config.subevents)">{{ part.members }}</td>
         <td>{{ part.club }}</td>
         <td>{{ part.uid }}</td>
 
-        <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)" ng-repeat-start="event in Abbr.events() track by $index">{{ roundTo(finalscores[part.uid][event].T3, 2) }}</td>
-        <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ roundTo(finalscores[part.uid][event].T2, 2) }}</td>
-        <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ roundTo(finalscores[part.uid][event].T1, 2) }}</td>
-        <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ (finalscores[part.uid][event].T5 !== undefined && !finalscores[part.uid][event].dns  ? -roundTo(finalscores[part.uid][event].T5, 2) : '') }}</td>
-        <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ (!finalscores[part.uid][event].dns ? roundTo(finalscores[part.uid][event].T4 - (finalscores[part.uid][event].T5 / 2), 2) : '') }}</td>
-        <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ ranks[event][part.uid].crea }}</td>
-        <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ (!finalscores[part.uid][event].dns ? roundTo(finalscores[part.uid][event].T1 - (finalscores[part.uid][event].T5 / 2), 2) : '') }}</td>
-        <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)">{{ ranks[event][part.uid].diff }}</td>
+        <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)" ng-repeat-start="event in Abbr.events() track by $index">{{ roundTo(results[category].finalscores[part.uid][event].T3, 2) }}</td>
+        <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">{{ roundTo(results[category].finalscores[part.uid][event].T2, 2) }}</td>
+        <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">{{ roundTo(results[category].finalscores[part.uid][event].T1, 2) }}</td>
+        <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">{{ (results[category].finalscores[part.uid][event].T5 !== undefined && !results[category].finalscores[part.uid][event].dns  ? -roundTo(results[category].finalscores[part.uid][event].T5, 2) : '') }}</td>
+        <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">{{ (!results[category].finalscores[part.uid][event].dns ? roundTo(results[category].finalscores[part.uid][event].T4 - (results[category].finalscores[part.uid][event].T5 / 2), 2) : '') }}</td>
+        <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">{{ results[category].ranks[event][part.uid].crea }}</td>
+        <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">{{ (!results[category].finalscores[part.uid][event].dns ? roundTo(results[category].finalscores[part.uid][event].T1 - (results[category].finalscores[part.uid][event].T5 / 2), 2) : '') }}</td>
+        <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)">{{ results[category].ranks[event][part.uid].diff }}</td>
 
-        <td ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)" ng-class="{gray: finalscores[part.uid][event].dns}">{{ roundTo(finalscores[part.uid][event].A, 2) }}{{ (finalscores[part.uid][event].dns ? 'DNS' : '') }}</td>
-        <td ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event)" class="red" argb="FFFF0000">{{ ranks[event][part.uid].total.mult }}</td>
+        <td ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)" ng-class="{gray: results[category].finalscores[part.uid][event].dns}">{{ roundTo(results[category].finalscores[part.uid][event].A, 2) }}{{ (results[category].finalscores[part.uid][event].dns ? 'DNS' : '') }}</td>
+        <td ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event)" class="red" argb="FFFF0000">{{ results[category].ranks[event][part.uid].total.mult }}</td>
 
-        <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event)" ng-class="{gray: finalscores[part.uid][event].dns}">{{ roundTo(finalscores[part.uid][event].PreY, 2) }}{{ (finalscores[part.uid][event].dns ? 'DNS' : '') }}</td>
-        <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event)" class="red" argb="FFFF0000" ng-repeat-end>{{ ranks[event][part.uid].mult }}</td>
+        <td ng-if="data[category].config.subevents[event] && Abbr.isSpeed(event)" ng-class="{gray: results[category].finalscores[part.uid][event].dns}">{{ roundTo(results[category].finalscores[part.uid][event].PreY, 2) }}{{ (results[category].finalscores[part.uid][event].dns ? 'DNS' : '') }}</td>
+        <td ng-if="data[category].config.subevents[event] && Abbr.isSpeed(event)" class="red" argb="FFFF0000" ng-repeat-end>{{ results[category].ranks[event][part.uid].mult }}</td>
 
 
-        <td>{{ roundTo(finalscores[part.uid].final, 2) }}</td>
-        <td class="green" argb="FF008000">{{ ranksums[part.uid] }}</td>
-        <td class="red" argb="FFFF0000">{{ finalRanks[part.uid] }}
+        <td>{{ roundTo(results[category].finalscores[part.uid].final, 2) }}</td>
+        <td class="green" argb="FF008000">{{ results[category].ranksums[part.uid] }}</td>
+        <td class="red" argb="FFFF0000">{{ results[category].finalRanks[part.uid] }}
         </td>
       </tr>
     </tbody>
   </table>
 </div>
 
-<div ng-show="ShowAllTables" class="mt">
+<div ng-show="ShowAllTables || categories.length > 1" class="mt" ng-repeat="category in categories">
+  <h1 ng-if="categories.length > 1">{{ data[category].config.name }} Results</h1>
   <div class="table">
-    <table name="overall">
+    <table name="overall{{ (categories.length > 1 ? ' - ' + data[category].config.name : '') }}">
       <thead>
         <tr>
-          <th bold="true" noborders colspan="{{ (3 + (Abbr.hasTeams(data[id].config.subevents) ? 1 : 0) + header(data[id].config.subevents, 'sr', true) + header(data[id].config.subevents, 'dd', true) + 3) }}">{{ data[id].config.name }} Overall Results</th>
+          <th bold="true" noborders colspan="{{ (3 + (Abbr.hasTeams(data[category].config.subevents) ? 1 : 0) + header(category, data[category].config.subevents, 'sr', true) + header(category, data[category].config.subevents, 'dd', true) + 3) }}">{{ data[category].config.name }} Overall Results</th>
         </tr>
         <tr>
-          <th bold="true" colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}" rowspan="2"></th>
-          <th bold="true" colspan="{{ header(data[id].config.subevents, 'sr', true) }}"
-            ng-if="Abbr.hasType(data[id].config.subevents, 'sr')">Single Rope</th>
-          <th bold="true" colspan="{{ header(data[id].config.subevents, 'dd', true) }}"
-            ng-if="Abbr.hasType(data[id].config.subevents, 'dd')">Double Dutch</th>
+          <th bold="true" colspan="{{ (Abbr.hasTeams(data[category].config.subevents) ? 4 : 3) }}" rowspan="2"></th>
+          <th bold="true" colspan="{{ header(category, data[category].config.subevents, 'sr', true) }}"
+            ng-if="Abbr.hasType(data[category].config.subevents, 'sr')">Single Rope</th>
+          <th bold="true" colspan="{{ header(category, data[category].config.subevents, 'dd', true) }}"
+            ng-if="Abbr.hasType(data[category].config.subevents, 'dd')">Double Dutch</th>
           <th bold="true" colspan="3" rowspan="2">Overall</th>
         </tr>
         <tr>
-          <th bold="true" colspan="{{ colCount(event, true) }}" ng-repeat="event in Abbr.events() track by $index" ng-if="data[id].config.subevents[event]">{{ Abbr.unabbrNoType(event)}}</th>
+          <th bold="true" colspan="{{ colCount(category, event, true) }}" ng-repeat="event in Abbr.events() track by $index" ng-if="data[category].config.subevents[event]">{{ Abbr.unabbrNoType(event)}}</th>
         </tr>
         <tr>
-          <th bold="true">{{ (Abbr.hasTeams(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
-          <th bold="true" ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
+          <th bold="true">{{ (Abbr.hasTeams(data[category].config.subevents) ? "Team Name" : "Name") }}</th>
+          <th bold="true" ng-if="Abbr.hasTeams(data[category].config.subevents)">Team Members</th>
           <th bold="true">Club</th>
           <th bold="true">id</th>
 
-          <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'rq')" ng-repeat-start="event in Abbr.events() track by $index">Req El</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'pres')">Pres</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'diff')">Diff</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'deduc')">Deduc</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'cScore')">Crea - Deduc/2</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'cRank')">Rank</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'dScore')">Diff - Deduc/2</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'dRank')">Rank</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'rq')" ng-repeat-start="event in Abbr.events() track by $index">Req El</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'pres')">Pres</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'diff')">Diff</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'deduc')">Deduc</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'cScore')">Crea - Deduc/2</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'cRank')">Rank</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'dScore')">Diff - Deduc/2</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'dRank')">Rank</th>
 
-          <th bold="true" ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event) && showCol('overall', 'speed', 'score')">Score</th>
-          <th bold="true" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'score')">Score</th>
+          <th bold="true" ng-if="data[category].config.subevents[event] && Abbr.isSpeed(event) && showCol(category, 'overall', 'speed', 'score')">Score</th>
+          <th bold="true" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'score')">Score</th>
 
-          <th bold="true" ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event) && showCol('overall', 'speed', 'rank')" class="red" argb="FFFF0000">Rank</th>
-          <th bold="true" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'rank')" class="red" argb="FFFF0000" ng-repeat-end>Rank</th>
+          <th bold="true" ng-if="data[category].config.subevents[event] && Abbr.isSpeed(event) && showCol(category, 'overall', 'speed', 'rank')" class="red" argb="FFFF0000">Rank</th>
+          <th bold="true" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'rank')" class="red" argb="FFFF0000" ng-repeat-end>Rank</th>
 
           <th bold="true">Score</th>
           <th bold="true" class="green" argb="FF008000">Rank Sum</th>
@@ -119,88 +120,88 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="part in partArray | orderBy : ['overallRank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})"
-          ng-if="rankAll || inAll(data[id].config.subevents, data[id].scores[part.uid])">
-          <td>{{ data[id].participants[part.uid].name }}</td>
-          <td class="sm" ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ data[id].participants[part.uid].members }}</td>
-          <td>{{ data[id].participants[part.uid].club }}</td>
+        <tr ng-repeat="part in results[category].partArray | orderBy : ['overallRank','uid']" ng-style="($even ? {} : {'background-color':'#eee'})"
+          ng-if="rankAll || inAll(data[category].config.subevents, data[category].scores[part.uid])">
+          <td>{{ data[category].participants[part.uid].name }}</td>
+          <td class="sm" ng-if="Abbr.hasTeams(data[category].config.subevents)">{{ data[category].participants[part.uid].members }}</td>
+          <td>{{ data[category].participants[part.uid].club }}</td>
           <td>{{ part.uid }}</td>
 
-          <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event) && showCol('overall', 'speed', 'score')" ng-repeat-start="event in Abbr.events() track by $index">{{ roundTo(overallFinalscores[part.uid][event].Y, 2) }}</td>
+          <td ng-if="data[category].config.subevents[event] && Abbr.isSpeed(event) && showCol(category, 'overall', 'speed', 'score')" ng-repeat-start="event in Abbr.events() track by $index">{{ roundTo(results[category].overallFinalscores[part.uid][event].Y, 2) }}</td>
 
-          <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'rq')">{{ roundTo(overallFinalscores[part.uid][event].T3, 2) }}</td>
-          <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'pres')">{{ roundTo(overallFinalscores[part.uid][event].T2, 2) }}</td>
-          <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'diff')">{{ roundTo(overallFinalscores[part.uid][event].T1, 2) }}</td>
-          <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'deduc')">{{ (overallFinalscores[part.uid][event].T5 !== undefined ? -roundTo(overallFinalscores[part.uid][event].T5, 2) : '') }}</td>
-          <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'cScore')">{{ toMinScore(roundTo(overallFinalscores[part.uid][event].T4 - (overallFinalscores[part.uid][event].T5 / 2), 2)) }}</td>
-          <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'cRank')">{{ overallRanks[event][part.uid].crea }}</td>
-          <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'dScore')">{{ toMinScore(roundTo(overallFinalscores[part.uid][event].T1 - (overallFinalscores[part.uid][event].T5 / 2), 2)) }}</td>
-          <td class="gray" argb="FF808080" ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'dRank')">{{ overallRanks[event][part.uid].diff }}</td>
-          <td ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'score')">{{ roundTo(overallFinalscores[part.uid][event].A, 2) }}</td>
+          <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'rq')">{{ roundTo(results[category].overallFinalscores[part.uid][event].T3, 2) }}</td>
+          <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'pres')">{{ roundTo(results[category].overallFinalscores[part.uid][event].T2, 2) }}</td>
+          <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'diff')">{{ roundTo(results[category].overallFinalscores[part.uid][event].T1, 2) }}</td>
+          <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'deduc')">{{ (results[category].overallFinalscores[part.uid][event].T5 !== undefined ? -roundTo(results[category].overallFinalscores[part.uid][event].T5, 2) : '') }}</td>
+          <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'cScore')">{{ toMinScore(category, roundTo(results[category].overallFinalscores[part.uid][event].T4 - (results[category].overallFinalscores[part.uid][event].T5 / 2), 2)) }}</td>
+          <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'cRank')">{{ results[category].overallRanks[event][part.uid].crea }}</td>
+          <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'dScore')">{{ toMinScore(category, roundTo(results[category].overallFinalscores[part.uid][event].T1 - (results[category].overallFinalscores[part.uid][event].T5 / 2), 2)) }}</td>
+          <td class="gray" argb="FF808080" ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'dRank')">{{ results[category].overallRanks[event][part.uid].diff }}</td>
+          <td ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'score')">{{ roundTo(results[category].overallFinalscores[part.uid][event].A, 2) }}</td>
 
-          <td ng-if="data[id].config.subevents[event] && Abbr.isSpeed(event) && showCol('overall', 'speed', 'rank')" class="red" argb="FFFF0000">{{ overallRanks[event][part.uid].rank }}</td>
-          <td ng-if="data[id].config.subevents[event] && !Abbr.isSpeed(event) && showCol('overall', 'freestyle', 'rank')" class="red" argb="FFFF0000" ng-repeat-end>{{ overallRanks[event][part.uid].total.rank }}</td>
+          <td ng-if="data[category].config.subevents[event] && Abbr.isSpeed(event) && showCol(category, 'overall', 'speed', 'rank')" class="red" argb="FFFF0000">{{ results[category].overallRanks[event][part.uid].rank }}</td>
+          <td ng-if="data[category].config.subevents[event] && !Abbr.isSpeed(event) && showCol(category, 'overall', 'freestyle', 'rank')" class="red" argb="FFFF0000" ng-repeat-end>{{ results[category].overallRanks[event][part.uid].total.rank }}</td>
 
-          <td>{{ roundTo(overallFinalscores[part.uid].final, 2) }}</td>
-          <td class="green" argb="FF008000">{{ overallRanksums[part.uid] }}</td>
-          <td class="red" argb="FFFF0000">{{ overallFinalRanks[part.uid] }}
+          <td>{{ roundTo(results[category].overallFinalscores[part.uid].final, 2) }}</td>
+          <td class="green" argb="FF008000">{{ results[category].overallRanksums[part.uid] }}</td>
+          <td class="red" argb="FFFF0000">{{ results[category].overallFinalRanks[part.uid] }}
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="table" ng-repeat="event in Abbr.events() track by $index" ng-if="data[id].config.subevents[event]">
-    <table name="{{ event }}" class="mt">
+  <div class="table" ng-repeat="event in Abbr.events() track by $index" ng-if="data[category].config.subevents[event]">
+    <table name="{{ event }}{{ (categories.length > 1 ? ' - ' + data[category].config.name : '') }}" class="mt">
       <thead>
         <tr>
-          <th bold="true" colspan="{{ 3 + (Abbr.hasTeams(data[id].config.subevents) ? 1 : 0) + colCount(event) }}">{{ data[id].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
+          <th bold="true" colspan="{{ 3 + (Abbr.hasTeams(data[category].config.subevents) ? 1 : 0) + colCount(category, event) }}">{{ data[category].config.name }} Scores: {{ Abbr.unabbr(event)}}</th>
         </tr>
         <tr>
-          <th bold="true">{{ (Abbr.hasTeams(data[id].config.subevents) ? " Team Name " : "Name ") }}</th>
-          <th bold="true" ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
+          <th bold="true">{{ (Abbr.hasTeams(data[category].config.subevents) ? " Team Name " : "Name ") }}</th>
+          <th bold="true" ng-if="Abbr.hasTeams(data[category].config.subevents)">Team Members</th>
           <th bold="true">Club</th>
           <th bold="true">id</th>
 
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'rq')">Req El</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'pres')">Pres</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'diff')">Diff</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'deduc')">Deduc</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'cScore')">Crea - Deduc/2</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'cRank')">Rank</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'dScore')">Diff - Deduc/2</th>
-          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'dRank')">Rank</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'rq')">Req El</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'pres')">Pres</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'diff')">Diff</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'deduc')">Deduc</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'cScore')">Crea - Deduc/2</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'cRank')">Rank</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'dScore')">Diff - Deduc/2</th>
+          <th bold="true" class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'dRank')">Rank</th>
 
-          <th bold="true" ng-if="Abbr.isSpeed(event) && showCol('events', 'speed', 'score')">Score</th>
-          <th bold="true" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'score')">Score</th>
-          <th bold="true" class="green" argb="FF008000" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'rsum')">Rank Sum</th>
-          <th bold="true" class="red" argb="FFFF0000" ng-if="Abbr.isSpeed(event) && showCol('events', 'speed', 'rank')">Rank</th>
-          <th bold="true" class="red" argb="FFFF0000" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'rank')">Rank</th>
+          <th bold="true" ng-if="Abbr.isSpeed(event) && showCol(category, 'events', 'speed', 'score')">Score</th>
+          <th bold="true" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'score')">Score</th>
+          <th bold="true" class="green" argb="FF008000" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'rsum')">Rank Sum</th>
+          <th bold="true" class="red" argb="FFFF0000" ng-if="Abbr.isSpeed(event) && showCol(category, 'events', 'speed', 'rank')">Rank</th>
+          <th bold="true" class="red" argb="FFFF0000" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'rank')">Rank</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="part in rankArray | orderBy : [event + '.rank', 'uid']" ng-style="($even ? {} : { 'background-color': '#eee'})"
+        <tr ng-repeat="part in results[category].rankArray | orderBy : [event + '.rank', 'uid']" ng-style="($even ? {} : { 'background-color': '#eee'})"
           ng-if="part[event]">
-          <td>{{ data[id].participants[part.uid].name }}</td>
-          <td class="sm" ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ data[id].participants[part.uid].members }}</td>
-          <td>{{ data[id].participants[part.uid].club }}</td>
+          <td>{{ data[category].participants[part.uid].name }}</td>
+          <td class="sm" ng-if="Abbr.hasTeams(data[category].config.subevents)">{{ data[category].participants[part.uid].members }}</td>
+          <td>{{ data[category].participants[part.uid].club }}</td>
           <td>{{ part.uid }}</td>
 
-          <td ng-if="Abbr.isSpeed(event) && showCol('events', 'speed', 'score')">{{ roundTo(finalscores[part.uid][event].PreY, 2) }}</td>
+          <td ng-if="Abbr.isSpeed(event) && showCol(category, 'events', 'speed', 'score')">{{ roundTo(results[category].finalscores[part.uid][event].PreY, 2) }}</td>
 
-          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'rq')">{{ roundTo(finalscores[part.uid][event].T3, 2) }}</td>
-          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'pres')">{{ roundTo(finalscores[part.uid][event].T2, 2) }}</td>
-          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'diff')">{{ roundTo(finalscores[part.uid][event].T1, 2) }}</td>
-          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'deduc')">{{ (finalscores[part.uid][event].T5 !== undefined ? -roundTo(finalscores[part.uid][event].T5, 2) : '') }}</td>
-          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'cScore')">{{ toMinScore(roundTo(finalscores[part.uid][event].T4 - (finalscores[part.uid][event].T5 / 2), 2)) }}</td>
-          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'cRank')">{{ ranks[event][part.uid].crea }}</td>
-          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'dScore')">{{ toMinScore(roundTo(finalscores[part.uid][event].T1 - (finalscores[part.uid][event].T5 / 2), 2)) }}</td>
-          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'dRank')">{{ ranks[event][part.uid].diff }}</td>
-          <td ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'score')">{{ roundTo(finalscores[part.uid][event].A, 2) }}</td>
+          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'rq')">{{ roundTo(results[category].finalscores[part.uid][event].T3, 2) }}</td>
+          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'pres')">{{ roundTo(results[category].finalscores[part.uid][event].T2, 2) }}</td>
+          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'diff')">{{ roundTo(results[category].finalscores[part.uid][event].T1, 2) }}</td>
+          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'deduc')">{{ (results[category].finalscores[part.uid][event].T5 !== undefined ? -roundTo(results[category].finalscores[part.uid][event].T5, 2) : '') }}</td>
+          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'cScore')">{{ toMinScore(category, roundTo(results[category].finalscores[part.uid][event].T4 - (results[category].finalscores[part.uid][event].T5 / 2), 2)) }}</td>
+          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'cRank')">{{ results[category].ranks[event][part.uid].crea }}</td>
+          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'dScore')">{{ toMinScore(category, roundTo(results[category].finalscores[part.uid][event].T1 - (results[category].finalscores[part.uid][event].T5 / 2), 2)) }}</td>
+          <td class="gray" argb="FF808080" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'dRank')">{{ results[category].ranks[event][part.uid].diff }}</td>
+          <td ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'score')">{{ roundTo(results[category].finalscores[part.uid][event].A, 2) }}</td>
 
-          <td class="red" argb="FFFF0000" ng-if="Abbr.isSpeed(event) && showCol('events', 'speed', 'rank')">{{ ranks[event][part.uid].rank }}</td>
-          <td class="green" argb="FF008000" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'rsum')">{{ ranks[event][part.uid].total.cRank + ranks[event][part.uid].total.dRank }}</td>
-          <td class="red" argb="FFFF0000" ng-if="!Abbr.isSpeed(event) && showCol('events', 'freestyle', 'rank')">{{ ranks[event][part.uid].total.rank }}</td>
+          <td class="red" argb="FFFF0000" ng-if="Abbr.isSpeed(event) && showCol(category, 'events', 'speed', 'rank')">{{ results[category].ranks[event][part.uid].rank }}</td>
+          <td class="green" argb="FF008000" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'rsum')">{{ results[category].ranks[event][part.uid].total.cRank + results[category].ranks[event][part.uid].total.dRank }}</td>
+          <td class="red" argb="FFFF0000" ng-if="!Abbr.isSpeed(event) && showCol(category, 'events', 'freestyle', 'rank')">{{ results[category].ranks[event][part.uid].total.rank }}</td>
         </tr>
       </tbody>
     </table>

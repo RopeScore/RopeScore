@@ -10,7 +10,7 @@ angular.module('ropescore.results', ['ngRoute'])
   .config([
     '$routeProvider',
     function ($routeProvider) {
-      $routeProvider.when('/results/:id', {
+      $routeProvider.when('/results/:id?', {
         templateUrl: '/results/results.html',
         controller: 'ResultsCtrl'
       })
@@ -42,38 +42,37 @@ angular.module('ropescore.results', ['ngRoute'])
     })
 
     $scope.id = $routeParams.id
-    $scope.setID($scope.id)
+    if ($scope.id) {
+      $scope.setID($scope.id)
+      $scope.categories = [$scope.id]
+    } else {
+      $scope.setID(null)
+      $scope.categories = Object.keys($scope.data).filter(function (key) { return key !== 'globconfig' })
+    }
     $scope.Abbr = Abbr
     $scope.getNumber = Num
 
-    if ($scope.data[$scope.id].participants) {
-      $scope.partArray = Object.keys($scope.data[$scope.id].participants)
-        .map(function (key) {
-          $scope.data[$scope.id].participants[key].uid = Number(key)
-          return $scope.data[$scope.id].participants[key]
-        })
-    } else {
-      $scope.partArray = []
-    }
-
-    $scope.showCol = function (grade, type, col) {
-      if ($scope.data[$scope.id].config.simplified && typeof Config.SimplResultsCols[grade] !== 'undefined' && typeof Config.SimplResultsCols[grade][type] !== 'undefined' && typeof Config.SimplResultsCols[grade][type][col] !== 'undefined') {
+    $scope.showCol = function (id, grade, type, col) {
+      if ($scope.data[id].config.simplified && typeof Config.SimplResultsCols[grade] !== 'undefined' && typeof Config.SimplResultsCols[grade][type] !== 'undefined' && typeof Config.SimplResultsCols[grade][type][col] !== 'undefined') {
         return Config.SimplResultsCols[grade][type][col]
       }
       return Config.ResultsCols[grade][type][col] || false
     }
 
-    if ($scope.data[$scope.id].config.simplified) {
-      $scope.enabledCols = Config.SimplResultsCols
-    } else {
-      $scope.enabledCols = Config.ResultsCols
+    for (let id of $scope.categories) {
+      if (typeof $scope.enabledCols === 'undefined') $scope.enabledCols = {}
+      if ($scope.data[id].config.simplified) {
+        $scope.enabledCols[id] = Config.SimplResultsCols || Config.ResultsCols
+      } else {
+        $scope.enabledCols[id] = Config.ResultsCols
+      }
     }
 
-    $scope.colCount = function (event, overall) {
+    $scope.colCount = function (id, event, overall) {
       var type = (Abbr.isSpeed(event) ? 'speed' : 'freestyle')
       var cat = (overall ? 'overall' : 'events')
       var raw = (overall === 2)
-      var active = Object.keys($scope.enabledCols[cat][type]).filter(function (col) { return (raw && col !== 'rsum') || $scope.enabledCols[cat][type][col] })
+      var active = Object.keys($scope.enabledCols[id][cat][type]).filter(function (col) { return (raw && col !== 'rsum') || $scope.enabledCols[id][cat][type][col] })
       return active.length
     }
 
@@ -82,7 +81,7 @@ angular.module('ropescore.results', ['ngRoute'])
      * @param  {Strin} type  dd, sr...
      * @return {Number}      number of Columns the header should span
      */
-    $scope.header = function (obj, type, mode) {
+    $scope.header = function (id, obj, type, mode) {
       if (typeof obj === 'undefined' || typeof type === 'undefined') {
         console.warn('obj or type not fed to header function')
         return 0
@@ -92,24 +91,10 @@ angular.module('ropescore.results', ['ngRoute'])
       var i
       for (i = 0; i < keys.length; i++) {
         if (Abbr.isType(keys[i], type) && obj[keys[i]]) {
-          sum += $scope.colCount(keys[i], mode)
+          sum += $scope.colCount(id, keys[i], mode)
         }
       }
       return sum
-    }
-
-    /**
-     * Calculates per event ranks
-     * @param  {Object} data  scores to rank
-     * @param  {String} event event to rank
-     * @return {Object}
-     */
-    $scope.rank = function (data, event) {
-      if (Abbr.isSpeed(event)) {
-        return Calc.rank.speed(data, event, $scope.data[$scope.id].config, $scope.rankAll, $scope.data[$scope.id].participants)
-      } else if (!Abbr.isSpeed(event)) {
-        return Calc.rank.freestyle(data, event, $scope.data[$scope.id].config, $scope.rankAll, $scope.data[$scope.id].participants)
-      }
     }
 
     /**
@@ -117,110 +102,13 @@ angular.module('ropescore.results', ['ngRoute'])
      * @return {undefined}
      */
     var updateScores = function () {
-      var start = performance.now()
-
-      var i, j, event, obj
-      $scope.ranks = {}
-      $scope.overallRanks = {}
-      $scope.finalscores = {}
-      $scope.overallFinalscores = {}
-      $scope.rankArray = []
-      $scope.overallRankArray = []
-
-      /* calculates for every participant */
-      for (i = 0; i < $scope.partArray.length; i++) {
-        var uid = $scope.partArray[i].uid
-
-        /* init participants subobjects */
-        if (typeof $scope.finalscores[uid] === 'undefined' && typeof $scope.data[$scope.id].scores !== 'undefined') {
-          $scope.finalscores[uid] = {}
-          if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid]) || $scope.rankAll) {
-            $scope.overallFinalscores[uid] = {}
-          }
-        }
-
-        for (j = 0; j < Abbr.events().length; j++) {
-          event = Abbr.events()[j]
-
-          /* init the participants scoreobject */
-          if (typeof $scope.finalscores[uid] !== 'undefined' && typeof $scope.finalscores[uid][event] === 'undefined') {
-            $scope.finalscores[uid][event] = {}
-            if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid]) || $scope.rankAll) {
-              $scope.overallFinalscores[uid][event] = {}
-            }
-          }
-
-          /* calculate the participants score */
-          if (typeof $scope.data[$scope.id].scores !== 'undefined' && typeof $scope.data[$scope.id].scores[uid] !== 'undefined' && typeof $scope.data[$scope.id].scores[uid][event] !== 'undefined') {
-            $scope.finalscores[uid][event] = Calc.score(event, $scope.data[$scope.id].scores[uid][event], uid, $scope.data[$scope.id].config.simplified) || {}
-            /** did not skip check */
-            if (typeof $scope.data[$scope.id].scores[uid][event].dns !== 'undefined') {
-              $scope.finalscores[uid][event].dns = $scope.data[$scope.id].scores[uid][event].dns
-            }
-            if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid]) || $scope.rankAll) {
-              $scope.overallFinalscores[uid][event] = $scope.finalscores[uid][event]
-            }
-          }
-        }
+      let start = performance.now()
+      if (typeof $scope.results === 'undefined') $scope.results = {}
+      for (let id of $scope.categories) {
+        $scope.results[id] = Calc.results($scope.data[id], $scope.rankAll)
       }
-
-      /* rank every event */
-      for (i = 0; i < Abbr.events().length; i++) {
-        $scope.ranks[Abbr.events()[i]] = $scope.rank($scope.finalscores, Abbr.events()[i])
-        $scope.overallRanks[Abbr.events()[i]] = $scope.rank($scope.overallFinalscores, Abbr.events()[i])
-      }
-
-      /* assemble array for orderBy with ranks and calculate final scores */
-      for (i = 0; i < $scope.partArray.length; i++) {
-        obj = {
-          uid: $scope.partArray[i].uid
-        }
-        var overallObj = {
-          uid: $scope.partArray[i].uid
-        }
-        for (j = 0; j < Abbr.events().length; j++) {
-          event = Abbr.events()[j]
-          if (Abbr.isSpeed(event) && typeof $scope.ranks[event][obj.uid] !== 'undefined') {
-            obj[event] = $scope.ranks[event][obj.uid]
-          } else if (typeof $scope.ranks[event][obj.uid] !== 'undefined') {
-            obj[event] = $scope.ranks[event][obj.uid].total
-          }
-
-          if (Abbr.isSpeed(event) && typeof $scope.overallRanks[event][overallObj.uid] !== 'undefined') {
-            overallObj[event] = $scope.overallRanks[event][overallObj.uid]
-          } else if (typeof $scope.overallRanks[event][obj.uid] !== 'undefined') {
-            overallObj[event] = $scope.overallRanks[event][overallObj.uid].total
-          }
-        }
-        $scope.rankArray.push(obj)
-        if (typeof $scope.data[$scope.id].scores !== 'undefined' && (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[overallObj.uid]) || $scope.rankAll)) {
-          $scope.overallRankArray.push(overallObj)
-        }
-
-        uid = $scope.partArray[i].uid
-        event = 'final'
-
-        if (typeof $scope.finalscores[uid] === 'undefined') {
-          continue
-        }
-        $scope.finalscores[uid][event] = Calc.finalscore($scope.finalscores[uid], $scope.data[$scope.id].config.subevents, $scope.rankAll, uid)
-        if (Calc.inAll($scope.data[$scope.id].config.subevents, $scope.data[$scope.id].scores[uid]) || $scope.rankAll) {
-          $scope.overallFinalscores[uid][event] = $scope.finalscores[uid][event]
-        }
-      }
-
-      $scope.ranksums = Calc.rank.sum($scope.rankArray, $scope.finalscores, $scope.data[$scope.id].config.subevents, $scope.data[$scope.id].config.simplified)
-      $scope.finalRanks = Calc.rank.overall($scope.ranksums, $scope.finalscores)
-
-      $scope.overallRanksums = Calc.rank.sum($scope.overallRankArray, $scope.overallFinalscores, $scope.data[$scope.id].config.subevents, $scope.data[$scope.id].config.simplified)
-      $scope.overallFinalRanks = Calc.rank.overall($scope.overallRanksums, $scope.overallFinalscores)
-
-      for (i = 0; i < $scope.partArray.length; i++) {
-        $scope.partArray[i].rank = $scope.finalRanks[$scope.partArray[i].uid] || undefined
-        $scope.partArray[i].overallRank = $scope.overallFinalRanks[$scope.partArray[i].uid] || undefined
-      }
-      var end = performance.now()
-      console.log('Score calculation took ' + (end - start) + ' milliseconds.')
+      let end = performance.now()
+      console.log('Results calculation for categories took', Math.roundTo(end - start, 2), 'milliseconds.')
     }
 
     updateScores()
@@ -228,8 +116,8 @@ angular.module('ropescore.results', ['ngRoute'])
     $scope.roundTo = Math.roundTo
     $scope.inAll = Calc.inAll
 
-    $scope.toMinScore = function (score) {
-      return ($scope.data[$scope.id].config.simplified && typeof Config.SimplMinScore !== 'undefined' && score < Config.SimplMinScore ? Config.SimplMinScore : score)
+    $scope.toMinScore = function (id, score) {
+      return ($scope.data[id].config.simplified && typeof Config.SimplMinScore !== 'undefined' && score < Config.SimplMinScore ? Config.SimplMinScore : score)
     }
 
     $scope.ShowDC = Config.ShowDC
@@ -242,9 +130,11 @@ angular.module('ropescore.results', ['ngRoute'])
      */
     $scope.toggleRankAll = function (forceOff) {
       if (forceOff || $scope.rankAll === true) {
-        var keys = Object.keys($scope.data[$scope.id].participants)
-        for (var i = 0; i < keys.length; i++) {
-          delete $scope.data[$scope.id].participants[keys[i]].rank
+        for (let id of $scope.categories) {
+          var keys = Object.keys($scope.data[id].participants)
+          for (var i = 0; i < keys.length; i++) {
+            delete $scope.data[id].participants[keys[i]].rank
+          }
         }
         $scope.rankAll = false
         updateScores()
@@ -265,7 +155,7 @@ angular.module('ropescore.results', ['ngRoute'])
           var tables = document.getElementsByTagName('table')
           tables = Array.prototype.slice.call(tables)
           tables.shift()
-          tablesToExcel(tables, $scope.data[$scope.id].config.name)
+          tablesToExcel(tables, ($scope.id ? $scope.data[$scope.id].config.name : 'All Results'))
         })
       }
     }
