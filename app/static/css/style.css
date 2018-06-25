@@ -394,3 +394,44 @@ tr.hoverhl td:hover::after, tr.hoverhl th:hover::after {
   width: 100%;
   z-index: -1;
 }
+
+.notifs {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+}
+
+.notif {
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #2196f3;
+  border-radius: 10px;
+  margin-bottom: 1em;
+  margin-right: 1em;
+  width: 400px;
+}
+
+.notif.notif-green {
+  border-color: #008000;
+}
+
+.notif.notif-red {
+  border-color: #f00;
+}
+
+.notif.notif-orange {
+  border-color: #ff9800;
+}
+
+.notif .close {
+  margin-left: 1em;
+  font-weight: bold;
+  float: right;
+  cursor: pointer;
+}
+
+.notif .title {
+  display: block;
+  font-weight: bold;
+}

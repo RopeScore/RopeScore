@@ -49,6 +49,14 @@
       Loading... Enable javascript and/or clear cache.
     </div>
 
+    <div class="notifs">
+      <div class="notif" ng-class="{'notif-red': notif.type == 'error', 'notif-green': notif.type == 'success','notif-orange': notif.type == 'warning'}" ng-repeat="notif in notifs">
+        <a class="close" ng-click="notif.close()">&times;</a>
+        <span class="title">{{ notif.title }}</span>
+        <span class="content">{{ notif.msg }}</span>
+      </div>
+    </div>
+
     <footer>
       {{ (any(networkStatus || {}) ? 'Updating' : '') }}
       {{ netList(networkStatus || {}) }}

@@ -225,6 +225,32 @@ angular.module('ropescore', [
     return clean
   })
 
+  .factory('Notif',
+    function ($rootScope, $timeout, Checksum) {
+      $rootScope.notifs = []
+      return function Notif (title, msg, type, time = 10000) {
+        let id = Checksum(title + Math.roundTo(Math.random() * 100000, 0))
+        console.log(id, title, msg, type, time)
+        if (typeof title === 'undefined' && typeof msg === 'undefined') return
+        $rootScope.notifs.push({
+          title: title || '',
+          msg: msg || '',
+          type: type || 'info',
+          id: id,
+          timeout: $timeout(function () {
+            let index = $rootScope.notifs.findIndex(function (obj) { return obj.id === id })
+            if (index >= 0) $rootScope.notifs.splice(index, 1)
+          }, time),
+          close: function () {
+            let self = this
+            $timeout.cancel(this.timeout)
+            let index = $rootScope.notifs.findIndex(function (obj) { return obj.id === self.id })
+            if (index >= 0) $rootScope.notifs.splice(index, 1)
+          }
+        })
+      }
+    })
+
   .factory('tablesToExcel', function ($rootScope, Abbr, Db) {
     /**
      * [description]
@@ -721,7 +747,7 @@ angular.module('ropescore', [
     }
   })
 
-  .factory('Live', function ($rootScope, $http, $timeout, Db, Abbr, Config, Calc) {
+  .factory('Live', function ($rootScope, $http, $timeout, Db, Abbr, Config, Calc, Notif) {
     $rootScope.networkStatus = {
       scores: false,
       participants: false,
@@ -978,12 +1004,19 @@ angular.module('ropescore', [
             }))
             promises[promises.length - 1].then(function (response) {
               console.log(response.status, response.data.message)
+              Notif('RopeScore Live', response.data.message, 'success', 1500)
+            }, function (response) {
+              console.log(response.status, response.data.message)
+              Notif('RopeScore Live', response.data.message, 'error')
             }).catch(function (err) {
+              console.log(err)
               reject(err)
             })
           }
           Promise.all(promises).then(function (messages) {
             resolve(messages)
+          }).catch(function (err) {
+            reject(err)
           })
         }).then(function (msg) {
           $rootScope.networkStatus.scores = false
@@ -1023,7 +1056,12 @@ angular.module('ropescore', [
             }
           }).then(function (response) {
             console.log(response.status, response.data.message)
+            Notif('RopeScore Live', response.data.message, 'success', 1500)
             resolve(response.status + ' ' + response.data.message)
+          }, function (response) {
+            console.log(response.status, response.data.message)
+            Notif('RopeScore Live', response.data.message, 'error')
+            reject(new Error(response.status + ' ' + response.data.message))
           }).catch(function (err) {
             reject(err)
           })
@@ -1079,7 +1117,12 @@ angular.module('ropescore', [
             }
           }).then(function (response) {
             console.log(response.status, response.data.message)
+            Notif('RopeScore Live', response.data.message, 'success', 1500)
             resolve(response.status + ' ' + response.data.message)
+          }, function (response) {
+            console.log(response.status, response.data.message)
+            Notif('RopeScore Live', response.data.message, 'error')
+            reject(new Error(response.status + ' ' + response.data.message))
           }).catch(function (err) {
             reject(err)
           })
@@ -1108,7 +1151,12 @@ angular.module('ropescore', [
             }
           }).then(function (response) {
             console.log(response.status, response.data.message)
+            Notif('RopeScore Live', response.data.message, 'success', 1500)
             resolve(response.status + ' ' + response.data.message)
+          }, function (response) {
+            console.log(response.status, response.data.message)
+            Notif('RopeScore Live', response.data.message, 'error')
+            reject(new Error(response.status + ' ' + response.data.message))
           }).catch(function (err) {
             reject(err)
           })
