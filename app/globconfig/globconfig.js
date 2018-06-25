@@ -39,6 +39,7 @@ angular.module('ropescore.globconfig', ['ngRoute'])
 
       Db.set($scope.data)
       Db.set($scope.computerName, 'computer-name')
+      Db.set($scope.disabledNotifs, 'disabled-notifs')
       Db.set($scope.liveConfig, 'rslive-config')
       $scope.updateGlobConfig()
       $location.path('/')

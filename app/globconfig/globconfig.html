@@ -22,6 +22,15 @@
     <td><label for="fed">Computer Name:</label></td>
     <td><input type="text" id="fed" ng-model="computerName" /></td>
   </tr>
+  <tr>
+    <td>Disabled Notification Levels:</td>
+    <td>
+      <label><input type="checkbox" ng-model="disabledNotifs.info" /> Info</label>
+      <label><input type="checkbox" ng-model="disabledNotifs.success" /> Success</label>
+      <label><input type="checkbox" ng-model="disabledNotifs.warning" /> Warning</label>
+      <label><input type="checkbox" ng-model="disabledNotifs.error" /> Error</label>
+    </td>
+  </tr>
 </table>
 
 <button ng-click="save()" id="save">Save and Return</button>

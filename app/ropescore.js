@@ -148,12 +148,13 @@ angular.module('ropescore', [
 
     $rootScope.updateGlobConfig = function () {
       $rootScope.computerName = Db.get('computer-name')
+      $rootScope.disabledNotifs = Db.get('disabled-notifs')
       $rootScope.liveConfig = Db.get('rslive-config')
     }
+    $rootScope.updateGlobConfig()
 
     $rootScope.version = Config.version
     $rootScope.Ruleset = Config.Ruleset
-    $rootScope.updateGlobConfig()
 
     $rootScope.$on('$routeChangeStart', function (next, current) {
       $rootScope.isNew(false)
@@ -230,8 +231,8 @@ angular.module('ropescore', [
       $rootScope.notifs = []
       return function Notif (title, msg, type, time = 10000) {
         let id = Checksum(title + Math.roundTo(Math.random() * 100000, 0))
-        console.log(id, title, msg, type, time)
         if (typeof title === 'undefined' && typeof msg === 'undefined') return
+        if (typeof $rootScope.disabledNotifs !== 'undefined' && $rootScope.disabledNotifs[type || 'info'] === true) return
         $rootScope.notifs.push({
           title: title || '',
           msg: msg || '',
