@@ -40,6 +40,7 @@ angular.module('ropescore.score.speed', ['ngRoute'])
 
     $scope.Abbr = Abbr
     $scope.getNumber = Num
+    $scope.roundTo = Math.roundTo
 
     /**
      * calculate spped score for a particular event with given data for a particular uid

@@ -1,36 +1,59 @@
 <h2>RopeScore Live</h2>
 <table>
   <tr>
-    <td><label for="fed">Federation:</label></td>
-    <td><input type="text" id="fed" ng-model="liveConfig.federation" /></td>
+    <td>
+      <label for="fed">Federation:</label>
+    </td>
+    <td><input type="text" id="fed" ng-model="liveConfig.federation"/></td>
   </tr>
 
   <tr>
-    <td><label for="apikey">API key:</label></td>
-    <td><input type="password" id="apikey" ng-model="liveConfig.apikey" ng-focus="$event.target.type = 'text'" ng-blur="$event.target.type = 'password'" /></td>
+    <td>
+      <label for="apikey">API key:</label>
+    </td>
+    <td><input
+      type="password"
+      id="apikey"
+      ng-model="liveConfig.apikey"
+      ng-focus="$event.target.type = 'text'"
+      ng-blur="$event.target.type = 'password'"/></td>
   </tr>
 
   <tr>
-    <td><label for="cURL">Custom API URL:</label></td>
-    <td><input type="url" id="cURL" ng-model="liveConfig.url" placeholder="https://live.ropescore.com/api" /></td>
+    <td>
+      <label for="cURL">Custom API URL:</label>
+    </td>
+    <td><input
+      type="url"
+      id="cURL"
+      ng-model="liveConfig.url"
+      placeholder="{{ defaultURL }}"/></td>
   </tr>
 </table>
 
 <h2>Computer</h2>
 <table>
   <tr>
-    <td><label for="fed">Computer Name:</label></td>
-    <td><input type="text" id="fed" ng-model="computerName" /></td>
+    <td>
+      <label for="fed">Computer Name:</label>
+    </td>
+    <td><input type="text" id="fed" ng-model="computerName"/></td>
   </tr>
   <tr>
     <td>Disabled Notification Levels:</td>
     <td>
-      <label><input type="checkbox" ng-model="disabledNotifs.info" /> Info</label>
-      <label><input type="checkbox" ng-model="disabledNotifs.success" /> Success</label>
-      <label><input type="checkbox" ng-model="disabledNotifs.warning" /> Warning</label>
-      <label><input type="checkbox" ng-model="disabledNotifs.error" /> Error</label>
+      <label><input type="checkbox" ng-model="disabledNotifs.info"/>
+        Info</label>
+      <label><input type="checkbox" ng-model="disabledNotifs.success"/>
+        Success</label>
+      <label><input type="checkbox" ng-model="disabledNotifs.warning"/>
+        Warning</label>
+      <label><input type="checkbox" ng-model="disabledNotifs.error"/>
+        Error</label>
     </td>
   </tr>
+  <!-- <tr> <td> <label for="letterpaper">Use Lettersize Paper:</label> </td>
+  <td><input type="text" id="letterpaper" ng-model="letterPaper"/></td> </tr> -->
 </table>
 
 <button ng-click="save()" id="save">Save and Return</button>

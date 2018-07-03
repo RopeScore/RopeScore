@@ -150,6 +150,7 @@ angular.module('ropescore', [
       $rootScope.computerName = Db.get('computer-name')
       $rootScope.disabledNotifs = Db.get('disabled-notifs')
       $rootScope.liveConfig = Db.get('rslive-config')
+      $rootScope.letterPaper = Db.get('letterpaper')
     }
     $rootScope.updateGlobConfig()
 
@@ -886,7 +887,7 @@ angular.module('ropescore', [
           }
 
           let end = performance.now()
-          console.log('HTTP body preparation took ' + Math.roundTo(end - start, 2) + ' milliseconds.')
+          console.log('HTTP body preparation took', Math.roundTo(end - start, 2), 'milliseconds.')
 
           console.log('RSLive scores', bodies)
           let bodyAbbrs = Object.keys(bodies)

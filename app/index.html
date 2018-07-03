@@ -6,7 +6,8 @@
     <meta charset="utf-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width, initial-scale=1" name="viewport">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <!-- The above 3 meta tags *must* come first in the head; any other head content
+    must come *after* these tags -->
     <meta name="theme-color" content="#efefef">
     <!-- <link rel="manifest" href="/static/manifest.json"> -->
     <link rel="icon" href="/static/img/icon.png">
@@ -33,35 +34,58 @@
   </head>
 
   <body>
-    <nav>
+    <nav class="noprint">
       <ul class="topnav">
         <li ng-click="goHome()" class="pointer">
-          <div>RopeScore {{ (computerName ? '- ' + computerName : '') }}</div>
+          <div>RopeScore
+            {{ (computerName ? '- ' + computerName : '') }}</div>
         </li>
-        <li><a ng-href="/">Dashboard</a></li>
-        <li><a ng-href="/config">New Category</a></li>
-        <li ng-if="id && !newCat"><a ng-href="/event/{{ id }}">Category</a></li>
-        <li ng-if="id && !newCat"><a ng-href="/results/{{ id }}">Results</a></li>
+        <li>
+          <a ng-href="/">Dashboard</a>
+        </li>
+        <li>
+          <a ng-href="/config">New Category</a>
+        </li>
+        <li ng-if="id && !newCat">
+          <a ng-href="/event/{{ id }}">Category</a>
+        </li>
+        <li ng-if="id && !newCat">
+          <a ng-href="/results/{{ id }}">Results</a>
+        </li>
       </ul>
     </nav>
 
-    <div ng-view>
+    <div ng-view="ng-view">
       Loading... Enable javascript and/or clear cache.
     </div>
 
     <div class="notifs">
-      <div class="notif" ng-class="{'notif-red': notif.type == 'error', 'notif-green': notif.type == 'success', 'notif-orange': notif.type == 'warning', 'notif-hide': notif.hide}" ng-repeat="notif in notifs">
+      <div
+        class="notif"
+        ng-class="{'notif-red': notif.type == 'error', 'notif-green': notif.type == 'success', 'notif-orange': notif.type == 'warning', 'notif-hide': notif.hide}"
+        ng-repeat="notif in notifs">
         <a class="close" ng-click="notif.close()">&times;</a>
         <span class="title">{{ notif.title }}</span>
         <span class="content">{{ notif.msg }}</span>
       </div>
     </div>
 
-    <footer>
+    <footer class="noprint">
       {{ (any(networkStatus || {}) ? 'Updating' : '') }}
       {{ netList(networkStatus || {}) }}
-      <span class="red" ng-if="networkError">RopeScore Live Error: {{ networkError }}</span><br/>
-      {{ version }} ({{ Ruleset }} Rules) &copy; Svante Bengtson {{ copyright() }} <a ng-href="/licence">Licence</a>      &ndash; <a ng-href="/bugreport">Bugs</a> &ndash; <a ng-href="/docs#toc">Documentation</a>      &ndash; <a ng-href="/changelog">Changelog</a>
+      <span class="red" ng-if="networkError">RopeScore Live Error:
+        {{ networkError }}</span><br/>
+      {{ version }}
+      ({{ Ruleset }}
+      Rules) &copy; Svante Bengtson
+      {{ copyright() }}
+      <a ng-href="/licence">Licence</a>
+      &ndash;
+      <a ng-href="/bugreport">Bugs</a>
+      &ndash;
+      <a ng-href="/docs#toc">Documentation</a>
+      &ndash;
+      <a ng-href="/changelog">Changelog</a>
     </footer>
 
     <!-- DEPLOY -->

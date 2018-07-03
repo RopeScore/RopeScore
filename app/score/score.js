@@ -44,6 +44,22 @@ angular.module('ropescore.score', ['ngRoute'])
     console.log('simplOrder:', Config.SimplOrder, 'Order:', $scope.Order)
     console.log('NoMisses:', $scope.NoMisses)
 
+    $scope.typeLookup = {
+      a: 'Presentation',
+      b: 'Required Elements',
+      d: 'Difficulty',
+      h: 'Head Judge',
+      m: 'Misses'
+    }
+
+    $scope.shortDesc = function (desc) {
+      return /<b>(.*)<\/b>/.exec(desc)[1]
+    }
+
+    // window.onbeforeprint = function () {
+    //   alert('You might need to manually set ')
+    // }
+
     /**
      * calculate scores, used for speed scores
      * @return {?Object} object with score
@@ -52,7 +68,8 @@ angular.module('ropescore.score', ['ngRoute'])
       if (typeof $scope.data[$scope.id].scores === 'undefined' || typeof $scope.data[$scope.id].scores[$scope.uid] === 'undefined') {
         return undefined
       }
-      return Calc.score($scope.event, $scope.data[$scope.id].scores[$scope.uid][$scope.event], $scope.uid)
+      $scope.currScore = Calc.score($scope.event, $scope.data[$scope.id].scores[$scope.uid][$scope.event], $scope.uid)
+      return $scope.currScore
     }
 
     /**

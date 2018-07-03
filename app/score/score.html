@@ -1,199 +1,557 @@
-<h1>{{ Abbr.unabbr(event) }} Score for <u>{{ data[id].participants[uid].name }}</u> from <u>{{ data[id].participants[uid].club }}</u> ({{ uid }})</h1>
-<div class="floatbuttons">
-  <button ng-click="save()" ng-disabled="(freeform.$invalid)">Save &amp; Return</button>
-  <button ng-click="display(uid, id, event)">Display</button>
-  <button ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? dnsSave(uid, id, event) : '')" ng-class="{red: data[id].scores[uid][event].dns}">Did {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</button>
+<div class="noprint">
+  <h1>{{ Abbr.unabbr(event) }}
+    Score for
+    <u>{{ data[id].participants[uid].name }}</u>
+    from
+    <u>{{ data[id].participants[uid].club }}</u>
+    ({{ uid }})</h1>
+  <div class="floatbuttons">
+    <button ng-click="save()" ng-disabled="(freeform.$invalid)">Save &amp; Return</button>
+    <button ng-click="display(uid, id, event)">Display</button>
+    <button
+      ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? dnsSave(uid, id, event) : '')"
+      ng-class="{red: data[id].scores[uid][event].dns}">Did
+      {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</button>
+  </div>
+  <form ng-if="Abbr.isSpeed(event)" class="table" name="speedform">
+    <table ng-if="!data[id].scores[uid][event].dns">
+      <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
+        <td>
+          <label for="s{{ $index }}">S{{ $index + 1 }}:</label>
+        </td>
+        <td><input
+          type="number"
+          id="s{{ $index }}"
+          min="0"
+          ng-model="data[id].scores[uid][event].s[$index]"/></td>
+      </tr>
+      <tr>
+        <td>
+          <label for="fst">False Start:</label>
+        </td>
+        <td><input
+          type="checkbox"
+          id="fst"
+          ng-model="data[id].scores[uid][event].start"
+          ng-keydown="($event.keyCode !== 9 ? data[id].scores[uid][event].start = !data[id].scores[uid][event].start : '')"/></td>
+      </tr>
+      <tr ng-if="Abbr.isTeam(event)">
+        <td>
+          <label for="fsw">False Switches:</label>
+        </td>
+        <td><input
+          type="text"
+          id="fsw"
+          min="0"
+          max="3"
+          ng-model="data[id].scores[uid][event].switches"/></td>
+      </tr>
+      <tr>
+        <td>Unofficial Score:</td>
+        <td>{{ score().PreY }}</td>
+      </tr>
+      <tr ng-if="reskipAllowed()">
+        <td colspan="2" class="red">Reskip allowed</td>
+      </tr>
+    </table>
+    <span ng-show="speedform.$invalid">Check input for errors marked in red.</span>
+    <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
+    <button ng-click="display(uid, id, event)">Display</button>
+    <button
+      ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? save() : '')"
+      ng-class="{red: data[id].scores[uid][event].dns}">Did
+      {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</button>
+  </form>
+
+  <form ng-if="!Abbr.isSpeed(event)" name="freeform">
+    <div
+      class="flex-container mb"
+      ng-repeat="(type, order) in Order"
+      ng-if="!data[id].scores[uid][event].dns">
+      <div
+        ng-repeat="n in getNumber(data[id].config.judges[event][type]) track by $index">
+        <h2>{{ type | uppercase }}{{ $index + 1 }}:</h2>
+        <table ng-if="type === 'a'">
+          <tbody ng-if="!MissJudges && !NoMisses">
+            <tr>
+              <td>
+                <label for="a{{ $index }}mim">Minor Misses:</label>
+              </td>
+              <td><input
+                type="number"
+                id="a{{ $index }}mim"
+                min="0"
+                ng-model="data[id].scores[uid][event].mim['a' + $index]"/></td>
+            </tr>
+            <tr>
+              <td>
+                <label for="a{{ $index }}mam">Major Misses:</label>
+              </td>
+              <td><input
+                type="number"
+                id="a{{ $index }}mam"
+                min="0"
+                ng-model="data[id].scores[uid][event].mam['a' + $index]"/></td>
+            </tr>
+          </tbody>
+
+          <tr
+            ng-repeat="(key, elem) in order"
+            ng-if="(elem.dd == undefined && elem.sr == undefined) || ((elem.dd && Abbr.isType(event, 'dd')) || (elem.sr && Abbr.isType(event, 'sr')))">
+            <td>
+              <label for="a{{ $parent.$parent.$index }}{{ key }}">{{ elem.desc }}</label>
+            </td>
+            <td><input
+              type="text"
+              id="a{{ $parent.$parent.$index }}{{ key }}"
+              min="0"
+              max="10"
+              step="0.5"
+              ng-model="data[id].scores[uid][event].a[$parent.$parent.$index][key]"
+              ng-change="toMax('a', $parent.$parent.$index, key)"/></td>
+          </tr>
+        </table>
+
+        <table ng-if="type === 'b'">
+          <tbody ng-if="!MissJudges">
+            <tr>
+              <td>
+                <label for="b{{ $index }}mim">Minor Misses:</label>
+              </td>
+              <td><input
+                type="number"
+                id="b{{ $index }}mim"
+                min="0"
+                ng-model="data[id].scores[uid][event].mim['b' + $index]"/></td>
+            </tr>
+            <tr>
+              <td>
+                <label for="b{{ $index }}mam">Major Misses:</label>
+              </td>
+              <td><input
+                type="number"
+                id="b{{ $index }}mam"
+                min="0"
+                ng-model="data[id].scores[uid][event].mam['b' + $index]"/></td>
+            </tr>
+          </tbody>
+
+          <tbody ng-if="Abbr.isType(event, 'dd')">
+            <tr
+              ng-repeat="(key, elem) in order.dd"
+              ng-if="elem.events.indexOf(event) != -1">
+              <td>
+                <label for="b{{ $parent.$parent.$index }}{{ key }}" ng-bind-html="elem.desc"></label>
+              </td>
+              <td><input
+                type="text"
+                id="b{{ $parent.$parent.$index }}{{ key }}"
+                min="0"
+                max="{{ elem.max }}"
+                ng-model="data[id].scores[uid][event].b[$parent.$parent.$index][key]"
+                ng-change="toMax('b', $parent.$parent.$index, key)"/></td>
+            </tr>
+          </tbody>
+
+          <tbody ng-if="Abbr.isType(event, 'sr')">
+            <tr
+              ng-repeat="(key, elem) in order.sr"
+              ng-if="elem.events.indexOf(event) != -1">
+              <td>
+                <label for="b{{ $parent.$parent.$index }}{{ key }}" ng-bind-html="elem.desc"></label>
+              </td>
+              <td><input
+                type="text"
+                id="b{{ $parent.$parent.$index }}{{ key }}"
+                min="0"
+                max="{{ elem.max }}"
+                ng-model="data[id].scores[uid][event].b[$parent.$parent.$index][key]"
+                ng-change="toMax('b', $parent.$parent.$index, key)"/></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table ng-if="type === 'd'">
+          <tr ng-if="data[id].config.simplified">
+            <td>
+              <label for="d{{ $index }}-0">Level 1:</label>
+            </td>
+            <td><input
+              type="number"
+              id="d{{ $index }}-0"
+              min="0"
+              ng-model="data[id].scores[uid][event].d[$index]['0']"/></td>
+          </tr>
+          <tr>
+            <td>
+              <label for="d{{ $index }}-1">Level 2:</label>
+            </td>
+            <td><input
+              type="number"
+              id="d{{ $index }}-1"
+              min="0"
+              ng-model="data[id].scores[uid][event].d[$index]['1']"/></td>
+          </tr>
+          <tr>
+            <td>
+              <label for="d{{ $index }}-2">Level 3:</label>
+            </td>
+            <td><input
+              type="number"
+              id="d{{ $index }}-2"
+              min="0"
+              ng-model="data[id].scores[uid][event].d[$index]['2']"/></td>
+          </tr>
+          <tr>
+            <td>
+              <label for="d{{ $index }}-3">Level 4:</label>
+            </td>
+            <td><input
+              type="number"
+              id="d{{ $index }}-3"
+              min="0"
+              ng-model="data[id].scores[uid][event].d[$index]['3']"/></td>
+          </tr>
+          <tr>
+            <td>
+              <label for="d{{ $index }}-4">Level 5:</label>
+            </td>
+            <td><input
+              type="number"
+              id="d{{ $index }}-4"
+              min="0"
+              ng-model="data[id].scores[uid][event].d[$index]['4']"/></td>
+          </tr>
+          <tr ng-if="Abbr.isType(event, 'sr') && !data[id].config.simplified">
+            <td>
+              <label for="d{{ $index }}-5">Level 6:</label>
+            </td>
+            <td><input
+              type="number"
+              id="d{{ $index }}-5"
+              min="0"
+              ng-model="data[id].scores[uid][event].d[$index]['5']"/></td>
+          </tr>
+        </table>
+
+        <table ng-if="type === 'h'">
+          <tbody ng-if="!MissJudges">
+            <tr>
+              <td>
+                <label for="h{{ $index }}mim">Minor Misses:</label>
+              </td>
+              <td><input
+                type="number"
+                id="h{{ $index }}mim"
+                min="0"
+                ng-model="data[id].scores[uid][event].mim['h' + $index]"/></td>
+            </tr>
+            <tr>
+              <td>
+                <label for="h{{ $index }}mam">Major Misses:</label>
+              </td>
+              <td><input
+                type="number"
+                id="h{{ $index }}mam"
+                min="0"
+                ng-model="data[id].scores[uid][event].mam['h' + $index]"/></td>
+            </tr>
+          </tbody>
+
+          <tr>
+            <td>
+              <label for="h{{ $index }}spc">Space Violations:</label>
+            </td>
+            <td><input
+              type="number"
+              id="h{{ $index }}spc"
+              min="0"
+              ng-model="data[id].scores[uid][event].h[$index].spc"/></td>
+          </tr>
+          <tr>
+            <td>
+              <label for="h{{ $index }}tim">Time Violation:</label>
+            </td>
+            <td><input
+              type="checkbox"
+              id="h{{ $index }}tim"
+              ng-model="data[id].scores[uid][event].h[$index].tim"
+              ng-keydown="($event.keyCode !== 9 ? data[id].scores[uid][event].h[$index].tim = !data[id].scores[uid][event].h[$index].tim : '')"/></td>
+          </tr>
+          <tr ng-if="Abbr.isType(event, 'dd')">
+            <td>
+              <label for="h{{ $index }}few">Less than 3 skills:</label>
+            </td>
+            <td><input
+              type="number"
+              id="h{{ $index }}few"
+              min="0"
+              ng-model="data[id].scores[uid][event].h[$index].few"/></td>
+          </tr>
+        </table>
+
+        <table ng-if="type === 'm'">
+          <tr>
+            <td>
+              <label for="m{{ $index }}mim">Minor Misses:</label>
+            </td>
+            <td><input
+              type="number"
+              id="h{{ $index }}mim"
+              min="0"
+              ng-model="data[id].scores[uid][event].mim['m' + $index]"/></td>
+          </tr>
+          <tr>
+            <td>
+              <label for="m{{ $index }}mam">Major Misses:</label>
+            </td>
+            <td><input
+              type="number"
+              id="h{{ $index }}mam"
+              min="0"
+              ng-model="data[id].scores[uid][event].mam['m' + $index]"/></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="table">
+      <table>
+        <tr>
+          <th></th>
+          <th>Required Elements</th>
+          <th>Presentation</th>
+          <th>Difficulty</th>
+          <th>Deductions</th>
+          <th>Creativity - (Deductions / 2)</th>
+          <th>Difficulty - (Deductions / 2)</th>
+          <th>Total</th>
+        </tr>
+        <tr>
+          <th>Unofficial Scores:</th>
+          <td>{{ scores.T3 = roundTo(freestyle.T3(data[id].scores[uid][event].b, event, simplified), 2) }}</td>
+          <td>{{ scores.T2 = roundTo(freestyle.T2(event, data[id].scores[uid][event].a, simplified), 2) }}</td>
+          <td>{{ scores.T1 = roundTo(freestyle.T1(data[id].scores[uid][event].d, event, simplified), 2) }}</td>
+          <td>{{ scores.T5 = (freestyle.T5(data[id].scores[uid][event], '', simplified) !== undefined ? -roundTo(freestyle.T5(data[id].scores[uid][event], '', simplified), 2) : '') }}</td>
+          <td>{{ roundTo(freestyle.T4(scores.T2, scores.T3) + (scores.T5 / 2), 2) }}</td>
+          <td>{{ roundTo(scores.T1 + (scores.T5 / 2), 2) }}</td>
+          <td>{{ roundTo(freestyle.A(scores.T1, freestyle.T4(scores.T2, scores.T3), -scores.T5,
+          event).PreA, 2) }}</td>
+        </tr>
+      </table>
+    </div>
+    <span ng-show="freeform.$invalid">Check input for errors marked in red.</span>
+    <button ng-click="save()" ng-disabled="(freeform.$invalid)">Save &amp; Return</button>
+    <button ng-click="display(uid, id, event)">Display</button>
+    <button
+      ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? save() : '')"
+      ng-class="{red: data[id].scores[uid][event].dns}">Did
+      {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</button>
+  </form>
 </div>
-<form ng-if="Abbr.isSpeed(event)" class="table" name="speedform">
-  <table ng-if="!data[id].scores[uid][event].dns">
-    <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
-      <td><label for="s{{ $index }}">S{{ $index + 1 }}:</label></td>
-      <td><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]"
-        /></td>
-    </tr>
-    <tr>
-      <td><label for="fst">False Start:</label></td>
-      <td><input type="checkbox" id="fst" ng-model="data[id].scores[uid][event].start"
-        ng-keydown="($event.keyCode !== 9 ? data[id].scores[uid][event].start = !data[id].scores[uid][event].start : '')"/></td>
-    </tr>
-    <tr ng-if="Abbr.isTeam(event)">
-      <td><label for="fsw">False Switches:</label></td>
-      <td><input type="text" id="fsw" min="0" max="3" ng-model="data[id].scores[uid][event].switches"
-        /></td>
-    </tr>
-    <tr>
-      <td>Unofficial Score:</td>
-      <td>{{ score().PreY }}</td>
-    </tr>
-    <tr ng-if="reskipAllowed()">
-      <td colspan="2" class="red">Reskip allowed</td>
-    </tr>
-  </table>
-  <span ng-show="speedform.$invalid">Check input for errors marked in red.</span>
-  <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
-  <button ng-click="display(uid, id, event)">Display</button>
-  <button ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? save() : '')" ng-class="{red: data[id].scores[uid][event].dns}">Did {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</button>
-</form>
 
-<form ng-if="!Abbr.isSpeed(event)" name="freeform">
-  <div class="flex-container mb" ng-repeat="(type, order) in Order" ng-if="!data[id].scores[uid][event].dns">
-    <div ng-repeat="n in getNumber(data[id].config.judges[event][type]) track by $index">
-      <h2>{{ type | uppercase }}{{ $index + 1 }}:</h2>
-      <table ng-if="type === 'a'">
-        <tbody ng-if="!MissJudges && !NoMisses">
-          <tr>
-            <td><label for="a{{ $index }}mim">Minor Misses:</label></td>
-            <td><input type="number" id="a{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['a' + $index]"
-              /></td>
-          </tr>
-          <tr>
-            <td><label for="a{{ $index }}mam">Major Misses:</label></td>
-            <td><input type="number" id="a{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['a' + $index]"
-              /></td>
-          </tr>
-        </tbody>
-
-        <tr ng-repeat="(key, elem) in order" ng-if="(elem.dd == undefined && elem.sr == undefined) || ((elem.dd && Abbr.isType(event, 'dd')) || (elem.sr && Abbr.isType(event, 'sr')))">
-          <td><label for="a{{ $parent.$parent.$index }}{{ key }}">{{ elem.desc }}</label></td>
-          <td><input type="text" id="a{{ $parent.$parent.$index }}{{ key }}" min="0" max="10" step="0.5"
-              ng-model="data[id].scores[uid][event].a[$parent.$parent.$index][key]" ng-change="toMax('a', $parent.$parent.$index, key)" /></td>
+<div class="print">
+  <div class="page" ng-class="{letterpaper: letterPaper}">
+    <div class="pagehead cuttable">
+      <table class="full blank">
+        <tr>
+          <td class="bold">Category</td>
+          <td class="bold">Event</td>
+          <td class="bold">{{ (Abbr.hasTeams(data[id].config.subevents) ? 'Team' : 'Participant' ) }}
+            Name</th>
+          <td class="bold" ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
+          <td class="bold">Club</td>
+          <td class="bold">id</td>
+        </tr>
+        <tr>
+          <td>{{ data[id].config.name }}</td>
+          <td>{{ Abbr.unabbr(event)  }}</td>
+          <td>{{ data[id].participants[uid].name }}</td>
+          <td ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ data[id].participants[uid].members }}</td>
+          <td>{{ data[id].participants[uid].club }}</td>
+          <td>{{ uid }}</td>
         </tr>
       </table>
+    </div>
 
-      <table ng-if="type === 'b'">
-        <tbody ng-if="!MissJudges">
-          <tr>
-            <td><label for="b{{ $index }}mim">Minor Misses:</label></td>
-            <td><input type="number" id="b{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['b' + $index]"
-              /></td>
-          </tr>
-          <tr>
-            <td><label for="b{{ $index }}mam">Major Misses:</label></td>
-            <td><input type="number" id="b{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['b' + $index]"
-              /></td>
-          </tr>
-        </tbody>
-
-        <tbody ng-if="Abbr.isType(event, 'dd')">
-          <tr ng-repeat="(key, elem) in order.dd" ng-if="elem.events.indexOf(event) != -1">
-            <td><label for="b{{ $parent.$parent.$index }}{{ key }}" ng-bind-html="elem.desc"></label></td>
-            <td><input type="text" id="b{{ $parent.$parent.$index }}{{ key }}" min="0" max="{{ elem.max }}" ng-model="data[id].scores[uid][event].b[$parent.$parent.$index][key]"
-                ng-change="toMax('b', $parent.$parent.$index, key)" /></td>
-          </tr>
-        </tbody>
-
-        <tbody ng-if="Abbr.isType(event, 'sr')">
-          <tr ng-repeat="(key, elem) in order.sr" ng-if="elem.events.indexOf(event) != -1">
-            <td><label for="b{{ $parent.$parent.$index }}{{ key }}" ng-bind-html="elem.desc"></label></td>
-            <td><input type="text" id="b{{ $parent.$parent.$index }}{{ key }}" min="0" max="{{ elem.max }}" ng-model="data[id].scores[uid][event].b[$parent.$parent.$index][key]"
-                ng-change="toMax('b', $parent.$parent.$index, key)" /></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <table ng-if="type === 'd'">
-        <tr ng-if="data[id].config.simplified">
-          <td><label for="d{{ $index }}-0">Level 1:</label></td>
-          <td><input type="number" id="d{{ $index }}-0" min="0" ng-model="data[id].scores[uid][event].d[$index]['0']"
-            /></td>
+    <div ng-if="data[id].scores[uid][event].dns" class="huge center">
+      Did Not Skip
+    </div>
+    <div
+      ng-if="Abbr.isSpeed(event) && !data[id].scores[uid][event].dns"
+      class="pagebody">
+      <table>
+        <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
+          <td class="bold">Judge&nbsp;S{{ $index + 1 }}</td>
+          <td>{{ data[id].scores[uid][event].s[$index] }}</td>
         </tr>
         <tr>
-          <td><label for="d{{ $index }}-1">Level 2:</label></td>
-          <td><input type="number" id="d{{ $index }}-1" min="0" ng-model="data[id].scores[uid][event].d[$index]['1']"
-            /></td>
+          <td class="bold">False Start</td>
+          <td>{{ (data[id].scores[uid][event].start ? 1 : 0) }}</td>
         </tr>
-        <tr>
-          <td><label for="d{{ $index }}-2">Level 3:</label></td>
-          <td><input type="number" id="d{{ $index }}-2" min="0" ng-model="data[id].scores[uid][event].d[$index]['2']"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="d{{ $index }}-3">Level 4:</label></td>
-          <td><input type="number" id="d{{ $index }}-3" min="0" ng-model="data[id].scores[uid][event].d[$index]['3']"
-            /></td>
-        </tr>
-        <tr>
-          <td><label for="d{{ $index }}-4">Level 5:</label></td>
-          <td><input type="number" id="d{{ $index }}-4" min="0" ng-model="data[id].scores[uid][event].d[$index]['4']"
-            /></td>
-        </tr>
-        <tr ng-if="Abbr.isType(event, 'sr') && !data[id].config.simplified">
-          <td><label for="d{{ $index }}-5">Level 6:</label></td>
-          <td><input type="number" id="d{{ $index }}-5" min="0" ng-model="data[id].scores[uid][event].d[$index]['5']"
-            /></td>
+        <tr ng-if="Abbr.isTeam(event)">
+          <td class="bold">False Switches</td>
+          <td>{{ data[id].scores[uid][event].switches }}</td>
         </tr>
       </table>
-
-      <table ng-if="type === 'h'">
-        <tbody ng-if="!MissJudges">
+    </div>
+    <div
+      ng-if="!Abbr.isSpeed(event) && !data[id].scores[uid][event].dns"
+      class="pagebody flex-container">
+      <div ng-repeat="(type, order) in Order">
+        <h2>{{ typeLookup[type] }}</h2>
+        <table ng-if="type === 'a'">
           <tr>
-            <td><label for="h{{ $index }}mim">Minor Misses:</label></td>
-            <td><input type="number" id="h{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['h' + $index]"
-              /></td>
+            <th class="sm"></th>
+            <th class="sm" ng-if="!MissJudges && !NoMisses">Minor Misses</th>
+            <th class="sm" ng-if="!MissJudges && !NoMisses">Major Misses</th>
+            <th
+              class="sm"
+              ng-repeat="(key, elem) in order"
+              ng-if="(elem.dd == undefined && elem.sr == undefined) || ((elem.dd && Abbr.isType(event, 'dd')) || (elem.sr && Abbr.isType(event, 'sr')))">
+              {{ elem.desc }}
+            </th>
           </tr>
-          <tr>
-            <td><label for="h{{ $index }}mam">Major Misses:</label></td>
-            <td><input type="number" id="h{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['h' + $index]"
-              /></td>
+          <tr
+            ng-repeat="n in getNumber(data[id].config.judges[event][type]) track by $index">
+            <td class="bold">Judge&nbsp;{{ type | uppercase }}{{ $index + 1 }}</td>
+            <td ng-if="!MissJudges && !NoMisses">{{ data[id].scores[uid][event].mim['a' + $index] }}</td>
+            <td ng-if="!MissJudges && !NoMisses">{{ data[id].scores[uid][event].mam['a' + $index] }}</td>
+            <td
+              ng-repeat="(key, elem) in order"
+              ng-if="(elem.dd == undefined && elem.sr == undefined) || ((elem.dd && Abbr.isType(event, 'dd')) || (elem.sr && Abbr.isType(event, 'sr')))">
+              {{ data[id].scores[uid][event][type][$parent.$parent.$index][key] }}
+            </td>
           </tr>
-        </tbody>
+        </table>
 
+        <table ng-if="type === 'b'">
+          <tr>
+            <th class="sm"></th>
+            <th class="sm" ng-if="!MissJudges && !NoMisses">Minor Misses</th>
+            <th class="sm" ng-if="!MissJudges && !NoMisses">Major Misses</th>
+            <th
+              class="sm"
+              ng-repeat="(key, elem) in order[(Abbr.isType(event, 'dd') ? 'dd' : 'sr')]"
+              ng-if="elem.events.indexOf(event) != -1"
+              ng-bind-html="shortDesc(elem.desc)"></th>
+          </tr>
+          <tr
+            ng-repeat="n in getNumber(data[id].config.judges[event][type]) track by $index">
+            <td class="bold">Judge&nbsp;{{ type | uppercase }}{{ $index + 1 }}</td>
+            <td ng-if="!MissJudges && !NoMisses">{{ data[id].scores[uid][event].mim[type + $index] }}</td>
+            <td ng-if="!MissJudges && !NoMisses">{{ data[id].scores[uid][event].mam[type + $index] }}</td>
+            <td
+              ng-repeat="(key, elem) in order[(Abbr.isType(event, 'dd') ? 'dd' : 'sr')]"
+              ng-if="elem.events.indexOf(event) != -1">
+              {{ data[id].scores[uid][event][type][$parent.$parent.$index][key] }}
+            </td>
+          </tr>
+        </table>
+
+        <table ng-if="type === 'd'">
+          <tr>
+            <th class="sm"></th>
+            <th class="sm" ng-if="data[id].config.simplified">Level&nbsp;1</th>
+            <th class="sm">Level&nbsp;2</th>
+            <th class="sm">Level&nbsp;3</th>
+            <th class="sm">Level&nbsp;4</th>
+            <th class="sm">Level&nbsp;5</th>
+            <th class="sm" ng-if="Abbr.isType(event, 'sr') && !data[id].config.simplified">Level&nbsp;6</th>
+          </tr>
+          <tr
+            ng-repeat="n in getNumber(data[id].config.judges[event][type]) track by $index">
+            <td class="bold">Judge&nbsp;{{ type | uppercase }}{{ $index + 1 }}</td>
+            <td ng-if="data[id].config.simplified">{{ data[id].scores[uid][event][type][$index]['0'] }}</td>
+            <td>{{ data[id].scores[uid][event][type][$index]['1'] }}</td>
+            <td>{{ data[id].scores[uid][event][type][$index]['2'] }}</td>
+            <td>{{ data[id].scores[uid][event][type][$index]['3'] }}</td>
+            <td>{{ data[id].scores[uid][event][type][$index]['4'] }}</td>
+            <td ng-if="Abbr.isType(event, 'sr') && !data[id].config.simplified">{{ data[id].scores[uid][event][type][$index]['5'] }}</td>
+          </tr>
+        </table>
+
+        <table ng-if="type === 'h'">
+          <tr>
+            <th class="sm"></th>
+            <th class="sm" ng-if="!MissJudges && !NoMisses">Minor Misses</th>
+            <th class="sm" ng-if="!MissJudges && !NoMisses">Major Misses</th>
+            <th class="sm">Space Violations</th>
+            <th class="sm">Time Violation</th>
+            <th class="sm" ng-if="Abbr.isType(event, 'dd')">Less than 3 skills</th>
+          </tr>
+          <tr
+            ng-repeat="n in getNumber(data[id].config.judges[event][type]) track by $index">
+            <td class="bold">Judge&nbsp;{{ type | uppercase }}{{ $index + 1 }}</td>
+            <td ng-if="!MissJudges && !NoMisses">{{ data[id].scores[uid][event].mim[type + $index] }}</td>
+            <td ng-if="!MissJudges && !NoMisses">{{ data[id].scores[uid][event].mam[type + $index] }}</td>
+            <td>{{ data[id].scores[uid][event].h[$index].spc }}</td>
+            <td>{{ (ata[id].scores[uid][event].h[$index].tim ? 1 : 0) }}</td>
+            <td ng-if="Abbr.isType(event, 'dd')">{{ data[id].scores[uid][event].h[$index].few }}</td>
+          </tr>
+        </table>
+
+        <table ng-if="type === 'm'">
+          <tr>
+            <th></th>
+            <th class="sm">Minor Misses</th>
+            <th class="sm">Major Misses</th>
+          </tr>
+          <tr
+            ng-repeat="n in getNumber(data[id].config.judges[event][type]) track by $index">
+            <td class="bold">Judge&nbsp;{{ type | uppercase }}{{ $index + 1 }}</td>
+            <td>{{ data[id].scores[uid][event].mim['m' + $index] }}</td>
+            <td>{{ data[id].scores[uid][event].mam['m' + $index] }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div
+      class="pagefoot cuttable"
+      ng-if="Abbr.isSpeed(event) && !data[id].scores[uid][event].dns">
+      <table class="full blank">
         <tr>
-          <td><label for="h{{ $index }}spc">Space Violations:</label></td>
-          <td><input type="number" id="h{{ $index }}spc" min="0" ng-model="data[id].scores[uid][event].h[$index].spc"
-            /></td>
+          <td class="bold">T</td>
+          <td class="bold">W (deductions)</td>
+          <td class="bold">T - W (unofficial score)</td>
+          <td class="bold">Y</td>
         </tr>
         <tr>
-          <td><label for="h{{ $index }}tim">Time Violation:</label></td>
-          <td><input type="checkbox" id="h{{ $index }}tim" ng-model="data[id].scores[uid][event].h[$index].tim"
-            ng-keydown="($event.keyCode !== 9 ? data[id].scores[uid][event].h[$index].tim = !data[id].scores[uid][event].h[$index].tim : '')"/></td>
-        </tr>
-        <tr ng-if="Abbr.isType(event, 'dd')">
-          <td><label for="h{{ $index }}few">Less than 3 skills:</label></td>
-          <td><input type="number" id="h{{ $index }}few" min="0" ng-model="data[id].scores[uid][event].h[$index].few" /></td>
+          <td>{{ roundTo(currScore.T, 4) }}</td>
+          <td>{{ roundTo(currScore.W, 4) }}</td>
+          <td>{{ roundTo(currScore.PreY, 4) }}</td>
+          <td class="lg">{{ roundTo(currScore.Y, 4) }}</td>
         </tr>
       </table>
-
-      <table ng-if="type === 'm'">
+    </div>
+    <div
+      class="pagefoot cuttable"
+      ng-if="!Abbr.isSpeed(event) && !data[id].scores[uid][event].dns">
+      <table class="full blank">
         <tr>
-          <td><label for="m{{ $index }}mim">Minor Misses:</label></td>
-          <td><input type="number" id="h{{ $index }}mim" min="0" ng-model="data[id].scores[uid][event].mim['m' + $index]" /></td>
+          <td class="bold">T1 (diff)</td>
+          <td class="bold">T2 (pres)</td>
+          <td class="bold">T3 (req)</td>
+          <td class="bold">T4 (crea)</td>
+          <td class="bold">T5 (deduc)</td>
+          <td class="bold">T4&nbsp;-&nbsp;(T5&nbsp;/&nbsp;2)</td>
+          <td class="bold">T1&nbsp;-&nbsp;(T5&nbsp;/&nbsp;2)</td>
+          <td class="bold">PreA (unofficial)</td>
+          <td class="bold">A (final&nbsp;result)</td>
         </tr>
         <tr>
-          <td><label for="m{{ $index }}mam">Major Misses:</label></td>
-          <td><input type="number" id="h{{ $index }}mam" min="0" ng-model="data[id].scores[uid][event].mam['m' + $index]" /></td>
+          <td>{{ scores.T1 = roundTo(freestyle.T1(data[id].scores[uid][event].d, event, simplified), 4) }}</td>
+          <td>{{ scores.T2 = roundTo(freestyle.T2(event, data[id].scores[uid][event].a, simplified), 4) }}</td>
+          <td>{{ scores.T3 = roundTo(freestyle.T3(data[id].scores[uid][event].b, event, simplified), 4) }}</td>
+          <td>{{ scores.T4 = roundTo(freestyle.T4(scores.T2, scores.T3), 4) }}</td>
+          <td>{{ scores.T5 = (freestyle.T5(data[id].scores[uid][event], '', simplified) !== undefined ? -roundTo(freestyle.T5(data[id].scores[uid][event], '', simplified), 4) : '') }}</td>
+          <td>{{ roundTo(scores.T4 + (scores.T5 / 2), 4) }}</td>
+          <td>{{ roundTo(scores.T1 + (scores.T5 / 2), 4) }}</td>
+          <td>{{ roundTo(freestyle.A(scores.T1, scores.T4, -scores.T5, event).PreA, 4) }}</td>
+          <td class="lg">{{ roundTo(freestyle.A(scores.T1, scores.T4, -scores.T5, event).A, 4) }}</td>
         </tr>
       </table>
     </div>
   </div>
-
-  <div class="table">
-    <table>
-      <tr>
-        <th></th>
-        <th>Required Elements</th>
-        <th>Presentation</th>
-        <th>Difficulty</th>
-        <th>Deductions</th>
-        <th>Creativity - (Deductions / 2)</th>
-        <th>Difficulty - (Deductions / 2)</th>
-        <th>Total</th>
-      </tr>
-      <tr>
-        <th>Unofficial Scores:</th>
-        <td>{{ scores.T3 = roundTo(freestyle.T3(data[id].scores[uid][event].b, event, simplified), 2) }}</td>
-        <td>{{ scores.T2 = roundTo(freestyle.T2(event, data[id].scores[uid][event].a, simplified), 2) }}</td>
-        <td>{{ scores.T1 = roundTo(freestyle.T1(data[id].scores[uid][event].d, event, simplified), 2) }}</td>
-        <td>{{ scores.T5 = (freestyle.T5(data[id].scores[uid][event], '', simplified) !== undefined ? -roundTo(freestyle.T5(data[id].scores[uid][event], '', simplified), 2) : '') }}</td>
-        <td>{{ roundTo(freestyle.T4(scores.T2, scores.T3) + (scores.T5 / 2), 2) }}</td>
-        <td>{{ roundTo(scores.T1 + (scores.T5 / 2), 2) }}</td>
-        <td>{{ roundTo(freestyle.A(scores.T1, freestyle.T4(scores.T2, scores.T3), -scores.T5,
-          event).PreA, 2) }}</td>
-      </tr>
-    </table>
-  </div>
-  <span ng-show="freeform.$invalid">Check input for errors marked in red.</span>
-  <button ng-click="save()" ng-disabled="(freeform.$invalid)">Save &amp; Return</button>
-  <button ng-click="display(uid, id, event)">Display</button>
-  <button ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? save() : '')" ng-class="{red: data[id].scores[uid][event].dns}">Did {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</button>
-</form>
+</div>

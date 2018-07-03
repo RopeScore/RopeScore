@@ -1,43 +1,71 @@
-<h1>{{ data[id].config.name }}</h1>
-<a ng-href="/config/{{ id }}"><button>Configure</button></a>
-<a ng-href="/config/participants/{{ id }}"><button>Manage Participants</button></a>
-<a ng-click="complete()"><button>{{ (data[id].config.completed ? 'Unmark category as completed' : 'Mark category as completed') }}</button></a>
-<a ng-href="/speedscore/{{ id }}" ng-if="hasSpeed"><button>Enter All Speed Scores</button></a>
-<div class="table">
-  <table>
-    <thead>
-      <tr>
-        <th>{{ (Abbr.hasTeams(data[id].config.subevents) ? 'Team ' : '' ) }} Name</th>
-        <th ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
-        <th>Club</th>
-        <th>id</th>
+<div class="noprint">
+  <h1>{{ data[id].config.name }}</h1>
+  <a ng-href="/config/{{ id }}">
+    <button>Configure</button>
+  </a>
+  <a ng-href="/config/participants/{{ id }}">
+    <button>Manage Participants</button>
+  </a>
+  <a ng-click="complete()">
+    <button>{{ (data[id].config.completed ? 'Unmark category as completed' : 'Mark category as completed') }}</button>
+  </a>
+  <a ng-href="/speedscore/{{ id }}" ng-if="hasSpeed">
+    <button>Enter All Speed Scores</button>
+  </a>
+  <div class="table">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ (Abbr.hasTeams(data[id].config.subevents) ? 'Team ' : '' ) }}
+            Name</th>
+          <th ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
+          <th>Club</th>
+          <th>id</th>
 
-        <th colspan="2" ng-repeat="event in events track by $index" ng-if="data[id].config.subevents[events[$index]]">{{ Abbr.abbr(events[$index]) }}</th>
+          <th
+            colspan="2"
+            ng-repeat="event in events track by $index"
+            ng-if="data[id].config.subevents[events[$index]]">{{ Abbr.abbr(events[$index]) }}</th>
 
-        <th>Checksum</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="hoverhl">
-        <td colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}"></td>
+          <th>Checksum</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="hoverhl">
+          <td colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}"></td>
 
-        <td ng-repeat="event in events track by $index" colspan="2" ng-if="data[id].config.subevents[events[$index]]"><a ng-href="/speedscore/{{ id }}/{{ events[$index] }}" ng-if="Abbr.isSpeed(events[$index])">Edit Multiple</a></td>
+          <td
+            ng-repeat="event in events track by $index"
+            colspan="2"
+            ng-if="data[id].config.subevents[events[$index]]">
+            <a
+              ng-href="/speedscore/{{ id }}/{{ events[$index] }}"
+              ng-if="Abbr.isSpeed(events[$index])">Edit Multiple</a>
+          </td>
 
-        <td class="mono">{{ checksum(data[id].scores, 10) }}</td>
-      </tr>
-      <tr ng-repeat="(uid, participant) in data[id].participants" class="hoverhl">
-        <td>{{ participant.name }}</td>
-        <td ng-if="Abbr.hasTeams(data[id].config.subevents)" class="sm">{{ participant.members }}</td>
-        <td>{{ participant.club }}</td>
-        <td>{{ uid }}</td>
+          <td class="mono">{{ checksum(data[id].scores, 10) }}</td>
+        </tr>
+        <tr ng-repeat="(uid, participant) in data[id].participants" class="hoverhl">
+          <td>{{ participant.name }}</td>
+          <td ng-if="Abbr.hasTeams(data[id].config.subevents)" class="sm">{{ participant.members }}</td>
+          <td>{{ participant.club }}</td>
+          <td>{{ uid }}</td>
 
-        <td ng-repeat-start="event in events track by $index" ng-if="data[id].config.subevents[events[$index]]">
-          <a ng-href="/score/{{ id }}/{{ uid }}/{{ events[$index] }}" ng-class="(blankChk == checksum(data[id].scores[uid][events[$index]], 5) ? 'red' : (data[id].scores[uid][events[$index]].dns ? 'gray' : 'green'))">Edit</a>&nbsp;<span ng-if="data[id].scores[uid][events[$index]].reskip" class="red">&bull;</span>
-        </td>
-        <td class="mono" ng-repeat-end ng-if="data[id].config.subevents[events[$index]]">{{ checksum(data[id].scores[uid][events[$index]], 5) }}</td>
+          <td
+            ng-repeat-start="event in events track by $index"
+            ng-if="data[id].config.subevents[events[$index]]">
+            <a
+              ng-href="/score/{{ id }}/{{ uid }}/{{ events[$index] }}"
+              ng-class="(blankChk == checksum(data[id].scores[uid][events[$index]], 5) ? 'red' : (data[id].scores[uid][events[$index]].dns ? 'gray' : 'green'))">Edit</a>&nbsp;<span ng-if="data[id].scores[uid][events[$index]].reskip" class="red">&bull;</span>
+          </td>
+          <td
+            class="mono"
+            ng-repeat-end="ng-repeat-end"
+            ng-if="data[id].config.subevents[events[$index]]">{{ checksum(data[id].scores[uid][events[$index]], 5) }}</td>
 
-        <td class="mono">{{ checksum(data[id].scores[uid], 10) }}</td>
-      </tr>
-    </tbody>
+          <td class="mono">{{ checksum(data[id].scores[uid], 10) }}</td>
+        </tr>
+      </tbody>
+    </table>
   </table>
-  </table>
+</div>

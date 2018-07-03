@@ -27,6 +27,8 @@ angular.module('ropescore.globconfig', ['ngRoute'])
     Config, Cleaner) {
     $scope.data = Db.get()
 
+    $scope.defaultURL = Config.Live.URL
+
     /**
      * Saves data and continues to articipant configuration. won't save empty data
      * @return {undefined} function does not return
@@ -41,6 +43,7 @@ angular.module('ropescore.globconfig', ['ngRoute'])
       Db.set($scope.computerName, 'computer-name')
       Db.set($scope.disabledNotifs, 'disabled-notifs')
       Db.set($scope.liveConfig, 'rslive-config')
+      Db.set($scope.letterPaper, 'letterpaper')
       $scope.updateGlobConfig()
       $location.path('/')
     }

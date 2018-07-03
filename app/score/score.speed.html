@@ -1,51 +1,153 @@
-<div class="floatbuttons">
-  <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save</button>
-  <button ng-click="saveReturn()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
-  <button ng-click="displayAll(data[id].participants, id, events)">Display All</button>
-</div>
-<h1 ng-if="events.length > 1">Multiple speed events</h1>
-<h1 ng-if="events.length === 1">{{ Abbr.unabbr(events[0]) }}</h1>
-<form class="table" name="speedform">
-  <div class="table">
-  <table>
-    <thead>
-      <tr ng-if="events.length > 1">
-        <th colspan="3"></th>
-        <th ng-repeat="event in events" colspan="{{ (getNumber(data[id].config.judges[event].s).length + (Abbr.isTeam(event) ? 1 : 0) + 5) }}">{{ Abbr.unabbr(event) }}</th>
-      </tr>
-      <tr>
-        <th>Name</th>
-        <th>Club</th>
-        <th>uid</th>
-        <th ng-repeat-start="event in events" class="hidden"></th>
-        <th ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">S{{ $index + 1 }}</th>
-        <th>False Start</th>
-        <th ng-if="Abbr.isTeam(event)">False Switches</th>
-        <th>Unofficial Score</th>
-        <th>Display</th>
-        <th>Did Not Skip</th>
-        <th ng-repeat-end>Reskip</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr ng-repeat="(uid, participant) in data[id].participants">
-          <td>{{ participant.name }}</td>
-          <td>{{ participant.club }}</td>
-          <td>{{ uid }}</td>
-          <th ng-repeat-start="event in events" class="hidden"></th>
-          <td ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index"><input type="number" id="s{{ $index }}" min="0" ng-model="data[id].scores[uid][event].s[$index]" ng-if="!data[id].scores[uid][event].dns" ng-change="calc(event, data[id].scores[uid][event], uid)" /></td>
-          <td><input type="checkbox" id="fst" ng-model="data[id].scores[uid][event].start" ng-keydown="($event.keyCode === 9 || $event.keyCode === 16 ? '' : data[id].scores[uid][event].start = !data[id].scores[uid][event].start)" ng-if="!data[id].scores[uid][event].dns" ng-change="calc(event, data[id].scores[uid][event], uid)" /></td>
-          <td ng-if="Abbr.isTeam(event)"><input type="number" id="fsw" min="0" max="3" ng-model="data[id].scores[uid][event].switches" ng-if="!data[id].scores[uid][event].dns" ng-change="calc(event, data[id].scores[uid][event], uid)" /></td>
-          <td><span ng-class="{gray: data[id].scores[uid][event].dns}">{{ (data[id].scores[uid][event].dns ? 'DNS' : scores[uid][event].PreY) }}</span></td>
-          <td><a ng-click="display(uid, id, event)">Display</a></td>
-          <td><a ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? dnsSave(uid, id, event) : '')" ng-class="{gray: data[id].scores[uid][event].dns}">Did {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</a></td>
-          <td ng-repeat-end><span ng-if="reskipAllowed(uid, id, event)" class="red">Reskip Allowed</span></td>
-        </tr>
-    </tbody>
-  </table>
+<div class="noprint">
+  <div class="floatbuttons">
+    <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save</button>
+    <button ng-click="saveReturn()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
+    <button ng-click="displayAll(data[id].participants, id, events)">Display All</button>
   </div>
-  <span ng-show="speedform.$invalid">Check input for errors marked in red.</span>
-  <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save</button>
-  <button ng-click="saveReturn()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
-  <button ng-click="displayAll(data[id].participants, id, event)">Display All</button>
-</form>
+  <h1 ng-if="events.length > 1">Multiple speed events</h1>
+  <h1 ng-if="events.length === 1">{{ Abbr.unabbr(events[0]) }}</h1>
+  <form class="table" name="speedform">
+    <div class="table">
+      <table>
+        <thead>
+          <tr ng-if="events.length > 1">
+            <th colspan="3"></th>
+            <th
+              ng-repeat="event in events"
+              colspan="{{ (getNumber(data[id].config.judges[event].s).length + (Abbr.isTeam(event) ? 1 : 0) + 5) }}">{{ Abbr.unabbr(event) }}</th>
+          </tr>
+          <tr>
+            <th>Name</th>
+            <th>Club</th>
+            <th>uid</th>
+            <th ng-repeat-start="event in events" class="hidden"></th>
+            <th ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">S{{ $index + 1 }}</th>
+            <th>False Start</th>
+            <th ng-if="Abbr.isTeam(event)">False Switches</th>
+            <th>Unofficial Score</th>
+            <th>Display</th>
+            <th>Did Not Skip</th>
+            <th ng-repeat-end="ng-repeat-end">Reskip</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="(uid, participant) in data[id].participants">
+            <td>{{ participant.name }}</td>
+            <td>{{ participant.club }}</td>
+            <td>{{ uid }}</td>
+            <th ng-repeat-start="event in events" class="hidden"></th>
+            <td ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index"><input
+              type="number"
+              id="s{{ $index }}"
+              min="0"
+              ng-model="data[id].scores[uid][event].s[$index]"
+              ng-if="!data[id].scores[uid][event].dns"
+              ng-change="calc(event, data[id].scores[uid][event], uid)"/></td>
+            <td><input
+              type="checkbox"
+              id="fst"
+              ng-model="data[id].scores[uid][event].start"
+              ng-keydown="($event.keyCode === 9 || $event.keyCode === 16 ? '' : data[id].scores[uid][event].start = !data[id].scores[uid][event].start)"
+              ng-if="!data[id].scores[uid][event].dns"
+              ng-change="calc(event, data[id].scores[uid][event], uid)"/></td>
+            <td ng-if="Abbr.isTeam(event)"><input
+              type="number"
+              id="fsw"
+              min="0"
+              max="3"
+              ng-model="data[id].scores[uid][event].switches"
+              ng-if="!data[id].scores[uid][event].dns"
+              ng-change="calc(event, data[id].scores[uid][event], uid)"/></td>
+            <td>
+              <span ng-class="{gray: data[id].scores[uid][event].dns}">{{ (data[id].scores[uid][event].dns ? 'DNS' : scores[uid][event].PreY) }}</span></td>
+            <td>
+              <a ng-click="display(uid, id, event)">Display</a>
+            </td>
+            <td>
+              <a
+                ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? dnsSave(uid, id, event) : '')"
+                ng-class="{gray: data[id].scores[uid][event].dns}">Did
+                {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</a>
+            </td>
+            <td ng-repeat-end="ng-repeat-end">
+              <span ng-if="reskipAllowed(uid, id, event)" class="red">Reskip Allowed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <span ng-show="speedform.$invalid">Check input for errors marked in red.</span>
+    <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save</button>
+    <button ng-click="saveReturn()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
+    <button ng-click="displayAll(data[id].participants, id, event)">Display All</button>
+  </form>
+</div>
+
+<div class="print" ng-repeat="event in events">
+  <div
+    class="page"
+    ng-class="{letterpaper: letterPaper}"
+    ng-repeat="(uid, participant) in data[id].participants">
+    <div class="pagehead cuttable">
+      <table class="full blank">
+        <tr>
+          <td class="bold">Category</td>
+          <td class="bold">Event</td>
+          <td class="bold">{{ (Abbr.hasTeams(data[id].config.subevents) ? 'Team' : 'Participant' ) }}
+            Name</th>
+          <td class="bold" ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
+          <td class="bold">Club</td>
+          <td class="bold">id</td>
+        </tr>
+        <tr>
+          <td>{{ data[id].config.name }}</td>
+          <td>{{ Abbr.unabbr(event) }}</td>
+          <td>{{ data[id].participants[uid].name }}</td>
+          <td ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ data[id].participants[uid].members }}</td>
+          <td>{{ data[id].participants[uid].club }}</td>
+          <td>{{ uid }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div ng-if="data[id].scores[uid][event].dns" class="huge center">
+      Did Not Skip
+    </div>
+    <div
+      ng-if="Abbr.isSpeed(event) && !data[id].scores[uid][event].dns"
+      class="pagebody">
+      <table>
+        <tr ng-repeat="n in getNumber(data[id].config.judges[event].s) track by $index">
+          <td class="bold">Judge&nbsp;S{{ $index + 1 }}</td>
+          <td>{{ data[id].scores[uid][event].s[$index] }}</td>
+        </tr>
+        <tr>
+          <td class="bold">False Start</td>
+          <td>{{ (data[id].scores[uid][event].start ? 1 : 0) }}</td>
+        </tr>
+        <tr ng-if="Abbr.isTeam(event)">
+          <td class="bold">False Switches</td>
+          <td>{{ data[id].scores[uid][event].switches }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div
+      class="pagefoot cuttable"
+      ng-if="Abbr.isSpeed(event) && !data[id].scores[uid][event].dns">
+      <table class="full blank">
+        <tr>
+          <td class="bold">T</td>
+          <td class="bold">W (deductions)</td>
+          <td class="bold">T - W (unofficial score)</td>
+          <td class="bold">Y</td>
+        </tr>
+        <tr>
+          <td>{{ roundTo(scores[uid][event].T, 4) }}</td>
+          <td>{{ roundTo(scores[uid][event].W, 4) }}</td>
+          <td>{{ roundTo(scores[uid][event].PreY, 4) }}</td>
+          <td class="lg">{{ roundTo(scores[uid][event].Y, 4) }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
