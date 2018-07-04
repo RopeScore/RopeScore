@@ -1,4 +1,4 @@
-<div class="noprint">
+<div class="noprint" pm-as-tab="pm-as-tab">
   <h1>{{ Abbr.unabbr(event) }}
     Score for
     <u>{{ data[id].participants[uid].name }}</u>
@@ -33,7 +33,7 @@
           type="checkbox"
           id="fst"
           ng-model="data[id].scores[uid][event].start"
-          ng-keydown="($event.keyCode !== 9 ? data[id].scores[uid][event].start = !data[id].scores[uid][event].start : '')"/></td>
+          ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].scores[uid][event].start = !data[id].scores[uid][event].start : '')"/></td>
       </tr>
       <tr ng-if="Abbr.isTeam(event)">
         <td>
@@ -276,7 +276,7 @@
               type="checkbox"
               id="h{{ $index }}tim"
               ng-model="data[id].scores[uid][event].h[$index].tim"
-              ng-keydown="($event.keyCode !== 9 ? data[id].scores[uid][event].h[$index].tim = !data[id].scores[uid][event].h[$index].tim : '')"/></td>
+              ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].scores[uid][event].h[$index].tim = !data[id].scores[uid][event].h[$index].tim : '')"/></td>
           </tr>
           <tr ng-if="Abbr.isType(event, 'dd')">
             <td>

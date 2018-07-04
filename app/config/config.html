@@ -1,77 +1,130 @@
-<h2>Basics</h2>
-<table>
-  <tr>
-    <td><label for="name">Category Name:</label></td>
-    <td><input type="text" id="name" ng-model="data[id].config.name" /></td>
-  </tr>
-
-  <!--<tr>
-    <td><label for="part">{{ (Abbr.hasTeams(data[id].config.subevents) ? "Teams:" : "Participants:" ) }}</label></td>
-    <td><input type="number" id="part" ng-model="data[id].config.participants" /></td>
-  </tr>-->
-
-  <tr ng-if="Simplified">
-    <td><label for="simp">Simplified levels:</label></td>
-    <td><input type="checkbox" id="simp" ng-model="data[id].config.simplified" ng-keydown="($event.keyCode !== 9 ? data[id].config.simplified = !data[id].config.simplified: '')"/></td>
-  </tr>
-
-  <tr>
-    <td><label for="live">Sync with RopeScore Live:</label></td>
-    <td><input type="checkbox" id="live" ng-model="data[id].config.live" ng-keydown="($event.keyCode !== 9 ? data[id].config.live = !data[id].config.live : '')"/></td>
-  </tr>
-</table>
-
-<h2>Events</h2>
-<table>
-  <tr>
-    <th class="blank" colspan="2"></th>
-    <th colspan="{{ (MissJudges ? 6 : 5) }}">Number of Judges</th>
-  </tr>
-  <tr>
-    <th colspan="2">Event</th>
-    <th>Presentation </th>
-    <th>Required Elements</th>
-    <th>Difficulty </th>
-    <th>Head Judges </th>
-    <th ng-if="MissJudges">Misses</th>
-    <th>Speed </th>
-  </tr>
-  <tr ng-repeat="event in Abbr.events() track by $index">
-    <td><input type="checkbox" id="event-{{ event }}" ng-model="data[id].config.subevents[event]"
-      ng-keydown="($event.keyCode !== 9 ? data[id].config.subevents[event] = !data[id].config.subevents[event] : '')"/></td>
-    <td><label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label></td>
-    <td><input type="number" ng-model="data[id].config.judges[event].a" placeholder="Presentation"
-        ng-if="!Abbr.isSpeed(event)" /></td>
-    <td><input type="number" ng-model="data[id].config.judges[event].b" placeholder="Required Elements"
-        ng-if="!Abbr.isSpeed(event)" /></td>
-    <td><input type="number" ng-model="data[id].config.judges[event].d" placeholder="Difficulty"
-        ng-if="!Abbr.isSpeed(event)" /></td>
-    <td><input type="number" ng-model="data[id].config.judges[event].h" placeholder="Head Judges"
-        ng-if="!Abbr.isSpeed(event)" /></td>
-    <td ng-if="MissJudges"><input type="number" ng-model="data[id].config.judges[event].m" placeholder="Misses"
-        ng-if="!Abbr.isSpeed(event)" /></td>
-    <td><input type="number" ng-model="data[id].config.judges[event].s" placeholder="Speed"
-        ng-if="Abbr.isSpeed(event)" /></td>
-  </tr>
-</table>
-
-<div ng-if="!data[id].config.simplified"><button ng-click="data[id].config.enableFactors = !data[id].config.enableFactors">{{ (data[id].config.enableFactors ? 'Disable' : 'Enable') }} Rank Factors</button></div>
-
-<div ng-if="data[id].config.simplified || data[id].config.enableFactors">
-  <h2>Rank factors</h2>
-  <p>If these values are left blank the ones defined in fisac-irsf's judging manual
-    will be used. For non-standard events a factor of 1 will be used</p>
+<div pm-as-tab="pm-as-tab">
+  <h2>Basics</h2>
   <table>
-    <tr ng-repeat="(key,bool) in data[id].config.subevents" ng-if="bool">
-      <td><label for="factor-{{ key }}">{{ Abbr.unabbr(key) }}</label></td>
-      <td><input type="number" id="factor-{{ key }}" ng-model="data[id].config.factors[key]"
-        /></td>
+    <tr>
+      <td>
+        <label for="name">Category Name:</label>
+      </td>
+      <td><input type="text" id="name" ng-model="data[id].config.name"/></td>
+    </tr>
+
+    <tr>
+      <td>
+        <label for="group">Category Group:</label>
+      </td>
+      <td><input type="text" id="group" ng-model="data[id].config.group"/></td>
+    </tr>
+
+    <tr ng-if="Simplified">
+      <td>
+        <label for="simp">Simplified levels:</label>
+      </td>
+      <td><input
+        type="checkbox"
+        id="simp"
+        ng-model="data[id].config.simplified"
+        ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.simplified = !data[id].config.simplified : '')"/></td>
+    </tr>
+
+    <tr>
+      <td>
+        <label for="live">Sync with RopeScore Live:</label>
+      </td>
+      <td><input
+        type="checkbox"
+        id="live"
+        ng-model="data[id].config.live"
+        ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.live = !data[id].config.live : '')"/></td>
     </tr>
   </table>
+
+  <h2>Events</h2>
+  <table>
+    <tr>
+      <th class="blank" colspan="2"></th>
+      <th colspan="{{ (MissJudges ? 6 : 5) }}">Number of Judges</th>
+    </tr>
+    <tr>
+      <th colspan="2">Event</th>
+      <th>Presentation
+      </th>
+      <th>Required Elements</th>
+      <th>Difficulty
+      </th>
+      <th>Head Judges
+      </th>
+      <th ng-if="MissJudges">Misses</th>
+      <th>Speed
+      </th>
+    </tr>
+    <tr ng-repeat="event in Abbr.events() track by $index">
+      <td><input
+        type="checkbox"
+        id="event-{{ event }}"
+        ng-model="data[id].config.subevents[event]"
+        ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.subevents[event] = !data[id].config.subevents[event] : '')"/></td>
+      <td>
+        <label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label>
+      </td>
+      <td><input
+        type="number"
+        ng-model="data[id].config.judges[event].a"
+        placeholder="Presentation"
+        ng-if="!Abbr.isSpeed(event)"/></td>
+      <td><input
+        type="number"
+        ng-model="data[id].config.judges[event].b"
+        placeholder="Required Elements"
+        ng-if="!Abbr.isSpeed(event)"/></td>
+      <td><input
+        type="number"
+        ng-model="data[id].config.judges[event].d"
+        placeholder="Difficulty"
+        ng-if="!Abbr.isSpeed(event)"/></td>
+      <td><input
+        type="number"
+        ng-model="data[id].config.judges[event].h"
+        placeholder="Head Judges"
+        ng-if="!Abbr.isSpeed(event)"/></td>
+      <td ng-if="MissJudges"><input
+        type="number"
+        ng-model="data[id].config.judges[event].m"
+        placeholder="Misses"
+        ng-if="!Abbr.isSpeed(event)"/></td>
+      <td><input
+        type="number"
+        ng-model="data[id].config.judges[event].s"
+        placeholder="Speed"
+        ng-if="Abbr.isSpeed(event)"/></td>
+    </tr>
+  </table>
+
+  <div ng-if="!data[id].config.simplified">
+    <button
+      ng-click="data[id].config.enableFactors = !data[id].config.enableFactors">{{ (data[id].config.enableFactors ? 'Disable' : 'Enable') }}
+      Rank Factors</button>
+  </div>
+
+  <div ng-if="data[id].config.simplified || data[id].config.enableFactors">
+    <h2>Rank factors</h2>
+    <p>If these values are left blank the ones defined in fisac-irsf's judging
+      manual will be used. For non-standard events a factor of 1 will be used</p>
+    <table>
+      <tr ng-repeat="(key,bool) in data[id].config.subevents" ng-if="bool">
+        <td>
+          <label for="factor-{{ key }}">{{ Abbr.unabbr(key) }}</label>
+        </td>
+        <td><input
+          type="number"
+          id="factor-{{ key }}"
+          ng-model="data[id].config.factors[key]"/></td>
+      </tr>
+    </table>
+  </div>
+  <button ng-click="save()" id="next">Save and Continue</button>
+  <button ng-click="remove()">Remove Category</button>
+  <button ng-click="removeLive()">Remove Category from RopeScore Live</button>
+  <p>{{ error }}</p>
 </div>
-<button ng-click="save()" id="next">Save and Continue</button>
-<button ng-click="remove()">Remove Category</button>
-<button ng-click="removeLive()">Remove Category from RopeScore Live</button>
-<p>{{ error }}</p>
 
 <!-- <pre>{{data[id].config|json}}</pre> -->

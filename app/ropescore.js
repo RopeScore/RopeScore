@@ -768,21 +768,17 @@ angular.module('ropescore', [
     }
     var checker = function (data, id) {
       let msg
-      if (typeof $rootScope.liveConfig === 'undefined' ||
-          !$rootScope.liveConfig.federation) msg = 'federation not set'
-      if (typeof $rootScope.liveConfig === 'undefined' ||
-          !$rootScope.liveConfig.apikey) msg = 'apikey not set'
-
-      if (typeof msg !== 'undefined') {
-        $rootScope.networkError = msg
-        $timeout(function () {
-          $rootScope.networkError = ''
-        }, 7500)
-        return msg
+      if (!data[id].config.live) {
+        return 'Category not configured for RSLive'
       }
-
-      if (!data[id].config.live) msg = 'Category not configured for RSLive'
-      if (typeof msg !== 'undefined') return msg
+      if (typeof $rootScope.liveConfig === 'undefined' || !$rootScope.liveConfig.federation) {
+        Notif('RopeScore Live', 'federation not set', 'error')
+        return 'federation not set'
+      }
+      if (typeof $rootScope.liveConfig === 'undefined' || !$rootScope.liveConfig.apikey) {
+        Notif('RopeScore Live', 'API key not set', 'error')
+        return 'API key not set'
+      }
     }
     return {
       scores: function (id) {
@@ -982,6 +978,7 @@ angular.module('ropescore', [
           let cols = (data[id].config.simplified ? Config.SimplResultsCols || Config.ResultsCols : Config.ResultsCols)
           let body = {
             name: data[id].config.name,
+            group: data[id].config.group,
             events: Object.keys(data[id].config.subevents || {}).filter(function (abbr) {
               return data[id].config.subevents[abbr]
             }).map(function (abbr) {
@@ -1090,3 +1087,25 @@ angular.module('ropescore', [
       }
     }
   ])
+
+  .directive('pmAsTab', function () {
+    /**
+     * gives a confirm prompt before executing the action
+     * @param  {Object} scope
+     * @param  {Object} element
+     * @param  {Object} attr
+     * @return {Undefined}
+     */
+    return function (scope, element, attrs) {
+      element.bind('keydown', function (event) {
+        if (event.keyCode === 107 || event.keyCode === 109) {
+          event.preventDefault()
+          let elems = Array.prototype.slice.call(document.querySelectorAll('input, textarea, select'))
+          let index = elems.indexOf(event.target)
+          if (typeof elems[index + (event.shiftKey || event.keyCode === 109 ? -1 : 1)] !== 'undefined') {
+            elems[index + (event.shiftKey || event.keyCode === 109 ? -1 : 1)].focus()
+          }
+        }
+      })
+    }
+  })

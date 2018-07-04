@@ -114,6 +114,7 @@ angular.module('ropescore.about.licence', ['ngRoute'])
         }
       ],
       'BSD 3-Clause': [
+        // Node modules
         {
           name: 'electron-download',
           licence: 'https://github.com/electron-userland/electron-download/blob/master/LICENSE'

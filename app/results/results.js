@@ -10,7 +10,7 @@ angular.module('ropescore.results', ['ngRoute'])
   .config([
     '$routeProvider',
     function ($routeProvider) {
-      $routeProvider.when('/results/:id?', {
+      $routeProvider.when('/results/:ids?', {
         templateUrl: '/results/results.html',
         controller: 'ResultsCtrl'
       })
@@ -41,10 +41,10 @@ angular.module('ropescore.results', ['ngRoute'])
       $scope.$apply()
     })
 
-    $scope.id = $routeParams.id
-    if ($scope.id) {
-      $scope.setID($scope.id)
-      $scope.categories = [$scope.id]
+    $scope.ids = $routeParams.ids
+    if (typeof $scope.ids !== 'undefined') {
+      $scope.setID(($scope.ids.length === 1 ? $scope.ids[0] : null))
+      $scope.categories = $scope.ids.split('.')
     } else {
       $scope.setID(null)
       $scope.categories = Object.keys($scope.data).filter(function (key) { return key !== 'globconfig' })
@@ -155,7 +155,7 @@ angular.module('ropescore.results', ['ngRoute'])
           var tables = document.getElementsByTagName('table')
           tables = Array.prototype.slice.call(tables)
           tables.shift()
-          tablesToExcel(tables, ($scope.id ? $scope.data[$scope.id].config.name : 'All Results'))
+          tablesToExcel(tables, ($scope.ids.length === 1 ? $scope.data[$scope.ids[0]].config.name : 'All Results'))
         })
       }
     }

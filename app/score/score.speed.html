@@ -1,4 +1,4 @@
-<div class="noprint">
+<div class="noprint" pm-as-tab="pm-as-tab">
   <div class="floatbuttons">
     <button ng-click="save()" ng-disabled="(speedform.$invalid)">Save</button>
     <button ng-click="saveReturn()" ng-disabled="(speedform.$invalid)">Save &amp; Return</button>
@@ -47,7 +47,7 @@
               type="checkbox"
               id="fst"
               ng-model="data[id].scores[uid][event].start"
-              ng-keydown="($event.keyCode === 9 || $event.keyCode === 16 ? '' : data[id].scores[uid][event].start = !data[id].scores[uid][event].start)"
+              ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].scores[uid][event].start = !data[id].scores[uid][event].start : '')"
               ng-if="!data[id].scores[uid][event].dns"
               ng-change="calc(event, data[id].scores[uid][event], uid)"/></td>
             <td ng-if="Abbr.isTeam(event)"><input

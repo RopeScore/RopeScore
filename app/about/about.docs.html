@@ -1,274 +1,386 @@
 <h1>Documentation</h1>
 <h2>Table of Contents</h2>
 <ol class="docs">
-  <li><a href="#dash">The Dasboard</a></li>
-  <li><a href="#config">Configuration</a>
+  <li>
+    <a href="#dash">The Dasboard</a>
+  </li>
+  <li>
+    <a href="#config">Configuration</a>
     <ol class="docs">
-      <li><a href="#config.event">Category Data</a></li>
-      <li><a href="#config.part">Participants</a></li>
-      <li><a href="#config.system">System</a></li>
+      <li>
+        <a href="#config.event">Category Data</a>
+      </li>
+      <li>
+        <a href="#config.part">Participants</a>
+      </li>
+      <li>
+        <a href="#config.system">System</a>
+      </li>
     </ol>
   </li>
-  <li><a href="#event">Category</a></li>
-  <li><a href="#score">Score Entering</a>
+  <li>
+    <a href="#event">Category</a>
+  </li>
+  <li>
+    <a href="#score">Score Entering</a>
     <ol class="docs">
-      <li><a href="#score.speed">Speed</a>
+      <li>
+        <a href="#score.speed">Speed</a>
         <ol class="docs">
-          <li><a href="#score.speed.single">Single</a></li>
-          <li><a href="#score.speed.mult">Multiple</a></li>
+          <li>
+            <a href="#score.speed.single">Single</a>
+          </li>
+          <li>
+            <a href="#score.speed.mult">Multiple</a>
+          </li>
         </ol>
       </li>
-      <li><a href="#score.free">Freestyle</a></li>
+      <li>
+        <a href="#score.free">Freestyle</a>
+      </li>
     </ol>
   </li>
-  </li>
-  <li><a href="#result">Results</a></li>
-  <li><a href="#display">Live Display</a>
-    <ol class="docs">
-      <li><a href="#display.speed">Speed</a></li>
-      <li><a href="#display.free">Freestyle</a></li>
-    </ol>
-  </li>
-  <li><a href="#combine">Category Combining</a></li>
-  <li><a href="#live">RopeScore Live</a></li>
-  <li><a href="#misc">Miscellaneous</a>
-    <ol>
-      <li><a href="#misc.key">Keyboard Shortcuts</a></li>
-      <li><a href="#misc.bugs">Bugs</a></li>
-      <li><a href="#misc.update">Updates</a></li>
-    </ol>
-  </li>
+</li>
+<li>
+  <a href="#result">Results</a>
+</li>
+<li>
+  <a href="#display">Live Display</a>
+  <ol class="docs">
+    <li>
+      <a href="#display.speed">Speed</a>
+    </li>
+    <li>
+      <a href="#display.free">Freestyle</a>
+    </li>
+  </ol>
+</li>
+<li>
+  <a href="#combine">Category Combining</a>
+</li>
+<li>
+  <a href="#live">RopeScore Live</a>
+</li>
+<li>
+  <a href="#misc">Miscellaneous</a>
+  <ol>
+    <li>
+      <a href="#misc.key">Keyboard Shortcuts</a>
+    </li>
+    <li>
+      <a href="#misc.bugs">Bugs</a>
+    </li>
+    <li>
+      <a href="#misc.update">Updates</a>
+    </li>
+  </ol>
+</li>
 </ol>
 
 <!-- BEGIN CONTENT -->
 <h2 id="dash">1. The Dashboard</h2>
-<img src="/static/img/docs/dash.png" />
+<img src="/static/img/docs/dash.png"/>
 <p>The above image shows a dashboard with multiple added categories.</p>
-<p>The upper gray area is the menu, on the dashboard only "Dashboard" and "New Category"
-  are avilable.</p>
+<p>The upper gray area is the menu, on the dashboard only "Dashboard" and "New
+Category" are avilable.</p>
 <p>The first row of buttons gives you various tools manage your categories.</p>
 <ul class="docs">
-  <li><b><a href="#config">New Category</a></b>: This button will create a new category</li>
-  <li><b>Import</b>: This button will allow you to choose an exportfile from ropescore,
-    saved on your computer, and REPLACE ALL categories with those in the export file.
-    Make sure to export your current categories before importing new ones</li>
-  <li><b>Export</b>: This button will export all your data to a file on your computer,
-    you will be prompted to select where the file should be saved</li>
-  <li><b>Reset</b>: This button resets the program, it removes ALL saved data. It's highly
-    reccomended to do an export before resetting</li>
-  <li><b><a href="#display">Display Live Unofficial Scores</a></b>: This will take you to a page thatcan be
-    displayed for instance on an external projector, it will show unofficial scores,
-    live when they are set to be displayed in the program</li>
-  <li><b><a href="#combine">Combine Two Categories</a></b>: Allows you to combine multiple categories
-    into one</li>
-  <li><b>Reset Category Order</b>: Resets the order the categories are displayed
-    on the dashboard to be ordered by creation date, oldest first</li>
-  <li><b><a href="#onfig.system">System Configuration</a></b>: Opens global settings that are preserved when the system
-    is reset or scores are imported. Those settings won't be included in exports.</li>
+<li>
+  <b>
+    <a href="#config">New Category</a>
+  </b>: This button will create a new category</li>
+<li>
+  <b>Import</b>: This button will allow you to choose an exportfile from
+  ropescore, saved on your computer, and REPLACE ALL categories with those in the
+  export file. Make sure to export your current categories before importing new
+  ones</li>
+<li>
+  <b>Export</b>: This button will export all your data to a file on your computer,
+  you will be prompted to select where the file should be saved</li>
+<li>
+  <b>Reset</b>: This button resets the program, it removes ALL saved data. It's
+  highly reccomended to do an export before resetting</li>
+<li>
+  <b>
+    <a href="#display">Display Live Unofficial Scores</a>
+  </b>: This will take you to a page thatcan be displayed for instance on an
+  external projector, it will show unofficial scores, live when they are set to be
+  displayed in the program</li>
+<li>
+  <b>
+    <a href="#combine">Combine Two Categories</a>
+  </b>: Allows you to combine multiple categories into one</li>
+<li>
+  <b>Reset Category Order</b>: Resets the order the categories are displayed on
+  the dashboard to be ordered by creation date, oldest first</li>
+<li>
+  <b>
+    <a href="#onfig.system">System Configuration</a>
+  </b>: Opens global settings that are preserved when the system is reset or
+  scores are imported. Those settings won't be included in exports.</li>
 </ul>
-<p>The row of buttons below "Dashboard" (here "Masters", "Teams" etc.) will, once clicked,
-  open the category view for that particular category. The hexadecimal number below
-  them are their checksum, more info on this is avilable under <a href="#event">Category</a></p>
-<p>You can click the arrows (&lsaquo; and &rsaquo;) on the sides of every category to sort your Dashboard</p>
-
-
+<p>The row of buttons below "Dashboard" (here "Masters", "Teams" etc.) will,
+once clicked, open the category view for that particular category. The
+hexadecimal number below them are their checksum, more info on this is avilable
+under
+<a href="#event">Category</a>
+</p>
+<p>You can click the arrows (&lsaquo; and &rsaquo;) on the sides of every
+category to sort your Dashboard</p>
 
 <h2 id="config">2. Configuration</h2>
-<p>The configuration will open either when you create a new category from the menu or
-  the dashboard, or when you click configure in the <a href="#event">Category view</a></p>
-<p>Changing the configuration after scores have been entered may give unexpected results</p>
+<p>The configuration will open either when you create a new category from the
+menu or the dashboard, or when you click configure in the
+<a href="#event">Category view</a>
+</p>
+<p>Changing the configuration after scores have been entered may give unexpected
+results</p>
 
 <h3 id="config.event">2.1 Category Data</h3>
-<img src="/static/img/docs/config.png" />
-<p>This is the configuration for a new category, in the Basics menu you must fill in
-  a name for your category.</p>
+<img src="/static/img/docs/config.png"/>
+<p>This is the configuration for a new category, in the Basics menu you must
+fill in a name for your category.</p>
 <p>Simplified Levels will be described later.</p>
-<p>Under Events you can select which events the category contains of by clicking the
-  checkboxes to the right of their names. If an event is selected you must also specify
-  how many judges that will judge the event.</p>
-<img src="/static/img/docs/config-simplified.png" />
-<p>If Simplified Leves are selected, the scores will be calculated a bit different,
-  this is detailed under <a href="#result">Result</a>, the option to choose what
-  factor the scores and ranks will be multiplied by to determine the final rank and
-  score. If one of the fields is left blank the rank factors defined in fisac-irsf's
-  judging manual will be used, and if it's an event that is not defined in fisac-irsf's
-  judging manual and the field is left empty, a factor of one (1) will be used.</p>
+<p>Under Events you can select which events the category contains of by clicking
+the checkboxes to the right of their names. If an event is selected you must
+also specify how many judges that will judge the event.</p>
+<img src="/static/img/docs/config-simplified.png"/>
+<p>If Simplified Leves are selected, the scores will be calculated a bit
+different, this is detailed under
+<a href="#result">Result</a>, the option to choose what factor the scores and
+ranks will be multiplied by to determine the final rank and score. If one of the
+fields is left blank the rank factors defined in fisac-irsf's judging manual
+will be used, and if it's an event that is not defined in fisac-irsf's judging
+manual and the field is left empty, a factor of one (1) will be used.</p>
 
 <h3 id="config.part">2.2 Participants</h3>
-<img src="/static/img/docs/participants.png" />
-<p>Upon clicking "Save and Continue" on the <a href="#config.event">Category Data</a>
-  Configuration participants can be added, you have the option to select what id
-  the participants will start with, this id is used for internal purposes, but is
-  displayed as a tool for the Competition organiser. The id of a participant will
-  never change, however the participant's name and club may, thus the id of the participant
-  can be relied onto for identification.</p>
-<img src="/static/img/docs/participants-added.png" />
-<p>Once "Add Participants" has been clicked a table where the participants name and
-  club can be entered will show, name and club can be omitted for every participant
-  as the id is used by the program.</p>
-<img src="/static/img/docs/participants-import.png" />
-<p>Participants can also be imported from excel, or similar spreadsheet software. See
-  <a href="/static/import-examples.xlsx" target="_blank" download="import-examples.xlsx">import-examples.xlsx</a>
-  for examples. Note that the header id will be ignored, this is to ensure that ther
-  won't be any conflicts. the data pasted into the input area will be treated as
-  tab separated content (tsv) and every value must be separated by a tab character.</p>
+<img src="/static/img/docs/participants.png"/>
+<p>Upon clicking "Save and Continue" on the
+<a href="#config.event">Category Data</a>
+Configuration participants can be added, you have the option to select what id
+the participants will start with, this id is used for internal purposes, but is
+displayed as a tool for the Competition organiser. The id of a participant will
+never change, however the participant's name and club may, thus the id of the
+participant can be relied onto for identification.</p>
+<img src="/static/img/docs/participants-added.png"/>
+<p>Once "Add Participants" has been clicked a table where the participants name
+and club can be entered will show, name and club can be omitted for every
+participant as the id is used by the program.</p>
+<img src="/static/img/docs/participants-import.png"/>
+<p>Participants can also be imported from excel, or similar spreadsheet
+software. See
+<a
+  href="/static/import-examples.xlsx"
+  target="_blank"
+  download="import-examples.xlsx">import-examples.xlsx</a>
+for examples. Note that the header id will be ignored, this is to ensure that
+ther won't be any conflicts. the data pasted into the input area will be treated
+as tab separated content (tsv) and every value must be separated by a tab
+character.</p>
 
 <h3 id="config.system">2.3 System Configuration</h3>
-<img src="/static/img/docs/config-system.png" />
-<p>The system configuration is not connected to any single category, it sets values
-  that are used across the whole system. This settings page is reached from the
-  <a href="#dash">Dashboard</a>. These settings will not be reset when the reset button
-  is pressed on the <a href="#dash">Dashboard</a>, nor will they be overwritten by
-  importing data. These configuration values are tied to the specific computer
-  they're set on, they will thus not be included in exports.</p>
+<img src="/static/img/docs/config-system.png"/>
+<p>The system configuration is not connected to any single category, it sets
+values that are used across the whole system. This settings page is reached from
+the
+<a href="#dash">Dashboard</a>. These settings will not be reset when the reset button is pressed on the
+<a href="#dash">Dashboard</a>, nor will they be overwritten by importing data.
+These configuration values are tied to the specific computer they're set on,
+they will thus not be included in exports.</p>
 <ul class="docs">
-  <li><b>Federation></b>: The federation to send RopeScore Live data to, see
-    <a href="#live">RopeScore Live</a></li>
-  <li><b>API key></b>: API key required to authenticate with RopeScore Live, see
-    <a href="#live">RopeScore Live</a></li>
-  <li><b>Not using RopeScore Live</b>: Select this option if you want data to be sent to
-    some other API that follows the same specification as RopeScore Live
-    (<span class="mono">https://live.ropescore.com/apidoc/</span>)</li>
-  <li><b>Custom API URL</b>: If <span class="mono">Not using RopeScore Live</span> is selected
-    this option will be avilable. Enter the url to the API basepoint. The defaul
-     is <span class="mono">https://live.ropescore.com/api</span>, see <a href="#live">RopeScore Live</a></li>
-  <li><b>Computer Name</b>: The name of the computer running the system. If this
-    has been set it will be shown in the top left corner throughout the program.
-    It will also be added last in the filenames of export files and excel workbooks (like results)</li>
+<li>
+  <b>Federation></b>: The federation to send RopeScore Live data to, see
+  <a href="#live">RopeScore Live</a>
+</li>
+<li>
+  <b>API key></b>: API key required to authenticate with RopeScore Live, see
+  <a href="#live">RopeScore Live</a>
+</li>
+<li>
+  <b>Not using RopeScore Live</b>: Select this option if you want data to be sent
+  to some other API that follows the same specification as RopeScore Live (<span class="mono">https://live.ropescore.com/apidoc/</span>)</li>
+<li>
+  <b>Custom API URL</b>: If
+  <span class="mono">Not using RopeScore Live</span>
+  is selected this option will be avilable. Enter the url to the API basepoint.
+  The defaul is
+  <span class="mono">https://live.ropescore.com/api</span>, see
+  <a href="#live">RopeScore Live</a>
+</li>
+<li>
+  <b>Computer Name</b>: The name of the computer running the system. If this has
+  been set it will be shown in the top left corner throughout the program. It will
+  also be added last in the filenames of export files and excel workbooks (like
+  results)</li>
 </ul>
-
-
 
 <h2 id="event">3. Category</h2>
-<img src="/static/img/docs/event.png" />
-<p>After <a href="#config.part">adding participants</a> to a category, or when the category
-  is clicked on <a href="#dash">The Dashboard</a> the Category View will be shown.
-  This view gives an overview over the participants and the events, clicking "edit"
-  in the column of an event on the row of a participant will open <a href="#score">Score Entering</a>.</p>
-<p>Edit multiple is avilable for Speed events, where you can enter multiple speed scores
-  at once</p>
-<img src="/static/img/docs/checksums.png" />
-<p>The checksums is a value calculated from the data entered, it can be compared to
-  a second instance of RopeScore, if the two values match, then the entered data
-  is equal</p>
+<img src="/static/img/docs/event.png"/>
+<p>After
+<a href="#config.part">adding participants</a>
+to a category, or when the category is clicked on
+<a href="#dash">The Dashboard</a>
+the Category View will be shown. This view gives an overview over the
+participants and the events, clicking "edit" in the column of an event on the
+row of a participant will open
+<a href="#score">Score Entering</a>.</p>
+<p>Edit multiple is avilable for Speed events, where you can enter multiple
+speed scores at once</p>
+<img src="/static/img/docs/checksums.png"/>
+<p>The checksums is a value calculated from the data entered, it can be compared
+to a second instance of RopeScore, if the two values match, then the entered
+data is equal</p>
 <ul>
-  <li><b>Overall</b>: (green) The checksum in the top right corner of the category view
-    grid shows the checksum for the whole category, this is also the number displayed
-    on the
-    <a href="#dash">Dashboard</a></li>
-  <li><b>Participant</b>: (red) The checksum in the rightmost cell of every row shows
-    the checksum of all data entered for that participant</li>
-  <li><b>Event</b>: (blue) The checksum right to an Edit button shows the checksum for
-    that participant's score in that specific event</li>
+<li>
+  <b>Overall</b>: (green) The checksum in the top right corner of the category
+  view grid shows the checksum for the whole category, this is also the number
+  displayed on the
+  <a href="#dash">Dashboard</a>
+</li>
+<li>
+  <b>Participant</b>: (red) The checksum in the rightmost cell of every row shows
+  the checksum of all data entered for that participant</li>
+<li>
+  <b>Event</b>: (blue) The checksum right to an Edit button shows the checksum for
+  that participant's score in that specific event</li>
 </ul>
-
-
 
 <h2 id="score">4. Score Entering</h2>
 <p>The view to enter scores does differ for speed events and freestyle events</p>
-<p>For all numerical inputs both decimal point (.) and decimal comma (,) are allowed</p>
+<p>For all numerical inputs both decimal point (.) and decimal comma (,) are
+allowed</p>
 
 <h3 id="score.speed">4.1 Speed</h3>
 <h4 id="score.speed.single">4.1.1 Single</h4>
-<img src="/static/img/docs/score.png" />
-<p>Enter the scores each speed judge have turned in to their respective box, if the
-  speed judges have signaled that the skipper made a false start that box should
-  be checked. For team speed, false switches is avilable, if the judges have marked
-  any false switches, the appropriate number of false switches should be entered.
-  The last row shows the unofficial score, calculated on the fly</p>
+<img src="/static/img/docs/score.png"/>
+<p>Enter the scores each speed judge have turned in to their respective box, if
+the speed judges have signaled that the skipper made a false start that box
+should be checked. For team speed, false switches is avilable, if the judges
+have marked any false switches, the appropriate number of false switches should
+be entered. The last row shows the unofficial score, calculated on the fly</p>
 
 <h4 id="score.speed.mult">4.1.2 Multiple</h4>
-<img src="/static/img/docs/score2.png" />
-<p>Scores are entered the same way as for a single speed entry, however multiple participant's
-  scores can be entered at once. The second-to-rightmost column shows the unofficial
-  scores, calculated on the fly. pressing Display in the rightmost column will add
-  that participant's speed score to the currently displayed speed events, see
-  <a href="#display">Live Display</a>. Clicking display all will add all speed scores
-  from the current event to the currently displayed speed events.
+<img src="/static/img/docs/score2.png"/>
+<p>Scores are entered the same way as for a single speed entry, however multiple
+participant's scores can be entered at once. The second-to-rightmost column
+shows the unofficial scores, calculated on the fly. pressing Display in the
+rightmost column will add that participant's speed score to the currently
+displayed speed events, see
+<a href="#display">Live Display</a>. Clicking display all will add all speed
+scores from the current event to the currently displayed speed events.
 </p>
 
 <h3 id="score.free">4.2 Freestyle</h3>
-<img src="/static/img/docs/score1.png" />
-<p><b>A</b> judges are Presentation Judges, <b>B</b> judges are Required Elements Judges,
-  <b>D</b> judges are Difficulty Judges, <b>H</b> judges are Head judges, and
-  <b>M</b> judges are Miss judges. The task of judging misses might be delegated
-  to other judges, if so their miss counts are entered as a Miss judge's score</p>
-<p>The program will correct numbers greater than the allowed amximum, and indicate sow
-  by adding a yellow border to the input field, for five (5) seconds. If it can't
-  automatically correct it, a red border will be added to the input field and saving
-  won't be allowed.</p>
-<p>it is highly reccomended that zero (0) is entered instead of leaving a field blank</p>
+<img src="/static/img/docs/score1.png"/>
+<p>
+<b>A</b>
+judges are Presentation Judges,
+<b>B</b>
+judges are Required Elements Judges,
+<b>D</b>
+judges are Difficulty Judges,
+<b>H</b>
+judges are Head judges, and
+<b>M</b>
+judges are Miss judges. The task of judging misses might be delegated to other
+judges, if so their miss counts are entered as a Miss judge's score</p>
+<p>The program will correct numbers greater than the allowed amximum, and
+indicate sow by adding a yellow border to the input field, for five (5) seconds.
+If it can't automatically correct it, a red border will be added to the input
+field and saving won't be allowed.</p>
+<p>it is highly reccomended that zero (0) is entered instead of leaving a field
+blank</p>
 <p>The bottom row calculates and displays Unofficial scores on the fly.</p>
-<p>Pressing Display will display that participant's score only on the live display,
-  see <a href="#display">Live Display</a></p>
-
-
+<p>Pressing Display will display that participant's score only on the live
+display, see
+<a href="#display">Live Display</a>
+</p>
 
 <h2 id="result">5. Results</h2>
-<img src="/static/img/docs/results.png" />
-<p>Results and ranking are generated for every event where a participant have complete
-  scores entered. If all the events of a participant have complete scores entered
-  the total score, rank sum and overall rank will be calculated as well. the overall
-  score is calculated using the scores for the individual events multiplied by certain
-  factors, see <a href="#config.event">Category Configuration</a></p>
+<img src="/static/img/docs/results.png"/>
+<p>Results and ranking are generated for every event where a participant have
+complete scores entered. If all the events of a participant have complete scores
+entered the total score, rank sum and overall rank will be calculated as well.
+the overall score is calculated using the scores for the individual events
+multiplied by certain factors, see
+<a href="#config.event">Category Configuration</a>
+</p>
 <p>The Results can be exported to excel by pressing the "Export to Excel" button.</p>
-<p>The "Update Live" will recalculate the scores every five (5) seconds until disabled</p>
-<p>If simplified levels are selected in the category's <a href="#config.event">Configuration</a>&nbsp;
-  the difficluties awards higher points per trick and the factors that the ranks
-  and scores are multiplied against may differ from fisac-irsf's judging manual,
-  as set in the <a href="#config.event">category Configuration</a>.</p>
-
-
+<p>The "Update Live" will recalculate the scores every five (5) seconds until
+disabled</p>
+<p>If simplified levels are selected in the category's
+<a href="#config.event">Configuration</a>&nbsp; the difficluties awards higher
+points per trick and the factors that the ranks and scores are multiplied
+against may differ from fisac-irsf's judging manual, as set in the
+<a href="#config.event">category Configuration</a>.</p>
 
 <h2 id="display">6. Live Display</h2>
 <p>It's reccommended to open up a live display in a separate window, see
-  <a href="#misc.key">Keyboard Shortcuts</a>, also avilable via the "Window" menu</p>
+<a href="#misc.key">Keyboard Shortcuts</a>, also avilable via the "Window" menu</p>
 <p>Controlling what is currently displayed is controlled from the
-  <a href="#score">Score Entering</a></p>
+<a href="#score">Score Entering</a>
+</p>
 
 <h3 id="display.speed">6.1 Speed</h3>
-<img src="/static/img/docs/display.png" />
+<img src="/static/img/docs/display.png"/>
 
 <h3 id="display.free">6.2 Freestyle</h3>
-<img src="/static/img/docs/display1.png" />
-
-
+<img src="/static/img/docs/display1.png"/>
 
 <h2 id="combine">7. Category Combining</h2>
-<p>Multiple categories can be combined into one by clicking the "Combine Two Categories"
-  button on the <a href="#dash">Dashboard</a></p>
-<img src="/static/img/docs/combine.png" />
-<p>By selecting two categories (A and B) and pressing combine a new category will be created,
-  preserving the two original categories.</p>
-<p>By default the created categorys name will be a combination of the two origin categories names,
-  this can be overridden by entering a new category name</p>
-<p>By default the new category will start with the lowest participant id of category A and assign
-  new id's to all participants, starting with category A. A new starting id can be set, in that case
-  category A's participants will get the lower id's</p>
-<p>By default the new category will use simplified rules if any of the categories does, if not overridden.</p>
-
-
+<p>Multiple categories can be combined into one by clicking the "Combine Two
+Categories" button on the
+<a href="#dash">Dashboard</a>
+</p>
+<img src="/static/img/docs/combine.png"/>
+<p>By selecting two categories (A and B) and pressing combine a new category
+will be created, preserving the two original categories.</p>
+<p>By default the created categorys name will be a combination of the two origin
+categories names, this can be overridden by entering a new category name</p>
+<p>By default the new category will start with the lowest participant id of
+category A and assign new id's to all participants, starting with category A. A
+new starting id can be set, in that case category A's participants will get the
+lower id's</p>
+<p>By default the new category will use simplified rules if any of the
+categories does, if not overridden.</p>
 
 <h2 id="live">8. RopeScore Live</h2>
-<p>RopeScore Live is a companion service to RopeScore, it makes live results publishable
-  online and provides the same functionality as RopeScores inbuilt <a href="#display">Live Display</a>.</p>
-<p>The benefits include a more engaged audience, and it removes a burden from the
-  score enterers that no longer has to press <span class="mono">Display</span> when a separate
-  computer operator can do it.</p>
-<p>To get access to RopeScore Live for your federation, email <span class="mono">live@ropescore.com</span></p>
-
-
+<p>RopeScore Live is a companion service to RopeScore, it makes live results
+publishable online and provides the same functionality as RopeScores inbuilt
+<a href="#display">Live Display</a>.</p>
+<p>The benefits include a more engaged audience, and it removes a burden from
+the score enterers that no longer has to press
+<span class="mono">Display</span>
+when a separate computer operator can do it.</p>
+<p>To get access to RopeScore Live for your federation, email
+<span class="mono">live@ropescore.com</span></p>
 
 <h2 id="misc">9. Miscellaneous</h2>
 <h3 id="misc.key">9.1 Keyboard Shortcuts</h3>
 <ul class="docs">
-  <li><b>Ctrl+N/&#x2318;+N</b>: Opens a new window, an aditional window can for example
-    be used on a separate monitor to show results updated live.</li>
+<li>
+  <b>Ctrl+N/&#x2318;+N</b>: Opens a new window, an aditional window can for
+  example be used on a separate monitor to show results updated live.</li>
+<li>
+  <b>+</b>:
+  <em>(NumPad only)</em>
+  tab forward one input</li>
+<li>
+  <b>Shift++</b>:
+  <em>(NumPad only)</em>
+  tab backwards one input</li>
+<li>
+  <b>-</b>:
+  <em>(NumPad only)</em>
+  tab backwards one input</li>
 </ul>
 
 <h3 id="misc.bugs">9.2 Bugs</h3>
-<p>See <a href="/bugreport">Bugs</a></p>
+<p>See
+<a href="/bugreport">Bugs</a>
+</p>
 
 <h3 id="misc.update">9.3 Updates</h3>
-<p>The program will automatically search for and download updates when it is started,
-  if there is an update avilable the program will prompt the user before installing.</p>
+<p>The program will automatically search for and download updates when it is
+started, if there is an update avilable the program will prompt the user before
+installing.</p>

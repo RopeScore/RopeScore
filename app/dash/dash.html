@@ -1,41 +1,83 @@
 <div>
-  <a ng-href="/config"><button>New Category</button></a>
+  <a ng-href="/config">
+    <button>New Category</button>
+  </a>
   <label class="button inltbl" for="import-file">Import</label>
-  <a ng-href="{{ linkData }}" download="ropescore-export-{{ today }}{{ (computerName ? '-' + nameCleaner(computerName) : '') }}.json"><button>Export</button></a>
-  <button ng-confirm-click="Are you sure you want to remove ALL data? If you haven't made an export there will be no way of restoring it. Please do an export before resetting. This will not reset the System Configuration such as RopeScore Live API details and this computers name." confirmed-click="reset()">Reset</button>
-  <a ng-href="/display"><button>Display Live Unofficial Scores</button></a>
-  <a ng-href="/results"><button>Show Results for all Categories</button></a>
-  <a ng-href="/combine"><button>Combine Two Categories</button></a>
-  <button ng-click="resetOrder()">Reset Category order</button>
-  <a ng-href="/globconfig"><button>System Configuration</button></a>
+  <a
+    ng-href="{{ linkData }}"
+    download="ropescore-export-{{ today }}{{ (computerName ? '-' + nameCleaner(computerName) : '') }}.json">
+    <button>Export</button>
+  </a>
+  <button
+    ng-confirm-click="Are you sure you want to remove ALL data? If you haven't made an export there will be no way of restoring it. Please do an export before resetting. This will not reset the System Configuration such as RopeScore Live API details and this computers name."
+    confirmed-click="reset()">Reset</button>
+  <a ng-href="/display">
+    <button>Display Live Unofficial Scores</button>
+  </a>
+  <a ng-href="/results">
+    <button>Show Results for all Categories</button>
+  </a>
+  <a ng-href="/combine">
+    <button>Combine Two Categories</button>
+  </a>
+  <button ng-click="resetOrder()">Reset Group order</button>
+  <a ng-href="/globconfig">
+    <button>System Configuration</button>
+  </a>
 </div>
 <h1>Dashboard</h1>
-<div class="flex-container">
-  <div ng-repeat="id in getEventsArray() | orderBy:getOrder track by $index" class="event">
-    <a class="right edge part" ng-click="data.globconfig.order[id] = (data.globconfig.order[id] || 0) + 3; save()">&rsaquo;</a>
-    <a class="left edge part" ng-click="data.globconfig.order[id] = (data.globconfig.order[id] || 0) - 3; save()">&lsaquo;</a>
-    <a ng-href="/event/{{ id }}" ng-class="(data[id].config.completed ? 'green' : '')"
-      class="center part">{{ data[id].config.name }}
-      <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span>
-    </a>
+<div ng-repeat="group in eventsArray track by $index">
+  <h2>
+    {{ group.name }}
+    <span class="sm">
+      <a
+        ng-click="move(group.name, true)"
+        ng-if="group.name !== 'Ungrouped' && eventsArray[$index - 1].name !== 'Ungrouped' && $index > 0">&#9650;</a>
+      <a
+        ng-click="move(group.name, false)"
+        ng-if="group.name !== 'Ungrouped' && $index < eventsArray.length - 1">&#9660;</a>
+    </span>
+  </h2>
+  <a ng-href="/results/{{ group.categories.join('.') }}">
+    <button>Show Results for all Categories in Group</button>
+  </a>
+  <div class="flex-container">
+    <div
+      ng-repeat="id in group.categories track by $index"
+      class="event"
+      ng-if="!data[id].config.completed">
+      <a
+        ng-href="/event/{{ id }}"
+        ng-class="(data[id].config.completed ? 'green' : '')"
+        class="center part">{{ data[id].config.name }}
+        <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span>
+      </a>
+    </div>
+  </div>
+
+  <h4 ng-if="hasCompletedAndUncompleted(group.categories)">Completed Categories</h4>
+  <div class="flex-container">
+    <div
+      ng-repeat="id in group.categories track by $index"
+      class="event"
+      ng-if="data[id].config.completed">
+      <a
+        ng-href="/event/{{ id }}"
+        ng-class="(data[id].config.completed ? 'green' : '')"
+        class="center part">{{ data[id].config.name }}
+        <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span>
+      </a>
+    </div>
   </div>
 </div>
 
-<h2 ng-if="getCompletedEventsArray().length > 0">Completed Categories</h2>
-
-<div class="flex-container">
-  <div ng-repeat="id in getCompletedEventsArray() | orderBy:getOrder track by $index" class="event">
-    <a class="right edge part" ng-click="data.globconfig.order[id] = (data.globconfig.order[id] || 0) + 3; save()">&rsaquo;</a>
-    <a class="left edge part" ng-click="data.globconfig.order[id] = (data.globconfig.order[id] || 0) - 3; save()">&lsaquo;</a>
-    <a ng-href="/event/{{ id }}" ng-class="(data[id].config.completed ? 'green' : '')"
-      class="center part">{{ data[id].config.name }}
-      <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span>
-    </a>
-  </div>
+<div ng-if="eventsArray.length === 0">
+  Welcome to RopeScore. To get the most out of RopeScore, read the
+  <a href="/docs">Documentation</a>
 </div>
 
-<div ng-if="getEventsArray().length + getCompletedEventsArray().length === 0">
-  Welcome to RopeScore. To get the most out of RopeScore, read the <a href="/docs">Documentation</a>
-</div>
-
-<input type="file" class="hidden" id="import-file" enctype="multipart/form-data" />
+<input
+  type="file"
+  class="hidden"
+  id="import-file"
+  enctype="multipart/form-data"/>

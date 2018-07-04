@@ -269,19 +269,20 @@ nav ul li:hover:not(:first-child) {
 .event a {
   color: #222;
   display: block;
-  width: calc(100% - 2em);
-  padding: .3em;
-}
-
-.event a.part {
+  width: 100%;
+  padding-top: .3em;
+  padding-bottom: .3em;
+  padding-left: .5em;
+  padding-right: .5em;
   background: #ddd;
+  border-radius: 10px;
 }
 
-.event a.part:hover {
+.event a:hover {
   background: #ccc;
 }
 
-.event a.center {
+/* .event a.center {
   margin-right: 1em;
   margin-left: 1em;
 }
@@ -304,7 +305,7 @@ nav ul li:hover:not(:first-child) {
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
   left: 0;
-}
+} */
 
 /* forms */
 

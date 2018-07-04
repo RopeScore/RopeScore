@@ -1,35 +1,59 @@
-<h1>Participants</h1>
-<label ng-if="!hasData()">Start with id:
-  <input type="number" ng-model="data[id].config.idStart" />
-</label>
-<br/>
-<table ng-if="hasData()">
-  <tr>
-    <th>{{ (Abbr.hasTeams(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
-    <th ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
-    <th>Club</th>
-    <th>id</th>
-    <th></th>
-  </tr>
-  <tr ng-repeat="(uid, info) in data[id].participants">
-    <td><input type="text" ng-model="data[id].participants[uid].name" placeholder="Name" /></label></td>
-    <td ng-if="Abbr.hasTeams(data[id].config.subevents)"><input type="text" ng-model="data[id].participants[uid].members" placeholder="Team Members" /></label></td>
-    <td><input type="text" ng-model="data[id].participants[uid].club" placeholder="Club" /></label></td>
-    <td>{{ uid }}</td>
-    <td><a ng-confirm-click="Remove participant {{ uid }}?" confirmed-click="delete(uid)">Remove</a></td>
-  </tr>
+<div pm-as-tab="pm-as-tab">
+  <h1>Participants</h1>
+  <label ng-if="!hasData()">Start with id:
+    <input type="number" ng-model="data[id].config.idStart"/>
+  </label>
+  <br/>
+  <table ng-if="hasData()">
+    <tr>
+      <th>{{ (Abbr.hasTeams(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
+      <th ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
+      <th>Club</th>
+      <th>id</th>
+      <th></th>
+    </tr>
+    <tr ng-repeat="(uid, info) in data[id].participants">
+      <td><input
+        type="text"
+        ng-model="data[id].participants[uid].name"
+        placeholder="Name"/></label>
+    </td>
+    <td ng-if="Abbr.hasTeams(data[id].config.subevents)"><input
+      type="text"
+      ng-model="data[id].participants[uid].members"
+      placeholder="Team Members"/></label>
+  </td>
+  <td><input
+    type="text"
+    ng-model="data[id].participants[uid].club"
+    placeholder="Club"/></label>
+</td>
+<td>{{ uid }}</td>
+<td>
+  <a
+    ng-confirm-click="Remove participant {{ uid }}?"
+    confirmed-click="delete(uid)">Remove</a>
+</td>
+</tr>
 </table>
-<div><input type="number" ng-model="addNum" step="1" min="0"><button ng-click="add()" id="add">Add participants</button></div>
+<div><input type="number" ng-model="addNum" step="1" min="0">
+<button ng-click="add()" id="add">Add participants</button>
+</div>
 <div>
-  <button ng-click="excelButton = !excelButton" ng-show="!excelButton">Import from excel</button>
-  <div ng-show="excelButton">
-    <h3>Import from excel</h3>
-    <p>Copy and paste from excel, if there's only two columns without a header</p>
-    <p>Examples: <a href="/static/import-examples.xlsx" target="_blank" download="import-examples.xlsx">import-examples.xlsx</a></p>
-    <textarea ng-model="csv"></textarea>
-    <br/>
-    <button ng-click="import()">Import</button>
-  </div>
+<button ng-click="excelButton = !excelButton" ng-show="!excelButton">Import from excel</button>
+<div ng-show="excelButton">
+<h3>Import from excel</h3>
+<p>Copy and paste from excel, if there's only two columns without a header</p>
+<p>Examples:
+  <a
+    href="/static/import-examples.xlsx"
+    target="_blank"
+    download="import-examples.xlsx">import-examples.xlsx</a>
+</p>
+<textarea ng-model="csv"></textarea>
+<br/>
+<button ng-click="import()">Import</button>
+</div>
 </div>
 
 <button ng-click="save()">Save and Continue</button>
@@ -37,21 +61,23 @@
 <p>{{ error }}</p>
 
 <div ng-show="false">
-  <table ng-if="hasData()" id="partlist" name="overall">
-    <tr>
-      <th colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}">{{ data[id].config.name }}</th>
-    </tr>
-    <tr>
-      <th>{{ (Abbr.hasTeams(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
-      <th ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
-      <th>Club</th>
-      <th>id</th>
-    </tr>
-    <tr ng-repeat="(uid, info) in data[id].participants">
-      <td>{{ data[id].participants[uid].name }}</td>
-      <td ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ data[id].participants[uid].members }}</label></td>
-      <td>{{ data[id].participants[uid].club }}</td>
-      <td>{{ uid }}</td>
-    </tr>
-  </table>
+<table ng-if="hasData()" id="partlist" name="overall">
+<tr>
+  <th colspan="{{ (Abbr.hasTeams(data[id].config.subevents) ? 4 : 3) }}">{{ data[id].config.name }}</th>
+</tr>
+<tr>
+  <th>{{ (Abbr.hasTeams(data[id].config.subevents) ? "Team Name" : "Name") }}</th>
+  <th ng-if="Abbr.hasTeams(data[id].config.subevents)">Team Members</th>
+  <th>Club</th>
+  <th>id</th>
+</tr>
+<tr ng-repeat="(uid, info) in data[id].participants">
+  <td>{{ data[id].participants[uid].name }}</td>
+  <td ng-if="Abbr.hasTeams(data[id].config.subevents)">{{ data[id].participants[uid].members }}</label>
+</td>
+<td>{{ data[id].participants[uid].club }}</td>
+<td>{{ uid }}</td>
+</tr>
+</table>
+</div>
 </div>

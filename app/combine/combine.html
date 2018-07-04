@@ -1,40 +1,64 @@
-<h1>Combine</h1>
-<table>
-  <tr>
-    <td><label for="name">New Category Name:</label></td>
-    <td><input type="text" id="name" ng-model="toCombine.new.name" /></td>
-    <td>If left blank the name will be <em>{{ data[toCombine['0'].id].config.name || 'Category A' }} + {{ data[toCombine['1'].id].config.name || 'Category B' }}</em></td>
-  </tr>
-  <tr>
-    <td><label for="idStart">Start with id:</label></td>
-    <td><input type="number" id="idStart" ng-model="toCombine.new.idStart" /></td>
-    <td>If left blank the starting id will be <em>{{ data[toCombine['0'].id].config.idStart || 'the same as Category A' }}</em></td>
-  </tr>
-  <tr ng-if="Simplified">
-    <td><label>Simplified rules:</label></td>
-    <td>
-      <label><input type="radio" ng-model="toCombine.new.simplified" value="simplified"/> Force simplified</label><br/>
-      <label><input type="radio" ng-model="toCombine.new.simplified" value="normal"/> Force normal</label>
-    </td>
-    <td>If left unchecked <em>{{ (data[toCombine['0'].id].config.simplified || data[toCombine['1'].id].config.simplified ? 'simplified rules will be used' : 'normal rules will be used') }}</em></td>
-  </tr>
-</table>
+<div pm-as-tab="pm-as-tab">
+  <h1>Combine</h1>
+  <table>
+    <tr>
+      <td>
+        <label for="name">New Category Name:</label>
+      </td>
+      <td><input type="text" id="name" ng-model="toCombine.new.name"/></td>
+      <td>If left blank the name will be
+        <em>{{ data[toCombine['0'].id].config.name || 'Category A' }}
+          +
+          {{ data[toCombine['1'].id].config.name || 'Category B' }}</em>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="idStart">Start with id:</label>
+      </td>
+      <td><input type="number" id="idStart" ng-model="toCombine.new.idStart"/></td>
+      <td>If left blank the starting id will be
+        <em>{{ data[toCombine['0'].id].config.idStart || 'the same as Category A' }}</em>
+      </td>
+    </tr>
+    <tr ng-if="Simplified">
+      <td>
+        <label>Simplified rules:</label>
+      </td>
+      <td>
+        <label><input type="radio" ng-model="toCombine.new.simplified" value="simplified"/>
+          Force simplified</label><br/>
+        <label><input type="radio" ng-model="toCombine.new.simplified" value="normal"/>
+          Force normal</label>
+      </td>
+      <td>If left unchecked
+        <em>{{ (data[toCombine['0'].id].config.simplified || data[toCombine['1'].id].config.simplified ? 'simplified rules will be used' : 'normal rules will be used') }}</em>
+      </td>
+    </tr>
+  </table>
 
-<div class="flex-container">
-  <div ng-repeat="char in ['A', 'B'] track by $index" ng-init="i = $index">
-    <h2>Category {{ char }}:</h2>
-    <table>
-      <tr>
-        <td><label for="category{{ i }}">Category</label></td>
-        <td>
-          <select id="category{{ i }}" ng-model="toCombine[$index].id">
-            <option ng-repeat="id in getEventsArray()" value="{{ id }}" ng-disabled="id == toCombine[(i == 1 ? '0' : '1')].id">{{ data[id].config.name }}</option>
-          </select>
-        </td>
-      </tr>
-    </table>
+  <div class="flex-container">
+    <div ng-repeat="char in ['A', 'B'] track by $index" ng-init="i = $index">
+      <h2>Category
+        {{ char }}:</h2>
+      <table>
+        <tr>
+          <td>
+            <label for="category{{ i }}">Category</label>
+          </td>
+          <td>
+            <select id="category{{ i }}" ng-model="toCombine[$index].id">
+              <option
+                ng-repeat="id in getEventsArray()"
+                value="{{ id }}"
+                ng-disabled="id == toCombine[(i == 1 ? '0' : '1')].id">{{ data[id].config.name }}</option>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
-</div>
 
-<button ng-click="combine(toCombine)">Combine</button>
-<span>{{ status }}</span>
+  <button ng-click="combine(toCombine)">Combine</button>
+  <span>{{ status }}</span>
+</div>
