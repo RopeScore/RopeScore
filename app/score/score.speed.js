@@ -184,6 +184,6 @@ angular.module('ropescore.score.speed', ['ngRoute'])
      */
     $scope.saveReturn = function () {
       $scope.save()
-      $location.path('/event/' + $scope.id)
+      $location.path('/category/' + $scope.id)
     }
   })

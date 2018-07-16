@@ -166,6 +166,6 @@ angular.module('ropescore.score', ['ngRoute'])
         delete $scope.data[$scope.id].scores
       }
       Db.set($scope.data)
-      $location.path('/event/' + $scope.id)
+      $location.path('/category/' + $scope.id)
     }
   })

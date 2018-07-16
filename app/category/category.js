@@ -1,30 +1,30 @@
 /* global angular */
 'use strict'
 /**
- * @class ropescore.event
+ * @class ropescore.category
  * @memberOf ropescore
  * @requires ngRoute
  */
-angular.module('ropescore.event', ['ngRoute'])
+angular.module('ropescore.category', ['ngRoute'])
 
   .config([
     '$routeProvider',
     function ($routeProvider) {
-      $routeProvider.when('/event/:id', {
-        templateUrl: '/event/event.html',
-        controller: 'EventCtrl'
+      $routeProvider.when('/category/:id', {
+        templateUrl: '/category/category.html',
+        controller: 'CategoryCtrl'
       })
     }
   ])
 
   /**
-   * @class ropescore.event.EventCtrl
+   * @class ropescore.category.CategoryCtrl
    * @param {service} $scope
    * @param {service} $location
    * @param {service} $routeParams
    * @param {service} Db
    */
-  .controller('EventCtrl', function ($scope, $location, $routeParams, Db, Abbr,
+  .controller('CategoryCtrl', function ($scope, $location, $routeParams, Db, Abbr,
     Checksum, Live, Config) {
     $scope.data = Db.get()
 

@@ -153,13 +153,13 @@ var Config = {
           desc: 'Amount of different <b>Turner / Jumper Switches</b>',
           max: 5
         },
-        nae: {
-          desc: 'Amount of <b>Gymnastics that are <em>NOT</em> aerials</b>',
-          max: 2
-        },
         aer: {
           desc: 'Amount of <b>Gymnastics that are aerials</b>',
           max: 3
+        },
+        nae: {
+          desc: 'Amount of <b>Gymnastics that are <em>NOT</em> aerials</b>',
+          max: 2
         },
         spd: {
           desc: '<b>Speed Dances</b>',

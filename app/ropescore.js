@@ -68,7 +68,7 @@ angular.module('ropescore', [
   'ropescore.dash',
   'ropescore.config',
   'ropescore.config.participants',
-  'ropescore.event',
+  'ropescore.category',
   'ropescore.score',
   'ropescore.score.speed',
   'ropescore.results',

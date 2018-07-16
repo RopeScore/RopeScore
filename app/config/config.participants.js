@@ -89,13 +89,16 @@ angular.module('ropescore.config.participants', ['ngRoute'])
        */
       var indexes = {
         name: data.data[0].findIndex(function (el) {
-          return el.toLowerCase() === 'name'
+          return el.toLowerCase().trim() === 'name'
         }),
         club: data.data[0].findIndex(function (el) {
-          return el.toLowerCase() === 'club'
+          return el.toLowerCase().trim() === 'club'
+        }),
+        members: data.data[0].findIndex(function (el) {
+          return el.toLowerCase().trim() === 'members'
         }),
         id: data.data[0].findIndex(function (el) {
-          return el.toLowerCase() === 'id'
+          return el.toLowerCase().trim() === 'id'
         })
       }
       console.log(indexes)
@@ -105,13 +108,15 @@ angular.module('ropescore.config.participants', ['ngRoute'])
         data.data.shift()
         indexes = {
           name: 0,
-          club: 1
+          club: 1,
+          members: 2
         }
       } else if (indexes.name < 0 && indexes.club < 0) {
         console.log('no header')
         indexes = {
           name: 0,
-          club: 1
+          club: 1,
+          members: 2
         }
       } else {
         data.data.shift()
@@ -130,6 +135,7 @@ angular.module('ropescore.config.participants', ['ngRoute'])
           name: data.data[i][indexes.name],
           club: data.data[i][indexes.club]
         }
+        if (typeof data.data[i][indexes.members] !== 'undefiend') $scope.data[$scope.id].participants[id].members = data.data[i][indexes.members]
       }
     }
 
@@ -180,6 +186,6 @@ angular.module('ropescore.config.participants', ['ngRoute'])
       }
       Db.set($scope.data)
       Live.participants($scope.id)
-      $location.path('/event/' + $scope.id)
+      $location.path('/category/' + $scope.id)
     }
   })

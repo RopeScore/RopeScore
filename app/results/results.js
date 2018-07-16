@@ -43,8 +43,8 @@ angular.module('ropescore.results', ['ngRoute'])
 
     $scope.ids = $routeParams.ids
     if (typeof $scope.ids !== 'undefined') {
-      $scope.setID(($scope.ids.length === 1 ? $scope.ids[0] : null))
       $scope.categories = $scope.ids.split('.')
+      $scope.setID(($scope.categories.length === 1 ? $scope.categories[0] : null))
     } else {
       $scope.setID(null)
       $scope.categories = Object.keys($scope.data).filter(function (key) { return key !== 'globconfig' })

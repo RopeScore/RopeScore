@@ -47,7 +47,7 @@
       class="event"
       ng-if="!data[id].config.completed">
       <a
-        ng-href="/event/{{ id }}"
+        ng-href="/category/{{ id }}"
         ng-class="(data[id].config.completed ? 'green' : '')"
         class="center part">{{ data[id].config.name }}
         <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span>
@@ -62,7 +62,7 @@
       class="event"
       ng-if="data[id].config.completed">
       <a
-        ng-href="/event/{{ id }}"
+        ng-href="/category/{{ id }}"
         ng-class="(data[id].config.completed ? 'green' : '')"
         class="center part">{{ data[id].config.name }}
         <span class="mono"><br/>{{ checksum(data[id].scores, 10) }}</span>
