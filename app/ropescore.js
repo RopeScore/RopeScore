@@ -68,6 +68,7 @@ angular.module('ropescore', [
   'ropescore.dash',
   'ropescore.config',
   'ropescore.config.participants',
+  'ropescore.config.rslive',
   'ropescore.category',
   'ropescore.score',
   'ropescore.score.speed',
@@ -288,6 +289,8 @@ angular.module('ropescore', [
       var uri = 'data:application/octet-streaml;base64,'
       for (var i = 0; i < tables.length; i++) {
         var sheetName = (tables[i].getAttribute('name').startsWith('overall') ? tables[i].getAttribute('name') : Abbr.abbr(tables[i].getAttribute('name').substring(0, 4)) + tables[i].getAttribute('name').substring(4) || ('Sheet' + (i + 1)))
+        sheetName = (sheetName.length > 31 ? sheetName.substring(0, 25) + '...' + i : sheetName)
+        console.log(sheetName, sheetName.length)
         XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(tables[i], {
           cellStyles: true
         }), sheetName)
@@ -1107,5 +1110,18 @@ angular.module('ropescore', [
           }
         }
       })
+    }
+  })
+
+  .directive('customOnChange', function () {
+    return {
+      restrict: 'A',
+      link: function (scope, element, attrs) {
+        var onChangeHandler = scope.$eval(attrs.customOnChange)
+        element.on('change', onChangeHandler)
+        element.on('$destroy', function () {
+          element.off()
+        })
+      }
     }
   })

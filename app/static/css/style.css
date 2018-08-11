@@ -475,12 +475,65 @@ tr.hoverhl td:hover::after, tr.hoverhl th:hover::after {
   display: none;
 }
 
+.previewpage {
+  border: 1px solid #000;
+  width: 277mm;
+  height: 190mm;
+  page-break-after: always;
+  page-break-inside: avoid;
+  position: relative;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.pagehead {
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+  border-bottom: 1px solid #bbb;
+  position: relative;
+}
+
+.pagehead img {
+  border: none;
+  max-height: 30mm;
+}
+
+.pagehead .wide {
+  min-width: 130mm;
+}
+
+.pagebody {}
+
+.pagefoot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  padding-top: 1em;
+  margin-top: 1em;
+  border-top: 1px solid #bbb;
+}
+
+.pageattribfoot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: .75em;
+}
+
+.pagehead .attrib {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: .75em;
+}
+
 @media print {
   body {
     padding: 0;
     margin: 0;
   }
-  .print {
+  .print, .printshow {
     display: block;
   }
   .noprint {
@@ -488,31 +541,20 @@ tr.hoverhl td:hover::after, tr.hoverhl th:hover::after {
   }
   @page {
     margin: 10mm;
-    size: A4 portrait;
+    size: A4 landscape;
   }
   .page {
-    /* border: 1px solid #000; */
-    height: 277mm;
-    width: 190mm;
+    border: none;
+    width: 267mm;
+    height: 180mm;
     page-break-after: always;
     page-break-inside: avoid;
     position: relative;
     overflow: hidden;
+    overflow-x: hidden !important;
   }
-  .pagehead {
-    padding-bottom: 1em;
-    margin-bottom: 1em;
-    border-bottom: 1px solid #bbb;
-  }
-  .pagebody {}
-  .pagefoot {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    padding-top: 1em;
-    margin-top: 1em;
-    border-top: 1px solid #bbb;
+  .table {
+    overflow-x: hidden !important;
   }
   .letterpaper {
     width: 297.4mm;

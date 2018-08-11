@@ -23,7 +23,8 @@
         type="checkbox"
         id="simp"
         ng-model="data[id].config.simplified"
-        ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.simplified = !data[id].config.simplified : '')"/></td>
+        ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.simplified = !data[id].config.simplified : '')"
+        ng-disabled="data[id].scores"/></td>
     </tr>
 
     <tr>
@@ -70,32 +71,38 @@
         type="number"
         ng-model="data[id].config.judges[event].a"
         placeholder="Presentation"
-        ng-if="!Abbr.isSpeed(event)"/></td>
+        ng-if="!Abbr.isSpeed(event)"
+        ng-disabled="data[id].scores"/></td>
       <td><input
         type="number"
         ng-model="data[id].config.judges[event].b"
         placeholder="Required Elements"
-        ng-if="!Abbr.isSpeed(event)"/></td>
+        ng-if="!Abbr.isSpeed(event)"
+        ng-disabled="data[id].scores"/></td>
       <td><input
         type="number"
         ng-model="data[id].config.judges[event].d"
         placeholder="Difficulty"
-        ng-if="!Abbr.isSpeed(event)"/></td>
+        ng-if="!Abbr.isSpeed(event)"
+        ng-disabled="data[id].scores"/></td>
       <td><input
         type="number"
         ng-model="data[id].config.judges[event].h"
         placeholder="Head Judges"
-        ng-if="!Abbr.isSpeed(event)"/></td>
+        ng-if="!Abbr.isSpeed(event)"
+        ng-disabled="data[id].scores"/></td>
       <td ng-if="MissJudges"><input
         type="number"
         ng-model="data[id].config.judges[event].m"
         placeholder="Misses"
-        ng-if="!Abbr.isSpeed(event)"/></td>
+        ng-if="!Abbr.isSpeed(event)"
+        ng-disabled="data[id].scores"/></td>
       <td><input
         type="number"
         ng-model="data[id].config.judges[event].s"
         placeholder="Speed"
-        ng-if="Abbr.isSpeed(event)"/></td>
+        ng-if="Abbr.isSpeed(event)"
+        ng-disabled="data[id].scores"/></td>
     </tr>
   </table>
 

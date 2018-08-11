@@ -25,7 +25,7 @@ angular.module('ropescore.results', ['ngRoute'])
    * @param {service} Db
    */
   .controller('ResultsCtrl', function ($scope, $location,
-    $routeParams, $interval, Db, Calc, Abbr, Num, Config, tablesToExcel) {
+    $routeParams, $interval, Db, Calc, Abbr, Num, Config, Cleaner, tablesToExcel) {
     $scope.data = Db.get()
 
     /**
@@ -45,12 +45,14 @@ angular.module('ropescore.results', ['ngRoute'])
     if (typeof $scope.ids !== 'undefined') {
       $scope.categories = $scope.ids.split('.')
       $scope.setID(($scope.categories.length === 1 ? $scope.categories[0] : null))
+      if ($scope.categories.length > 1) $scope.group = $scope.data[$scope.categories[0]].config.group
     } else {
       $scope.setID(null)
       $scope.categories = Object.keys($scope.data).filter(function (key) { return key !== 'globconfig' })
     }
     $scope.Abbr = Abbr
     $scope.getNumber = Num
+    $scope.printPreview = false
 
     $scope.showCol = function (id, grade, type, col) {
       if ($scope.data[id].config.simplified && typeof Config.SimplResultsCols[grade] !== 'undefined' && typeof Config.SimplResultsCols[grade][type] !== 'undefined' && typeof Config.SimplResultsCols[grade][type][col] !== 'undefined') {
@@ -155,8 +157,35 @@ angular.module('ropescore.results', ['ngRoute'])
           var tables = document.getElementsByTagName('table')
           tables = Array.prototype.slice.call(tables)
           tables.shift()
-          tablesToExcel(tables, ($scope.ids.length === 1 ? $scope.data[$scope.ids[0]].config.name : 'All Results'))
+          tablesToExcel(tables, ($scope.categories.length === 1 ? $scope.data[$scope.categories[0]].config.name : ($scope.group ? $scope.group : 'All Results')))
         })
       }
+    }
+
+    $scope.processFile = function (evt) {
+      console.log('File detected, attempting parse')
+      let files = evt.target.files
+      let category = evt.target.id.split('-')
+      category = category[category.length - 1]
+      let file = files[0]
+      if (!file.type.match('image.*')) return
+      let reader = new FileReader()
+      reader.onload = function () {
+        let data = this.result
+        $scope.$apply(function () {
+          if (typeof $scope.data[category].config.print === 'undefined') $scope.data[category].config.print = {}
+          $scope.data[category].config.print.logo = data
+        })
+      }
+      reader.readAsDataURL(file)
+    }
+
+    $scope.save = function () {
+      $scope.data[$scope.id].config = Cleaner($scope.data[$scope.id].config)
+      if ($scope.data[$scope.id].config !== null && typeof $scope.data[$scope.id].config === 'object' && Object.keys($scope.data[$scope.id].config).length === 0) {
+        delete $scope.data[$scope.id].config
+      }
+
+      Db.set($scope.data)
     }
   })

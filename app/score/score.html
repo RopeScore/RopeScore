@@ -61,6 +61,8 @@
       ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? save() : '')"
       ng-class="{red: data[id].scores[uid][event].dns}">Did
       {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</button>
+    <button ng-click="$parent.printPreview = !$parent.printPreview">{{ printPreview ? 'Hide' : 'Show' }}
+      Print Preview</button>
   </form>
 
   <form ng-if="!Abbr.isSpeed(event)" name="freeform">
@@ -347,11 +349,14 @@
       ng-click="data[id].scores[uid][event].dns = !data[id].scores[uid][event].dns; (data[id].scores[uid][event].dns ? save() : '')"
       ng-class="{red: data[id].scores[uid][event].dns}">Did
       {{ (data[id].scores[uid][event].dns ? '' : 'Not ') }}Skip</button>
+    <button ng-click="$parent.printPreview = !$parent.printPreview">{{ printPreview ? 'Hide' : 'Show' }}
+      Print Preview</button>
   </form>
 </div>
 
-<div class="print">
-  <div class="page" ng-class="{letterpaper: letterPaper}">
+<div class="printshow" ng-show="printPreview">
+  <p class="noprint red">Remember to set your printer/"print to pdf" to landscape in its settings</p>
+  <div class="page" ng-class="{previewpage: printPreview}">
     <div class="pagehead cuttable">
       <table class="full blank">
         <tr>

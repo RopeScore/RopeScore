@@ -52,6 +52,8 @@ angular.module('ropescore.score', ['ngRoute'])
       m: 'Misses'
     }
 
+    $scope.printPreview = false
+
     $scope.shortDesc = function (desc) {
       return /<b>(.*)<\/b>/.exec(desc)[1]
     }
