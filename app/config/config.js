@@ -82,5 +82,20 @@ angular.module('ropescore.config', ['ngRoute'])
       $scope.save()
     }
 
+    $scope.eventsWithScores = {}
+
+    if (typeof $scope.data[$scope.id] !== 'undefined' && typeof $scope.data[$scope.id].scores !== 'undefined') {
+      Object.keys($scope.data[$scope.id].scores).map(function (uid) {
+        return Object.keys($scope.data[$scope.id].scores[uid])
+      }).reduce(function (accumulator, currentValue) {
+        return accumulator.concat(currentValue)
+      }, []).filter(function (value, index, self) {
+        return self.indexOf(value) === index
+      }).forEach(function (abbr) {
+        console.log(abbr)
+        $scope.eventsWithScores[abbr] = true
+      })
+    }
+
     $scope.Abbr = Abbr
   })

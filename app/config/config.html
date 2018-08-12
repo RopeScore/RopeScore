@@ -17,14 +17,14 @@
 
     <tr ng-if="Simplified">
       <td>
-        <label for="simp">Simplified levels:</label>
+        <label for="simp">Simplified Rules:</label>
       </td>
       <td><input
         type="checkbox"
         id="simp"
         ng-model="data[id].config.simplified"
         ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.simplified = !data[id].config.simplified : '')"
-        ng-disabled="data[id].scores"/></td>
+        ng-disabled="data[id].scores && !override"/></td>
     </tr>
 
     <tr>
@@ -40,6 +40,17 @@
   </table>
 
   <h2>Events</h2>
+  <p ng-if="data[id].scores">
+    <span class="red">Warning</span>
+    Editing the ammount of judges has been disabled for some categories as scores
+    has been entered for those events. Removing judges for those events without
+    first removing the entered scores may cause unexpected results as all entered
+    judges scores will still count when calculating the scores, despite what number
+    is entered below. Switching to simplified rules has also been disabled as
+    switching to them without removing scores not used in that ruleset may cause
+    incorrect checksums.
+  </p>
+  <button ng-click="override = true" ng-show="!override">Override</button>
   <table>
     <tr>
       <th class="blank" colspan="2"></th>
@@ -72,37 +83,37 @@
         ng-model="data[id].config.judges[event].a"
         placeholder="Presentation"
         ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="data[id].scores"/></td>
+        ng-disabled="eventsWithScores[event] && !override"/></td>
       <td><input
         type="number"
         ng-model="data[id].config.judges[event].b"
         placeholder="Required Elements"
         ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="data[id].scores"/></td>
+        ng-disabled="eventsWithScores[event] && !override"/></td>
       <td><input
         type="number"
         ng-model="data[id].config.judges[event].d"
         placeholder="Difficulty"
         ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="data[id].scores"/></td>
+        ng-disabled="eventsWithScores[event] && !override"/></td>
       <td><input
         type="number"
         ng-model="data[id].config.judges[event].h"
         placeholder="Head Judges"
         ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="data[id].scores"/></td>
+        ng-disabled="eventsWithScores[event] && !override"/></td>
       <td ng-if="MissJudges"><input
         type="number"
         ng-model="data[id].config.judges[event].m"
         placeholder="Misses"
         ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="data[id].scores"/></td>
+        ng-disabled="eventsWithScores[event] && !override"/></td>
       <td><input
         type="number"
         ng-model="data[id].config.judges[event].s"
         placeholder="Speed"
         ng-if="Abbr.isSpeed(event)"
-        ng-disabled="data[id].scores"/></td>
+        ng-disabled="eventsWithScores[event] && !override"/></td>
     </tr>
   </table>
 
