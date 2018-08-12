@@ -50,7 +50,7 @@
     switching to them without removing scores not used in that ruleset may cause
     incorrect checksums.
   </p>
-  <button ng-click="override = true" ng-show="!override">Override</button>
+  <button ng-click="override = true" ng-show="!override" ng-if="data[id].scores">Override</button>
   <table>
     <tr>
       <th class="blank" colspan="2"></th>
