@@ -1,7 +1,7 @@
 {
   "name": "RopeScore",
   "productName": "RopeScore",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "description": "A scoring system for ropeskipping",
   "author": "Svante Bengtson",
   "repository": "svbeon/RopeScore",
@@ -16,7 +16,8 @@
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.15.2",
     "express-ws": "^4.0.0",
-    "fs-extra": "^3.0.1"
+    "fs-extra": "^3.0.1",
+    "mailgun-js": "^0.20.0"
   },
   "devDependencies": {
     "@sentry/wizard": "^0.9.4",
