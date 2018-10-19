@@ -523,7 +523,7 @@ angular.module('ropescore', [
       isTeam: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[abbr] !== 'undefined') {
-          return !(nonabbrs[abbr].masters || abbrs[abbr].masters)
+          return !(nonabbrs[abbr].masters || (abbrs[abbr] || {}).masters)
         } else if (abbrs[abbr]) {
           return !abbrs[abbr].masters
         } else {
@@ -640,7 +640,7 @@ angular.module('ropescore', [
       speedFactor: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[abbr] !== 'undefined') {
-          return nonabbrs[abbr].speedFactor || 1
+          return nonabbrs[abbr].speedFactor || (abbrs[abbr] || {}).speedFactor || 1
         } else if (typeof abbrs[abbr] !== 'undefined') {
           return abbrs[abbr].speedFactor || 1
         } else {
@@ -770,7 +770,6 @@ angular.module('ropescore', [
       config: false
     }
     var checker = function (data, id) {
-      let msg
       if (!data[id].config.live) {
         return 'Category not configured for RSLive'
       }
@@ -785,8 +784,8 @@ angular.module('ropescore', [
     }
     return {
       scores: function (id) {
-        let start = performance.now()
-        return new Promise(function (resolve, reject) {
+        let start = performance.now() // eslint-disable-line
+        return new Promise(function (resolve, reject) { // eslint-disable-line
           let data = Db.get()
           let chk = checker(data, id)
           if (typeof chk !== 'undefined') return resolve(chk)
@@ -805,7 +804,7 @@ angular.module('ropescore', [
               events: []
             }
             for (let abbr of Abbr.events()) {
-              if (typeof bodies[abbr] === 'undefined' && data[id].config.subevents[abbr] === true) bodies[abbr] = {scores: []}
+              if (typeof bodies[abbr] === 'undefined' && data[id].config.subevents[abbr] === true) bodies[abbr] = { scores: [] }
               let event = {
                 uid: part.uid
               }
@@ -880,12 +879,12 @@ angular.module('ropescore', [
             if (typeof results.overallRanksums[part.uid] !== 'undefined') overall.rsum = Math.roundTo(results.overallRanksums[part.uid], 2)
             if (typeof results.overallFinalRanks[part.uid] !== 'undefined') overall.rank = Math.roundTo(results.overallFinalRanks[part.uid], 2)
 
-            if (typeof bodies.overall === 'undefined') bodies.overall = {scores: []}
+            if (typeof bodies.overall === 'undefined') bodies.overall = { scores: [] }
             if (overall.events.length === 0) overall.delete = true
             bodies.overall.scores.push(overall)
           }
 
-          let end = performance.now()
+          let end = performance.now() // eslint-disable-line
           console.log('HTTP body preparation took', Math.roundTo(end - start, 2), 'milliseconds.')
 
           console.log('RSLive scores', bodies)
@@ -908,7 +907,7 @@ angular.module('ropescore', [
               reject(err)
             })
           }
-          Promise.all(promises).then(function (messages) {
+          Promise.all(promises).then(function (messages) { // eslint-disable-line
             resolve(messages)
           }).catch(function (err) {
             reject(err)
@@ -924,7 +923,7 @@ angular.module('ropescore', [
         })
       },
       participants: function (id) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) { // eslint-disable-line
           let data = Db.get()
           let chk = checker(data, id)
           if (typeof chk !== 'undefined') return resolve(chk)
@@ -970,7 +969,7 @@ angular.module('ropescore', [
         })
       },
       config: function (id) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) { // eslint-disable-line
           let data = Db.get()
           let chk = checker(data, id)
           if (typeof chk !== 'undefined') return resolve(chk)
@@ -1032,7 +1031,7 @@ angular.module('ropescore', [
         })
       },
       delete: function (id) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) { // eslint-disable-line
           let data = Db.get()
           let chk = checker(data, id)
           if (typeof chk !== 'undefined') return resolve(chk)

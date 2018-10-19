@@ -154,7 +154,7 @@ angular.module('ropescore.score', ['ngRoute'])
      * @return {undefined}
      */
     $scope.dnsSave = function (uid, id, event) {
-      $scope.data[id].scores[uid][event] = {dns: true}
+      $scope.data[id].scores[uid][event] = { dns: true }
       $scope.save()
     }
 

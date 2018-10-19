@@ -266,7 +266,7 @@ Config.SimplOrder = Config.Order
 Config.SimplResultsCols = Config.ResultsCols
 /** @type {?String} Gets the country from the version */
 Config.Country = Config.version.split('-').slice(-1)[0]
-Config.Country = Config.Country
+// Config.Country = Config.Country
 /**
  * Get the Squirrel Update URL
  * @param  {String} arch     architecture (ia32, x64, armv7l...)

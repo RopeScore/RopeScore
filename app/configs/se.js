@@ -1,6 +1,6 @@
 /* global angular */
 if (typeof module === 'object' && typeof exports !== 'undefined') {
-  var Config = {licence: {}, functions: {}}
+  var Config = { licence: {}, functions: {} }
 }
 
 Config.Simplified = true // default: false
@@ -45,6 +45,33 @@ Config.functions.simplifiedLevelData = function (event) {
 Config.SimplNoMisses = true
 Config.SimplRawSpeed = true
 Config.SimplMinScore = 0
+
+Config.Nonabbrs = {
+  srss: {},
+  srse: {},
+  srtu: {},
+  srsf: {},
+  // ------------------
+  srsr: {},
+  srps: {
+    name: 'Single Rope Pair Sprint',
+    abbr: 'srps',
+    speed: true,
+    masters: false,
+    speedFactor: 2.5
+  },
+  srpe: {
+    name: 'Single Rope Pair Endurance',
+    abbr: 'srpe',
+    speed: true,
+    masters: false
+  },
+  srpf: {},
+  srtf: {},
+  ddsr: {},
+  ddsf: {},
+  ddpf: {}
+}
 
 /**
  * different function to use in array.reduce to calculate a participants ranksum

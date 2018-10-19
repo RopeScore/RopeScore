@@ -1,6 +1,6 @@
 /* global angular */
 if (typeof module === 'object' && typeof exports !== 'undefined') {
-  var Config = {licence: {}, functions: {}}
+  var Config = { licence: {}, functions: {} }
 }
 
 Config.MissJudges = true // default: false
