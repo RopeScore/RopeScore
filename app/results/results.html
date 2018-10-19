@@ -178,11 +178,14 @@
       Results</h1>
     <div class="noprint" ng-if="printPreview">
       <div ng-if="printPreview">
-        <button ng-click="data[category].config.print.printHeader.overall = !data[category].config.print.printHeader.overall">{{ (data[category].config.print.printHeader.overall ? 'Hide' : 'Show') }}
+        <button
+          ng-click="data[category].config.print.printHeader.overall = !data[category].config.print.printHeader.overall">{{ (data[category].config.print.printHeader.overall ? 'Hide' : 'Show') }}
           Overall Page Header</button>
-        <button ng-click="data[category].config.print.printHeader.events = !data[category].config.print.printHeader.events">{{ (data[category].config.print.printHeader.events ? 'Hide' : 'Show') }}
+        <button
+          ng-click="data[category].config.print.printHeader.events = !data[category].config.print.printHeader.events">{{ (data[category].config.print.printHeader.events ? 'Hide' : 'Show') }}
           Events Page Header</button>
-        <button ng-click="data[category].config.print.printHeader.group = !data[category].config.print.printHeader.group">{{ (data[category].config.print.printHeader.group ? 'Hide' : 'Show') }}
+        <button
+          ng-click="data[category].config.print.printHeader.group = !data[category].config.print.printHeader.group">{{ (data[category].config.print.printHeader.group ? 'Hide' : 'Show') }}
           Group in Header</button>
         <label class="button inltbl" for="import-file-{{category}}">Import Page Header Logo</label>
         <p class="noprint red">Remember to set your printer/"print to pdf" to landscape in its settings</p>
@@ -200,8 +203,9 @@
       <span>Page zoom:</span>
       <button
         ng-click="data[category].config.print.printSize.overall = (data[category].config.print.printSize.overall || 1) - 0.05">-</button>
-      <!-- <input type="text" class="char" ng-model="data[category].config.print.printSize.overall"
-      readonly="readonly"> -->
+      <!-- <input type="text" class="char"
+      ng-model="data[category].config.print.printSize.overall" readonly="readonly">
+      -->
       <button
         ng-click="data[category].config.print.printSize.overall = (data[category].config.print.printSize.overall || 1) + 0.05">+</button>
     </div>
@@ -220,7 +224,9 @@
             <a>ropescore.com</a>
           </span>
         </div>
-        <img ng-if="data[category].config.print.logo" src="{{ data[category].config.print.logo }}"/>
+        <img
+          ng-if="data[category].config.print.logo"
+          src="{{ data[category].config.print.logo }}"/>
       </div>
       <div
         class="table pagebody"
@@ -396,7 +402,9 @@
           </tbody>
         </table>
       </div>
-      <div class="pageattribfoot gray" ng-if="!data[category].config.print.printHeader.overall">
+      <div
+        class="pageattribfoot gray"
+        ng-if="printPreview && !data[category].config.print.printHeader.overall">
         Scores from RopeScore -
         <a>ropescore.com</a>
       </div>
@@ -423,7 +431,9 @@
         class="page"
         ng-hide="printPreview && data[category].config.print.noprint[event]"
         ng-class="{previewpage: printPreview}">
-        <div class="pagehead flex-container" ng-if="printPreview && data[category].config.print.printHeader.events">
+        <div
+          class="pagehead flex-container"
+          ng-if="printPreview && data[category].config.print.printHeader.events">
           <div class="wide">
             <h1>{{ data[category].config.name }}</h1>
             <h2 ng-if="data[category].config.print.printHeader.group">{{ data[category].config.group }}</h2>
@@ -433,7 +443,9 @@
               <a>ropescore.com</a>
             </span>
           </div>
-          <img ng-if="data[category].config.print.logo" src="{{ data[category].config.print.logo }}"/>
+          <img
+            ng-if="data[category].config.print.logo"
+            src="{{ data[category].config.print.logo }}"/>
         </div>
         <div
           class="table"
@@ -583,7 +595,9 @@
             </tbody>
           </table>
         </div>
-        <div class="pageattribfoot gray" ng-if="!data[category].config.print.printHeader.events">
+        <div
+          class="pageattribfoot gray"
+          ng-if="printPreview && !data[category].config.print.printHeader.events">
           Scores from RopeScore -
           <a>ropescore.com</a>
         </div>
