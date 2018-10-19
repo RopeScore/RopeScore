@@ -415,7 +415,7 @@ angular.module('ropescore', [
       unabbr: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         if (typeof nonabbrs !== 'undefined' && typeof nonabbrs[abbr] !== 'undefined' && typeof nonabbrs[abbr].name !== 'undefined' && nonabbrs[abbr].name !== '') {
-          return nonabbrs[abbr].name || ''
+          return nonabbrs[abbr].name || (abbrs[abbr] || {}).name || ''
         } else if (typeof abbrs[abbr] !== 'undefined') {
           return abbrs[abbr].name || ''
         } else {
@@ -429,7 +429,7 @@ angular.module('ropescore', [
        */
       unabbrNoType: function (abbr) {
         var nonabbrs = functions.nonabbrs()
-        var unabbred = (nonabbrs ? nonabbrs[abbr].name || abbrs[abbr].name : abbrs[abbr].name)
+        var unabbred = (nonabbrs ? nonabbrs[abbr].name || (abbrs[abbr] || {}).name || '' : abbrs[abbr].name)
         unabbred = unabbred.replace('Single Rope', '')
         unabbred = unabbred.replace('Double Dutch', '')
         return unabbred.trim()
@@ -509,7 +509,7 @@ angular.module('ropescore', [
       isSpeed: function (abbr) {
         var nonabbrs = functions.nonabbrs()
         if (nonabbrs && nonabbrs[abbr]) {
-          return nonabbrs[abbr].speed || abbrs[abbr].speed
+          return nonabbrs[abbr].speed || (abbrs[abbr] || {}).speed
         } else if (abbrs[abbr]) {
           return abbrs[abbr].speed
         } else {

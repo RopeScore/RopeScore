@@ -58,13 +58,15 @@ Config.Nonabbrs = {
     abbr: 'srps',
     speed: true,
     masters: false,
-    speedFactor: 2.5
+    speedFactor: 2.5,
+    weight: 1.1
   },
   srpe: {
     name: 'Single Rope Pair Endurance',
     abbr: 'srpe',
     speed: true,
-    masters: false
+    masters: false,
+    weight: 1.2
   },
   srpf: {},
   srtf: {},
