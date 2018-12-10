@@ -19,10 +19,5 @@ steps:
   inputs:
     versionSpec: '8.x'
   displayName: 'Install Node.js'
-- script: |
-    npm install
-    npm run $(command)
-    ssh-keyscan -H ddns.swant.pw >> ~/.ssh/known_hosts
-    chmod +x travis_sync.sh
-    ./travis_sync.sh
+- script: npm install && npm run $(command)
 - task: PublishBuildArtifacts@1
