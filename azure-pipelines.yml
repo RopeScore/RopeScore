@@ -28,10 +28,7 @@ steps:
 - task: FtpUpload@1
   inputs:
     credentialsOption: 'serviceEndpoint'
-    serverEndpoint: 'ftp://ddns.swant.pw'
-    #serverUrl: # Required when credentialsOption == Inputs
-    username: appveyor
-    password: $(ftppass)
+    serverEndpoint: AppFTP
     rootDirectory: 
     filePatterns: 'dist\**\*'
     #remoteDirectory: '/upload/$(Build.BuildId)/' 
