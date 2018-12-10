@@ -29,15 +29,15 @@ jobs:
   - task: FtpUpload@1
   inputs:
     credentialsOption: 'serviceEndpoint'
-    serverEndpoint: ftp://ddns.swant.pw
+    serverEndpoint: 'ftp://ddns.swant.pw'
     #serverUrl: # Required when credentialsOption == Inputs
-    #username: # Required when credentialsOption == Inputs
-    #password: # Required when credentialsOption == Inputs
+    username: appveyor
+    password: $(ftppass)
     rootDirectory: 
-    #filePatterns: '**' 
+    filePatterns: 'dist\**\*'
     #remoteDirectory: '/upload/$(Build.BuildId)/' 
     #clean: false 
     #cleanContents: false # Required when clean == False
-    #overwrite: true 
-    #preservePaths: false 
+    overwrite: true 
+    preservePaths: true
     #trustSSL: false 
