@@ -25,15 +25,4 @@ steps:
     ssh-keyscan -H ddns.swant.pw >> ~/.ssh/known_hosts
     chmod +x travis_sync.sh
     ./travis_sync.sh
-- task: FtpUpload@1
-  inputs:
-    credentialsOption: 'serviceEndpoint'
-    serverEndpoint: AppFTP
-    rootDirectory: 
-    filePatterns: 'dist\**\*'
-    #remoteDirectory: '/upload/$(Build.BuildId)/' 
-    #clean: false 
-    #cleanContents: false # Required when clean == False
-    overwrite: true 
-    preservePaths: true
-    #trustSSL: false 
+- task: PublishBuildArtifacts@1
