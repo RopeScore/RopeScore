@@ -1,0 +1,43 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+jobs:
+- job: Windows
+  pool:
+    vmImage: 'vs2017-win2016'
+  matrix:
+    au:
+      command: 'build:au'
+    se:
+      command: 'build:se'
+    intl:
+      command: 'build:intl'
+  steps:
+  - task: NodeTool@0
+  inputs:
+    versionSpec: '8.x'
+  displayName: 'Install Node.js'
+  - script: |
+      npm install
+      npm run $(command)
+      ssh-keyscan -H ddns.swant.pw >> ~/.ssh/known_hosts
+      chmod +x travis_sync.sh
+      ./travis_sync.sh
+    displayName: 'npm install and build'
+  - task: FtpUpload@1
+  inputs:
+    credentialsOption: 'serviceEndpoint'
+    serverEndpoint: ftp://ddns.swant.pw
+    #serverUrl: # Required when credentialsOption == Inputs
+    #username: # Required when credentialsOption == Inputs
+    #password: # Required when credentialsOption == Inputs
+    rootDirectory: 
+    #filePatterns: '**' 
+    #remoteDirectory: '/upload/$(Build.BuildId)/' 
+    #clean: false 
+    #cleanContents: false # Required when clean == False
+    #overwrite: true 
+    #preservePaths: false 
+    #trustSSL: false 
