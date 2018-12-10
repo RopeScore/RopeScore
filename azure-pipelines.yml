@@ -2,11 +2,10 @@
 # Build a general Node.js project with npm.
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+pool:
+  vmImage: 'vs2017-win2016'
 
-jobs:
-- job: Windows
-  pool:
-    vmImage: 'vs2017-win2016'
+strategy:
   matrix:
     au:
       command: 'build:au'
@@ -14,19 +13,19 @@ jobs:
       command: 'build:se'
     intl:
       command: 'build:intl'
-  steps:
-  - task: NodeTool@0
+
+steps:
+- task: NodeTool@0
   inputs:
     versionSpec: '8.x'
   displayName: 'Install Node.js'
-  - script: |
-      npm install
-      npm run $(command)
-      ssh-keyscan -H ddns.swant.pw >> ~/.ssh/known_hosts
-      chmod +x travis_sync.sh
-      ./travis_sync.sh
-    displayName: 'npm install and build'
-  - task: FtpUpload@1
+- script: |
+    npm install
+    npm run $(command)
+    ssh-keyscan -H ddns.swant.pw >> ~/.ssh/known_hosts
+    chmod +x travis_sync.sh
+    ./travis_sync.sh
+- task: FtpUpload@1
   inputs:
     credentialsOption: 'serviceEndpoint'
     serverEndpoint: 'ftp://ddns.swant.pw'
