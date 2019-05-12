@@ -23,11 +23,8 @@ steps:
 - script: npm install
   displayName: 'npm install'
 
-- script: npm run $(command) -a ia32
-  displayName: 'npm run $(command) -a ia32'
-
-- script: npm run $(command) -a x64
-  displayName: 'npm run $(command) -a x64'
+- script: npm run $(command)
+  displayName: 'npm run $(command)'
 
 - task: CopyFiles@2
   inputs:
