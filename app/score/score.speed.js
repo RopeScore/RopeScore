@@ -85,7 +85,7 @@ angular.module('ropescore.score.speed', ['ngRoute'])
 
       for (let j = 0; j < $scope.events.length; j++) {
         let event = $scope.events[j]
-        $scope.scores[uid][event] = $scope.score(event, $scope.data[$scope.id].scores[uid][event], uid)
+        $scope.scores[uid][event] = $scope.score(event, (($scope.data[$scope.id].scores || {})[uid] || {})[event], uid)
       }
     }
 
