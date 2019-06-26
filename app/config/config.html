@@ -5,37 +5,32 @@
       <td>
         <label for="name">Category Name:</label>
       </td>
-      <td><input type="text" id="name" ng-model="data[id].config.name"/></td>
+      <td><input type="text" id="name" ng-model="data[id].config.name" /></td>
     </tr>
 
     <tr>
       <td>
         <label for="group">Category Group:</label>
       </td>
-      <td><input type="text" id="group" ng-model="data[id].config.group"/></td>
+      <td><input type="text" id="group" ng-model="data[id].config.group" /></td>
     </tr>
 
     <tr ng-if="Simplified">
       <td>
         <label for="simp">Simplified Rules:</label>
       </td>
-      <td><input
-        type="checkbox"
-        id="simp"
-        ng-model="data[id].config.simplified"
-        ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.simplified = !data[id].config.simplified : '')"
-        ng-disabled="data[id].scores && !override"/></td>
+      <td><input type="checkbox" id="simp" ng-model="data[id].config.simplified"
+          ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.simplified = !data[id].config.simplified : '')"
+          ng-disabled="data[id].scores && !override" /></td>
     </tr>
 
     <tr>
       <td>
         <label for="live">Sync with RopeScore Live:</label>
       </td>
-      <td><input
-        type="checkbox"
-        id="live"
-        ng-model="data[id].config.live"
-        ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.live = !data[id].config.live : '')"/></td>
+      <td><input type="checkbox" id="live" ng-model="data[id].config.live"
+          ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.live = !data[id].config.live : '')" />
+      </td>
     </tr>
   </table>
 
@@ -50,7 +45,7 @@
     switching to them without removing scores not used in that ruleset may cause
     incorrect checksums.
   </p>
-  <button ng-click="override = true" ng-show="!override" ng-if="data[id].scores">Override</button>
+  <button ng-click="toggleOverride()" ng-show="!override" ng-if="data[id].scores">Override</button>
   <table>
     <tr>
       <th class="blank" colspan="2"></th>
@@ -70,52 +65,28 @@
       </th>
     </tr>
     <tr ng-repeat="event in Abbr.events() track by $index">
-      <td><input
-        type="checkbox"
-        id="event-{{ event }}"
-        ng-model="data[id].config.subevents[event]"
-        ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.subevents[event] = !data[id].config.subevents[event] : '')"/></td>
+      <td><input type="checkbox" id="event-{{ event }}" ng-model="data[id].config.subevents[event]"
+          ng-keydown="($event.keyCode !== 9 && $event.keyCode !== 16 && $event.keyCode !== 107 && $event.keyCode !== 109 ? data[id].config.subevents[event] = !data[id].config.subevents[event] : '')" />
+      </td>
       <td>
         <label for="event-{{ event }}">{{ Abbr.unabbr(event) }}</label>
       </td>
-      <td><input
-        type="number"
-        ng-model="data[id].config.judges[event].a"
-        placeholder="Presentation"
-        ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="eventsWithScores[event] && !override"/></td>
-      <td><input
-        type="number"
-        ng-model="data[id].config.judges[event].b"
-        placeholder="Required Elements"
-        ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="eventsWithScores[event] && !override"/></td>
-      <td><input
-        type="number"
-        ng-model="data[id].config.judges[event].d"
-        placeholder="Difficulty"
-        ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="eventsWithScores[event] && !override"/></td>
-      <td><input
-        type="number"
-        ng-model="data[id].config.judges[event].h"
-        placeholder="Head Judges"
-        ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="eventsWithScores[event] && !override"/></td>
-      <td ng-if="MissJudges"><input
-        type="number"
-        ng-model="data[id].config.judges[event].m"
-        placeholder="Misses"
-        ng-if="!Abbr.isSpeed(event)"
-        ng-disabled="eventsWithScores[event] && !override"/></td>
-      <td><input
-        type="number"
-        ng-model="data[id].config.judges[event].s"
-        placeholder="Speed"
-        ng-if="Abbr.isSpeed(event)"
-        ng-disabled="eventsWithScores[event] && !override"/></td>
+      <td><input type="number" ng-model="data[id].config.judges[event].a" placeholder="Presentation"
+          ng-if="!Abbr.isSpeed(event)" ng-disabled="eventsWithScores[event] && !override" /></td>
+      <td><input type="number" ng-model="data[id].config.judges[event].b" placeholder="Required Elements"
+          ng-if="!Abbr.isSpeed(event)" ng-disabled="eventsWithScores[event] && !override" /></td>
+      <td><input type="number" ng-model="data[id].config.judges[event].d" placeholder="Difficulty"
+          ng-if="!Abbr.isSpeed(event)" ng-disabled="eventsWithScores[event] && !override" /></td>
+      <td><input type="number" ng-model="data[id].config.judges[event].h" placeholder="Head Judges"
+          ng-if="!Abbr.isSpeed(event)" ng-disabled="eventsWithScores[event] && !override" /></td>
+      <td ng-if="MissJudges"><input type="number" ng-model="data[id].config.judges[event].m" placeholder="Misses"
+          ng-if="!Abbr.isSpeed(event)" ng-disabled="eventsWithScores[event] && !override" /></td>
+      <td><input type="number" ng-model="data[id].config.judges[event].s" placeholder="Speed"
+          ng-if="Abbr.isSpeed(event)" ng-disabled="eventsWithScores[event] && !override" /></td>
     </tr>
   </table>
+
+  {{ override }}
 
   <div ng-if="!data[id].config.simplified">
     <button
@@ -132,10 +103,7 @@
         <td>
           <label for="factor-{{ key }}">{{ Abbr.unabbr(key) }}</label>
         </td>
-        <td><input
-          type="number"
-          id="factor-{{ key }}"
-          ng-model="data[id].config.factors[key]"/></td>
+        <td><input type="number" id="factor-{{ key }}" ng-model="data[id].config.factors[key]" /></td>
       </tr>
     </table>
   </div>

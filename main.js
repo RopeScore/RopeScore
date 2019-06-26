@@ -215,6 +215,13 @@ function createWindow () {
               createWindow()
             }
           },
+          {
+            label: 'Print',
+            accelerator: 'CmdOrCtrl+P',
+            click: () => {
+              win[win.length - 1].webContents.print()
+            }
+          },
           {role: 'close'},
           {role: 'minimize'},
           {role: 'zoom'},

@@ -89,13 +89,13 @@ angular.module('ropescore.config.participants', ['ngRoute'])
        */
       var indexes = {
         name: data.data[0].findIndex(function (el) {
-          return el.toLowerCase().trim() === 'name'
+          return el.toLowerCase().trim() === 'name' || el.toLowerCase().trim() === 'team name'
         }),
         club: data.data[0].findIndex(function (el) {
           return el.toLowerCase().trim() === 'club'
         }),
         members: data.data[0].findIndex(function (el) {
-          return el.toLowerCase().trim() === 'members'
+          return el.toLowerCase().trim() === 'team members'
         }),
         id: data.data[0].findIndex(function (el) {
           return el.toLowerCase().trim() === 'id'

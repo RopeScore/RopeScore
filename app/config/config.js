@@ -42,7 +42,7 @@ angular.module('ropescore.config', ['ngRoute'])
      */
     $scope.save = function () {
       if (typeof $scope.data[$scope.id] === 'undefined' || typeof $scope.data[$scope.id].config === 'undefined') {
-        $scope.error = 'You can\'t have an empty category'
+        $scope.error = "You can't have an empty category"
         return
       }
 
@@ -52,7 +52,7 @@ angular.module('ropescore.config', ['ngRoute'])
       }
 
       if (typeof $scope.data[$scope.id] === 'undefined' || typeof $scope.data[$scope.id].config === 'undefined') {
-        $scope.error = 'You can\'t have an empty category'
+        $scope.error = "You can't have an empty category"
         return
       }
 
@@ -63,6 +63,11 @@ angular.module('ropescore.config', ['ngRoute'])
 
     $scope.MissJudges = Config.MissJudges
     $scope.Simplified = Config.Simplified
+    $scope.override = false
+
+    $scope.toggleOverride = function () {
+      $scope.override = !$scope.override
+    }
 
     $scope.remove = function () {
       if (confirm('Are you sure you want to remove this category and all of its data?\nThis will NOT remove the category from RopeScore Live if it has been synced')) {

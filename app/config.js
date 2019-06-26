@@ -3,9 +3,9 @@ var Config = {
   /** @type {Boolean} Set debug mde on or off, will enable devTools and open on start if true */
   Debug: true, // default: false
   /** @type {Number} Datetime when the build was made */
-  BuildDate: 1529966682157,
+  BuildDate: 1557693118127,
   /** @type {String} current version and country */
-  version: '2.8.0-au',
+  version: '2.10.4-se',
   /** @type {Boolean} If this is an evaluation version */
   Eval: false, // default: false
   /** @type {String} What year(s) of rules the system is using */
