@@ -1,21 +1,33 @@
 {
-  "name": "RS-v3",
-  "version": "0.1.0",
+  "name": "ropescore",
+  "version": "3.0.0-alpha.2",
   "private": true,
+  "description": "A scoring system for Rope Skipping",
+  "author": "Svante Bengtson <svante@swantzter.se>",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "electron:build": "vue-cli-service electron:build",
+    "electron:serve": "vue-cli-service electron:serve",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps",
     "test:e2e": "vue-cli-service test:e2e",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "chai-as-promised": "^7.1.1",
     "core-js": "^2.6.5",
+    "moment": "^2.24.0",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
+    "vue-electron": "^1.0.6",
     "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.3",
-    "vuex": "^3.0.1"
+    "vuetify": "^2.0.0",
+    "vuex": "^3.0.1",
+    "vuex-electron": "^1.0.3",
+    "vuex-persist": "^2.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
@@ -25,16 +37,24 @@
     "@vue/cli-plugin-eslint": "^3.9.0",
     "@vue/cli-plugin-typescript": "^3.9.0",
     "@vue/cli-plugin-unit-mocha": "^3.9.0",
+    "@vue/cli-plugin-vuex": "^4.0.0-alpha.4",
     "@vue/cli-service": "^3.9.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "@vue/eslint-config-typescript": "^4.0.0",
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-eslint": "^10.0.1",
     "chai": "^4.1.2",
+    "electron": "^5.0.0",
     "eslint": "^5.16.0",
+    "eslint-config-vuetify": "^0.2.0",
     "eslint-plugin-vue": "^5.0.0",
+    "sass": "^1.17.4",
+    "sass-loader": "^7.1.0",
     "typescript": "^3.4.3",
-    "vue-template-compiler": "^2.6.10"
+    "vue-cli-plugin-electron-builder": "^1.3.6",
+    "vue-cli-plugin-vuetify": "^0.6.1",
+    "vue-template-compiler": "^2.6.10",
+    "vuetify-loader": "^1.2.2"
   },
   "eslintConfig": {
     "root": true,
@@ -59,5 +79,12 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "bugs": {
+    "email": "contact@ropescore.com"
+  },
+  "homepage": "https://ropescore.com",
+  "main": "background.js",
+  "productName": "RopeScore",
+  "repository": "svbeon/RopeScore"
 }
