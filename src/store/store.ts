@@ -3,14 +3,21 @@ import Vuex from 'vuex'
 import modules from './modules'
 import VuexPersistence from 'vuex-persist'
 
-Vue.use(Vuex)
-
-const vuexLocal = new VuexPersistence({
+const persistCategories = new VuexPersistence({
   storage: window.localStorage,
-  modules: ['categories']
+  modules: ['categories'],
+  key: 'categories'
 })
+
+const persistPeople = new VuexPersistence({
+  storage: window.localStorage,
+  modules: ['people'],
+  key: 'people'
+})
+
+Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules,
-  plugins: [vuexLocal.plugin]
+  plugins: [persistCategories.plugin, persistPeople.plugin]
 })

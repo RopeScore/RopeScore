@@ -13,7 +13,7 @@ export default class ConfigCategory<VueClass> extends Vue {
   }
 
   mounted () {
-    this.$store.commit('categories/new', { id: this.id })
+    this.$store.commit('categories/addCategory', { id: this.id })
     this.$store.commit('categories/setName', { id: this.id, name: this.name })
 
     this.$router.push(`/category/${this.id}/config`)

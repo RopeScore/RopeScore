@@ -7,7 +7,7 @@
         <span class="font-weight-light">&nbsp;- Svantes</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <Menu />
+      <Menu :cat="catID" />
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app>
@@ -43,6 +43,7 @@
     </v-content>
 
     <v-footer absolute>
+      <span text class="mr-2">RopeScore</span>
       <span text class="mr-2">{{ version }}</span>
       <span text class="mr-2">&copy; Swantzter 2017-2019</span>
     </v-footer>
@@ -50,9 +51,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import Menu from '@/components/Menu.vue';
-import rulesets from '@/rules';
+import { Component, Prop, Vue } from "vue-property-decorator";
+import Menu from "@/components/Menu.vue";
+import rulesets from "@/rules";
 
 @Component({
   components: {
@@ -60,8 +61,21 @@ import rulesets from '@/rules';
   }
 })
 export default class App extends Vue {
-  version: string = require('../package.json').version;
+  version: string = require("../package.json").version;
   drawer: boolean = false;
   rulesets = rulesets;
+  catID: string = "";
+
+  mounted() {
+    this.$router.afterEach((to, from) => {
+      let toArr = to.fullPath.split("/");
+      if (toArr[1] === "category") {
+        this.catID = toArr[2];
+      } else {
+        this.catID = "";
+      }
+      console.log(this.catID);
+    });
+  }
 }
 </script>

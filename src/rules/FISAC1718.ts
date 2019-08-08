@@ -1,6 +1,6 @@
 const SpeedJudge = {
   name: 'Speed Judge',
-  judgeType: 's',
+  id: 's',
   fields: [{
     name: 'Score',
     symbol: 's',
@@ -13,7 +13,7 @@ const SpeedJudge = {
 
 const SpeedHeadJudgeMasters = {
   name: 'Speed Head Judge',
-  judgeType: 'shj',
+  id: 'shj',
   fields: [
     ...SpeedJudge.fields,
     {
@@ -31,7 +31,7 @@ const SpeedHeadJudgeMasters = {
 
 const SpeedHeadJudgeRelays = {
   name: 'Speed Head Judge',
-  judgeType: 'shj',
+  id: 'shj',
   fields: [
     ...SpeedHeadJudgeMasters.fields,
     {
