@@ -1,5 +1,7 @@
 # RS-v3
 
+country codes and names from country.io
+
 ## Project setup
 ```
 npm install

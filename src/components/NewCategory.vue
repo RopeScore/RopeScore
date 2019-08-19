@@ -1,12 +1,17 @@
 <script lang="ts">
-import { Component, Props, Vue } from 'vue-property-decorator';
-import moment from 'moment';
+import { Component, Vue } from 'vue-property-decorator';
+import { DateTime } from 'luxon';
 
 @Component
 export default class ConfigCategory<VueClass> extends Vue {
-  now = moment();
-  id: string = btoa(this.now.format('x'));
-  name: string = `Category created ${this.now.format('lll')}`;
+  now = DateTime.local();
+  // TODO: replace 'toFixed' stuff with computer Name?
+  id: string = btoa(
+    `${this.now.toMillis()}${(Math.random() * 10000).toFixed()}`
+  );
+  name: string = `Category created ${this.now
+    .setLocale('en-GB')
+    .toLocaleString(DateTime.DATETIME_MED)}`;
 
   render (h) {
     return null
@@ -14,7 +19,10 @@ export default class ConfigCategory<VueClass> extends Vue {
 
   mounted () {
     this.$store.commit('categories/addCategory', { id: this.id })
-    this.$store.commit('categories/setName', { id: this.id, name: this.name })
+    this.$store.commit('categories/setCategoryName', {
+      id: this.id,
+      value: this.name
+    })
 
     this.$router.push(`/category/${this.id}/config`)
   }

@@ -16,17 +16,42 @@ const module: Module<any, any> = {
         ijruID: ''
       })
     },
-    setName ({ people }, payload) {
-      Vue.set(people[payload.id], 'name', payload.value)
-    },
-    setClub ({ people }, payload) {
-      Vue.set(people[payload.id], 'club', payload.value)
-    },
-    setCountry ({ people }, payload) {
-      Vue.set(people[payload.id], 'country', payload.value)
-    },
     deletePerson ({ people }, payload) {
       Vue.delete(people, payload.id)
+    },
+    setPersonName ({ people }, payload) {
+      Vue.set(people[payload.id], 'name', payload.value)
+    },
+    setPersonClub ({ people }, payload) {
+      Vue.set(people[payload.id], 'club', payload.value)
+    },
+    setPersonCountry ({ people }, payload) {
+      Vue.set(people[payload.id], 'country', payload.value)
+    },
+
+    newTeam ({ teams }, payload) {
+      Vue.set(teams, payload.id, {
+        name: '',
+        club: '',
+        country: '',
+        ijruID: '',
+        members: []
+      })
+    },
+    deleteTeam ({ teams }, payload) {
+      Vue.delete(teams, payload.id)
+    },
+    setTeamName ({ teams }, payload) {
+      Vue.set(teams[payload.id], 'name', payload.value)
+    },
+    setTeamClub ({ teams }, payload) {
+      Vue.set(teams[payload.id], 'club', payload.value)
+    },
+    setTeamCountry ({ teams }, payload) {
+      Vue.set(teams[payload.id], 'country', payload.value)
+    },
+    setTeamMembers ({ teams }, payload) {
+      Vue.set(teams[payload.id], 'members', payload.value)
     }
   },
   actions: {
@@ -41,20 +66,41 @@ const module: Module<any, any> = {
         id = `P${leftFillNum(lastID + 1, 3)}RS`
       }
       commit('newPerson', { id })
-      commit('setName', { id, value: payload.name })
-      commit('setClub', { id, value: payload.club })
-      commit('setCountry', { id, value: payload.country })
+      commit('setPersonName', { id, value: payload.name || '' })
+      commit('setPersonClub', { id, value: payload.club || '' })
+      commit('setPersonCountry', { id, value: payload.country || '' })
     },
     updatePerson ({ commit, state }, payload) {
       if (!state.people[payload.id]) return
-      commit('setName', { id: payload.id, value: payload.name })
-      commit('setClub', { id: payload.id, value: payload.club })
-      commit('setCountry', { id: payload.id, value: payload.country })
+      commit('setPersonName', { id: payload.id, value: payload.name })
+      commit('setPersonClub', { id: payload.id, value: payload.club })
+      commit('setPersonCountry', { id: payload.id, value: payload.country })
     },
     deletePerson ({ commit, state }, payload) {
       if (!state.people[payload.id]) return
       commit('deletePerson', { id: payload.id })
+    },
+
+    newTeam ({ commit, state }, payload) {
+      let id = 'T001RS'
+      let ids = Object.keys(state.teams).sort((a, b) => Number(a.substring(1, 4)) - Number(b.substring(1, 4)))
+
+      if (ids.length > 0) {
+        let last = ids[ids.length - 1]
+        let lastID = Number(last.substring(1, 4))
+
+        id = `T${leftFillNum(lastID + 1, 3)}RS`
+      }
+      commit('newTeam', { id })
+      commit('setTeamName', { id, value: payload.name || '' })
+      commit('setTeamClub', { id, value: payload.club || '' })
+      commit('setTeamCountry', { id, value: payload.country || '' })
+    },
+    deleteTeam ({ commit, state }, payload) {
+      if (!state.teams[payload.id]) return
+      commit('deleteTeam', { id: payload.id })
     }
+
   },
   getters: {
     clubs: ({ people }) => {
@@ -69,37 +115,14 @@ const module: Module<any, any> = {
           id,
           ...people[id]
         }))
+    },
+    teamsArray: ({ teams }) => {
+      return Object.keys(teams)
+        .map(id => ({
+          id,
+          ...teams[id]
+        }))
     }
-    //   categoriesList: state => {
-    //     return Object.keys(state).map((id: string) => ({
-    //       id,
-    //       name: state[id].config.name,
-    //       group: state[id].config.group,
-    //       ruleset: state[id].config.ruleset
-    //     }))
-    //   },
-    //   groups: state => {
-    //     return Object.keys(state)
-    //       .map((id: string) => state[id].config.group)
-    //       .filter((el: string, idx: number, arr: string[]): boolean => arr.indexOf(el) === idx)
-    //       .filter((el: string): boolean => !!el)
-    //   },
-    //   groupedCategories: function (state) {
-    //     return Object.keys(state)
-    //       .map((id: string) => state[id].config.group || 'Ungrouped')
-    //       .filter((el: string, idx: number, arr: string[]): boolean => arr.indexOf(el) === idx)
-    //       .map(group => {
-    //         return {
-    //           name: group,
-    //           categories: Object.keys(state).map((id: string) => ({
-    //             id,
-    //             name: state[id].config.name,
-    //             group: state[id].config.group,
-    //             ruleset: state[id].config.ruleset
-    //           })).filter(el => (el.group || 'Ungrouped') === group)
-    //         }
-    //       })
-    //   }
   }
 }
 

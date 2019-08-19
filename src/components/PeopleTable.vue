@@ -3,11 +3,16 @@
     <v-card-title>
       People
       <v-spacer></v-spacer>
-      <v-text-field v-model="search" label="Search" single-line hide-details></v-text-field>
-      <!-- append-icon="search" -->
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
     </v-card-title>
 
-    <v-dialog v-model="editPersonDialog" max-width="500px">
+    <v-dialog v-model="editPersonDialog" max-width="500px" :retain-focus="false">
       <v-card>
         <v-card-title>
           <span class="headline">Edit Person {{ focusedPerson.id }}</span>
@@ -37,7 +42,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="deletePersonDialog" max-width="500px">
+    <v-dialog v-model="deletePersonDialog" max-width="500px" :retain-focus="false">
       <v-card>
         <v-card-title>
           <span class="headline">Delete {{ focusedPerson.id }}</span>
@@ -54,13 +59,15 @@
     </v-dialog>
 
     <!-- TODO: Make rows expandible if a prop is sent, show teams they're a member of, competitions they're in and competitions they've judged at -->
-    <!-- TODO: Make rows selectable if a prop is sent-->
     <v-data-table
       :headers="headers"
       :items="$store.getters['people/peopleArray']"
       :search="search"
       :show-select="showSelect"
+      :single-select="singleSelect"
+      show-group-by
       @input="$emit('input', $event.map(el => el.id))"
+      :value="selected"
     >
       <template v-slot:item.country="{ item }">{{ countriesJSON[item.country.toUpperCase()] }}</template>
 
@@ -110,18 +117,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-
-interface TableHeader {
-  text: string;
-  value: string;
-  align?: 'start' | 'center' | 'end';
-  sortable?: boolean;
-  divider?: boolean;
-  class?: string | string[];
-  width?: string | number;
-  filter?: (value: any, search: string, item: any) => boolean;
-  sort?: (a: any, b: any) => number;
-}
+import TableHeader from '@/plugins/vuetify';
 
 @Component
 export default class PeopleTable<VueClass> extends Vue {
@@ -131,7 +127,16 @@ export default class PeopleTable<VueClass> extends Vue {
   deletePersonDialog: boolean = false;
 
   @Prop() private showSelect: boolean;
+  @Prop() private singleSelect: boolean;
   @Prop() private flat: boolean;
+  @Prop({ default: () => [] }) private value: string[];
+
+  get selected () {
+    return this.value.map(id => ({
+      id,
+      ...this.$store.state.people.people[id]
+    }))
+  }
 
   headers: TableHeader[] = [
     {

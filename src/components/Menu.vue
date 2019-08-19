@@ -1,20 +1,11 @@
 <template>
   <div>
-    <v-btn text v-if="cat.length > 0" :to="`/category/${cat}/results`">
-      <span class="mr-2">Results</span>
-    </v-btn>
-    <v-btn text v-if="cat.length > 0" :to="`/category/${cat}`">
-      <span class="mr-2">Category</span>
-    </v-btn>
-    <v-btn text to="/new">
-      <span class="mr-2">New Category</span>
-    </v-btn>
-    <v-btn text to="/people">
-      <span class="mr-2">People</span>
-    </v-btn>
-    <v-btn text to="/">
-      <span class="mr-2">Dashboard</span>
-    </v-btn>
+    <v-btn text v-if="cat.length > 0" :to="`/category/${cat}/results`" class="mr-2" exact>Results</v-btn>
+    <v-btn text v-if="cat.length > 0" :to="`/category/${cat}`" class="mr-2" exact>Category</v-btn>
+    <v-btn text to="/new" class="mr-2" exact>New Category</v-btn>
+    <v-btn text to="/people" class="mr-2" exact>People</v-btn>
+    <v-btn text to="/system" class="mr-2" exact>System</v-btn>
+    <v-btn text to="/" class="mr-2" exact>Dashboard</v-btn>
   </div>
 </template>
 

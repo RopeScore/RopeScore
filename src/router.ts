@@ -29,6 +29,21 @@ export default new Router({
       component: () => import(/* webpackChunkName: "categoryconfig" */ '@/views/CategoryConfig.vue')
     },
     {
+      path: '/category/:id/score/:event',
+      name: 'scoreevent',
+      component: () => import(/* webpackChunkName: "scoreevent" */ '@/views/ScoreEvent.vue')
+    },
+    {
+      path: '/category/:id/score/:event/:participant',
+      name: 'scoreparticipant',
+      component: () => import(/* webpackChunkName: "scoreparticipant" */ '@/views/ScoreParticipant.vue')
+    },
+    {
+      path: '/category/:id/results',
+      name: 'gategoryresults',
+      component: () => import(/* webpackChunkName: "categoryresults" */ '@/views/CategoryResults.vue')
+    },
+    {
       path: '/people',
       name: 'people',
       component: () => import(/* webpackChunkName: "people" */ '@/views/People.vue')

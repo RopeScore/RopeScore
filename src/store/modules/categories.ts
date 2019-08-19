@@ -1,11 +1,11 @@
 import { Module } from 'vuex'
 import Vue from 'vue'
-import { leftFillNum } from '@/common'
+import { leftFillNum, roundToMultiple } from '@/common'
 
 const module: Module<any, any> = {
   state: {},
   mutations: {
-    addCategory (state, payload) {
+    addCategory(state, payload) {
       Vue.set(state, payload.id, {
         config: {
           name: '',
@@ -16,42 +16,50 @@ const module: Module<any, any> = {
         },
         judges: [],
         participants: [],
-        scores: {}
+        scores: [],
+        dns: []
       })
     },
+    deleteCategory(state, payload) {
+      Vue.delete(state, payload.id)
+    },
 
-    setCategoryName (state, payload) {
+    setCategoryName(state, payload) {
       if (!state[payload.id]) return
       if (!state[payload.id].config) Vue.set(state[payload.id], 'config', {})
 
       Vue.set(state[payload.id].config, 'name', payload.value)
     },
-    setCategoryGroup (state, payload) {
+    setCategoryGroup(state, payload) {
       if (!state[payload.id]) return
       if (!state[payload.id].config) Vue.set(state[payload.id], 'config', {})
 
       Vue.set(state[payload.id].config, 'group', payload.value)
     },
-    setCategoryRuleset (state, payload) {
+    setCategoryRuleset(state, payload) {
       if (!state[payload.id]) return
       if (!state[payload.id].config) Vue.set(state[payload.id], 'config', {})
 
       Vue.set(state[payload.id].config, 'ruleset', payload.value)
     },
-    setCategoryType (state, payload) {
+    setCategoryType(state, payload) {
       if (!state[payload.id]) return
       if (!state[payload.id].config) Vue.set(state[payload.id], 'config', {})
 
       Vue.set(state[payload.id].config, 'type', payload.value)
+      Vue.set(state[payload.id], 'participants', [])
     },
-    setCategoryEvents (state, payload) {
+    setCategoryEvents(state, payload) {
       if (!state[payload.id]) return
       if (!state[payload.id].config) Vue.set(state[payload.id], 'config', {})
 
       Vue.set(state[payload.id].config, 'events', payload.value)
     },
+    sortCategoryEvents(state, payload) {
+      state[payload.id].config.events.sort((a, b) => payload.template.indexOf(a) - payload.template.indexOf(b))
+    },
 
-    addJudge (state, payload) {
+    addJudge(state, payload) {
       if (!state[payload.id]) return
       if (!state[payload.id].judges) Vue.set(state[payload.id], 'judges', [])
 
@@ -59,20 +67,119 @@ const module: Module<any, any> = {
         id: payload.judgeID
       })
     },
-    deleteJudge (state, payload) {
+    setJudgeID(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].judges) Vue.set(state[payload.id], 'judges', [])
+
+      // TODO: remove duplicates
+
+      let idx = state[payload.id].judges.findIndex(el => el.id === payload.judgeID)
+      if (idx >= 0) state[payload.id].judges[idx].id = payload.newID
+    },
+    deleteJudge(state, payload) {
       if (!state[payload.id]) return
       if (!state[payload.id].judges) Vue.set(state[payload.id], 'judges', [])
 
       let idx = state[payload.id].judges.findIndex(el => el.id === payload.judgeID)
       if (idx >= 0) state[payload.id].judges.splice(idx, 1)
+    },
+    setJudgeAssignment(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].judges) Vue.set(state[payload.id], 'judges', [])
+
+      let idx = state[payload.id].judges.findIndex(el => el.id === payload.judgeID)
+      if (idx >= 0) {
+        Vue.set(state[payload.id].judges[idx], payload.event, payload.judgeType)
+      }
+    },
+    deleteJudgeAssignment(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].judges) Vue.set(state[payload.id], 'judges', [])
+
+      let idx = state[payload.id].judges.findIndex(el => el.id === payload.judgeID)
+      if (idx >= 0) {
+        if (state[payload.id].judges[idx][payload.event]) Vue.delete(state[payload.id].judges[idx], payload.event)
+      }
+    },
+
+    setParticipants(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].participants) Vue.set(state[payload.id], 'participants', [])
+
+      Vue.set(state[payload.id], 'participants', payload.value)
+    },
+
+    setScore(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].scores) Vue.set(state[payload.id], 'scores', [])
+
+      let idx = state[payload.id].scores.findIndex(el => {
+        return el.event === payload.event &&
+          el.participant === payload.participant &&
+          el.judgeID === payload.judgeID
+      })
+      if (idx >= 0) {
+        Vue.set(state[payload.id].scores[idx], payload.field, payload.value)
+      } else {
+        state[payload.id].scores.push({
+          event: payload.event,
+          participant: payload.participant,
+          judgeID: payload.judgeID,
+          [payload.field]: payload.value
+        })
+      }
+    },
+    deleteScore(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].scores) Vue.set(state[payload.id], 'scores', [])
+
+      let idx = state[payload.id].scores.findIndex(el => {
+        return el.event === payload.event &&
+          el.participant === payload.participant &&
+          el.judgeID === payload.judgeID
+      })
+      if (idx >= 0) {
+        Vue.delete(state[payload.id].scores[idx], payload.field)
+        if (Object.keys(state[payload.id].scores[idx])
+          .filter(el => !['event', 'participant', 'judgeID']
+            .includes(el)).length === 0) state[payload.id].scores.splice(idx, 1)
+      }
+    },
+
+    setDNS(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].dns) Vue.set(state[payload.id], 'dns', [])
+
+      state[payload.id].dns.push({
+        participant: payload.participant,
+        event: payload.event
+      })
+    },
+    deleteDNS(state, payload) {
+      let idx = (state[payload.id].dns || []).findIndex(el => el.event === payload.event && el.participant === payload.participant)
+
+      if (idx >= 0) {
+        state[payload.id].dns.splice(idx, 1)
+      }
     }
   },
   actions: {
     updateEvents: ({ commit }, payload) => {
       // TODO: get prev state, compare to new state remove scores entered for that event
+      // also use addCategoryEvent and deleteCategoryEvent methods for each changed event
       commit('setCategoryEvents', {
         id: payload.id,
-        value: payload.events
+        value: payload.events.filter(el => !!el)
+      })
+      if (payload.template) commit('sortCategoryEvents', { id: payload.id, template: payload.template })
+    },
+
+    updateParticipants: ({ commit }, payload) => {
+      // TODO: get prev state, compare to new state remove scores entered for that event
+      // also use addParticipant and deleteParticipant methods for each changed event
+      commit('setParticipants', {
+        id: payload.id,
+        value: payload.participants.filter(el => !!el)
       })
     },
 
@@ -95,9 +202,69 @@ const module: Module<any, any> = {
 
       commit('addJudge', { id: payload.id, judgeID })
     },
+    updateJudgeID: ({ commit }, payload) => {
+      // TODO: update judge's scores
+      commit('setJudgeID', {
+        id: payload.id,
+        judgeID: payload.judgeID,
+        newID: payload.newID
+      })
+    },
     deleteJudge: ({ commit }, payload) => {
       // TODO: remove all scores by that judge
       commit('deleteJudge', { id: payload.id, judgeID: payload.judgeID })
+    },
+    updateJudgeAssignment: ({ commit }, payload) => {
+      if (!payload.id && !payload.judgeID && !payload.event) return
+      if (!payload.judgeType) {
+        commit('deleteJudgeAssignment', {
+          id: payload.id,
+          judgeID: payload.judgeID,
+          event: payload.event
+        })
+      } else {
+        commit('setJudgeAssignment', {
+          id: payload.id,
+          judgeID: payload.judgeID,
+          event: payload.event,
+          judgeType: payload.judgeType
+        })
+      }
+    },
+
+    setScore: ({ commit }, payload) => {
+      if (payload.value !== 0 && !payload.value) {
+        return commit('deleteScore', {
+          id: payload.id,
+          event: payload.event,
+          participant: payload.participant,
+          judgeID: payload.judgeID,
+          field: payload.field
+        })
+      }
+      payload.value = Number(payload.value)
+      payload.value = roundToMultiple(payload.value, payload.step || 1)
+      if (payload.min && payload.value < payload.min) payload.value = Number(payload.min)
+      if (payload.max && payload.value > payload.max) payload.value = Number(payload.max)
+
+      commit('setScore', {
+        id: payload.id,
+        event: payload.event,
+        participant: payload.participant,
+        judgeID: payload.judgeID,
+        field: payload.field,
+        value: payload.value
+      })
+    },
+    toggleDNS: ({ commit, state }, { id, event, participant }) => {
+      let idx = (state[id].dns || []).findIndex(el => el.event === event && el.participant === participant)
+
+      if (idx >= 0) {
+        commit('deleteDNS', { id, participant, event })
+      } else {
+        commit('setDNS', { id, participant, event })
+        // TODO: remove all related scores
+      }
     }
   },
   getters: {
@@ -130,6 +297,37 @@ const module: Module<any, any> = {
             })).filter(el => (el.group || 'Ungrouped') === group)
           }
         })
+    },
+
+    eventScoreObj: state => ({ id, event }) => {
+      let obj = {}
+      let related = state[id].scores.filter(el => el.event === event)
+      related.forEach(el => {
+        if (!obj[el.participant]) obj[el.participant] = {}
+        obj[el.participant][el.judgeID] = { ...el }
+      })
+      return obj
+    },
+
+    participantScoreObj: state => ({ id, event, participant }) => {
+      let obj = {}
+      let related = state[id].scores.filter(el => el.event === event && el.participant === participant)
+      related.forEach(el => { obj[el.judgeID] = { ...el } })
+      return obj
+    },
+
+    fieldScore: (state, getters) => ({ id, event, participant, judgeID, field }) => {
+      return (getters.participantScoreObj({ id, event, participant })[judgeID] || {})[field]
+    },
+
+    dns: state => ({ id, event, participant }) => {
+      let idx = (state[id].dns || []).findIndex(el => el.event === event && el.participant === participant)
+
+      if (idx >= 0) {
+        return true
+      } else {
+        return false
+      }
     }
   }
 }

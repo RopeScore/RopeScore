@@ -10,7 +10,7 @@
       <Menu :cat="catID" />
     </v-app-bar>
 
-    <v-navigation-drawer v-model="drawer" app>
+    <v-navigation-drawer v-model="drawer" app disable-resize-watcher temporary>
       <v-list nav v-for="group in $store.getters['categories/groupedCategories']" :key="group.name">
         <v-list-item>
           <v-list-item-content>
@@ -36,7 +36,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-content>
+    <v-content class="mb-12">
       <v-container fluid>
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
@@ -79,3 +79,42 @@ export default class App extends Vue {
   }
 }
 </script>
+
+<style>
+@media print {
+  .v-application {
+    background: #fff !important;
+  }
+  .v-content,
+  .container,
+  .v-card {
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  .v-card {
+    box-shadow: none !important;
+  }
+  .v-app-bar,
+  .v-footer {
+    display: none !important;
+  }
+  @page {
+    margin: 10mm !important;
+    size: A4 landscape !important;
+  }
+  .page {
+    width: 267mm !important;
+    height: 180mm !important;
+    border-color: #000 !important;
+    border: 1px solid !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+    position: relative !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+  }
+  .table {
+    overflow-x: hidden !important;
+  }
+}
+</style>
