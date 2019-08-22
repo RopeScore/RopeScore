@@ -1,7 +1,23 @@
 <template>
-  <v-card class="page">
-    <v-card-title>{{ title }}</v-card-title>
-    <v-card-text class="text-right">
+  <v-card class="page" :class="{ 'cust--noprint': exclude }">
+    <v-card-text class="text-right cust--float cust--top cust--tiny" v-if="logo">
+      <img :src="logo" class="cust--page-logo" />
+    </v-card-text>
+    <v-card-title class="pr-12 mr-12">
+      {{ category }}
+      <v-spacer />
+      <v-btn text @click="changeZoom(-0.03)" class="cust--noprint">Zoom -</v-btn>
+      <v-btn text @click="changeZoom()" class="cust--noprint">Reset Zoom</v-btn>
+      <v-btn text @click="changeZoom(0.03)" class="cust--noprint">Zoom +</v-btn>
+      <v-btn
+        text
+        :color="exclude ? 'error' : ''"
+        @click="togglePrint"
+        class="cust--noprint"
+      >{{ exclude ? 'Include' : 'Exclude' }}</v-btn>
+    </v-card-title>
+    <v-card-text class="title">{{ title }}</v-card-text>
+    <v-card-text class="text-right cust--float cust--bottom cust--tiny">
       Scores from RopeScore -
       <a>ropescore.com</a>
     </v-card-text>
@@ -37,7 +53,7 @@
         </thead>
 
         <tbody>
-          <tr v-for="result in (results.overall || results)" :key="result.participant">
+          <tr v-for="result in ((results || {}).overall || results)" :key="result.participant">
             <template v-if="type === 'team'">
               <td class="black--text">{{ teams[result.participant].name }}</td>
               <td class="black--text caption">{{ memberNames(teams[result.participant].members) }}</td>
@@ -51,7 +67,7 @@
 
             <td
               v-for="header in headers.headers"
-              :key="`${result.participant}-${header.event}-${header.value}`"
+              :key="`${result.participant}-${header.event || title}-${header.value}`"
               class="text-right"
               :class="classColorObj(header.color)"
             >{{ getScore(result, header.value, header.event) }}</td>
@@ -63,16 +79,25 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch, Emit } from "vue-property-decorator";
 
 @Component
 export default class ResultTable<VueClass> extends Vue {
-  @Prop({ default: "Results" }) private title: string;
+  @Prop({ default: "" }) private title: string;
+  @Prop({ default: "" }) private category: string;
   @Prop({ default: "individual" }) private type: string;
+  @Prop({ default: 1 }) private zoom: number;
+  @Prop({ default: "" }) private logo: string;
+  @Prop({ default: false }) private exclude: boolean;
   @Prop({ default: () => [] }) private headers;
   @Prop({ default: () => {} }) private results;
   @Prop({ default: () => {} }) private people;
   @Prop({ default: () => {} }) private teams;
+
+  @Emit("printchange")
+  togglePrint() {
+    return !this.exclude;
+  }
 
   get hasGroups() {
     return this.headers.groups.map(group => group.text).filter(name => !!name)
@@ -98,17 +123,57 @@ export default class ResultTable<VueClass> extends Vue {
       return result[value];
     }
   }
+
+  @Emit("zoomchange")
+  changeZoom(change: number): void {
+    let changed = this.zoom + change;
+    if (!change) changed = 1;
+    this.$el.style.setProperty("--page-zoom", `${Math.round(changed * 100)}%`);
+    return changed;
+  }
+
+  mounted() {
+    this.$el.style.setProperty(
+      "--page-zoom",
+      `${Math.round(this.zoom * 100)}%`
+    );
+  }
 }
 </script>
 
 <style scoped>
 .v-card {
   margin-bottom: 24px;
+  --page-zoom: 100%;
 }
 
 .cust--table__wrapper {
   overflow-x: auto;
   padding: 16px;
+}
+
+.cust--float {
+  position: absolute;
+}
+
+.cust--top {
+  top: 0;
+}
+
+.cust--bottom {
+  bottom: 0;
+}
+
+.cust--tiny {
+  font-size: 70%;
+}
+
+.cust--page-logo {
+  height: 70px;
+}
+
+.page div:not(.cust--noprint) {
+  zoom: var(--page-zoom);
 }
 
 table {
@@ -132,6 +197,9 @@ tr:nth-child(even) td {
 @media print {
   .cust--pa-4-notprint {
     padding: 0;
+  }
+  .cust--noprint {
+    display: none;
   }
 }
 </style>

@@ -1,4 +1,4 @@
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, Menu } from 'electron'
 import {
   createProtocol,
   installVueDevtools
@@ -9,35 +9,190 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win: BrowserWindow | null
+let win: BrowserWindow[] = []
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({
+  win.push(new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       nodeIntegration: true
     },
     icon: path.join(__dirname, '../src/assets/icon.png')
-  })
+  }))
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
-    win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
+    win[win.length - 1].loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
+    if (!process.env.IS_TEST) win[win.length - 1].webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
-    win.loadURL('app://./index.html')
+    win[win.length - 1].loadURL('app://./index.html')
   }
 
-  win.on('closed', () => {
-    win = null
+  win[win.length - 1].on('closed', () => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    win.splice(win.length - 1, 1)
   })
+
+  const menu = [
+    {
+      label: 'Edit',
+      role: 'edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'pasteandmatchstyle' },
+        { role: 'delete' },
+        { role: 'selectall' }
+      ]
+    },
+    {
+      label: 'View',
+      role: 'view',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forcereload' },
+        { type: 'separator' },
+        { role: 'resetzoom' },
+        { role: 'zoomin' },
+        { role: 'zoomout' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      role: 'window',
+      submenu: [
+        {
+          label: 'New',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => {
+            createWindow()
+          }
+        },
+        {
+          label: 'Print',
+          accelerator: 'CmdOrCtrl+P',
+          click: () => {
+            win[win.length - 1].webContents.print()
+          }
+        },
+        { role: 'minimize' },
+        { role: 'close' }
+      ]
+    },
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'Documentation',
+          accelerator: 'F1',
+          click: function (item, focusedWindow) {
+            if (focusedWindow) { focusedWindow.loadURL('http://localhost:3333/docs') }
+          }
+        },
+        {
+          label: 'Report Bugs',
+          click: function (item, focusedWindow) {
+            if (focusedWindow) {
+              focusedWindow.loadURL('http://localhost:3333/bugreport')
+            }
+          }
+        },
+        {
+          label: 'Licence',
+          click: function (item, focusedWindow) {
+            if (focusedWindow) {
+              focusedWindow.loadURL('http://localhost:3333/licence')
+            }
+          }
+        }
+      ]
+    }
+  ]
+
+  if (process.env.WEBPACK_DEV_SERVER_URL) {
+    const viewMenu = menu.find(function (m) {
+      return m.role === 'view'
+    })
+    if (viewMenu) {
+      viewMenu.submenu.push({ role: 'toggledevtools' })
+    }
+  }
+
+  if (process.platform === 'darwin') {
+    const name = app.getName()
+    menu.unshift({
+      label: name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services', submenu: [] },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideothers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    })
+    const windowMenu = menu.find(function (m) {
+      return m.role === 'window'
+    })
+    const editMenu = menu.find(function (m) {
+      return m.role === 'edit'
+    })
+    if (windowMenu) {
+      windowMenu.submenu = [
+        {
+          label: 'New',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => {
+            createWindow()
+          }
+        },
+        {
+          label: 'Print',
+          accelerator: 'CmdOrCtrl+P',
+          click: () => {
+            win[win.length - 1].webContents.print()
+          }
+        },
+        { role: 'close' },
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'front' }
+      ]
+    }
+    if (editMenu) {
+      editMenu.submenu.push(
+        { type: 'separator' },
+        {
+          label: 'Speech',
+          submenu: [
+            { role: 'startspeaking' },
+            { role: 'stopspeaking' }
+          ]
+        }
+      )
+    }
+  }
+  /* beautify preserve:end */
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menu))
 }
 
 // Quit when all windows are closed.

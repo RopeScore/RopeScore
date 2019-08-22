@@ -14,6 +14,16 @@ export default new Router({
       component: Home
     },
     {
+      path: '/system',
+      name: 'system',
+      component: () => import(/* webpackChunkName: "system" */ '@/views/SysConfig.vue')
+    },
+    {
+      path: '/people',
+      name: 'people',
+      component: () => import(/* webpackChunkName: "people" */ '@/views/People.vue')
+    },
+    {
       path: '/new',
       name: 'newcategory',
       component: () => import(/* webpackChunkName: "newcategory" */ '@/components/NewCategory.vue')
@@ -42,11 +52,6 @@ export default new Router({
       path: '/category/:id/results',
       name: 'gategoryresults',
       component: () => import(/* webpackChunkName: "categoryresults" */ '@/views/CategoryResults.vue')
-    },
-    {
-      path: '/people',
-      name: 'people',
-      component: () => import(/* webpackChunkName: "people" */ '@/views/People.vue')
     }
   ]
 })

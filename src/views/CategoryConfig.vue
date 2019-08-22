@@ -135,15 +135,20 @@
         </v-card-title>
 
         <v-data-table :headers="judgeTableHeaders" :items="$store.state.categories[id].judges">
-          <template
-            v-slot:item.name="{ item }"
-          >{{ ($store.state.people.people[item.id] || {}).name || 'Click configure to select judge' }}</template>
+          <template v-slot:item.id="{ item }">
+            <span class="cust--nobreak">{{ item.id }}</span>
+          </template>
+          <template v-slot:item.name="{ item }">
+            <span
+              class="cust--nobreak"
+            >{{ ($store.state.people.people[item.id] || {}).name || 'Click configure to select judge' }}</span>
+          </template>
 
           <template v-slot:item.event="{ item, header }">
             <v-select
               :items="eventByID(header.text).judges"
               label="Judge Type"
-              item-text="name"
+              item-text="id"
               item-value="id"
               clearable
               @input="$store.dispatch('categories/updateJudgeAssignment', { id, judgeID: item.id, event: header.text, judgeType: $event })"
@@ -155,7 +160,7 @@
           <template v-slot:item.action="{ item }">
             <v-dialog v-model="assignJudgeDialog[item.id]" max-width :retain-focus="false">
               <template v-slot:activator="{ on }">
-                <v-btn small class="mr-2" v-on="on">Configure</v-btn>
+                <v-btn small class="mr-2 caption" v-on="on">Configure</v-btn>
               </template>
               <v-card>
                 <v-card-title>
@@ -186,7 +191,7 @@
             <v-btn
               small
               color="error"
-              class="mr-2"
+              class="mr-2 caption"
               @click="$store.dispatch('categories/deleteJudge', { id, judgeID: item.id })"
             >Delete</v-btn>
           </template>
@@ -199,10 +204,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Props, Vue } from 'vue-property-decorator';
-import rulesets from '@/rules';
-import PeopleTable from '@/components/PeopleTable';
-import TeamsTable from '@/components/TeamsTable';
+import { Component, Props, Vue } from "vue-property-decorator";
+import rulesets from "@/rules";
+import PeopleTable from "@/components/PeopleTable";
+import TeamsTable from "@/components/TeamsTable";
 
 interface SelectedJudges {
   [key: string]: string;
@@ -222,106 +227,112 @@ export default class CategoryConfig<VueClass> extends Vue {
   assignJudgeDialog = {};
   selectedJudges: SelectedJudges = {};
 
-  created () {
-    this.id = this.$route.params.id
-    this.step = this.$route.query.step || this.step
+  created() {
+    this.id = this.$route.params.id;
+    this.step = this.$route.query.step || this.step;
   }
 
-  deleteCategory () {
-    this.$store.commit('categories/deleteCategory', { id: this.id })
-    this.$router.push('/')
+  deleteCategory() {
+    this.$store.commit("categories/deleteCategory", { id: this.id });
+    this.$router.push("/");
   }
 
-  notEmpty = (v: string): string | boolean => !!v || 'This cannot be empty';
+  notEmpty = (v: string): string | boolean => !!v || "This cannot be empty";
 
-  get rulesetArray () {
+  get rulesetArray() {
     return Object.keys(this.rulesets).map(id => ({
       id,
       name: this.rulesets[id].name
-    }))
+    }));
   }
 
-  get ruleset () {
-    if (!this.$store.state.categories[this.id].config.ruleset) return
+  get ruleset() {
+    if (!this.$store.state.categories[this.id].config.ruleset) return;
 
-    return this.rulesets[this.$store.state.categories[this.id].config.ruleset]
+    return this.rulesets[this.$store.state.categories[this.id].config.ruleset];
   }
 
-  get events () {
-    return this.$store.state.categories[this.id]!.config!.events || []
+  get events() {
+    return this.$store.state.categories[this.id]!.config!.events || [];
   }
 
-  set events (arr) {
-    console.log(arr)
-    this.$store.dispatch('categories/updateEvents', {
+  set events(arr) {
+    console.log(arr);
+    this.$store.dispatch("categories/updateEvents", {
       id: this.id,
       events: arr,
       template: this.ruleset.events.map(el => el.id)
-    })
+    });
   }
 
-  get judgeTableHeaders () {
+  get judgeTableHeaders() {
     let begining = [
       {
-        text: 'ID',
-        value: 'id',
-        align: 'end'
+        text: "ID",
+        value: "id",
+        align: "end"
       },
       {
-        text: 'Name',
-        value: 'name'
+        text: "Name",
+        value: "name"
       }
-    ]
+    ];
     let end = [
-      { text: 'Actions', value: 'action', sortable: false, align: 'end' }
-    ]
+      { text: "Actions", value: "action", sortable: false, align: "end" }
+    ];
 
     let judges = this.events.map(el => ({
       text: el,
-      value: 'event',
-      align: 'center'
-    }))
+      value: "event",
+      align: "center"
+    }));
 
-    return begining.concat(judges).concat(end)
+    return begining.concat(judges).concat(end);
   }
 
-  eventByID (eventID) {
-    return this.ruleset.events.filter(el => el.id === eventID)[0]
+  eventByID(eventID) {
+    return this.ruleset.events.filter(el => el.id === eventID)[0];
   }
 
-  updateParticipants (arr) {
-    console.log(arr)
-    this.$store.dispatch('categories/updateParticipants', {
+  updateParticipants(arr) {
+    console.log(arr);
+    this.$store.dispatch("categories/updateParticipants", {
       id: this.id,
       participants: arr
-    })
+    });
   }
 
-  updateJudgeID (judgeID) {
-    if (!this.selectedJudges[judgeID]) return
-    console.log(judgeID, this.selectedJudges[judgeID])
-    this.$store.dispatch('categories/updateJudgeID', {
+  updateJudgeID(judgeID) {
+    if (!this.selectedJudges[judgeID]) return;
+    console.log(judgeID, this.selectedJudges[judgeID]);
+    this.$store.dispatch("categories/updateJudgeID", {
       id: this.id,
       judgeID,
       newID: this.selectedJudges[judgeID]
-    })
-    this.selectedJudges[judgeID] = '';
-    this.assignJudgeDialog = false
+    });
+    this.selectedJudges[judgeID] = "";
+    this.assignJudgeDialog = false;
   }
 
-  closeUpdateJudgeIDDialog (judgeID) {
-    this.$delete(this.selectedJudges, judgeID)
-    this.assignJudgeDialog[judgeID] = false
+  closeUpdateJudgeIDDialog(judgeID) {
+    this.$delete(this.selectedJudges, judgeID);
+    this.assignJudgeDialog[judgeID] = false;
   }
 
-  selectedJudge (judgeID) {
-    if (this.selectedJudges[judgeID]) return [this.selectedJudges[judgeID]]
-    let person = this.$store.state.people.people[judgeID]
+  selectedJudge(judgeID) {
+    if (this.selectedJudges[judgeID]) return [this.selectedJudges[judgeID]];
+    let person = this.$store.state.people.people[judgeID];
     if (person) {
-      return [person.id]
+      return [person.id];
     } else {
-      return []
+      return [];
     }
   }
 }
 </script>
+
+<style scoped>
+.cust--nobreak {
+  white-space: nowrap;
+}
+</style>

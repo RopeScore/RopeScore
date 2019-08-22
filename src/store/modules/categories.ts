@@ -17,7 +17,8 @@ const module: Module<any, any> = {
         judges: [],
         participants: [],
         scores: [],
-        dns: []
+        dns: [],
+        printConfig: {}
       })
     },
     deleteCategory(state, payload) {
@@ -161,6 +162,37 @@ const module: Module<any, any> = {
       if (idx >= 0) {
         state[payload.id].dns.splice(idx, 1)
       }
+    },
+
+    tableZoomChange(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].printConfig) Vue.set(state[payload.id], 'printConfig', {})
+      if (!state[payload.id].printConfig[payload.table]) Vue.set(state[payload.id].printConfig, payload.table, {})
+
+      Vue.set(state[payload.id].printConfig[payload.table], 'zoom', payload.value)
+    },
+
+    setCategoryLogo(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].printConfig) Vue.set(state[payload.id], 'printConfig', {})
+
+      Vue.set(state[payload.id].printConfig, 'logo', payload.value)
+    },
+
+    deleteCategoryLogo(state, payload) {
+      Vue.delete(state[payload.id].printConfig, 'logo')
+    },
+
+    setExcludeTable(state, payload) {
+      if (!state[payload.id]) return
+      if (!state[payload.id].printConfig) Vue.set(state[payload.id], 'printConfig', {})
+      if (!state[payload.id].printConfig[payload.table]) Vue.set(state[payload.id].printConfig, payload.table, {})
+
+      Vue.set(state[payload.id].printConfig[payload.table], 'exclude', payload.value)
+    },
+
+    deleteExcludeTable(state, payload) {
+      Vue.delete(state[payload.id].printConfig[payload.table], 'exclude')
     }
   },
   actions: {
@@ -265,6 +297,20 @@ const module: Module<any, any> = {
         commit('setDNS', { id, participant, event })
         // TODO: remove all related scores
       }
+    },
+
+    zoomChange: ({ commit }, { id, table, zoom }) => {
+      commit('ableZoomChange', { id, table, value: zoom })
+    },
+
+    printLogo: ({ commit }, { id, data }) => {
+      if (!data) commit('deleteCategoryLogo', { id })
+      commit('setCategoryLogo', { id, value: data })
+    },
+
+    excludePrint: ({ commit }, { id, table, value }) => {
+      // if (!value) commit('deleteExcludeTable', { id, table })
+      commit('setExcludeTable', { id, table, value })
     }
   },
   getters: {

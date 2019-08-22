@@ -4,7 +4,10 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="headline">
         <span>RopeScore</span>
-        <span class="font-weight-light">&nbsp;- Svantes</span>
+        <span
+          class="font-weight-light"
+          v-if="$store.state.system.computerName"
+        >&nbsp;- {{ $store.state.system.computerName }}</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <Menu :cat="catID" />
@@ -36,7 +39,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-content class="mb-12">
+    <v-content>
       <v-container fluid>
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
@@ -74,13 +77,20 @@ export default class App extends Vue {
       } else {
         this.catID = "";
       }
-      console.log(this.catID);
+      console.log("category:", this.catID);
     });
   }
 }
 </script>
 
 <style>
+.page {
+  width: 277mm !important;
+  height: 190mm !important;
+  margin: auto;
+  overflow: hidden;
+}
+
 @media print {
   .v-application {
     background: #fff !important;
@@ -94,6 +104,7 @@ export default class App extends Vue {
   .v-card {
     box-shadow: none !important;
   }
+  .v-card:not(.page),
   .v-app-bar,
   .v-footer {
     display: none !important;
@@ -103,15 +114,15 @@ export default class App extends Vue {
     size: A4 landscape !important;
   }
   .page {
-    width: 267mm !important;
-    height: 180mm !important;
     border-color: #000 !important;
-    border: 1px solid !important;
+    /* border: 1px solid !important; */
+    border: none;
     page-break-after: always !important;
     page-break-inside: avoid !important;
     position: relative !important;
     overflow: hidden !important;
     overflow-x: hidden !important;
+    margin: auto;
   }
   .table {
     overflow-x: hidden !important;
