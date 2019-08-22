@@ -300,7 +300,7 @@ const module: Module<any, any> = {
     },
 
     zoomChange: ({ commit }, { id, table, zoom }) => {
-      commit('ableZoomChange', { id, table, value: zoom })
+      commit('tableZoomChange', { id, table, value: zoom })
     },
 
     printLogo: ({ commit }, { id, data }) => {

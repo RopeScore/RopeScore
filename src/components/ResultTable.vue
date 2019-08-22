@@ -89,7 +89,7 @@ export default class ResultTable<VueClass> extends Vue {
   @Prop({ default: 1 }) private zoom: number;
   @Prop({ default: "" }) private logo: string;
   @Prop({ default: false }) private exclude: boolean;
-  @Prop({ default: () => [] }) private headers;
+  @Prop({ default: () => {} }) private headers;
   @Prop({ default: () => {} }) private results;
   @Prop({ default: () => {} }) private people;
   @Prop({ default: () => {} }) private teams;
@@ -97,11 +97,6 @@ export default class ResultTable<VueClass> extends Vue {
   @Emit("printchange")
   togglePrint() {
     return !this.exclude;
-  }
-
-  get hasGroups() {
-    return this.headers.groups.map(group => group.text).filter(name => !!name)
-      .length;
   }
 
   classColorObj(color: string = "black") {

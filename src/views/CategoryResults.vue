@@ -10,22 +10,47 @@
           <li>Change the paper orientation to landscape</li>
         </ol>
       </v-card-text>
+      <v-card-text>
+        Excel is a stupid file format, at this point in time logos aren't supported in Excel exports.
+        <br />the category name and result table name will be displayed in the page header when printing/exporting to pdf via excel
+      </v-card-text>
       <v-card-actions>
-        <v-btn @click="print()" color="primary">Print</v-btn>
-        <ExcelResultTable
-          :events="$store.state.categories[$route.params.id].config.events"
-          :overalls="overalls"
-          :category="$store.state.categories[$route.params.id].config.name"
-          :type="$store.state.categories[$route.params.id].config.type"
-          :people="$store.state.people.people"
-          :teams="$store.state.people.teams"
-          :logo="($store.state.categories[$route.params.id].printConfig || {}).logo"
-        />
-        <v-btn @click="imageSelect()">Add Logo</v-btn>
+        <v-btn @click="print()" color="primary" text>Print</v-btn>
+        <ExcelWorkbook :title="$store.state.categories[$route.params.id].config.name">
+          <ExcelResultTable
+            v-for="overall in overalls"
+            :key="`excelsheet-${overall.id}`"
+            :id="overall.id"
+            :category="$store.state.categories[$route.params.id].config.name"
+            :title="overall.text"
+            :type="$store.state.categories[$route.params.id].config.type"
+            :headers="overall"
+            :results="overallRanks(overall)"
+            :people="$store.state.people.people"
+            :teams="$store.state.people.teams"
+            :logo="($store.state.categories[$route.params.id].printConfig || {}).logo"
+          />
+
+          <ExcelResultTable
+            v-for="event in $store.state.categories[$route.params.id].config.events"
+            :key="`excelsheet-${event}`"
+            :id="event"
+            :category="$store.state.categories[$route.params.id].config.name"
+            :title="eventByID(event).name"
+            :type="$store.state.categories[$route.params.id].config.type"
+            :headers="eventByID(event).headers"
+            :results="rankedResults[event]"
+            :people="$store.state.people.people"
+            :teams="$store.state.people.teams"
+            :logo="($store.state.categories[$route.params.id].printConfig || {}).logo"
+          />
+        </ExcelWorkbook>
+        <v-btn @click="imageSelect()" text>Add Logo</v-btn>
         <v-btn
           @click="$store.dispatch('categories/printLogo', { id: $route.params.id })"
           v-if="($store.state.categories[$route.params.id].printConfig || {}).logo"
           color="error"
+          text
         >Remove Logo</v-btn>
       </v-card-actions>
     </v-card>
@@ -72,12 +97,14 @@
 import { Component, Props, Vue } from "vue-property-decorator";
 import rulesets from "@/rules";
 import ResultTable from "@/components/ResultTable";
+import ExcelWorkbook from "@/components/ExcelWorkbook";
 import ExcelResultTable from "@/components/ExcelResultTable";
 
 @Component({
   components: {
     ResultTable,
-    ExcelResultTable
+    ExcelResultTable,
+    ExcelWorkbook
   }
 })
 export default class Results<VueClass> extends Vue {
