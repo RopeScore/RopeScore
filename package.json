@@ -17,7 +17,8 @@
     "express": "^4.15.2",
     "express-ws": "^4.0.0",
     "fs-extra": "^3.0.1",
-    "mailgun-js": "^0.20.0"
+    "mailgun-js": "^0.20.0",
+    "snyk": "^1.230.5"
   },
   "devDependencies": {
     "@sentry/wizard": "^0.9.4",
@@ -37,6 +38,9 @@
     "build:intl": "node build -a x64 && node build -a ia32",
     "build:au": "node build -a x64 -c au && node build -a ia32 -c au",
     "build:se": "node build -a x64 -c se && node build -a ia32 -c se",
-    "dist:sync": "rsync -avzcP --exclude-from .rsyncignore dist/ appveyor@ddns.swant.pw:dist"
-  }
+    "dist:sync": "rsync -avzcP --exclude-from .rsyncignore dist/ appveyor@ddns.swant.pw:dist",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "snyk": true
 }
