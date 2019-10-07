@@ -288,7 +288,7 @@ angular.module('ropescore', [
       wb.Props.CreatedDate = new Date().toISOString()
       var uri = 'data:application/octet-streaml;base64,'
       for (var i = 0; i < tables.length; i++) {
-        var sheetName = (tables[i].getAttribute('name').startsWith('overall') ? tables[i].getAttribute('name') : Abbr.abbr(tables[i].getAttribute('name').substring(0, 4)) + tables[i].getAttribute('name').substring(4) || ('Sheet' + (i + 1)))
+        var sheetName = (tables[i].getAttribute('name').startsWith('overall') ? tables[i].getAttribute('name') : Abbr.abbr(tables[i].getAttribute('name').substring(0, 4)) + tables[i].getAttribute('name').substring(4) || ('Sheet' + (i + 1))).replace(/[\\/?*[\]]/gi, '_')
         sheetName = (sheetName.length > 31 ? sheetName.substring(0, 25) + '...' + i : sheetName)
         console.log(sheetName, sheetName.length)
         XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(tables[i], {

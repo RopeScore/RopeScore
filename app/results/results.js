@@ -74,7 +74,7 @@ angular.module('ropescore.results', ['ngRoute'])
       var type = (Abbr.isSpeed(event) ? 'speed' : 'freestyle')
       var cat = (overall ? 'overall' : 'events')
       var raw = (overall === 2)
-      var active = Object.keys($scope.enabledCols[id][cat][type]).filter(function (col) { return (raw && col !== 'rsum') || $scope.enabledCols[id][cat][type][col] })
+      var active = Object.keys($scope.enabledCols[id][cat][type]).filter(function (col) { return (raw && col !== 'rsum') || $scope.enabledCols[id][cat][type][col]})
       return active.length
     }
 
@@ -151,12 +151,12 @@ angular.module('ropescore.results', ['ngRoute'])
      * @return {undefined}
      */
     $scope.toExcel = function () {
-      if (($scope.rankAll ? confirm('You have turned on "Rank Everyone in Everything", click OK to export anyways\nNote that if you export results with "Rank Everyone in Everything" turned on it is important that those are NOT considered official, final results') : true)) {
+      if ( ($scope.rankAll ? confirm('You have turned on "Rank Everyone in Everything", click OK to export anyways\nNote that if you export results with "Rank Everyone in Everything" turned on it is important that those are NOT considered official, final results') : true)) {
         // $scope.toggleRankAll(true)
         setTimeout(function () {
           var tables = document.getElementsByTagName('table')
           tables = Array.prototype.slice.call(tables)
-          tables.shift()
+          tables.filter(el => el.getAttribute('name') !== 'raw')
           tablesToExcel(tables, ($scope.categories.length === 1 ? $scope.data[$scope.categories[0]].config.name : ($scope.group ? $scope.group : 'All Results')))
         })
       }
