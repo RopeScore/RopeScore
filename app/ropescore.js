@@ -442,7 +442,7 @@ angular.module('ropescore', [
        */
       abbr: function (abbr) {
         var nonabbrs = functions.nonabbrs()
-        if (nonabbrs) {
+        if (nonabbrs && nonabbrs[abbr]) {
           return nonabbrs[abbr].abbr || abbr
         } else {
           return abbr

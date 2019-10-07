@@ -156,7 +156,7 @@ angular.module('ropescore.results', ['ngRoute'])
         setTimeout(function () {
           var tables = document.getElementsByTagName('table')
           tables = Array.prototype.slice.call(tables)
-          tables.filter(el => el.getAttribute('name') !== 'raw')
+          tables = tables.filter(el => el.getAttribute('name') !== 'raw')
           tablesToExcel(tables, ($scope.categories.length === 1 ? $scope.data[$scope.categories[0]].config.name : ($scope.group ? $scope.group : 'All Results')))
         })
       }
