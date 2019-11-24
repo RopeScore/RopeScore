@@ -1,4 +1,4 @@
-import { app, protocol, BrowserWindow, Menu } from 'electron'
+import { app, protocol, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
 import {
   createProtocol,
   installVueDevtools
@@ -14,7 +14,7 @@ let win: BrowserWindow[] = []
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
-function createWindow() {
+function createWindow () {
   // Create the browser window.
   win.push(new BrowserWindow({
     width: 800,
@@ -42,10 +42,9 @@ function createWindow() {
     win.splice(win.length - 1, 1)
   })
 
-  const menu = [
+  const menu: (MenuItemConstructorOptions | MenuItem)[] = [
     {
       label: 'Edit',
-      role: 'edit',
       submenu: [
         { role: 'undo' },
         { role: 'redo' },
@@ -60,7 +59,6 @@ function createWindow() {
     },
     {
       label: 'View',
-      role: 'view',
       submenu: [
         { role: 'reload' },
         { role: 'forcereload' },
@@ -99,13 +97,13 @@ function createWindow() {
         {
           label: 'Documentation',
           accelerator: 'F1',
-          click: function (item, focusedWindow) {
+          click: function (item: MenuItem, focusedWindow: BrowserWindow) {
             if (focusedWindow) { focusedWindow.loadURL('http://localhost:3333/docs') }
           }
         },
         {
           label: 'Report Bugs',
-          click: function (item, focusedWindow) {
+          click: function (item: MenuItem, focusedWindow: BrowserWindow) {
             if (focusedWindow) {
               focusedWindow.loadURL('http://localhost:3333/bugreport')
             }
@@ -127,14 +125,14 @@ function createWindow() {
     const viewMenu = menu.find(function (m) {
       return m.role === 'view'
     })
-    if (viewMenu) {
+    if (viewMenu && Array.isArray(viewMenu.submenu)) {
       viewMenu.submenu.push({ role: 'toggledevtools' })
     }
   }
 
   if (process.platform === 'darwin') {
-    const name = app.getName()
-    menu.unshift({
+    const name: string = app.getName()
+    menu.unshift(<MenuItemConstructorOptions | MenuItem>{
       label: name,
       submenu: [
         { role: 'about' },
@@ -177,7 +175,7 @@ function createWindow() {
         { role: 'front' }
       ]
     }
-    if (editMenu) {
+    if (editMenu && Array.isArray(editMenu.submenu)) {
       editMenu.submenu.push(
         { type: 'separator' },
         {

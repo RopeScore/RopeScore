@@ -39,7 +39,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-content>
+    <v-content class="mb-8">
       <v-container fluid>
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
@@ -56,7 +56,8 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Menu from "@/components/Menu.vue";
-import rulesets from "@/rules";
+import rulesets, { Rulesets } from "@/rules/score.worker";
+import { wrap } from "comlink";
 
 @Component({
   components: {
@@ -66,7 +67,7 @@ import rulesets from "@/rules";
 export default class App extends Vue {
   version: string = require("../package.json").version;
   drawer: boolean = false;
-  rulesets = rulesets;
+  rulesets = wrap<Rulesets>(rulesets);
   catID: string = "";
 
   mounted() {

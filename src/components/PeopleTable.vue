@@ -117,7 +117,8 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import TableHeader from '@/plugins/vuetify';
+import { TableHeader as VuetifyTableHeader } from '@/plugins/vuetify';
+import { Person, PersonWithID } from '@/store/modules/people';
 
 @Component
 export default class PeopleTable<VueClass> extends Vue {
@@ -131,14 +132,14 @@ export default class PeopleTable<VueClass> extends Vue {
   @Prop() private flat: boolean;
   @Prop({ default: () => [] }) private value: string[];
 
-  get selected () {
+  get selected (): PersonWithID[] {
     return this.value.map(id => ({
       id,
       ...this.$store.state.people.people[id]
     }))
   }
 
-  headers: TableHeader[] = [
+  headers: VuetifyTableHeader[] = [
     {
       text: 'ID',
       value: 'id',
@@ -164,14 +165,14 @@ export default class PeopleTable<VueClass> extends Vue {
     { text: 'Actions', value: 'action', sortable: false, align: 'end' }
   ];
 
-  newPerson = {
+  newPerson: Person = {
     name: '',
     club: '',
     country: '',
     ijruID: ''
   };
 
-  focusedPerson = {
+  focusedPerson: PersonWithID = {
     id: '',
     name: '',
     club: '',
@@ -189,13 +190,13 @@ export default class PeopleTable<VueClass> extends Vue {
     this.editPersonDialog = false
   }
 
-  editPerson (person) {
+  editPerson (person: PersonWithID) {
     console.log(person)
     this.$set(this, 'focusedPerson', { ...person })
     this.editPersonDialog = true
   }
 
-  openDeletePersonDialog (person) {
+  openDeletePersonDialog (person: PersonWithID) {
     this.$set(this, 'focusedPerson', { ...person })
     this.deletePersonDialog = true
   }
@@ -205,11 +206,15 @@ export default class PeopleTable<VueClass> extends Vue {
     this.deletePersonDialog = false
   }
 
-  countriesJSON = require('@/data/countries.json');
+  countriesJSON: {
+    [countrycode: string]: string;
+  } = require('@/data/countries.json');
 
-  countries = Object.keys(this.countriesJSON).map(el => ({
-    id: el.toLowerCase(),
-    name: this.countriesJSON[el]
-  }));
+  get countries (): { id: string; name: string }[] {
+    return Object.keys(this.countriesJSON).map(el => ({
+      id: el.toLowerCase(),
+      name: this.countriesJSON[el]
+    }))
+  }
 }
 </script>

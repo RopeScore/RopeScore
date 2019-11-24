@@ -1,5 +1,5 @@
 import { roundTo } from '@/common'
-import { Ruleset, Judge, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField } from './'
+import { Ruleset, Judge, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField, ScoreInfo, Event } from './score.worker'
 
 interface PresentationJudge extends Judge {
   fields: WeightedInputField[]
@@ -7,6 +7,69 @@ interface PresentationJudge extends Judge {
 
 export interface WeightedInputField extends InputField {
   weight?: number
+}
+
+export interface FISACScore extends ScoreInfo {
+  // speed
+  s?: number
+  fStart?: number
+  fSwitch?: number
+
+  // misses
+  mim?: number
+  mam?: number
+  spc?: number
+  tim?: number
+  few?: number
+
+  // Presentation
+  mob?: number
+  uom?: number
+  mov?: number
+  fbe?: number
+  ori?: number
+  imp?: number
+
+  // Required Elements
+  mul?: number
+  gym?: number
+  pow?: number
+  spd?: number
+  rel?: number
+  wra?: number
+  pai?: number
+  tis?: number
+  swi?: number
+  nae?: number
+  aer?: number
+  jis?: number
+
+  // Diff
+  l2?: number
+  l3?: number
+  l4?: number
+  l5?: number
+  l6?: number
+
+}
+
+export interface FISACResult {
+  judgeID?: string
+
+  T?: number
+  W?: number
+  PreY?: number
+  Y?: number
+
+  T1?: number
+  T2?: number
+  T3?: number
+  T4?: number
+  T5?: number
+  Diff?: number
+  Crea?: number
+  PreA?: number
+  A?: number
 }
 
 export const SpeedJudge: Judge = {
@@ -311,7 +374,8 @@ const lMaxes = {
 }
 
 const diffResult = function (l: Function) {
-  return function (scores) {
+  return function (scores: FISACScore) {
+    console.log(scores)
     let output = {}
     let fields = this.fields
     let levScores = {}
@@ -692,9 +756,9 @@ export const OverallResultTableHeadersTeam: ResultTableHeader[] = [
 ]
 
 export const SpeedResult = function (event: string) {
-  return function (scores, judges) {
-    let judgeResults = []
-    let output = {}
+  return function (scores: { [judgeID: string]: FISACScore }, judges: [string, string]) {
+    let judgeResults: FISACResult[] = []
+    let output: FISACResult = {}
 
     let eventObj = config.events.find(el => el.id === event)
     let eventJudgeTypes = eventObj!.judges
@@ -721,10 +785,8 @@ export const SpeedResult = function (event: string) {
     }
 
     // Calc T
-    let Ts = judgeResults.map(el => el.T).filter(el => typeof el === 'number')
-    Ts.sort(function (a, b) {
-      return a - b
-    })
+    let Ts: number[] = judgeResults.map((el: FISACResult): number | undefined => el.T).filter((el: number | undefined): boolean => typeof el === 'number')
+    Ts.sort((a, b) => Number(a) - Number(b))
 
     /* special case if there's only one score entered */
     if (Ts.length === 1) {
@@ -741,10 +803,8 @@ export const SpeedResult = function (event: string) {
     }
 
     // Calc W
-    let Ws = judgeResults.map(el => el.W).filter(el => typeof el === 'number')
-    Ws.sort(function (a, b) {
-      return a - b
-    })
+    let Ws: number[] = judgeResults.map((el: FISACResult): number | undefined => el.W).filter((el: number | undefined): boolean => typeof el === 'number')
+    Ws.sort((a, b) => Number(a) - Number(b))
     /* special case if there's only one score entered */
     if (Ws.length === 1) {
       output.W = roundTo(Ws[0], 4)
@@ -761,17 +821,17 @@ export const SpeedResult = function (event: string) {
 
     output.PreY = roundTo((output.T as number || 0) - (output.W as number || 0), 4)
 
-    output.Y = roundTo(output.PreY * (eventObj.scoreMultiplier as number || 1), 4)
+    output.Y = roundTo(output.PreY * ((eventObj || {}).scoreMultiplier as number || 1), 4)
 
     return output
   }
 }
 
 export const FreestyleResult = function (event: string) {
-  return function (scores, judges) {
-    let judgeResults = []
-    let Ts = {}
-    let output = {}
+  return function (scores: { [judgeID: string]: FISACScore }, judges: [string, string]) {
+    let judgeResults: FISACResult[] = []
+    let Ts: { [T: string]: number[] } = {}
+    let output: FISACResult = {}
 
     let eventObj = config.events.find(el => el.id === event)
     let eventJudgeTypes = eventObj!.judges
@@ -799,58 +859,64 @@ export const FreestyleResult = function (event: string) {
 
     // Calc T's
     for (let i of [1, 2, 3, 4, 5]) {
+      let write: string = 'T1'
       if (i === 4) {
+        if (typeof output.T3 === 'undefined') { output.T4 = output.T2; continue }
+        if (typeof output.T2 === 'undefined') { output.T4 = output.T3; continue }
         output.T4 = output.T2 + output.T3
         continue
       }
-      Ts['T' + i] = judgeResults.map(el => el['T' + i]).filter(el => typeof el === 'number')
-      Ts['T' + i].sort(function (a, b) {
-        return a - b
-      })
+      if (i === 1) write = 'T1'
+      if (i === 2) write = 'T2'
+      if (i === 3) write = 'T3'
+      if (i === 4) write = 'T4'
+      if (i === 5) write = 'T5'
+      Ts[write] = judgeResults.map((el: FISACResult): number | undefined => el[write]).filter((el: number | undefined): boolean => typeof el === 'number')
+      Ts[write].sort((a: number, b: number) => a - b)
 
-      if (Ts['T' + i].length === 1) {
-        output['T' + i] = Ts['T' + i][0]
+      if (Ts[write].length === 1) {
+        output[write] = Ts[write][0]
       } else {
-        if (Ts['T' + i].length > 3) {
-          Ts['T' + i].pop()
-          Ts['T' + i].shift()
+        if (Ts[write].length > 3) {
+          Ts[write].pop()
+          Ts[write].shift()
         }
 
-        output['T' + i] = (Ts['T' + i].reduce((a, b) => a + b, 0) / Ts['T' + i].length) || 0
+        output[write] = (Ts[write].reduce((a, b) => a + b, 0) / Ts[write].length) || 0
       }
 
       if (i === 5) {
-        Ts['deduc'] = judgeResults.map(el => el['deduc']).filter(el => typeof el === 'number')
-        Ts['deduc'].sort(function (a, b) {
+        Ts.deduc = judgeResults.map(el => el['deduc']).filter(el => typeof el === 'number')
+        Ts.deduc.sort(function (a, b) {
           return a - b
         })
 
-        if (Ts['deduc'].length === 1) {
-          output['T' + i] += Ts['deduc'][0]
-        } else if (Ts['deduc'].length <= 3) {
+        if (Ts.deduc.length === 1) {
+          output[write] += Ts.deduc[0]
+        } else if (Ts.deduc.length <= 3) {
           let diff: number
-          for (let j = 1; j < Ts['T' + i].length; j++) {
-            let cdiff = Math.abs(Ts['T' + i][j] - Ts['T' + i][j - 1])
+          for (let j = 1; j < Ts[write].length; j++) {
+            let cdiff = Math.abs(Ts[write][j] - Ts[write][j - 1])
             if (typeof diff === 'undefined' || cdiff <= diff) {
               diff = cdiff
-              output['T' + i] += (Ts['deduc'][j] + Ts['deduc'][j - 1]) / 2
+              output[write] += (Ts.deduc[j] + Ts.deduc[j - 1]) / 2
             }
           }
         } else {
-          Ts['deduc'].pop()
-          Ts['deduc'].shift()
+          Ts.deduc.pop()
+          Ts.deduc.shift()
 
-          output['T' + i] += (Ts['deduc'].reduce((a, b) => a + b, 0) / Ts['deduc'].length) || 0
+          output[write] += (Ts.deduc.reduce((a, b) => a + b, 0) / Ts.deduc.length) || 0
         }
       }
 
-      output['T' + i] = roundTo(output['T' + i], 4) || 0
+      output[write] = roundTo(output[write], 4) || 0
     }
 
     output.Diff = roundTo((output.T1 || 0) - ((output.T5 || 0) / 2), 4)
     output.Crea = roundTo((output.T4 || 0) - ((output.T5 || 0) / 2), 4)
     output.PreA = roundTo((output.T1 || 0) + (output.T4 || 0) - (output.T5 || 0), 4)
-    output.A = roundTo((output.PreA || 0) * (eventObj.scoreMultiplier || 1), 4)
+    output.A = roundTo((output.PreA || 0) * ((eventObj || {}).scoreMultiplier || 1), 4)
 
     return output
   }

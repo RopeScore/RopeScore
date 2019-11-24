@@ -1,3 +1,15 @@
+import { expose } from 'comlink'
+import FISAC1718 from './FISAC1718'
+import IJRU1_0_0 from './IJRU1-0-0'
+// import SvGFRH1718 from './SvGFRH1718'
+import SvGFVH18 from './SvGFVH18'
+
+export interface ScoreInfo {
+  event: string;
+  judgeID: string
+  participant: string;
+}
+
 export interface InputField {
   name: string
   id: string
@@ -10,7 +22,7 @@ export interface Judge {
   name: string
   id: string,
   fields: InputField[]
-  result: Function
+  result: (scores: { [field: string]: number }) => { [field: string]: number } | undefined
 }
 
 export interface ResultTableHeader {
@@ -21,7 +33,7 @@ export interface ResultTableHeader {
 }
 
 export interface ResultTableHeaderGroup extends ResultTableHeader {
-  colspan: number
+  colspan?: number
   rowspan?: number
 }
 
@@ -61,18 +73,14 @@ export interface Rulesets {
   [any: string]: Ruleset
 }
 
-// Get all and export in one object
-
-const requireRuleset = require.context('.', false, /\.ts$/)
-const rulesets: Rulesets = {}
-
-requireRuleset.keys().forEach(fileName => {
-  console.log(fileName)
-  if (fileName === './index.ts') return
-  const ruleset = requireRuleset(fileName).default || requireRuleset(fileName)
-  rulesets[ruleset.id] = ruleset
-})
+const rulesets: Rulesets = {
+  [FISAC1718.id]: FISAC1718,
+  [IJRU1_0_0.id]: IJRU1_0_0,
+  // [SvGFRH1718.id]: SvGFRH1718,
+  [SvGFVH18.id]: SvGFVH18,
+}
 
 console.log(rulesets)
+expose(rulesets)
 
-export default rulesets
+export default {} as typeof Worker & { new(): Worker }

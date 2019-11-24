@@ -27,6 +27,14 @@
         </ul>
         <li>Printing directly from within RopeScore has seen numerous improvements</li>
       </ul>
+      <h2>v2.10.7</h2>
+      <ul>
+        <li>Removing some content previously only used for debug</li>
+      </ul>
+      <h2>v2.10.6</h2>
+      <ul>
+        <li>A fix to the excel export of a group/all resutls</li>
+      </ul>
       <h2>v2.10.5</h2>
       <ul>
         <li>Add print to MacOS</li>

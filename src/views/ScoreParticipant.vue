@@ -15,6 +15,22 @@
       <v-toolbar-items>
         <v-btn link text :to="`/category/${$route.params.id}`" exact class="mr-2">Return</v-btn>
         <v-btn
+          link
+          text
+          :to="`/category/${$route.params.id}/score/${$route.params.event}/${previousParticipant($route.params.participant)}`"
+          :disabled="!previousParticipant($route.params.participant)"
+          exact
+          class="mr-2"
+        >Previous</v-btn>
+        <v-btn
+          link
+          text
+          :to="`/category/${$route.params.id}/score/${$route.params.event}/${nextParticipant($route.params.participant)}`"
+          :disabled="!nextParticipant($route.params.participant)"
+          exact
+          class="mr-2"
+        >Next</v-btn>
+        <v-btn
           @click="$store.dispatch('categories/toggleDNS', { id: $route.params.id, event: $route.params.event, participant: $route.params.participant })"
           class="mr-2"
           text
@@ -119,12 +135,13 @@
 
 <script lang="ts">
 import { Component, Props, Vue } from "vue-property-decorator";
-import rulesets from "@/rules";
+import rulesets, { Rulesets } from "@/rules/score.worker";
+import { wrap } from "comlink";
 // import TableHeader from '@/plugins/vuetify';
 
 @Component
 export default class ScoreParticipant<VueClass> extends Vue {
-  rulesets = rulesets;
+  rulesets = wrap<Rulesets>(rulesets);
 
   get ruleset() {
     return this.rulesets[
@@ -159,6 +176,22 @@ export default class ScoreParticipant<VueClass> extends Vue {
 
   JudgeIsConfigured(judgeID: string = "J"): boolean {
     return judgeID.substring(0, 1) !== "J";
+  }
+
+  nextParticipant(participant: string) {
+    const participants = this.$store.state.categories[this.$route.params.id]
+      .participants;
+    const idx = participants.indexOf(participant) + 1;
+    if (idx === participants.length) return undefined;
+    return participants[idx];
+  }
+
+  previousParticipant(participant: string) {
+    const participants = this.$store.state.categories[this.$route.params.id]
+      .participants;
+    const idx = participants.indexOf(participant) - 1;
+    if (idx === -1) return undefined;
+    return participants[idx];
   }
 
   memberNames(members: string[]): string {

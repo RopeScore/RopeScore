@@ -1,16 +1,22 @@
-import { Module } from 'vuex'
-import Vue from 'vue'
+import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
+import store from '@/store/store'
 
-const module: Module<any, any> = {
-  state: {
-    computerName: ''
-  },
-  mutations: {
-    setComputerName(state, payload) {
-      console.log(payload)
-      state.computerName = payload.value
-    }
+import VuexPersistance from 'vuex-persist'
+
+const VuexLocal = new VuexPersistance({
+  storage: window.localStorage,
+  modules: ['system'],
+  key: 'ropescore-system'
+})
+
+@Module({ namespaced: true, name: 'system', dynamic: true, store })
+export default class SystemModule extends VuexModule {
+  computerName = ''
+
+  @Mutation
+  setComputerName({ value }: { value: string }) {
+    this.computerName = value
   }
 }
 
-export default module
+VuexLocal.plugin(store)

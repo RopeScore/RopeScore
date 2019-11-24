@@ -95,7 +95,7 @@
 
 <script lang="ts">
 import { Component, Props, Vue } from "vue-property-decorator";
-import rulesets from "@/rules";
+import rulesets from "@/rules/score.worker";
 import ResultTable from "@/components/ResultTable";
 import ExcelWorkbook from "@/components/ExcelWorkbook";
 import ExcelResultTable from "@/components/ExcelResultTable";

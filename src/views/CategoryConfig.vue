@@ -205,9 +205,10 @@
 
 <script lang="ts">
 import { Component, Props, Vue } from "vue-property-decorator";
-import rulesets from "@/rules";
+import rulesets, { Rulesets } from "@/rules/score.worker";
 import PeopleTable from "@/components/PeopleTable";
 import TeamsTable from "@/components/TeamsTable";
+import { wrap } from "comlink";
 
 interface SelectedJudges {
   [key: string]: string;
@@ -223,7 +224,7 @@ export default class CategoryConfig<VueClass> extends Vue {
   id: string;
   step: number = 1;
   deleteCategoryDialog: boolean = false;
-  rulesets = rulesets;
+  rulesets = wrap<Rulesets>(rulesets);
   assignJudgeDialog = {};
   selectedJudges: SelectedJudges = {};
 

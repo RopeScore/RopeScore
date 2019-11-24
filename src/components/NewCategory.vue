@@ -13,7 +13,7 @@ export default class ConfigCategory<VueClass> extends Vue {
     .setLocale('en-GB')
     .toLocaleString(DateTime.DATETIME_MED)}`;
 
-  render (h) {
+  render () {
     return null
   }
 

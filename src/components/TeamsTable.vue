@@ -155,8 +155,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import PeopleTable from '@/components/PeopleTable';
-import TableHeader from '@/plugins/vuetify';
+import PeopleTable from '@/components/PeopleTable.vue';
+import { TableHeader as VuetifyTableHeader } from '@/plugins/vuetify';
+import { Person, PersonWithID, Team, TeamWithID } from '@/store/modules/people';
 
 @Component({
   components: {
@@ -173,14 +174,16 @@ export default class TeamsTable<VueClass> extends Vue {
   @Prop() private flat: boolean;
   @Prop({ default: () => [] }) private value: string[];
 
-  get selected () {
-    return this.value.map(id => ({
-      id,
-      ...this.$store.state.people.teams[id]
-    }))
+  get selected (): TeamWithID[] {
+    return this.value.map(
+      (id: string): TeamWithID => ({
+        id,
+        ...this.$store.state.people.teams[id]
+      })
+    )
   }
 
-  headers: TableHeader[] = [
+  headers: VuetifyTableHeader[] = [
     {
       text: 'ID',
       value: 'id',
@@ -216,26 +219,30 @@ export default class TeamsTable<VueClass> extends Vue {
       .join(', ')
   }
 
-  addTeam (): void {
-    this.$store.dispatch('people/newTeam', this.newTeam)
-    this.$set(this.newTeam, 'name', '')
-  }
+  // addTeam (): void {
+  //   this.$store.dispatch('people/newTeam', this.newTeam)
+  //   this.$set(this.newTeam, 'name', '')
+  // }
 
-  openDeleteTeamDialog (team) {
+  openDeleteTeamDialog () {
     // this.$set(this, 'focusedTeam', { ...team })
     this.deleteTeamDialog = true
   }
 
-  deleteTeam (team) {
+  deleteTeam (team: TeamWithID) {
     this.$store.dispatch('people/deleteTeam', team)
     this.deleteTeamDialog = false
   }
 
-  countriesJSON = require('@/data/countries.json');
+  countriesJSON: {
+    [countrycode: string]: string;
+  } = require('@/data/countries.json');
 
-  countries = Object.keys(this.countriesJSON).map(el => ({
-    id: el.toLowerCase(),
-    name: this.countriesJSON[el]
-  }));
+  get countries (): { id: string; name: string }[] {
+    return Object.keys(this.countriesJSON).map(el => ({
+      id: el.toLowerCase(),
+      name: this.countriesJSON[el]
+    }))
+  }
 }
 </script>

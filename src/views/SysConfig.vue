@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import Changelog from "@/components/Changelog";
+import Changelog from "@/components/Changelog.vue";
 
 @Component({
   components: { Changelog }

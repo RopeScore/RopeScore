@@ -1,5 +1,5 @@
 import { roundTo } from '@/common'
-import { Ruleset, Judge, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField } from './'
+import { Ruleset, Judge, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField } from './score.worker'
 
 import {
   SpeedJudge as FISACSpeedJudge,

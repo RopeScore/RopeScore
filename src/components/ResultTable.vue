@@ -18,7 +18,7 @@
     </v-card-title>
     <v-card-text class="title">{{ title }}</v-card-text>
     <v-card-text class="text-right cust--float cust--bottom cust--tiny">
-      Scores from RopeScore -
+      Scores from RopeScore v{{ version }} -
       <a>ropescore.com</a>
     </v-card-text>
     <div class="cust--table__wrapper">
@@ -79,59 +79,70 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch, Emit } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
+import {
+  ResultTableHeaders,
+  ResultTableHeaderGroup,
+  ResultTableHeader
+} from '@/rules/score.worker';
+import { PeopleModuleState } from '@/store/modules/people';
 
 @Component
 export default class ResultTable<VueClass> extends Vue {
-  @Prop({ default: "" }) private title: string;
-  @Prop({ default: "" }) private category: string;
-  @Prop({ default: "individual" }) private type: string;
+  @Prop({ default: '' }) private title: string;
+  @Prop({ default: '' }) private category: string;
+  @Prop({ default: 'individual' }) private type: string;
   @Prop({ default: 1 }) private zoom: number;
-  @Prop({ default: "" }) private logo: string;
+  @Prop({ default: '' }) private logo: string;
   @Prop({ default: false }) private exclude: boolean;
-  @Prop({ default: () => {} }) private headers;
+  @Prop({ default: () => {} }) private headers: ResultTableHeaders;
   @Prop({ default: () => {} }) private results;
-  @Prop({ default: () => {} }) private people;
-  @Prop({ default: () => {} }) private teams;
+  @Prop({ default: () => {} }) private people: PeopleModuleState['people'];
+  @Prop({ default: () => {} }) private teams: PeopleModuleState['teams'];
 
-  @Emit("printchange")
-  togglePrint() {
-    return !this.exclude;
+  version: string = require('@/../package.json').version;
+
+  @Emit('printchange')
+  togglePrint (): boolean {
+    return !this.exclude
   }
 
-  classColorObj(color: string = "black") {
+  classColorObj (color: string = 'black'): { [cssClass: string]: boolean } {
     return {
       [`${color}--text`]: true
-    };
-  }
-
-  memberNames(members: string[]): string {
-    return members.map(id => this.people[id].name).join(", ");
-  }
-
-  getScore(result, value: string, event?: string) {
-    if (event) {
-      return this.results[event].find(
-        el => result.participant === el.participant
-      )[value];
-    } else {
-      return result[value];
     }
   }
 
-  @Emit("zoomchange")
-  changeZoom(change: number): void {
-    let changed = this.zoom + change;
-    if (!change) changed = 1;
-    this.$el.style.setProperty("--page-zoom", `${Math.round(changed * 100)}%`);
-    return changed;
+  memberNames (members: string[]): string {
+    return members.map(id => this.people[id].name).join(', ')
   }
 
-  mounted() {
-    this.$el.style.setProperty(
-      "--page-zoom",
+  getScore (result: any, value: string, event?: string) {
+    if (event) {
+      return this.results[event].find(
+        el => result.participant === el.participant
+      )[value]
+    } else {
+      return result[value]
+    }
+  }
+
+  @Emit('zoomchange')
+  changeZoom (change: number): number {
+    let changed = this.zoom + change
+    if (!change) changed = 1;
+    (this.$el as any).style.setProperty(
+      '--page-zoom',
+      `${Math.round(changed * 100)}%`
+    )
+    return changed
+  }
+
+  mounted (): void {
+    (this.$el as any).style.setProperty(
+      '--page-zoom',
       `${Math.round(this.zoom * 100)}%`
-    );
+    )
   }
 }
 </script>

@@ -62,7 +62,7 @@
             class="caption text-truncate"
             max-width="20em"
           >{{ memberNames(participant.members) }}</td>
-          <td>{{ participant.culb }}</td>
+          <td>{{ participant.club }}</td>
           <td>{{ participant.id }}</td>
 
           <template v-for="event in $store.state.categories[$route.params.id].config.events">
@@ -90,12 +90,13 @@
 <script lang="ts">
 import { Component, Props, Vue } from "vue-property-decorator";
 import SHA1 from "crypto-js/sha1";
-import rulesets from "@/rules";
+import rulesets, { Rulesets } from "@/rules/score.worker";
 import TableHeader from "@/plugins/vuetify";
+import { wrap } from "comlink";
 
 @Component
 export default class Category<VueClass> extends Vue {
-  rulesets = rulesets;
+  rulesets = wrap<Rulesets>(rulesets);
 
   get ruleset() {
     return this.rulesets[

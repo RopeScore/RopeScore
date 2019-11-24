@@ -2,7 +2,39 @@ import { Module } from 'vuex'
 import Vue from 'vue'
 import { leftFillNum } from '@/common'
 
-const module: Module<any, any> = {
+export interface Person {
+  name: string
+  club: string
+  country: string
+  ijruID: string
+}
+
+export interface PersonWithID extends Person {
+  id: string
+}
+
+export interface Team {
+  name: string
+  club: string
+  country: string
+  ijruID: string
+  members: string[]
+}
+
+export interface TeamWithID extends Team {
+  id: string
+}
+
+export interface PeopleModuleState {
+  people: {
+    [id: string]: Person
+  }
+  teams: {
+    [id: string]: Team
+  }
+}
+
+const module: Module<PeopleModuleState, any> = {
   state: {
     people: {},
     teams: {}
@@ -103,22 +135,22 @@ const module: Module<any, any> = {
 
   },
   getters: {
-    clubs: ({ people }) => {
+    clubs: ({ people }): string[] => {
       return Object.keys(people)
         .map(id => people[id].club)
         .filter((el: string, idx: number, arr: string[]): boolean => arr.indexOf(el) === idx)
         .filter((el: string): boolean => !!el)
     },
-    peopleArray: ({ people }) => {
+    peopleArray: ({ people }): PersonWithID[] => {
       return Object.keys(people)
-        .map(id => ({
+        .map((id: string): PersonWithID => ({
           id,
           ...people[id]
         }))
     },
-    teamsArray: ({ teams }) => {
+    teamsArray: ({ teams }): TeamWithID[] => {
       return Object.keys(teams)
-        .map(id => ({
+        .map((id: string): TeamWithID => ({
           id,
           ...teams[id]
         }))

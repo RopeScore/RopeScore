@@ -26,13 +26,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Props, Vue } from 'vue-property-decorator';
-import rulesets from '@/rules';
+import { Component, Props, Vue } from "vue-property-decorator";
+import rulesets, { Rulesets } from "@/rules/score.worker";
+import { wrap } from "comlink";
 
 @Component
 export default class Home<VueClass> extends Vue {
-  rulesets = rulesets;
-  open: number[] = this.$store.getters['categories/groupedCategories'].map(
+  rulesets = wrap<Rulesets>(rulesets);
+  open: number[] = this.$store.getters["categories/groupedCategories"].map(
     (el, idx) => idx
   );
 }

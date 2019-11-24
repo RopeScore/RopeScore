@@ -108,7 +108,7 @@
 
 <script lang="ts">
 import { Component, Props, Vue } from "vue-property-decorator";
-import rulesets from "@/rules";
+import rulesets from "@/rules/score.worker";
 // import TableHeader from '@/plugins/vuetify';
 
 @Component

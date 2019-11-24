@@ -1,24 +1,30 @@
 <script lang="ts">
-import { Component, Prop, Watch, Vue } from "vue-property-decorator";
-import rulesets from "@/rules";
-import Excel from "exceljs";
-import colors from "vuetify/lib/util/colors";
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator';
+import { PeopleModuleState } from '@/store/modules/people';
+import {
+  ResultTableHeaders,
+  ResultTableHeaderGroup,
+  ResultTableHeader
+} from '@/rules/score.worker';
+import ExcelWorkbook from './ExcelWorkbook.vue';
+import Excel from 'exceljs';
+import colors from 'vuetify/lib/util/colors';
 
 @Component
 export default class ExcelResultTable<VueClass> extends Vue {
-  @Prop({ default: "" }) private title: string;
-  @Prop({ default: "" }) private category: string;
-  @Prop({ default: "" }) private id: string;
-  @Prop({ default: "individual" }) private type: string;
-  @Prop({ default: "" }) private logo: string;
-  @Prop({ default: () => {} }) private headers;
+  @Prop({ default: '' }) private title: string;
+  @Prop({ default: '' }) private category: string;
+  @Prop({ default: '' }) private id: string;
+  @Prop({ default: 'individual' }) private type: string;
+  @Prop({ default: '' }) private logo: string;
+  @Prop({ default: () => {} }) private headers: ResultTableHeaders;
   @Prop({ default: () => {} }) private results;
-  @Prop({ default: () => {} }) private people;
-  @Prop({ default: () => {} }) private teams;
+  @Prop({ default: () => {} }) private people: PeopleModuleState['people'];
+  @Prop({ default: () => {} }) private teams: PeopleModuleState['teams'];
 
-  @Watch("id")
-  updateSheetID(newID, oldID) {
-    this.getOrRenameWorksheet(newID, oldID);
+  @Watch('id')
+  updateSheetID (newID: string, oldID: string) {
+    this.getOrRenameWorksheet(newID, oldID)
   }
 
   // @Watch("title")
@@ -45,87 +51,89 @@ export default class ExcelResultTable<VueClass> extends Vue {
   //   this.getOrRenameWorksheet(`${this.category} - ${this.title}`);
   // }
 
-  render(h) {
-    return null;
+  render (): null {
+    return null
   }
 
-  mounted() {
-    this.createTable();
+  mounted (): void {
+    this.createTable()
   }
 
-  beforeDestroy() {
-    this.deleteWorksheet(`${this.category} - ${this.title}`);
+  beforeDestroy (): void {
+    this.deleteWorksheet(`${this.category} - ${this.title}`)
   }
 
-  getOrRenameWorksheet(newID: string, oldID?: string) {
-    const { workbook } = this.$parent;
+  getOrRenameWorksheet (newID: string, oldID?: string): any {
+    const { workbook } = this.$parent as ExcelWorkbook<any>
 
-    let worksheet;
+    let worksheet: any
     if (oldID && workbook.getWorksheet(oldID)) {
-      worksheet = workbook.getWorksheet(oldID);
-      worksheet.id = newID;
+      worksheet = workbook.getWorksheet(oldID)
+      worksheet.id = newID
     } else if (workbook.getWorksheet(newID)) {
-      worksheet = workbook.getWorksheet(newID);
+      worksheet = workbook.getWorksheet(newID)
     } else {
-      worksheet = workbook.addWorksheet(newID);
+      worksheet = workbook.addWorksheet(newID)
     }
 
-    worksheet.pageSetup.paperSize = 9; // letter = undefined, A4 = 9
-    worksheet.pageSetup.orientation = "landscape";
-    worksheet.pageSetup.fitToPage = true;
+    worksheet.pageSetup.paperSize = 9 // letter = undefined, A4 = 9
+    worksheet.pageSetup.orientation = 'landscape';
+    worksheet.pageSetup.fitToPage = true
     // worksheet.pageSetup.printArea = "A1:G20";
 
     worksheet.headerFooter.oddFooter =
-      "&LScores from RopeScore - ropescore.com&RPage &P of &N";
-    worksheet.headerFooter.oddHeader = `&L${this.category} - ${this.title}`; // worksheet name, add &R&G to add the logo?
+      '&LScores from RopeScore - ropescore.com&RPage &P of &N';
+    worksheet.headerFooter.oddHeader = `&L${this.category} - ${this.title}` // worksheet name, add &R&G to add the logo?
 
-    return worksheet;
+    return worksheet
   }
 
-  deleteWorksheet(id) {
-    const { workbook } = this.$parent;
+  deleteWorksheet (id: string): void {
+    const { workbook } = this.$parent as ExcelWorkbook<any>
     if (workbook.getWorksheet(id)) {
-      workbook.removeWorksheet(id);
+      workbook.removeWorksheet(id)
     }
   }
 
-  get formattedGroups() {
-    let groups = [];
+  get formattedGroups (): ResultTableHeaderGroup[][] {
+    let groups: ResultTableHeaderGroup[][] = []
 
     if (this.headers.groups && this.headers.groups.length > 0) {
-      console.log(this.headers.groups);
-      groups = [...this.headers.groups];
+      groups = [...this.headers.groups]
       groups[0] = [
         {
-          text: "",
-          value: "",
+          text: '',
+          value: '',
           rowspan: groups.length,
-          colspan: this.type === "team" ? 4 : 3
+          colspan: this.type === 'team' ? 4 : 3
         },
         ...groups[0]
-      ];
+      ]
     }
-    return groups;
+    return groups
   }
 
-  get formattedHeaders() {
-    let partinfo = [{ text: "Name" }, { text: "Club" }, { text: "ID" }];
-    if (this.type === "team") {
-      partinfo[0].text = "Team Name";
-      partinfo.splice(1, 0, { text: "Members" });
+  get formattedHeaders (): ResultTableHeaderGroup[] {
+    let partinfo: ResultTableHeaderGroup[] = [
+      { text: 'Name', value: 'name' },
+      { text: 'Club', value: 'club' },
+      { text: 'ID', value: 'id' }
+    ]
+    if (this.type === 'team') {
+      partinfo[0].text = 'Team Name';
+      partinfo.splice(1, 0, { text: 'Members', value: 'members' })
     }
-    console.log(this.headers);
-    return [...partinfo, ...this.headers.headers];
+    return [...partinfo, ...this.headers.headers]
   }
 
-  createTable() {
-    this.deleteWorksheet(`${this.category} - ${this.title}`);
-    let worksheet = this.getOrRenameWorksheet(this.id);
+  createTable (): void {
+    this.deleteWorksheet(`${this.category} - ${this.title}`)
+    let worksheet = this.getOrRenameWorksheet(this.id)
 
     this.addTableHeaders(worksheet, this.type, [
       ...this.formattedGroups,
       this.formattedHeaders
-    ]);
+    ])
 
     this.addParticipantRows(
       worksheet,
@@ -134,12 +142,16 @@ export default class ExcelResultTable<VueClass> extends Vue {
       this.results,
       this.people,
       this.teams
-    );
+    )
   }
 
-  addTableHeaders(worksheet, type, groups) {
-    let excelGroupedHeaderRows = [];
-    let merges = [];
+  addTableHeaders (
+    worksheet: any,
+    type: string,
+    groups: ResultTableHeaderGroup[][]
+  ): void {
+    let excelGroupedHeaderRows: any[][] = []
+    let merges: [number, number, number, number][] = []
     // create array
     /*
       let rows = [
@@ -147,39 +159,45 @@ export default class ExcelResultTable<VueClass> extends Vue {
         [empty, empty, empty, empty, 'Speed Sprint, empty, 'Speed Relay', empty, 'Single Freestyle', empty]
       ]
     */
-    for (let groupRow = 0; groupRow < groups.length; groupRow++) {
-      if (!excelGroupedHeaderRows[groupRow])
-        excelGroupedHeaderRows[groupRow] = [];
+    for (let groupRow: number = 0; groupRow < groups.length; groupRow++) {
+      if (!excelGroupedHeaderRows[groupRow]) {
+        excelGroupedHeaderRows[groupRow] = []
+      }
       for (let groupCell in groups[groupRow]) {
         for (
-          let cspan = 0;
+          let cspan: number = 0;
           cspan < (groups[groupRow][groupCell].colspan || 1);
           cspan++
         ) {
-          let free = 0;
-          for (let i = 0; i < excelGroupedHeaderRows[groupRow].length; i++) {
+          let free: number = 0
+          for (
+            let i: number = 0;
+            i < excelGroupedHeaderRows[groupRow].length;
+            i++
+          ) {
             if (excelGroupedHeaderRows[groupRow][i] == null) {
-              break;
+              break
             }
-            free = i + 1;
+            free = i + 1
           }
           for (
-            let rspan = 0;
+            let rspan: number = 0;
             rspan < (groups[groupRow][groupCell].rowspan || 1);
             rspan++
           ) {
-            if (!excelGroupedHeaderRows[groupRow + rspan])
-              excelGroupedHeaderRows[groupRow + rspan] = [];
+            if (!excelGroupedHeaderRows[groupRow + rspan]) {
+              excelGroupedHeaderRows[groupRow + rspan] = []
+            }
 
-            excelGroupedHeaderRows[groupRow + rspan][free] = new Array(1);
+            excelGroupedHeaderRows[groupRow + rspan][free] = new Array<any>(1)
 
             if (cspan === 0 && rspan === 0) {
               excelGroupedHeaderRows[groupRow][free][0] = {
                 richText: [
                   {
                     alignment: {
-                      horizontal: "center",
-                      vertical: "middle"
+                      horizontal: 'center',
+                      vertical: 'middle'
                     },
                     font: {
                       bold: true,
@@ -190,82 +208,85 @@ export default class ExcelResultTable<VueClass> extends Vue {
                     text: groups[groupRow][groupCell].text
                   }
                 ]
-              };
+              }
               if (
-                groups[groupRow][groupCell].colspan > 1 ||
-                groups[groupRow][groupCell].rowspan > 1
+                (groups[groupRow][groupCell].colspan || 0) > 1 ||
+                (groups[groupRow][groupCell].rowspan || 0) > 1
               ) {
                 merges.push([
                   groupRow + 1,
                   free + 1,
                   groupRow + (groups[groupRow][groupCell].rowspan || 1),
                   free + (groups[groupRow][groupCell].colspan || 1)
-                ]); // top,left,bottom,right
+                ]) // top,left,bottom,right
               }
             }
-
-            console.log(excelGroupedHeaderRows[groupRow + rspan]);
           }
         }
       }
       excelGroupedHeaderRows[groupRow] = [].concat.apply(
         new Array(1),
         excelGroupedHeaderRows[groupRow]
-      );
+      )
     }
-    console.log(excelGroupedHeaderRows, merges);
 
     // for (let excelRow of excelGroupedHeaderRows) {
-    worksheet.addRows(excelGroupedHeaderRows);
+    worksheet.addRows(excelGroupedHeaderRows)
     // let row = worksheet.lastRow;
     // }
 
     for (let merge of merges) {
-      worksheet.mergeCells(...merge); // top,left,bottom,right
+      worksheet.mergeCells(...merge) // top,left,bottom,right
     }
 
-    worksheet.eachRow(row =>
-      row.eachCell(cell => {
-        cell.font = { bold: true };
+    worksheet.eachRow((row: any) =>
+      row.eachCell((cell: any) => {
+        cell.font = { bold: true }
         cell.alignment = {
-          vertical: "middle",
-          horizontal: "center"
-        };
+          vertical: 'middle',
+          horizontal: 'center'
+        }
         cell.border = {
-          top: { style: "thin" },
-          left: { style: "thin" },
-          bottom: { style: "thin" },
-          right: { style: "thin" }
-        };
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        }
       })
-    );
+    )
   }
 
-  addParticipantRows(worksheet, type, headers, results, people, teams?) {
+  addParticipantRows (
+    worksheet: any,
+    type: string,
+    headers: ResultTableHeader[],
+    results,
+    people: PeopleModuleState['people'],
+    teams?: PeopleModuleState['teams']
+  ) {
     for (let result of (results || {}).overall || results) {
-      let row = new Array(1);
-      console.log(result);
-      if (type === "team") {
+      let row: (string | number)[] = new Array(1)
+      if (type === 'team' && teams) {
         row.push(
-          (teams[result.participant] || {}).name || "",
+          (teams[result.participant] || {}).name || '',
           this.memberNames(
             (teams[result.participant] || {}).members || [],
             people
           ),
-          (teams[result.participant] || {}).club || "",
+          (teams[result.participant] || {}).club || '',
           result.participant
-        );
+        )
       } else {
         row.push(
           (people[result.participant] || {}).name,
           (people[result.participant] || {}).club,
           result.participant
-        );
+        )
       }
-      let offset = row.length - 1;
+      let offset: number = row.length - 1
 
-      for (let i = offset; i < headers.length; i++) {
-        let header = headers[i];
+      for (let i: number = offset; i < headers.length; i++) {
+        let header = headers[i]
         // row.push({
         //   richText: [
         //     {
@@ -274,54 +295,54 @@ export default class ExcelResultTable<VueClass> extends Vue {
         //     }
         //   ]
         // });
-        row.push(this.getScore(result, header.value, header.event));
+        row.push(this.getScore(result, header.value, header.event))
       }
 
-      worksheet.addRow(row);
+      worksheet.addRow(row)
 
-      row = worksheet.lastRow;
-      row.eachCell(cell => {
+      let lastRow: any = worksheet.lastRow
+      lastRow.eachCell((cell: any) => {
         cell.font = {
           color: {
             argb: this.nameToARGB(headers[cell.col - 1].color)
           }
-        };
+        }
         cell.alignment = {
-          vertical: "middle",
-          horizontal: "right"
-        };
+          vertical: 'middle',
+          horizontal: 'right'
+        }
         cell.border = {
-          top: { style: "thin" },
-          left: { style: "thin" },
-          bottom: { style: "thin" },
-          right: { style: "thin" }
-        };
-      });
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        }
+      })
     }
   }
 
-  nameToARGB(name: string): string {
+  nameToARGB (name: string = 'black'): string {
     return (
-      "FF" +
+      'FF' +
       (
         colors[name] || {
-          base: "#000000"
+          base: '#000000'
         }
       ).base.substring(1)
-    );
+    )
   }
 
-  memberNames(members: string[], people): string {
-    return members.map(id => people[id].name).join(", ");
+  memberNames (members: string[], people: PeopleModuleState['people']): string {
+    return members.map(id => people[id].name).join(', ')
   }
 
-  getScore(result, value: string, event?: string) {
+  getScore (result, value: string, event?: string) {
     if (event) {
       return this.results[event].find(
         el => result.participant === el.participant
-      )[value];
+      )[value]
     } else {
-      return result[value];
+      return result[value]
     }
   }
 }

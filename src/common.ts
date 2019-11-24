@@ -1,10 +1,10 @@
-export function leftFillNum(num: number, width: number): string {
+export function leftFillNum (num: number, width: number): string {
   return num
     .toString()
     .padStart(width, '0')
 }
 
-export function roundToMultiple(num: number, multiple: number): number {
+export function roundToMultiple (num: number, multiple: number): number {
   var resto = num % multiple
   if (resto <= multiple / 2) {
     return num - resto
@@ -13,12 +13,12 @@ export function roundToMultiple(num: number, multiple: number): number {
   }
 }
 
-export function roundTo(n: number, digits: number): number {
+export function roundTo (n: number, digits: number): number {
   digits = digits || 0
 
   var multiplicator = Math.pow(10, digits)
   n = n * multiplicator
   var test = (Math.round(n) / multiplicator)
-  if (isNaN(test)) return
+  if (isNaN(test)) return NaN
   return test
 }
