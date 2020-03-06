@@ -16,39 +16,37 @@
       </v-card-text>
       <v-card-actions>
         <v-btn @click="print()" color="primary" text>Print</v-btn>
-        <ExcelWorkbook :title="$store.state.categories[$route.params.id].config.name">
+        <ExcelWorkbook :title="category.config.name">
           <ExcelResultTable
             v-for="overall in overalls"
-            :key="`excelsheet-${overall.id}`"
-            :id="overall.id"
-            :category="$store.state.categories[$route.params.id].config.name"
+            :key="`excelsheet-${overall.overallID}`"
+            :id="overall.overallID"
+            :category="category.config.name"
             :title="overall.text"
-            :type="$store.state.categories[$route.params.id].config.type"
+            :type="category.config.type"
             :headers="overall"
             :results="overallRanks(overall)"
-            :people="$store.state.people.people"
-            :teams="$store.state.people.teams"
-            :logo="($store.state.categories[$route.params.id].printConfig || {}).logo"
+            :participants="category.participants"
+            :logo="(category.printConfig || {}).logo"
           />
 
           <ExcelResultTable
-            v-for="event in $store.state.categories[$route.params.id].config.events"
+            v-for="event in category.config.events"
             :key="`excelsheet-${event}`"
             :id="event"
-            :category="$store.state.categories[$route.params.id].config.name"
+            :category="category.config.name"
             :title="eventByID(event).name"
-            :type="$store.state.categories[$route.params.id].config.type"
+            :type="category.config.type"
             :headers="eventByID(event).headers"
             :results="rankedResults[event]"
-            :people="$store.state.people.people"
-            :teams="$store.state.people.teams"
-            :logo="($store.state.categories[$route.params.id].printConfig || {}).logo"
+            :participants="category.participants"
+            :logo="(category.printConfig || {}).logo"
           />
         </ExcelWorkbook>
         <v-btn @click="imageSelect()" text>Add Logo</v-btn>
+          <!-- @click="$store.dispatch('categories/printLogo', { id: $route.params.id })" -->
         <v-btn
-          @click="$store.dispatch('categories/printLogo', { id: $route.params.id })"
-          v-if="($store.state.categories[$route.params.id].printConfig || {}).logo"
+          v-if="(category.printConfig || {}).logo"
           color="error"
           text
         >Remove Logo</v-btn>
@@ -56,49 +54,49 @@
     </v-card>
     <ResultTable
       v-for="overall in overalls"
-      :key="overall.id"
+      :key="overall.overallID"
       :print-view="printView"
-      :category="$store.state.categories[$route.params.id].config.name"
+      :category="category.config.name"
       :title="overall.text"
-      :type="$store.state.categories[$route.params.id].config.type"
+      :type="category.config.type"
       :headers="overall"
       :results="overallRanks(overall)"
-      :people="$store.state.people.people"
-      :teams="$store.state.people.teams"
-      :logo="($store.state.categories[$route.params.id].printConfig || {}).logo"
-      :exclude="(($store.state.categories[$route.params.id].printConfig || {})[overall.id] || {}).exclude"
-      @printchange="$store.dispatch('categories/excludePrint', { id: $route.params.id, table: overall.id, value: $event })"
-      :zoom="(($store.state.categories[$route.params.id].printConfig || {})[overall.id] || {}).zoom"
-      @zoomchange="zoomChanged(overall.id, $event)"
+      :participants="category.participants"
+      :logo="(category.printConfig || {}).logo"
+      :exclude="((category.printConfig || {})[overall.overallID] || {}).exclude"
+      :zoom="((category.printConfig || {})[overall.overallID] || {}).zoom"
+      @zoomchange="zoomChanged(overall.overallID, $event)"
     />
+      <!-- @printchange="$store.dispatch('categories/excludePrint', { id: $route.params.id, table: overall.overallID, value: $event })" -->
     <!-- Events -->
     <ResultTable
-      v-for="event in $store.state.categories[$route.params.id].config.events"
+      v-for="event in category.config.events"
       :key="event"
       :print-view="printView"
-      :category="$store.state.categories[$route.params.id].config.name"
+      :category="category.config.name"
       :title="eventByID(event).name"
-      :type="$store.state.categories[$route.params.id].config.type"
+      :type="category.config.type"
       :headers="eventByID(event).headers"
       :results="rankedResults[event]"
-      :people="$store.state.people.people"
-      :teams="$store.state.people.teams"
-      :logo="($store.state.categories[$route.params.id].printConfig || {}).logo"
-      :exclude="(($store.state.categories[$route.params.id].printConfig || {})[event] || {}).exclude"
-      @printchange="$store.dispatch('categories/excludePrint', { id: $route.params.id, table: event, value: $event })"
-      :zoom="(($store.state.categories[$route.params.id].printConfig || {})[event] || {}).zoom"
+      :participants="category.participants"
+      :logo="(category.printConfig || {}).logo"
+      :exclude="((category.printConfig || {})[event] || {}).exclude"
+      :zoom="((category.printConfig || {})[event] || {}).zoom"
       @should-print="updateWorksheet('hello')"
       @zoomchange="zoomChanged(event, $event)"
     />
+      <!-- @printchange="$store.dispatch('categories/excludePrint', { id: $route.params.id, table: event, value: $event })" -->
   </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Props, Vue } from "vue-property-decorator";
-import rulesets from "@/rules/score.worker";
-import ResultTable from "@/components/ResultTable";
-import ExcelWorkbook from "@/components/ExcelWorkbook";
-import ExcelResultTable from "@/components/ExcelResultTable";
+import { Component, Vue } from "vue-property-decorator";
+import { getModule } from "vuex-module-decorators";
+import rulesets, { Overall } from "@/rules";
+import ResultTable from "@/components/ResultTable.vue";
+import ExcelWorkbook from "@/components/ExcelWorkbook.vue";
+import ExcelResultTable from "@/components/ExcelResultTable.vue";
+import CategoriesModule from '../store/categories';
 
 @Component({
   components: {
@@ -108,66 +106,75 @@ import ExcelResultTable from "@/components/ExcelResultTable";
   }
 })
 export default class Results<VueClass> extends Vue {
+  categories = getModule(CategoriesModule)
   rulesets = rulesets;
   printView: boolean = false;
 
   get ruleset() {
-    return this.rulesets[
-      this.$store.state.categories[this.$route.params.id].config.ruleset
-    ];
-  }
-
-  get overalls() {
-    return this.ruleset.overalls.filter(
-      el =>
-        el.type ===
-        this.$store.state.categories[this.$route.params.id].config.type
+    return this.rulesets.find(
+      rs =>
+        rs.rulesetID ===
+        this.category.config.ruleset
     );
   }
 
-  eventByID(eventID) {
-    return this.ruleset.events.filter(el => el.id === eventID)[0];
+  get category () {
+    return this.categories.categories[this.$route.params.id]
   }
 
-  judgesArr(event) {
-    return this.$store.state.categories[this.$route.params.id].judges
-      .filter(el => !!el[event])
-      .map(el => [el.id, el[event]]);
+  get overalls() {
+    return this.ruleset?.overalls.filter(
+      el =>
+        el.type ===
+        this.category.config.type
+    );
   }
 
-  eventResults(event): any[] {
+  eventByID(eventID: string) {
+    return this.ruleset?.events.find(el => el.eventID === eventID);
+  }
+
+  judgesArr (eventID: string) {
+    return this.categories.categories[this.$route.params.id].judges
+      .filter(judge => judge.assignments.findIndex(ass => ass.eventID === eventID && ass.judgeTypeID.length > 0) > -1)
+      .map(judge => [judge.judgeID, judge.assignments.find(ass => ass.eventID === eventID)!.judgeTypeID])
+  }
+
+  eventResults(eventID: string): { participantID: string; [prop: string]: any }[] {
     let results = [];
 
-    let scores = this.$store.getters["categories/eventScoreObj"]({
+    let scores = this.categories.eventScoreObj({
       id: this.$route.params.id,
-      event
+      eventID
     });
     let participants = Object.keys(scores);
-    let eventObj = this.eventByID(event);
+    let eventObj = this.eventByID(eventID);
 
-    results = participants.map(participant => ({
-      participant,
-      ...eventObj.result(scores[participant], this.judgesArr(event))
+    if (!eventObj) return []
+
+    results = participants.map(participantID => ({
+      participantID,
+      ...eventObj!.result(scores[participantID], this.judgesArr(eventID))
     }));
 
     return results;
   }
 
   get results() {
-    let results = {};
-    for (let event of this.$store.state.categories[this.$route.params.id].config
-      .events) {
-      results[event] = this.eventResults(event);
+    let results: { [eventID: string]: { participantID: string; [prop: string]: any }[] } = {} // TODO: type
+    for (let eventID of this.category.config.events || []) {
+      results[eventID] = this.eventResults(eventID);
     }
     return results;
   }
 
   get rankedResults() {
-    let ranked = {};
+    let ranked: { [eventID: string]: any } = {} // TODO: type
 
-    for (let event in this.results) {
-      const eventObj = this.eventByID(event);
-      ranked[event] = eventObj.rank(this.results[event]);
+    for (let eventID in this.results) {
+      const eventObj = this.eventByID(eventID);
+      if (!eventObj) continue
+      ranked[eventID] = eventObj.rank(this.results[eventID]);
     }
 
     console.log(ranked);
@@ -175,19 +182,18 @@ export default class Results<VueClass> extends Vue {
     return ranked;
   }
 
-  overallResults(overall) {
-    let results = {};
-    let participants = {};
-    const eventObj = this.eventByID(event);
+  overallResults(overall: Overall) {
+    let results: { [participantID: string]: { participantID: string; [prop: string]: any }[] } = {};
+    let participants: { [participantID: string]: string[] } = {};
 
     // TODO: there must be a quicker/simpler way to do this...
 
-    overall.events.forEach(event =>
-      this.results[event].forEach(result => {
-        if (!participants[result.participant]) {
-          participants[result.participant] = [];
+    overall.events.forEach(eventID =>
+      this.results[eventID].forEach(result => {
+        if (!participants[result.participantID]) {
+          participants[result.participantID] = [];
         }
-        participants[result.participant].push(event);
+        participants[result.participantID].push(eventID);
       })
     );
 
@@ -195,21 +201,21 @@ export default class Results<VueClass> extends Vue {
       participant => participants[participant].length === overall.events.length
     );
 
-    overall.events.forEach(event => {
-      if (!results[event]) results[event] = [];
+    overall.events.forEach(eventID => {
+      if (!results[eventID]) results[eventID] = [];
 
       inAll.forEach(participant => {
-        let idx = this.results[event].findIndex(
+        let idx = this.results[eventID].findIndex(
           el => el.participant === participant
         );
-        results[event].push({ ...this.results[event][idx] });
+        results[eventID].push({ ...this.results[eventID][idx] });
       });
     });
 
     return results;
   }
 
-  overallRanks(overall) {
+  overallRanks(overall: Overall) {
     let results = this.overallResults(overall);
 
     let ranked = overall.rank(results);
@@ -231,20 +237,21 @@ export default class Results<VueClass> extends Vue {
 
   imageSelect() {
     let input = document.createElement("input");
+    const self = this
     input.type = "file";
 
     input.onchange = e => {
-      let file = e.target.files[0];
-      if (!file.type.match("image.*")) return;
+      let file = (e.target as HTMLInputElement & EventTarget)?.files?.[0];
+      if (!file?.type.match("image.*")) return;
 
       let reader = new FileReader();
-      reader.onload = function(readerEvent) {
-        let data = readerEvent.target.result;
-        this.$store.dispatch("categories/printLogo", {
-          id: this.$route.params.id,
+      reader.onload = readerEvent => {
+        let data = readerEvent.target?.result;
+        self.$store.dispatch("categories/printLogo", {
+          id: self.$route.params.id,
           data
         });
-      }.bind(this);
+      }
       reader.readAsDataURL(file);
     };
 

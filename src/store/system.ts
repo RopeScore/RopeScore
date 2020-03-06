@@ -1,5 +1,5 @@
 import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
-import store from '@/store/store'
+import store from '@/plugins/store'
 
 import VuexPersistance from 'vuex-persist'
 

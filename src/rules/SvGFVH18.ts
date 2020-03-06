@@ -1,5 +1,5 @@
 import { roundTo, roundToMultiple } from '@/common'
-import { Ruleset, Judge, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField } from './score.worker'
+import { Ruleset, JudgeType, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField } from '.'
 
 import {
   SpeedJudge as FISACSpeedJudge
@@ -7,19 +7,19 @@ import {
 
 const PresMapped = [0, 0.5, 0.5, 1, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
 
-export const SpeedJudge: Judge = {
+export const SpeedJudge: JudgeType = {
   ...FISACSpeedJudge,
   result: scores => ({
     S: scores.s || 0
   })
 }
 
-export const ObligaJudge: Judge = {
+export const ObligaJudge: JudgeType = {
   name: 'Obligatoriska',
-  id: 'o',
+  judgeTypeID: 'o',
   fields: [{
     name: 'Antal',
-    id: 'oa',
+    fieldID: 'oa',
     min: 0,
     max: 5,
     step: 1
@@ -29,12 +29,12 @@ export const ObligaJudge: Judge = {
   })
 }
 
-export const DifficultyJudge: Judge = {
+export const DifficultyJudge: JudgeType = {
   name: 'Svårighet',
-  id: 'd',
+  judgeTypeID: 'd',
   fields: Array(5).fill(undefined).map((el, idx) => ({
     name: `Level ${idx + 1}`,
-    id: `l${idx + 1}`
+    fieldID: `l${idx + 1}`
   })),
   result: scores => ({
     D: (scores.l1 || 0) +
@@ -45,12 +45,12 @@ export const DifficultyJudge: Judge = {
   })
 }
 
-export const PresentationJudge: Judge = {
+export const PresentationJudge: JudgeType = {
   name: 'Presentation',
-  id: 'p',
+  judgeTypeID: 'p',
   fields: [{
     name: 'Poäng',
-    id: 'p',
+    fieldID: 'p',
     min: 0,
     max: 12
   }],
@@ -66,8 +66,8 @@ export const SpeedResult = function (scores, judges) {
   let judgeObj = SpeedJudge
   let resultFunction = judgeObj.result
 
-  for (let judge of judges) {
-    let judgeID = judge[0]
+  for (let JudgeType of judges) {
+    let judgeID = JudgeType[0]
 
     let idx: number = judgeResults.findIndex(el => el.judgeID === judgeID)
     if (idx < 0) {
@@ -151,14 +151,14 @@ export const FreestyleResult = function (event: string) {
     let judgeResults = []
     let output = {}
 
-    let eventObj = config.events.find(el => el.id === event)
+    let eventObj = config.events.find(el => el.eventID === event)
     let eventJudgeTypes = eventObj!.judges
 
-    for (let judge of judges) {
-      let judgeID = judge[0]
-      let judgeType = judge[1]
+    for (let JudgeType of judges) {
+      let judgeID = JudgeType[0]
+      let judgeType = JudgeType[1]
 
-      let judgeObj = eventJudgeTypes!.find(el => el.id === judgeType)!
+      let judgeObj = eventJudgeTypes!.find(el => el.judgeTypeID === judgeType)!
       let resultFunction = judgeObj.result
 
       let idx: number = judgeResults.findIndex(el => el.judgeID === judgeID)
@@ -224,7 +224,7 @@ export const FreestyleResult = function (event: string) {
 }
 
 export const FreestyleRank = function (results: any[] = []): any[] {
-  // const eventObj = config.events.find(el => el.id === event) || {}
+  // const eventObj = config.events.find(el => el.eventID === event) || {}
 
   // calc DRanks
   // results.sort((a, b) => a.D - b.D) // sort ascending
@@ -261,10 +261,10 @@ export const OverallRank = function (overall: string) {
     let ranked = {
       overall: []
     }
-    const overallObj = config.overalls.find(el => el.id === overall)
+    const overallObj = config.overalls.find(el => el.overallID === overall)
 
-    for (const event of overallObj.events) {
-      const eventObj = config.events.find(el => el.id === event)
+    for (const event of overallObj?.events || []) {
+      const eventObj = config.events.find(el => el.eventID === event)
       ranked[event] = eventObj.rank(results[event])
 
       for (const scoreObj of ranked[event]) {
@@ -290,7 +290,7 @@ export const OverallRank = function (overall: string) {
     }))
 
     // DEV SORT BY ID
-    ranked.overall.sort((a, b) => Number(a.participant.substring(1, 4) - Number(b.participant.substring(1, 4))))
+    ranked.overall.sort((a, b) => Number(a.participantID.substring(1, 4) - Number(b.participantID.substring(1, 4))))
 
     return ranked
   }
@@ -544,9 +544,10 @@ export const DoubleDutchTeamOverallTableHeaders: ResultTableHeaders = {
 
 const config: Ruleset = {
   name: 'SvGF Vikingahoppet',
-  id: 'SvGFVH18',
+  rulesetID: 'SvGFVH18',
+  versions: ['se'],
   events: [{
-    id: 'srss',
+    eventID: 'srss',
     name: 'Snabbhet 30s',
     judges: [SpeedJudge],
     result: SpeedResult,
@@ -554,7 +555,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'srdu',
+    eventID: 'srdu',
     name: 'Dubbelsnurrar',
     judges: [SpeedJudge],
     result: SpeedResult,
@@ -562,7 +563,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'srse',
+    eventID: 'srse',
     name: 'Snabbhet 2min',
     judges: [SpeedJudge],
     result: SpeedResult,
@@ -570,7 +571,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'srsf',
+    eventID: 'srsf',
     name: 'Individuell Freestyle',
     judges: [ObligaJudge, PresentationJudge, DifficultyJudge],
     result: FreestyleResult('srsf'),
@@ -579,7 +580,7 @@ const config: Ruleset = {
   },
 
   {
-    id: 'srsr',
+    eventID: 'srsr',
     name: 'Snabbhet 4*30s',
     judges: [SpeedJudge],
     result: SpeedResult,
@@ -587,7 +588,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'srdr',
+    eventID: 'srdr',
     name: 'Dubbelsnurrar 4*20s',
     judges: [SpeedJudge],
     result: SpeedResult,
@@ -595,7 +596,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'srtf',
+    eventID: 'srtf',
     name: 'Freestyle Enkelrep Lag',
     judges: [ObligaJudge, PresentationJudge, DifficultyJudge],
     result: FreestyleResult('srtf'),
@@ -604,7 +605,7 @@ const config: Ruleset = {
   },
 
   {
-    id: 'ddsr',
+    eventID: 'ddsr',
     name: 'Snabbhet 2*45s',
     judges: [SpeedJudge],
     result: SpeedResult,
@@ -612,7 +613,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'ddut',
+    eventID: 'ddut',
     name: 'Utmaningen',
     judges: [SpeedJudge],
     result: SpeedResult,
@@ -620,29 +621,30 @@ const config: Ruleset = {
     headers: UtmaningsResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'ddtf',
+    eventID: 'ddtf',
     name: 'Freestyle Dubbelrep Lag',
     judges: [ObligaJudge, PresentationJudge, DifficultyJudge],
     result: FreestyleResult('ddtf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }],
+
   overalls: [{
-    id: 'indoverall',
+    overallID: 'indoverall',
     text: 'Total',
     type: 'individual',
     ...IndividualOverallTableHeaders,
     events: ['srss', 'srdu', 'srse', 'srsf'],
     rank: OverallRank('indoverall')
   }, {
-    id: 'teamsroverall',
+    overallID: 'teamsroverall',
     text: 'Enkelrep - Total',
     type: 'team',
     ...SingleRopeTeamOverallTableHeaders,
     events: ['srsr', 'srdr', 'srtf'],
     rank: OverallRank('teamsroverall')
   }, {
-    id: 'teamddoverall',
+    overallID: 'teamddoverall',
     text: 'Dubbelrep - Total',
     type: 'team',
     ...DoubleDutchTeamOverallTableHeaders,

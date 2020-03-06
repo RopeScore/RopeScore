@@ -1,5 +1,5 @@
 import { roundTo } from '@/common'
-import { Ruleset, Judge, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField } from './score.worker'
+import { Ruleset, JudgeType, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField } from '.'
 
 import {
   SpeedJudge as FISACSpeedJudge,
@@ -8,6 +8,7 @@ import {
 } from './FISAC1718'
 
 const average = (scores: number[]): number => {
+
   // sort ascending
   scores.sort(function (a, b) {
     return a - b
@@ -42,19 +43,19 @@ interface DifficultyField extends InputField {
   level: number
 }
 
-interface DifficultyJudge extends Judge {
+interface DifficultyJudge extends JudgeType {
   fields: DifficultyField[]
 }
 
 /* SPEED */
-export const SpeedJudge: Judge = {
+export const SpeedJudge: JudgeType = {
   ...FISACSpeedJudge,
   result: scores => ({
     a: scores.s as number
   })
 }
 
-export const SpeedHeadJudgeMasters: Judge = {
+export const SpeedHeadJudgeMasters: JudgeType = {
   ...FISACSpeedHeadJudgeMasters,
   result: scores => ({
     a: scores.s as number,
@@ -62,37 +63,37 @@ export const SpeedHeadJudgeMasters: Judge = {
   })
 }
 
-export const SpeedHeadJudgeRelays: Judge = {
+export const SpeedHeadJudgeRelays: JudgeType = {
   ...FISACSpeedHeadJudgeRelays,
   result: SpeedHeadJudgeMasters.result
 }
 
 /* PRESENTATION */
-export const AthletePresentationJudge: Judge = {
+export const AthletePresentationJudge: JudgeType = {
   name: 'Athlete Presentation',
-  id: 'Pa',
+  judgeTypeID: 'Pa',
   fields: [
     {
       name: 'Misses',
-      id: 'mis',
+      fieldID: 'mis',
       min: 0
     },
 
     {
       name: 'Form and Execution +',
-      id: 'pafep',
+      fieldID: 'pafep',
       min: 0,
       step: 1
     },
     {
       name: 'Form and Execution ✓',
-      id: 'pafec',
+      fieldID: 'pafec',
       min: 0,
       step: 1
     },
     {
       name: 'Form and Execution -',
-      id: 'pafem',
+      fieldID: 'pafem',
       min: 0,
       step: 1
     }
@@ -110,44 +111,44 @@ export const AthletePresentationJudge: Judge = {
   }
 }
 
-export const RoutinePresentationJudge: Judge = {
+export const RoutinePresentationJudge: JudgeType = {
   name: 'Routine Presentation',
-  id: 'Pr',
+  judgeTypeID: 'Pr',
   fields: [
     {
       name: 'Entertainment +',
-      id: 'prenp',
+      fieldID: 'prenp',
       min: 0,
       step: 1
     },
     {
       name: 'Entertainment ✓',
-      id: 'prenc',
+      fieldID: 'prenc',
       min: 0,
       step: 1
     },
     {
       name: 'Entertainment -',
-      id: 'prenm',
+      fieldID: 'prenm',
       min: 0,
       step: 1
     },
 
     {
       name: 'Musicality +',
-      id: 'prmup',
+      fieldID: 'prmup',
       min: 0,
       step: 1
     },
     {
       name: 'Musicality ✓',
-      id: 'prmuc',
+      fieldID: 'prmuc',
       min: 0,
       step: 1
     },
     {
       name: 'Musicality -',
-      id: 'prmum',
+      fieldID: 'prmum',
       min: 0,
       step: 1
     }
@@ -172,52 +173,52 @@ export const RoutinePresentationJudge: Judge = {
 }
 
 /* REQUIRED ELEMENTS */
-export const MissJudgeSingleRopeIndividual: Judge = {
+export const MissJudgeSingleRopeIndividual: JudgeType = {
   name: 'Misses',
-  id: 'M',
+  judgeTypeID: 'M',
   fields: [
     {
       name: 'Misses',
-      id: 'mis',
+      fieldID: 'mis',
       min: 0
     },
     {
       name: 'Space Violations',
-      id: 'spc',
+      fieldID: 'spc',
       min: 0
     },
     {
       name: 'Time Violations',
-      id: 'tim',
+      fieldID: 'tim',
       min: 0,
       max: 2
     },
 
     {
       name: 'Amount of different Multiples',
-      id: 'rqmul',
+      fieldID: 'rqmul',
       min: 0,
       max: 4
     },
     {
       name: 'Amount of different Gymnastics and Power Skills',
-      id: 'rqgyp',
+      fieldID: 'rqgyp',
       min: 0,
       max: 4
     },
     {
       name: 'Amount of different Wraps and Releases',
-      id: 'rqwrr',
+      fieldID: 'rqwrr',
       min: 0,
       max: 4
     }
   ],
   result: function (scores) {
     if (!this) return
-    let rqFields: InputField[] = this.fields.filter(field => field.id !== 'mis' && field.id !== 'spc' && field.id !== 'tim')
+    let rqFields: InputField[] = this.fields.filter(field => field.fieldID !== 'mis' && field.fieldID !== 'spc' && field.fieldID !== 'tim')
     let max: number = rqFields.reduce((acc, curr) => (acc + (curr.max || 0)), 0)
 
-    let score = rqFields.map(el => scores[el.id] || 0).reduce((a, b) => a + b)
+    let score = rqFields.map(field => scores[field.fieldID] || 0).reduce((a, b) => a + b)
     score = score > max ? max : score
 
     let missing = max - score
@@ -232,64 +233,64 @@ export const MissJudgeSingleRopeIndividual: Judge = {
   }
 }
 
-export const MissJudgeSingleRopeTeam: Judge = {
+export const MissJudgeSingleRopeTeam: JudgeType = {
   ...MissJudgeSingleRopeIndividual,
   fields: [
     ...MissJudgeSingleRopeIndividual.fields,
     {
       name: 'Amount of different Interactions',
-      id: 'rqint',
+      fieldID: 'rqint',
       min: 0,
       max: 4
     }
   ]
 }
 
-export const MissJudgeWheels: Judge = {
+export const MissJudgeWheels: JudgeType = {
   ...MissJudgeSingleRopeTeam
 }
 
-export const MissJudgeDoubleDutchSingle: Judge = {
+export const MissJudgeDoubleDutchSingle: JudgeType = {
   ...MissJudgeSingleRopeIndividual,
   fields: [
     {
       name: 'Misses',
-      id: 'mis',
+      fieldID: 'mis',
       min: 0
     },
     {
       name: 'Space Violations',
-      id: 'spc',
+      fieldID: 'spc',
       min: 0
     },
     {
       name: 'Time Violations',
-      id: 'tim',
+      fieldID: 'tim',
       min: 0
     },
 
     {
       name: 'Amount of different Turner Involvement Skills',
-      id: 'rqtis',
+      fieldID: 'rqtis',
       min: 0,
       max: 4
     },
     {
       name: 'Amount of different Gymnastics and Power Skills',
-      id: 'rqgyp',
+      fieldID: 'rqgyp',
       min: 0,
       max: 4
     },
     {
       name: 'Athletes who performed at least 4 skills',
-      id: 'rqgyp',
+      fieldID: 'rqgyp',
       min: 0,
       max: 3
     }
   ]
 }
 
-export const MissJudgeDoubleDutchPair: Judge = {
+export const MissJudgeDoubleDutchPair: JudgeType = {
   ...MissJudgeDoubleDutchSingle,
   fields: [
     MissJudgeDoubleDutchSingle.fields[0],
@@ -304,7 +305,7 @@ export const MissJudgeDoubleDutchPair: Judge = {
   ]
 }
 
-export const MissJudgeDoubleDutchTriad: Judge = {
+export const MissJudgeDoubleDutchTriad: JudgeType = {
   ...MissJudgeDoubleDutchSingle,
   fields: [
     MissJudgeDoubleDutchSingle.fields[0],
@@ -322,17 +323,17 @@ export const MissJudgeDoubleDutchTriad: Judge = {
 /* DIFFICULTY */
 export const DifficultyJudge: DifficultyJudge = {
   name: 'Difficulty',
-  id: 'D',
+  judgeTypeID: 'D',
   fields: [
     {
       name: 'Level 0.5',
-      id: 'l05',
+      ifieldIDd: 'l05',
       min: 0,
       level: 0.5
     },
     ...Array(8).fill(undefined).map((el, idx) => ({
       name: `Level ${idx + 1}`,
-      id: `l${idx + 1}`,
+      fieldID: `l${idx + 1}`,
       level: idx + 1
     }))
   ],
@@ -340,7 +341,7 @@ export const DifficultyJudge: DifficultyJudge = {
     if (!this) return
     let l = (l: number): number => roundTo(0.1 * Math.pow(1.8, l), 2)
 
-    let score = this.fields.map(el => (scores[el.id] || 0) * l(el.level)).reduce((a, b) => a + b)
+    let score = this.fields.map(field => (scores[field.fieldID] || 0) * l(field.level)).reduce((a, b) => a + b)
 
     return {
       D: roundTo(score, 2)
@@ -808,14 +809,14 @@ export const SpeedResult = function (event: string) {
     let judgeResults = []
     let output = {}
 
-    let eventObj = config.events.find(el => el.id === event)
+    let eventObj = config.events.find(el => el.eventID === event)
     let eventJudgeTypes = eventObj!.judges
 
-    for (let judge of judges) {
-      let judgeID = judge[0]
-      let judgeType = judge[1]
+    for (let JudgeType of judges) {
+      let judgeID = JudgeType[0]
+      let judgeType = JudgeType[1]
 
-      let judgeObj = eventJudgeTypes!.find(el => el.id === judgeType)!
+      let judgeObj = eventJudgeTypes!.find(el => el.judgeTypeID === judgeType)!
       let resultFunction = judgeObj.result
 
       let idx: number = judgeResults.findIndex(el => el.judgeID === judgeID)
@@ -872,14 +873,14 @@ const FreestyleResult = function (event: string) {
     let judgeResults = []
     let output = {}
 
-    let eventObj = config.events.find(el => el.id === event)
+    let eventObj = config.events.find(el => el.eventID === event)
     let eventJudgeTypes = eventObj!.judges
 
-    for (let judge of judges) {
-      let judgeID = judge[0]
-      let judgeType = judge[1]
+    for (let JudgeType of judges) {
+      let judgeID = JudgeType[0]
+      let judgeType = JudgeType[1]
 
-      let judgeObj = eventJudgeTypes!.find(el => el.id === judgeType)!
+      let judgeObj = eventJudgeTypes!.find(el => el.judgeTypeID === judgeType)!
       let resultFunction = judgeObj.result
 
       let idx: number = judgeResults.findIndex(el => el.judgeID === judgeID)
@@ -945,11 +946,11 @@ const OverallRank = function (overall: string) {
     let ranked = {
       overall: []
     }
-    const overallObj = config.overalls.find(el => el.id === overall)
+    const overallObj = config.overalls.find(el => el.overallID === overall)
     let tiePriority = ['overall', 'srif', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr']
 
     for (const event of overallObj.events) {
-      const eventObj = config.events.find(el => el.id === event)
+      const eventObj = config.events.find(el => el.eventID === event)
       ranked[event] = eventObj.rank(results[event])
 
       for (const scoreObj of ranked[event]) {
@@ -993,9 +994,10 @@ const OverallRank = function (overall: string) {
 
 const config: Ruleset = {
   name: 'IJRU v1.0.0',
-  id: 'IJRU1-0-0',
+  rulesetID: 'IJRU1-0-0',
+  versions: ['intl'],
   events: [{
-    id: 'srss',
+    eventID: 'srss',
     name: 'Single Rope Speed Sprint',
     judges: [SpeedJudge, SpeedHeadJudgeMasters],
     result: SpeedResult('srss'),
@@ -1003,7 +1005,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'srse',
+    eventID: 'srse',
     name: 'Single Rope Speed Endurance',
     judges: [SpeedJudge, SpeedHeadJudgeMasters],
     result: SpeedResult('srse'),
@@ -1011,7 +1013,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'srtu',
+    eventID: 'srtu',
     name: 'Single Rope Triple Unders',
     judges: [SpeedJudge, SpeedHeadJudgeMasters],
     result: SpeedResult('srtu'),
@@ -1020,7 +1022,7 @@ const config: Ruleset = {
     multipleEntry: true
   },
   {
-    id: 'srif',
+    eventID: 'srif',
     name: 'Single Rope Individual Freestyle',
     judges: [AthletePresentationJudge, RoutinePresentationJudge, MissJudgeSingleRopeIndividual, DifficultyJudge],
     result: FreestyleResult('srif'),
@@ -1029,7 +1031,7 @@ const config: Ruleset = {
   },
 
   {
-    id: 'srsr',
+    eventID: 'srsr',
     name: 'Single Rope Speed Relay',
     judges: [SpeedJudge, SpeedHeadJudgeRelays],
     result: SpeedResult('srsr'),
@@ -1037,7 +1039,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'srpd',
+    eventID: 'srpd',
     name: 'Single Rope Pairs Double Unders',
     judges: [SpeedJudge, SpeedHeadJudgeRelays],
     result: SpeedResult('srpd'),
@@ -1045,7 +1047,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'ddsr',
+    eventID: 'ddsr',
     name: 'Double Dutch Speed Relay',
     judges: [SpeedJudge, SpeedHeadJudgeRelays],
     result: SpeedResult('ddsr'),
@@ -1053,7 +1055,7 @@ const config: Ruleset = {
     headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
-    id: 'ddss',
+    eventID: 'ddss',
     name: 'Double Dutch Speed Sprint',
     judges: [SpeedJudge, SpeedHeadJudgeRelays],
     result: SpeedResult('ddss'),
@@ -1062,35 +1064,35 @@ const config: Ruleset = {
     multipleEntry: true
   },
   {
-    id: 'srpf',
+    eventID: 'srpf',
     name: 'Single Rope Pair Freestyle',
     judges: [AthletePresentationJudge, RoutinePresentationJudge, MissJudgeSingleRopeTeam, DifficultyJudge],
     result: FreestyleResult('srpf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
-    id: 'srtf',
+    eventID: 'srtf',
     name: 'Single Rope Team Freestyle',
     judges: [AthletePresentationJudge, RoutinePresentationJudge, MissJudgeSingleRopeTeam, DifficultyJudge],
     result: FreestyleResult('srtf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
-    id: 'ddsf',
+    eventID: 'ddsf',
     name: 'Double Dutch Single Freestyle',
     judges: [AthletePresentationJudge, RoutinePresentationJudge, MissJudgeDoubleDutchSingle, DifficultyJudge],
     result: FreestyleResult('ddsf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
-    id: 'ddpf',
+    eventID: 'ddpf',
     name: 'Double Dutch Pairs Freestyle',
     judges: [AthletePresentationJudge, RoutinePresentationJudge, MissJudgeDoubleDutchPair, DifficultyJudge],
     result: FreestyleResult('ddpf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
-    id: 'ddtf',
+    eventID: 'ddtf',
     name: 'Double Dutch Triad Freestyle',
     judges: [AthletePresentationJudge, RoutinePresentationJudge, MissJudgeDoubleDutchTriad, DifficultyJudge],
     result: FreestyleResult('ddpf'),
@@ -1099,7 +1101,7 @@ const config: Ruleset = {
   },
 
   {
-    id: 'whpf',
+    eventID: 'whpf',
     name: 'Wheel Pair Freestyle',
     judges: [AthletePresentationJudge, RoutinePresentationJudge, MissJudgeWheels, DifficultyJudge],
     result: FreestyleResult('ddpf'),
@@ -1108,7 +1110,7 @@ const config: Ruleset = {
   }],
 
   overalls: [{
-    id: 'isro',
+    overallID: 'isro',
     text: 'Individual Overall',
     type: 'individual',
     groups: OverallResultTableGroupsIndividual,
@@ -1118,7 +1120,7 @@ const config: Ruleset = {
   },
 
   {
-    id: 'tsro',
+    overallID: 'tsro',
     text: 'Team Single Rope Overall',
     type: 'team',
     groups: SingleRopeOverallResultTableGroupsTeam,
@@ -1127,7 +1129,7 @@ const config: Ruleset = {
     rank: OverallRank('tsro')
   },
   {
-    id: 'tddo',
+    overallID: 'tddo',
     text: 'Team Double Dutch Overall',
     type: 'team',
     groups: DoubleDutchOverallResultTableGroupsTeam,
@@ -1136,7 +1138,7 @@ const config: Ruleset = {
     rank: OverallRank('tddo')
   },
   {
-    id: 'taac',
+    overallID: 'taac',
     text: 'Team All-Around',
     type: 'team',
     groups: AllAroundResultTableGroupsTeam,

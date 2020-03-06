@@ -1,9 +1,6 @@
 <template>
   <v-expansion-panels multiple v-model="open">
-    <v-expansion-panel
-      v-for="group in $store.getters['categories/groupedCategories']"
-      :key="group.name"
-    >
+    <v-expansion-panel v-for="group in categories.groupedCategories" :key="group.name">
       <v-expansion-panel-header>{{ group.name }}</v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-layout justify-space-between wrap>
@@ -16,7 +13,7 @@
           >
             <v-card link :to="`/category/${category.id}`" elevation="0" color="grey lighten-2">
               <v-card-title>{{ category.name }}</v-card-title>
-              <v-card-text>{{ (rulesets[category.ruleset] || {}).name }}</v-card-text>
+              <v-card-text>{{ (rulesets.find(rs => rs.id === category.ruleset) || {}).name }}</v-card-text>
             </v-card>
           </v-flex>
         </v-layout>
@@ -26,15 +23,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Props, Vue } from "vue-property-decorator";
-import rulesets, { Rulesets } from "@/rules/score.worker";
+import { Component, Vue } from "vue-property-decorator";
+import rulesets, { Rulesets } from "../rules";
 import { wrap } from "comlink";
+import CategoriesModule from "../store/categories";
+import { getModule } from "vuex-module-decorators";
 
 @Component
-export default class Home<VueClass> extends Vue {
-  rulesets = wrap<Rulesets>(rulesets);
-  open: number[] = this.$store.getters["categories/groupedCategories"].map(
-    (el, idx) => idx
-  );
+export default class Home extends Vue {
+  rulesets = rulesets;
+  categories = getModule(CategoriesModule);
+
+  open: number[] = this.categories.groupedCategories.map((el, idx) => idx);
 }
 </script>

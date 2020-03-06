@@ -7,15 +7,15 @@
           label="Category Name"
           :rules="[notEmpty]"
           required
-          :value="$store.state.categories[id].config.name"
-          @input="$store.commit('categories/setCategoryName', {id, value: $event})"
+          :value="categories.categories[id].config.name"
+          @input="categories._setCategoryName({id, value: $event})"
         />
         <v-combobox
           label="Category Group"
           clearable
-          :value="$store.state.categories[id].config.group"
-          @input="$store.commit('categories/setCategoryGroup', {id, value: $event})"
-          :items="$store.getters['categories/groups']"
+          :value="categories.categories[id].config.group"
+          @input="categories._setCategoryGroup({id, value: $event})"
+          :items="categories.groups"
         >
           <template v-slot:prepend-item>
             <v-list-item>
@@ -25,20 +25,20 @@
         </v-combobox>
         <v-select
           label="Rules"
-          :items="rulesetArray"
+          :items="rulesets"
           item-text="name"
-          item-value="id"
+          item-value="rulesetID"
           item-disabled="disabled"
           :rules="[notEmpty]"
           clearable
           required
           class="mb-6"
-          :value="$store.state.categories[id].config.ruleset"
-          @input="$store.commit('categories/setCategoryRuleset', {id, value: $event})"
+          :value="categories.categories[id].config.ruleset"
+          @input="categories._setCategoryRuleset({id, value: $event})"
         />
         <v-radio-group
-          :value="$store.state.categories[id].config.type"
-          @change="$store.commit('categories/setCategoryType', { id, value: $event })"
+          :value="categories.categories[id].config.type"
+          @change="categories._setCategoryType({ id, value: $event })"
           class="pl-2"
         >
           <v-radio label="Individual Competition" value="individual" />
@@ -46,17 +46,17 @@
         </v-radio-group>
         <v-btn color="primary" type="submit" class="mr-2">Continue</v-btn>
         <!-- <v-btn text class="mr-2">Back</v-btn> -->
-        <v-btn color="error" class="mr-2" @click="deleteCategoryDialog = true" e>Delete</v-btn>
+        <v-btn color="error" class="mr-2" @click="deleteCategoryDialog = true">Delete</v-btn>
       </v-form>
     </v-stepper-content>
 
     <v-dialog v-model="deleteCategoryDialog" max-width="500px" :retain-focus="false">
       <v-card>
         <v-card-title>
-          <span class="headline">Delete {{ $store.state.categories[id].config.name }}</span>
+          <span class="headline">Delete {{ categories.categories[id].config.name }}</span>
         </v-card-title>
 
-        <v-card-text>Are you sure you want to remove the category {{ $store.state.categories[id].config.name }}? This cannot be undone</v-card-text>
+        <v-card-text>Are you sure you want to remove the category {{ categories.categories[id].config.name }}? This cannot be undone</v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -72,9 +72,9 @@
         <v-container>
           <v-switch
             v-for="event in ruleset.events"
-            :key="event.id"
-            :label="`${event.name} (${event.id.toUpperCase()})`"
-            :value="event.id"
+            :key="event.eventID"
+            :label="`${event.name} (${event.eventID.toUpperCase()})`"
+            :value="event.eventID"
             v-model="events"
           />
         </v-container>
@@ -92,22 +92,14 @@
     </v-stepper-content>
 
     <v-stepper-step :complete="step > 3" step="3" :editable="step > 3">Participants</v-stepper-step>
-    <v-stepper-content step="3" v-if="$store.state.categories[id].config.type">
-      <PeopleTable
-        show-select
-        @input="updateParticipants"
-        :value="$store.state.categories[id].participants"
+    <v-stepper-content step="3" v-if="categories.categories[id].config.type">
+      <TeamPersonTable
+        flat
         class="mb-4"
-        :flat="true"
-        v-if="$store.state.categories[id].config.type === 'individual'"
-      />
-      <TeamsTable
-        show-select
-        @input="updateParticipants"
-        :value="$store.state.categories[id].participants"
-        class="mb-4"
-        :flat="true"
-        v-else-if="$store.state.categories[id].config.type === 'team'"
+        :value="categories.categories[id].participants"
+        :team="categories.categories[id].type === 'team'"
+        @add="categories.newParticipant({ id, value: $event })"
+        @delete="categories.deleteParticipant({ id, value: $event })"
       />
       <v-btn color="primary" @click="step = 4" class="mr-2">Continue</v-btn>
       <v-btn text @click="step = 2">Back</v-btn>
@@ -126,73 +118,37 @@
       <v-card flat v-if="ruleset">
         <v-card-title>
           <v-spacer />
-          <v-btn
-            color="primary"
-            dark
-            class="mb-2"
-            @click="$store.dispatch('categories/addJudge', { id })"
-          >Add Judge</v-btn>
+          <v-btn color="primary" dark class="mb-2" @click="categories.addJudge({ id })">Add Judge</v-btn>
         </v-card-title>
 
-        <v-data-table :headers="judgeTableHeaders" :items="$store.state.categories[id].judges">
+        <v-data-table :headers="judgeTableHeaders" :items="categories.categories[id].judges">
           <template v-slot:item.id="{ item }">
-            <span class="cust--nobreak">{{ item.id }}</span>
+            <span class="cust--nobreak">{{ item.judgeID }}</span>
           </template>
+
           <template v-slot:item.name="{ item }">
-            <span
-              class="cust--nobreak"
-            >{{ ($store.state.people.people[item.id] || {}).name || 'Click configure to select judge' }}</span>
+            <span class="cust--nobreak">{{ item.name }}</span>
           </template>
 
           <template v-slot:item.event="{ item, header }">
             <v-select
               :items="eventByID(header.text).judges"
               label="Judge Type"
-              item-text="id"
-              item-value="id"
+              item-text="judgeTypeID"
+              item-value="judgeTypeID"
               clearable
-              @input="$store.dispatch('categories/updateJudgeAssignment', { id, judgeID: item.id, event: header.text, judgeType: $event })"
-              :value="item[header.text]"
-            ></v-select>
-            <!-- @input="assignJudge(item.id, header.text, $event)" -->
+              @input="categories._setJudgeAssignment({ id, judgeID: item.judgeID, value: { eventID: header.text, judgeTypeID: $event } })"
+              :value="((item.assignments || []).find(asg => asg.eventID === header.text) || {}).judgeTypeID"
+            />
+            <!-- {{ item }} -->
           </template>
 
           <template v-slot:item.action="{ item }">
-            <v-dialog v-model="assignJudgeDialog[item.id]" max-width :retain-focus="false">
-              <template v-slot:activator="{ on }">
-                <v-btn small class="mr-2 caption" v-on="on">Configure</v-btn>
-              </template>
-              <v-card>
-                <v-card-title>
-                  <span class="headline">Assign Judge {{ item.id }}</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <PeopleTable
-                    flat
-                    @input="selectedJudges[item.id] = $event[0]"
-                    :value="selectedJudge(item.id)"
-                    show-select
-                    single-select
-                  />
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="closeUpdateJudgeIDDialog(item.id)"
-                  >Cancel</v-btn>
-                  <v-btn color="blue darken-1" text @click="updateJudgeID(item.id)">Save</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
             <v-btn
               small
               color="error"
               class="mr-2 caption"
-              @click="$store.dispatch('categories/deleteJudge', { id, judgeID: item.id })"
+              @click="categories.deleteJudge({ id, value: item.judgeID })"
             >Delete</v-btn>
           </template>
         </v-data-table>
@@ -204,11 +160,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Props, Vue } from "vue-property-decorator";
-import rulesets, { Rulesets } from "@/rules/score.worker";
-import PeopleTable from "@/components/PeopleTable";
-import TeamsTable from "@/components/TeamsTable";
+import { Component, Vue } from "vue-property-decorator";
+import rulesets, { Rulesets, Ruleset } from "../rules";
+import TeamPersonTable from "../components/TeamPersonTable.vue";
 import { wrap } from "comlink";
+import CategoriesModule from "../store/categories";
+import { getModule } from "vuex-module-decorators";
 
 interface SelectedJudges {
   [key: string]: string;
@@ -216,61 +173,57 @@ interface SelectedJudges {
 
 @Component({
   components: {
-    PeopleTable,
-    TeamsTable
+    TeamPersonTable
   }
 })
 export default class CategoryConfig<VueClass> extends Vue {
   id: string;
   step: number = 1;
   deleteCategoryDialog: boolean = false;
-  rulesets = wrap<Rulesets>(rulesets);
+  rulesets = rulesets;
+  categories = getModule(CategoriesModule);
   assignJudgeDialog = {};
   selectedJudges: SelectedJudges = {};
 
   created() {
     this.id = this.$route.params.id;
-    this.step = this.$route.query.step || this.step;
+    this.step = Number(this.$route.query.step) || this.step;
   }
 
   deleteCategory() {
-    this.$store.commit("categories/deleteCategory", { id: this.id });
+    this.categories._deleteCategory({ id: this.id });
     this.$router.push("/");
   }
 
   notEmpty = (v: string): string | boolean => !!v || "This cannot be empty";
 
-  get rulesetArray() {
-    return Object.keys(this.rulesets).map(id => ({
-      id,
-      name: this.rulesets[id].name
-    }));
-  }
-
   get ruleset() {
-    if (!this.$store.state.categories[this.id].config.ruleset) return;
+    if (!this.categories.categories[this.id].config.ruleset) return;
 
-    return this.rulesets[this.$store.state.categories[this.id].config.ruleset];
+    return this.rulesets.find(
+      ruleset =>
+        ruleset.rulesetID === this.categories.categories[this.id].config.ruleset
+    );
   }
 
   get events() {
-    return this.$store.state.categories[this.id]!.config!.events || [];
+    return this.categories.categories[this.id]!.config!.events || [];
   }
 
   set events(arr) {
     console.log(arr);
-    this.$store.dispatch("categories/updateEvents", {
+    this.categories.updateEvents({
       id: this.id,
       events: arr,
-      template: this.ruleset.events.map(el => el.id)
+      template: this.ruleset?.events.map(el => el.eventID) ?? []
     });
   }
 
   get judgeTableHeaders() {
-    let begining = [
+    const begining = [
       {
         text: "ID",
-        value: "id",
+        value: "judgeID",
         align: "end"
       },
       {
@@ -278,11 +231,11 @@ export default class CategoryConfig<VueClass> extends Vue {
         value: "name"
       }
     ];
-    let end = [
+    const end = [
       { text: "Actions", value: "action", sortable: false, align: "end" }
     ];
 
-    let judges = this.events.map(el => ({
+    const judges = this.events.map(el => ({
       text: el,
       value: "event",
       align: "center"
@@ -291,44 +244,32 @@ export default class CategoryConfig<VueClass> extends Vue {
     return begining.concat(judges).concat(end);
   }
 
-  eventByID(eventID) {
-    return this.ruleset.events.filter(el => el.id === eventID)[0];
+  eventByID(eventID: string) {
+    return this.ruleset?.events.filter(el => el.eventID === eventID)[0];
   }
 
-  updateParticipants(arr) {
+  updateParticipants(arr: string[]) {
     console.log(arr);
-    this.$store.dispatch("categories/updateParticipants", {
+    this.categories.updateParticipants({
       id: this.id,
       participants: arr
     });
   }
 
-  updateJudgeID(judgeID) {
-    if (!this.selectedJudges[judgeID]) return;
-    console.log(judgeID, this.selectedJudges[judgeID]);
-    this.$store.dispatch("categories/updateJudgeID", {
-      id: this.id,
-      judgeID,
-      newID: this.selectedJudges[judgeID]
-    });
-    this.selectedJudges[judgeID] = "";
-    this.assignJudgeDialog = false;
-  }
+  // closeUpdateJudgeIDDialog(judgeID) {
+  //   this.$delete(this.selectedJudges, judgeID);
+  //   this.assignJudgeDialog[judgeID] = false;
+  // }
 
-  closeUpdateJudgeIDDialog(judgeID) {
-    this.$delete(this.selectedJudges, judgeID);
-    this.assignJudgeDialog[judgeID] = false;
-  }
-
-  selectedJudge(judgeID) {
-    if (this.selectedJudges[judgeID]) return [this.selectedJudges[judgeID]];
-    let person = this.$store.state.people.people[judgeID];
-    if (person) {
-      return [person.id];
-    } else {
-      return [];
-    }
-  }
+  // selectedJudge(judgeID) {
+  //   if (this.selectedJudges[judgeID]) return [this.selectedJudges[judgeID]];
+  //   let person = this.$store.state.people.people[judgeID];
+  //   if (person) {
+  //     return [person.id];
+  //   } else {
+  //     return [];
+  //   }
+  // }
 }
 </script>
 

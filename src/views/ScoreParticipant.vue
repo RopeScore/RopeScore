@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-toolbar class="cust--floating">
       <v-toolbar-title>
-        <span>{{ $store.state.categories[$route.params.id].config.name }}</span>
+        <span>{{ category.config.name }}</span>
         <br />
         <span class="font-weight-bold">{{ event.name }}</span>&nbsp;
         <span class="font-weight-light">Score for</span>&nbsp;
@@ -31,42 +31,43 @@
           class="mr-2"
         >Next</v-btn>
         <v-btn
-          @click="$store.dispatch('categories/toggleDNS', { id: $route.params.id, event: $route.params.event, participant: $route.params.participant })"
+          @click="categories.toggleDNS({ id: $route.params.id, eventID: $route.params.event , participantID: $route.params.participant })"
           class="mr-2"
           text
-          :color="$store.getters['categories/dns']({ id: $route.params.id, event: $route.params.event, participant: $route.params.participant }) ? 'error' : ''"
-        >Did {{ $store.getters['categories/dns']({ id: $route.params.id, event: $route.params.event, participant: $route.params.participant }) ? '' : 'Not' }} Skip</v-btn>
+          :color="dns ? 'error' : ''"
+        >Did {{ dns ? '' : 'Not' }} Skip</v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <div
       class="mt-12"
-      v-if="!$store.getters['categories/dns']({ id: $route.params.id, event: $route.params.event, participant: $route.params.participant })"
+      v-if="!dns"
     >
-      <v-layout v-for="judgeType in event.judges" :key="judgeType.id" wrap class="pt-6">
+      <v-layout v-for="judgeType in event.judges" :key="judgeType.judgeTypeID" wrap class="pt-6">
         <v-flex xs12>
-          <v-card-title>{{ judgeType.name }} ({{ judgeType.id }})</v-card-title>
+          <v-card-title>{{ judgeType.name }} ({{ judgeType.judgeTypeID }})</v-card-title>
         </v-flex>
         <v-flex
           xs12
           sm6
           md4
           lg3
-          v-for="judge in $store.state.categories[$route.params.id].judges"
-          v-if="judge[event.id] === judgeType.id"
-          :key="`${judgeType.id}-${judge.id}`"
+          v-for="judge in category.judges"
+          :key="`${judgeType.judgeTypeID}-${judge.judgeID}`"
           pa-2
+          v-if="judgeAssigned(judge, judgeType)"
         >
           <v-card>
             <v-card-title>
-              <span>{{ judge.id }}:</span>&nbsp;
+              <span>{{ judge.judgeID }}</span>
               <span
                 class="font-weight-light"
-              >{{ ($store.state.people.people[judge.id] || {}).name }}</span>
+                v-if="judge.name"
+              >: {{ judge.name }}</span>
             </v-card-title>
-            <v-card-text v-if="JudgeIsConfigured(judge.id)">
+            <v-card-text>
               <div
                 v-for="field in judgeType.fields"
-                :key="`${judgeType.id}-${judge.id}-${field.id}`"
+                :key="`${judgeType.judgeTypeID}-${judge.judgeID}-${field.fieldID}`"
               >
                 <!-- TODO: cap to max and apply style if enters above that? -->
                 <v-text-field
@@ -75,8 +76,8 @@
                   :min="field.min"
                   :max="field.max"
                   :step="field.step || 1"
-                  :value="$store.getters['categories/fieldScore']({ id: $route.params.id, event: $route.params.event, participant: $route.params.participant, judgeID: judge.id, field: field.id})"
-                  @input="$store.dispatch('categories/setScore', { id: $route.params.id, event: $route.params.event, participant: $route.params.participant, judgeID: judge.id, field: field.id, value: $event, min: field.min, max: field.max, step: field.step })"
+                  :value="fieldScore(judge, field)"
+                  @input="setScore(judge, field, $event)"
                 />
                 <!-- TODO: checkbox -->
               </div>
@@ -84,47 +85,37 @@
               <v-simple-table>
                 <tbody>
                   <tr
-                    v-for="(value, field) in judgeType.result($store.getters['categories/participantScoreObj']({ id: $route.params.id, event: $route.params.event, participant: $route.params.participant })[judge.id] ||{})"
-                    :key="`${judgeType.id}-${judge.id}-${field}`"
+                    v-for="(value, fieldID) in judgeType.result(participantScoreObj[judge.judgeID] || {})"
+                    :key="`${judgeType.judgeTypeID}-${judge.judgeID}-${fieldID}`"
                   >
-                    <td>{{ field }}</td>
+                    <td>{{ fieldID }}</td>
                     <td class="text-right">{{ value }}</td>
                   </tr>
                 </tbody>
               </v-simple-table>
             </v-card-text>
-            <template v-else>
-              <v-card-text>This Judge hasn't been properly configured</v-card-text>
-              <v-card-actions>
-                <v-btn
-                  text
-                  link
-                  :to="`/category/${$route.params.id}/config?step=4`"
-                >Configure Category</v-btn>
-              </v-card-actions>
-            </template>
           </v-card>
         </v-flex>
       </v-layout>
     </div>
     <v-card
-      v-if="!$store.getters['categories/dns']({ id: $route.params.id, event: $route.params.event, participant: $route.params.participant })"
+      v-if="!dns"
     >
       <v-simple-table>
         <!-- TODO: don't run .result twice -->
         <thead>
           <tr>
             <th
-              v-for="(value, field) in event.result($store.getters['categories/participantScoreObj']({ id: $route.params.id, event: $route.params.event, participant: $route.params.participant }), judgesArr)"
-              :key="`header-final-${field}`"
-            >{{ field }}</th>
+              v-for="(value, fieldID) in event.result(participantScoreObj, judgesArr)"
+              :key="`header-final-${fieldID}`"
+            >{{ fieldID }}</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td
-              v-for="(value, field) in event.result($store.getters['categories/participantScoreObj']({ id: $route.params.id, event: $route.params.event, participant: $route.params.participant }), judgesArr)"
-              :key="`header-final-${field}`"
+              v-for="(value, fieldID) in event.result(participantScoreObj, judgesArr)"
+              :key="`score-final-${fieldID}`"
             >{{ value }}</td>
           </tr>
         </tbody>
@@ -134,70 +125,94 @@
 </template>
 
 <script lang="ts">
-import { Component, Props, Vue } from "vue-property-decorator";
-import rulesets, { Rulesets } from "@/rules/score.worker";
+import { Component, Vue } from "vue-property-decorator";
+import { getModule } from 'vuex-module-decorators'
 import { wrap } from "comlink";
-// import TableHeader from '@/plugins/vuetify';
+import rulesets, { Rulesets, JudgeType, InputField } from "@/rules";
+import CategoriesModule, { Team, Judge } from '@/store/categories';
 
 @Component
 export default class ScoreParticipant<VueClass> extends Vue {
-  rulesets = wrap<Rulesets>(rulesets);
+  rulesets = rulesets;
+  categories = getModule(CategoriesModule)
 
   get ruleset() {
-    return this.rulesets[
-      this.$store.state.categories[this.$route.params.id].config.ruleset
-    ];
+    return this.rulesets.find(
+      rs =>
+        rs.rulesetID ===
+        this.category.config.ruleset
+    );
+  }
+
+  get category () {
+    return this.categories.categories[this.$route.params.id]
   }
 
   get event() {
-    return this.ruleset.events.filter(
-      el => el.id === this.$route.params.event
-    )[0];
+    return this.ruleset?.events.find(
+      el => el.eventID === this.$route.params.event
+    );
   }
 
   get participant() {
-    let type = this.$store.state.categories[this.$route.params.id].config.type;
-    if (type === "team") {
-      return this.$store.state.people.teams[this.$route.params.participant];
-    } else if (type === "individual") {
-      return this.$store.state.people.people[this.$route.params.participant];
-    }
-    return {
-      name: "",
-      club: ""
-    };
+    return this.category.participants.find(par => par.participantID === this.$route.params.participant);
   }
 
   get judgesArr() {
-    return this.$store.state.categories[this.$route.params.id].judges
-      .filter(el => !!el[this.$route.params.event])
-      .map(el => [el.id, el[this.$route.params.event]]);
+    return this.categories.categories[this.$route.params.id].judges
+      .filter(judge => judge.assignments.findIndex(ass => ass.eventID === this.$route.params.event && ass.judgeTypeID.length > 0) > -1)
+      .map(judge => [judge.judgeID, judge.assignments.find(ass => ass.eventID === this.$route.params.event)!.judgeTypeID])
   }
 
-  JudgeIsConfigured(judgeID: string = "J"): boolean {
-    return judgeID.substring(0, 1) !== "J";
+  get dns () {
+    return this.category.dns.findIndex(dns => dns.participantID === this.$route.params.participant && dns.eventID === this.$route.params.event) > -1
   }
 
-  nextParticipant(participant: string) {
-    const participants = this.$store.state.categories[this.$route.params.id]
-      .participants;
-    const idx = participants.indexOf(participant) + 1;
-    if (idx === participants.length) return undefined;
-    return participants[idx];
+  get participantScoreObj () {
+    return this.categories.participantScoreObj({ id: this.$route.params.id, eventID: this.$route.params.event, participantID: this.$route.params.participant })
   }
 
-  previousParticipant(participant: string) {
-    const participants = this.$store.state.categories[this.$route.params.id]
-      .participants;
-    const idx = participants.indexOf(participant) - 1;
-    if (idx === -1) return undefined;
-    return participants[idx];
+  fieldScore (judge: Judge, field: InputField): string | number {
+    const scoreObj = this.participantScoreObj
+    const score = scoreObj[judge.judgeID]?.[field.fieldID]
+    return score ?? ''
   }
 
-  memberNames(members: string[]): string {
-    return members
-      .map(id => this.$store.state.people.people[id].name)
-      .join(", ");
+  setScore (judge: Judge, field: InputField, value?: number) {
+    this.categories.setScore({
+      id: this.$route.params.id,
+      eventID: this.$route.params.event,
+      participantID: this.$route.params.participant,
+
+      judgeID: judge.judgeID,
+      fieldID: field.fieldID,
+      min: field.min,
+      max: field.max,
+      step: field.step,
+      value
+    })
+  }
+
+  judgeAssigned (judge: Judge, judgeType: JudgeType) {
+    return judge.assignments.findIndex(ass => ass.judgeTypeID === judgeType.judgeTypeID && ass.eventID === this.$route.params.event) > -1
+  }
+
+  nextParticipant(partId: string): string | undefined {
+    const idx = this.category.participants.findIndex(par => par.participantID === partId) + 1;
+
+    if (idx === this.category.participants.length) return undefined;
+    return this.category.participants[idx].participantID;
+  }
+
+  previousParticipant(partId: string): string | undefined {
+    const idx = this.category.participants.findIndex(par => par.participantID === partId) - 1;
+
+    if (idx < 0) return undefined;
+    return this.category.participants[idx].participantID;
+  }
+
+  memberNames (team?: Team): string {
+    return team?.members.map(psn => psn.name).join(', ') ?? ''
   }
 }
 </script>

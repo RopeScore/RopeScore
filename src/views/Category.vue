@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      {{ $store.state.categories[$route.params.id].config.name }}
+      {{ categories.categories[$route.params.id].config.name }}
       <v-spacer />
       <v-btn link :to="`/category/${$route.params.id}/config`">Configure</v-btn>
     </v-card-title>
@@ -9,7 +9,7 @@
     <v-simple-table fixed-header dense>
       <thead>
         <tr>
-          <template v-if="$store.state.categories[$route.params.id].config.type === 'team'">
+          <template v-if="categories.categories[$route.params.id].config.type === 'team'">
             <th class="text-center">Team Name</th>
             <th class="text-center">Team Members</th>
           </template>
@@ -19,10 +19,10 @@
 
           <th
             class="text-center"
-            v-for="event in $store.state.categories[$route.params.id].config.events"
-            :key="`header-${event}`"
+            v-for="eventID in categories.categories[$route.params.id].config.events"
+            :key="`header-${eventID}`"
             colspan="2"
-          >{{ event }}</th>
+          >{{ eventID }}</th>
 
           <th class="text-center">Checksum</th>
         </tr>
@@ -32,21 +32,21 @@
         <tr class="crosshair">
           <th
             class="text-center"
-            v-if="$store.state.categories[$route.params.id].config.type === 'team'"
+            v-if="categories.categories[$route.params.id].config.type === 'team'"
             colspan="4"
           ></th>
           <th class="text-center" v-else colspan="3"></th>
           <th
             class="text-center"
             colspan="2"
-            v-for="event in $store.state.categories[$route.params.id].config.events"
-            :key="`header-${event}`"
+            v-for="eventID in categories.categories[$route.params.id].config.events"
+            :key="`header-${eventID}`"
           >
             <v-btn
-              v-if="eventByID(event).multipleEntry"
+              v-if="eventByID(eventID).multipleEntry"
               text
               link
-              :to="`/category/${$route.params.id}/score/${event}`"
+              :to="`/category/${$route.params.id}/score/${eventID}`"
               class="caption"
               color="primary"
             >Edit Multiple</v-btn>
@@ -55,28 +55,31 @@
           <th class="text-center"></th>
         </tr>
 
-        <tr v-for="participant in participants" :key="participant.id" class="crosshair">
+        <tr
+          v-for="participant in categories.categories[$route.params.id].participants"
+          :key="participant.participantID"
+          class="crosshair"
+        >
           <td>{{ participant.name }}</td>
           <td
-            v-if="$store.state.categories[$route.params.id].config.type === 'team'"
+            v-if="categories.categories[$route.params.id].config.type === 'team'"
             class="caption text-truncate"
             max-width="20em"
           >{{ memberNames(participant.members) }}</td>
           <td>{{ participant.club }}</td>
-          <td>{{ participant.id }}</td>
+          <td>{{ participant.participantID }}</td>
 
-          <template v-for="event in $store.state.categories[$route.params.id].config.events">
-            <td :key="`edit-${participant.id}-${event}`" class="text-center">
+          <template v-for="eventID in categories.categories[$route.params.id].config.events">
+            <td :key="`edit-${participant.participantID}-${eventID}`" class="text-center">
               <v-btn
                 text
                 link
-                :to="`/category/${$route.params.id}/score/${event}/${participant.id}`"
-                :color="scoreColor(event, participant.id)"
+                :to="`/category/${$route.params.id}/score/${eventID}/${participant.participantID}`"
+                :color="scoreColor(eventID, participant)"
               >Edit</v-btn>
             </td>
-            <td :key="`checksum-${participant.id}-${event}`" class="cust--monospace text-center">
-              <!-- TODO: will be wrong if judge id's differ between systems -->
-              {{ hashObject($store.getters['categories/participantScoreObj']({ id: $route.params.id, event: event, participant: participant.id })) }}
+            <td :key="`checksum-${participant.participantID}-${eventID}`" class="cust--monospace text-center">
+              <!-- {{ hashObject(categories.participantScoreObj({ id: $route.params.id, eventID, participantID: participant.participantID })) }} -->
             </td>
           </template>
 
@@ -88,72 +91,46 @@
 </template>
 
 <script lang="ts">
-import { Component, Props, Vue } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import SHA1 from "crypto-js/sha1";
-import rulesets, { Rulesets } from "@/rules/score.worker";
-import TableHeader from "@/plugins/vuetify";
+import rulesets, { Rulesets } from "../rules";
+import TableHeader from "../plugins/vuetify";
 import { wrap } from "comlink";
+import CategoriesModule, { Person, TeamPerson } from "../store/categories";
+import { getModule } from "vuex-module-decorators";
 
 @Component
 export default class Category<VueClass> extends Vue {
-  rulesets = wrap<Rulesets>(rulesets);
+  rulesets = rulesets;
+  categories = getModule(CategoriesModule);
 
   get ruleset() {
-    return this.rulesets[
-      this.$store.state.categories[this.$route.params.id].config.ruleset
-    ];
+    return this.rulesets.find(
+      rs =>
+        rs.rulesetID ===
+        this.categories.categories[this.$route.params.id].config.ruleset
+    );
   }
 
-  eventByID(eventID) {
-    return this.ruleset.events.filter(el => el.id === eventID)[0];
+  eventByID(eventID: string) {
+    return this.ruleset?.events.find(el => el.eventID === eventID);
   }
 
-  memberNames(members: string[] = []): string {
-    return members
-      .map(id => this.$store.state.people.people[id].name)
-      .join(", ");
+  memberNames(members: Person[] = []): string {
+    return members.map(psn => psn.name).join(", ");
   }
 
-  get participants() {
-    if (
-      this.$store.state.categories[this.$route.params.id].config.type ===
-      "individual"
-    ) {
-      return this.$store.state.categories[
-        this.$route.params.id
-      ].participants.map(id => ({
-        id,
-        ...this.$store.state.people.people[id]
-      }));
-    } else if (
-      this.$store.state.categories[this.$route.params.id].config.type === "team"
-    ) {
-      return this.$store.state.categories[
-        this.$route.params.id
-      ].participants.map(id => ({
-        id,
-        ...this.$store.state.people.teams[id]
-      }));
-    }
-  }
+  scoreColor(eventID: string, participant: TeamPerson): string {
+    const category = this.categories.categories[this.$route.params.id]
+    const dns = category.dns.findIndex(dns => dns.participantID === participant.participantID && dns.eventID === eventID) > -1
+    const hasScore = category.scores.findIndex(score => score.participantID === participant.participantID && score.eventID === eventID) > -1
 
-  scoreColor(event, participant): string {
-    let scoreEntry = this.$store.getters["categories/participantScoreObj"]({
-      id: this.$route.params.id,
-      event,
-      participant
-    });
-    let dns = this.$store.getters["categories/dns"]({
-      id: this.$route.params.id,
-      event,
-      participant
-    });
     if (dns) {
-      return "grey";
-    } else if (Object.keys(scoreEntry).length === 0) {
-      return "error";
+      return 'grey';
+    } else if (hasScore) {
+      return 'success';
     } else {
-      return "success";
+      return 'error'
     }
   }
 

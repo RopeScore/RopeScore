@@ -9,7 +9,8 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Excel from "exceljs";
 import { DateTime } from "luxon";
-import colors from "vuetify/lib/util/colors";
+
+const colors = require("vuetify/lib/util/colors")
 
 @Component
 export default class ExcelWorkbook<VueClass> extends Vue {

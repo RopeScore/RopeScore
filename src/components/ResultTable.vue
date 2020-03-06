@@ -53,21 +53,21 @@
         </thead>
 
         <tbody>
-          <tr v-for="result in ((results || {}).overall || results)" :key="result.participant">
+          <tr v-for="result in ((results || {}).overall || results)" :key="result.participantID">
             <template v-if="type === 'team'">
-              <td class="black--text">{{ teams[result.participant].name }}</td>
-              <td class="black--text caption">{{ memberNames(teams[result.participant].members) }}</td>
-              <td class="black--text">{{ teams[result.participant].club }}</td>
+              <td class="black--text">{{ getParticipant(result.participantID).name }}</td>
+              <td class="black--text caption">{{ memberNames(getParticipant(result.participantID)) }}</td>
+              <td class="black--text">{{ getParticipant(result.participantID).club }}</td>
             </template>
             <template v-else>
-              <td class="black--text">{{ people[result.participant].name }}</td>
-              <td class="black--text">{{ people[result.participant].club }}</td>
+              <td class="black--text">{{ getParticipant(result.participantID).name }}</td>
+              <td class="black--text">{{ getParticipant(result.participantID).club }}</td>
             </template>
-            <td class="black--text text-right">{{ result.participant }}</td>
+            <td class="black--text text-right">{{ result.participantID }}</td>
 
             <td
               v-for="header in headers.headers"
-              :key="`${result.participant}-${header.event || title}-${header.value}`"
+              :key="`${result.participantID}-${header.event || title}-${header.value}`"
               class="text-right"
               :class="classColorObj(header.color)"
             >{{ getScore(result, header.value, header.event) }}</td>
@@ -80,12 +80,13 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator';
+import { getModule } from "vuex-module-decorators";
 import {
   ResultTableHeaders,
   ResultTableHeaderGroup,
   ResultTableHeader
-} from '@/rules/score.worker';
-import { PeopleModuleState } from '@/store/modules/people';
+} from '@/rules';
+import CategoriesModule, { TeamPerson, Team } from '@/store/categories';
 
 @Component
 export default class ResultTable<VueClass> extends Vue {
@@ -97,10 +98,10 @@ export default class ResultTable<VueClass> extends Vue {
   @Prop({ default: false }) private exclude: boolean;
   @Prop({ default: () => {} }) private headers: ResultTableHeaders;
   @Prop({ default: () => {} }) private results;
-  @Prop({ default: () => {} }) private people: PeopleModuleState['people'];
-  @Prop({ default: () => {} }) private teams: PeopleModuleState['teams'];
+  @Prop({ default: () => {} }) private participants: TeamPerson[];
 
   version: string = require('@/../package.json').version;
+  categories = getModule(CategoriesModule)
 
   @Emit('printchange')
   togglePrint (): boolean {
@@ -113,14 +114,18 @@ export default class ResultTable<VueClass> extends Vue {
     }
   }
 
-  memberNames (members: string[]): string {
-    return members.map(id => this.people[id].name).join(', ')
+  getParticipant(participantID: string) {
+    return this.participants.find(part => part.participantID === participantID)
+  }
+
+  memberNames (team?: Team): string {
+    return team?.members.map(psn => psn.name).join(', ') ?? ''
   }
 
   getScore (result: any, value: string, event?: string) {
     if (event) {
       return this.results[event].find(
-        el => result.participant === el.participant
+        el => result.participantID === el.participant
       )[value]
     } else {
       return result[value]

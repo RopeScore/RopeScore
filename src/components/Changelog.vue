@@ -350,3 +350,10 @@
     </v-card-text>
   </v-card>
 </template>
+
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+
+@Component
+export default class Changelog extends Vue {}
+</script>

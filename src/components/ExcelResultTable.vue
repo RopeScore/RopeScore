@@ -1,14 +1,15 @@
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator';
-import { PeopleModuleState } from '@/store/modules/people';
 import {
   ResultTableHeaders,
   ResultTableHeaderGroup,
   ResultTableHeader
-} from '@/rules/score.worker';
+} from '@/rules';
 import ExcelWorkbook from './ExcelWorkbook.vue';
 import Excel from 'exceljs';
-import colors from 'vuetify/lib/util/colors';
+import { TeamPerson, Team } from '../store/categories';
+
+const colors = require('vuetify/lib/util/colors')
 
 @Component
 export default class ExcelResultTable<VueClass> extends Vue {
@@ -19,8 +20,7 @@ export default class ExcelResultTable<VueClass> extends Vue {
   @Prop({ default: '' }) private logo: string;
   @Prop({ default: () => {} }) private headers: ResultTableHeaders;
   @Prop({ default: () => {} }) private results;
-  @Prop({ default: () => {} }) private people: PeopleModuleState['people'];
-  @Prop({ default: () => {} }) private teams: PeopleModuleState['teams'];
+  @Prop({ default: () => {} }) private participants: TeamPerson[];
 
   @Watch('id')
   updateSheetID (newID: string, oldID: string) {
@@ -117,7 +117,7 @@ export default class ExcelResultTable<VueClass> extends Vue {
     let partinfo: ResultTableHeaderGroup[] = [
       { text: 'Name', value: 'name' },
       { text: 'Club', value: 'club' },
-      { text: 'ID', value: 'id' }
+      { text: 'ID', value: 'participantID' }
     ]
     if (this.type === 'team') {
       partinfo[0].text = 'Team Name';
@@ -140,8 +140,7 @@ export default class ExcelResultTable<VueClass> extends Vue {
       this.type,
       this.formattedHeaders,
       this.results,
-      this.people,
-      this.teams
+      this.participants
     )
   }
 
@@ -261,25 +260,21 @@ export default class ExcelResultTable<VueClass> extends Vue {
     type: string,
     headers: ResultTableHeader[],
     results,
-    people: PeopleModuleState['people'],
-    teams?: PeopleModuleState['teams']
+    participants: TeamPerson[],
   ) {
     for (let result of (results || {}).overall || results) {
       let row: (string | number)[] = new Array(1)
-      if (type === 'team' && teams) {
+      if (type === 'team') {
         row.push(
-          (teams[result.participant] || {}).name || '',
-          this.memberNames(
-            (teams[result.participant] || {}).members || [],
-            people
-          ),
-          (teams[result.participant] || {}).club || '',
-          result.participant
+          participants.find(tp => tp.participantID === result.participant)?.name ?? '',
+          this.memberNames(participants.find(tp => tp.participantID === result.participant) as Team | undefined),
+          participants.find(tp => tp.participantID === result.participant)?.club ?? '',
+          result.participant ?? '' // ID
         )
       } else {
         row.push(
-          (people[result.participant] || {}).name,
-          (people[result.participant] || {}).club,
+          participants.find(tp => tp.participantID === result.participant)?.name ?? '',
+          participants.find(tp => tp.participantID === result.participant)?.club ?? '',
           result.participant
         )
       }
@@ -332,8 +327,8 @@ export default class ExcelResultTable<VueClass> extends Vue {
     )
   }
 
-  memberNames (members: string[], people: PeopleModuleState['people']): string {
-    return members.map(id => people[id].name).join(', ')
+  memberNames (team?: Team): string {
+    return team?.members.map(psn => psn.name).join(', ') ?? ''
   }
 
   getScore (result, value: string, event?: string) {

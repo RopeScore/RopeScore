@@ -1,34 +1,34 @@
-import { expose } from 'comlink'
+// import { expose } from 'comlink'
 import FISAC1718 from './FISAC1718'
 import IJRU1_0_0 from './IJRU1-0-0'
 // import SvGFRH1718 from './SvGFRH1718'
 import SvGFVH18 from './SvGFVH18'
 
 export interface ScoreInfo {
-  event: string;
+  eventID: string;
   judgeID: string
-  participant: string;
+  participantID: string;
 }
 
 export interface InputField {
+  fieldID: string
   name: string
-  id: string
   min?: number
   max?: number
   step?: number
 }
 
-export interface Judge {
+export interface JudgeType {
+  judgeTypeID: string,
   name: string
-  id: string,
   fields: InputField[]
-  result: (scores: { [field: string]: number }) => { [field: string]: number } | undefined
+  result: (scores: { [fieldID: string]: number }) => { [fieldID: string]: number } | undefined
 }
 
 export interface ResultTableHeader {
   text: string
   value: string
-  event?: string
+  eventID?: string
   color?: string
 }
 
@@ -43,9 +43,9 @@ export interface ResultTableHeaders {
 }
 
 export interface Event {
+  eventID: string
   name: string
-  id: string
-  judges: Judge[]
+  judges: JudgeType[]
   result: Function
   rank: Function
   headers: ResultTableHeaders
@@ -55,7 +55,7 @@ export interface Event {
 }
 
 export interface Overall extends ResultTableHeaders {
-  id: string
+  overallID: string
   text: string
   type: string
   events: string[]
@@ -63,24 +63,20 @@ export interface Overall extends ResultTableHeaders {
 }
 
 export interface Ruleset {
+  rulesetID: string
   name: string
-  id: string
+  versions: string[]
   events: Event[]
   overalls: Overall[]
 }
 
-export interface Rulesets {
-  [any: string]: Ruleset
-}
+export type Rulesets = Ruleset[]
 
-const rulesets: Rulesets = {
-  [FISAC1718.id]: FISAC1718,
-  [IJRU1_0_0.id]: IJRU1_0_0,
-  // [SvGFRH1718.id]: SvGFRH1718,
-  [SvGFVH18.id]: SvGFVH18,
-}
+export default [
+  FISAC1718,
+  IJRU1_0_0,
+  // SvGFRH1718,
+  SvGFVH18
+]
 
-console.log(rulesets)
-expose(rulesets)
-
-export default {} as typeof Worker & { new(): Worker }
+// export default {} as typeof Worker & { new(): Worker }
