@@ -46,7 +46,7 @@
 
             <th
               v-for="header in headers.headers"
-              :key="`${header.event}-${header.value}`"
+              :key="`${header.eventID}-${header.value}`"
               :class="classColorObj(header.color)"
             >{{ header.text }}</th>
           </tr>
@@ -87,6 +87,7 @@ import {
   ResultTableHeader
 } from '@/rules';
 import CategoriesModule, { TeamPerson, Team } from '@/store/categories';
+import { ResultsObj } from '../views/CategoryResults.vue';
 
 @Component
 export default class ResultTable<VueClass> extends Vue {
@@ -97,15 +98,15 @@ export default class ResultTable<VueClass> extends Vue {
   @Prop({ default: '' }) private logo: string;
   @Prop({ default: false }) private exclude: boolean;
   @Prop({ default: () => {} }) private headers: ResultTableHeaders;
-  @Prop({ default: () => {} }) private results;
+  @Prop({ default: () => {} }) private results: ResultsObj;
   @Prop({ default: () => {} }) private participants: TeamPerson[];
 
   version: string = require('@/../package.json').version;
   categories = getModule(CategoriesModule)
 
   @Emit('printchange')
-  togglePrint (): boolean {
-    return !this.exclude
+  togglePrint (): void {
+    return
   }
 
   classColorObj (color: string = 'black'): { [cssClass: string]: boolean } {
@@ -125,8 +126,8 @@ export default class ResultTable<VueClass> extends Vue {
   getScore (result: any, value: string, event?: string) {
     if (event) {
       return this.results[event].find(
-        el => result.participantID === el.participant
-      )[value]
+        el => result.participantID === el.participantID
+      )?.[value]
     } else {
       return result[value]
     }

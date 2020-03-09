@@ -327,7 +327,7 @@ export const DifficultyJudge: DifficultyJudge = {
   fields: [
     {
       name: 'Level 0.5',
-      ifieldIDd: 'l05',
+      fieldID: 'l05',
       min: 0,
       level: 0.5
     },
@@ -422,49 +422,49 @@ export const OverallResultTableHeadersIndividual: ResultTableHeader[] = [
   {
     text: 'Score',
     value: 'R',
-    event: 'srss'
+    eventID: 'srss'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srss',
+    eventID: 'srss',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'srse'
+    eventID: 'srse'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srse',
+    eventID: 'srse',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'srif'
+    eventID: 'srif'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srif',
+    eventID: 'srif',
     color: 'red'
   },
 
   {
     text: 'Normalized',
     value: 'B',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank Sum',
     value: 'T',
     color: 'green',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }
 ]
@@ -505,44 +505,44 @@ export const SingleRopeOverallResultTableHeadersTeam: ResultTableHeader[] = [
   {
     text: 'Score',
     value: 'R',
-    event: 'srsr'
+    eventID: 'srsr'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srsr',
+    eventID: 'srsr',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'srpd'
+    eventID: 'srpd'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srpd',
+    eventID: 'srpd',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'srpf'
+    eventID: 'srpf'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srpf',
+    eventID: 'srpf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'srtf'
+    eventID: 'srtf'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srtf',
+    eventID: 'srtf',
     color: 'red'
   },
 
@@ -550,11 +550,11 @@ export const SingleRopeOverallResultTableHeadersTeam: ResultTableHeader[] = [
     text: 'Rank Sum',
     value: 'T',
     color: 'green',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }
 ]
@@ -594,44 +594,44 @@ export const DoubleDutchOverallResultTableHeadersTeam: ResultTableHeader[] = [
   {
     text: 'Score',
     value: 'R',
-    event: 'ddsr'
+    eventID: 'ddsr'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'ddsr',
+    eventID: 'ddsr',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'ddss'
+    eventID: 'ddss'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'ddss',
+    eventID: 'ddss',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'ddsf'
+    eventID: 'ddsf'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'ddsf',
+    eventID: 'ddsf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'ddpf'
+    eventID: 'ddpf'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'ddpf',
+    eventID: 'ddpf',
     color: 'red'
   },
 
@@ -639,11 +639,11 @@ export const DoubleDutchOverallResultTableHeadersTeam: ResultTableHeader[] = [
     text: 'Rank Sum',
     value: 'T',
     color: 'green',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }
 ]
@@ -706,88 +706,88 @@ export const AllAroundResultTableHeadersTeam: ResultTableHeader[] = [
   {
     text: 'Score',
     value: 'R',
-    event: 'srsr'
+    eventID: 'srsr'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srsr',
+    eventID: 'srsr',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'srpd'
+    eventID: 'srpd'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srpd',
+    eventID: 'srpd',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'srpf'
+    eventID: 'srpf'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srpf',
+    eventID: 'srpf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'srtf'
+    eventID: 'srtf'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'srtf',
+    eventID: 'srtf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'ddsr'
+    eventID: 'ddsr'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'ddsr',
+    eventID: 'ddsr',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'ddss'
+    eventID: 'ddss'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'ddss',
+    eventID: 'ddss',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'ddsf'
+    eventID: 'ddsf'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'ddsf',
+    eventID: 'ddsf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'R',
-    event: 'ddpf'
+    eventID: 'ddpf'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'ddpf',
+    eventID: 'ddpf',
     color: 'red'
   },
 
@@ -795,22 +795,23 @@ export const AllAroundResultTableHeadersTeam: ResultTableHeader[] = [
     text: 'Rank Sum',
     value: 'T',
     color: 'green',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank',
     value: 'S',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }
 ]
 
-export const SpeedResult = function (event: string) {
+export const SpeedResult = function (eventID: string) {
   return function (scores, judges: [string, string]) {
     let judgeResults = []
-    let output = {}
+    let output: { a?: number, m?: number, R?: number } = {}
 
-    let eventObj = config.events.find(el => el.eventID === event)
-    let eventJudgeTypes = eventObj!.judges
+    let eventObj = config.events.find(el => el.eventID === eventID)
+    if (!eventObj) throw new Error('Could not find event ' + eventID)
+    let eventJudgeTypes = eventObj.judges
 
     for (let JudgeType of judges) {
       let judgeID = JudgeType[0]
@@ -868,13 +869,14 @@ export const SpeedRank = function (results: any[] = []): any[] {
   return results
 }
 
-const FreestyleResult = function (event: string) {
+const FreestyleResult = function (eventID: string) {
   return function (scores, judges: [string, string]) {
     let judgeResults = []
-    let output = {}
+    let output: { [prop: string]: number } = {}
 
-    let eventObj = config.events.find(el => el.eventID === event)
-    let eventJudgeTypes = eventObj!.judges
+    let eventObj = config.events.find(el => el.eventID === eventID)
+    if (!eventObj) throw new Error('Could not find event ' + eventID)
+    let eventJudgeTypes = eventObj.judges
 
     for (let JudgeType of judges) {
       let judgeID = JudgeType[0]
@@ -941,19 +943,21 @@ export const FreestyleRank = function (results: any[] = []): any[] {
   return results
 }
 
-const OverallRank = function (overall: string) {
+const OverallRank = function (overallID: string) {
   return function (results = {}) {
-    let ranked = {
+    let ranked: { overall: any[]; [prop: string]: any } = { // TODO: type
       overall: []
     }
-    const overallObj = config.overalls.find(el => el.overallID === overall)
-    let tiePriority = ['overall', 'srif', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr']
+    const overallObj = config.overalls.find(el => el.overallID === overallID)
+    if (!overallObj) throw new Error('Could not find event ' + overallID)
+    let tiePriority = ['overall', 'srif', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr'] // TODO: break ties
 
-    for (const event of overallObj.events) {
-      const eventObj = config.events.find(el => el.eventID === event)
-      ranked[event] = eventObj.rank(results[event])
+    for (const eventID of overallObj.events) {
+      const eventObj = config.events.find(el => el.eventID === eventID)
+      if (!eventObj) throw new Error('Could not find event ' + eventID)
+      ranked[eventID] = eventObj.rank(results[eventID])
 
-      for (const scoreObj of ranked[event]) {
+      for (const scoreObj of ranked[eventID]) {
         let idx = ranked.overall.findIndex(el => el.participant === scoreObj.participant)
         console.log(scoreObj.N)
 

@@ -27,11 +27,11 @@ interface JudgeDataPayload<T = Omit<Judge, 'id'>> extends BasePayload<T> {
   judgeID: string
 }
 
-interface EventBasePayload<T> extends BasePayload<T> {
+interface EventBasePayload<T = string> extends BasePayload<T> {
   eventID: string
 }
 
-interface ScoreBasePayload<T> extends BasePayload<T> {
+interface ScoreBasePayload<T = string> extends BasePayload<T> {
   eventID: string
   participantID: string
 }
@@ -47,6 +47,10 @@ interface SetScorePayloadExtended extends Omit<SetScorePayload, 'value'> {
   max?: number
   step?: number
   value?: number
+}
+
+interface TableBasePayload<T = string> extends BasePayload<T> {
+  table: string
 }
 
 interface Score {
@@ -72,7 +76,13 @@ interface Category {
   participants: TeamPerson[],
   scores: Score[],
   dns: DNS[],
-  printConfig: {}
+  printConfig: PrintConfig
+}
+
+interface PrintConfig {
+  logo?: string
+  exclude: string[]
+  zoom: [string, number][]
 }
 
 interface TPBase {
@@ -115,7 +125,7 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _addCategory({ id }: BasePayload) {
-    Vue.set(this.categories, id, {
+    Vue.set(this.categories, id, <Category>{
       config: {
         name: '',
         group: '',
@@ -127,7 +137,11 @@ export default class CategoriesModule extends VuexModule {
       participants: [],
       scores: [],
       dns: [],
-      printConfig: {}
+      printConfig: {
+        logo: '',
+        exclude: [],
+        zoom: []
+      }
     })
   }
 
@@ -353,6 +367,42 @@ export default class CategoriesModule extends VuexModule {
     }
   }
 
+  @Mutation
+  _tableZoomChange({ id, table, value }: TableBasePayload) {
+    if (!this.categories[id]) return
+    if (typeof value !== 'number') return
+    if (!this.categories[id].printConfig) Vue.set(this.categories[id], 'printConfig', <PrintConfig>{ exclude: [], zoom: [] })
+
+    const zoomIdx = this.categories[id].printConfig.zoom.findIndex(([tbl, _]) => tbl === table)
+
+    if (zoomIdx > -1) this.categories[id].printConfig.zoom[zoomIdx][1] = value
+    else this.categories[id].printConfig.zoom.push([table, value])
+  }
+
+  @Mutation
+  _setCategoryLogo({ id, value }: BasePayload) {
+    if (!this.categories[id]) return
+    if (!this.categories[id].printConfig) Vue.set(this.categories[id], 'printConfig', {})
+
+    Vue.set(this.categories[id].printConfig, 'logo', value)
+  }
+
+  @Mutation
+  _deleteCategoryLogo({ id }: BasePayload) {
+    Vue.delete(this.categories[id].printConfig, 'logo')
+  }
+
+  @Mutation
+  _toggleExcludeTable({ id, table }: TableBasePayload) {
+    if (!this.categories[id]) return
+    if (!this.categories[id].printConfig) Vue.set(this.categories[id], 'printConfig', <PrintConfig>{ exclude: [], zoom: [] })
+
+    const excludeIdx = this.categories[id].printConfig.exclude.indexOf(table)
+
+    if (excludeIdx > -1) this.categories[id].printConfig.exclude.splice(excludeIdx, 1)
+    else this.categories[id].printConfig.exclude.push(table)
+  }
+
   @Action
   newParticipant({ id, value }: BasePayload<Omit<TeamPerson, 'participantID'>>) {
     if (!this.categories[id]) return
@@ -458,6 +508,22 @@ export default class CategoriesModule extends VuexModule {
     })
   }
 
+  @Action
+  zoomChange ({ id, table, value }: TableBasePayload<number>) {
+    this.context.commit('_tableZoomChange', { id, table, value })
+  }
+
+  @Action
+  printLogo ({ id, value }: BasePayload) {
+    if (!value) this.context.commit('_deleteCategoryLogo', { id })
+    this.context.commit('_setCategoryLogo', { id, value })
+  }
+
+  @Action
+  excludePrint ({ id, table }: TableBasePayload) {
+    this.context.commit('_toggleExcludeTable', { id, table })
+  }
+
   get participantScoreObj () {
     return ({ id, eventID, participantID }: ScoreBasePayload<undefined>) => {
       let obj: { [judgeID: string]: Score } = {}
@@ -502,53 +568,8 @@ VuexLocal.plugin(store)
 // const module: Module<any, any> = {
 //   state: {},
 //   mutations: {
-
-//     tableZoomChange(state, payload) {
-//       if (!state[payload.id]) return
-//       if (!state[payload.id].printConfig) Vue.set(state[payload.id], 'printConfig', {})
-//       if (!state[payload.id].printConfig[payload.table]) Vue.set(state[payload.id].printConfig, payload.table, {})
-
-//       Vue.set(state[payload.id].printConfig[payload.table], 'zoom', payload.value)
-//     },
-
-//     setCategoryLogo(state, payload) {
-//       if (!state[payload.id]) return
-//       if (!state[payload.id].printConfig) Vue.set(state[payload.id], 'printConfig', {})
-
-//       Vue.set(state[payload.id].printConfig, 'logo', payload.value)
-//     },
-
-//     deleteCategoryLogo(state, payload) {
-//       Vue.delete(state[payload.id].printConfig, 'logo')
-//     },
-
-//     setExcludeTable(state, payload) {
-//       if (!state[payload.id]) return
-//       if (!state[payload.id].printConfig) Vue.set(state[payload.id], 'printConfig', {})
-//       if (!state[payload.id].printConfig[payload.table]) Vue.set(state[payload.id].printConfig, payload.table, {})
-
-//       Vue.set(state[payload.id].printConfig[payload.table], 'exclude', payload.value)
-//     },
-
-//     deleteExcludeTable(state, payload) {
-//       Vue.delete(state[payload.id].printConfig[payload.table], 'exclude')
-//     }
 //   },
 //   actions: {
-
-//     zoomChange: ({ commit }, { id, table, zoom }) => {
-//       commit('tableZoomChange', { id, table, value: zoom })
-//     },
-
-//     printLogo: ({ commit }, { id, data }) => {
-//       if (!data) commit('deleteCategoryLogo', { id })
-//       commit('setCategoryLogo', { id, value: data })
-//     },
-
-//     excludePrint: ({ commit }, { id, table, value }) => {
-//       // if (!value) commit('deleteExcludeTable', { id, table })
-//       commit('setExcludeTable', { id, table, value })
-//     }
 //   },
 //   getters: {
 //     categoriesList: state => {

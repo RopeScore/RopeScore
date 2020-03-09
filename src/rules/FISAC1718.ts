@@ -264,7 +264,7 @@ export const RequiredElementJudgeSingleRopeMasters: JudgeType = {
 
 export const RequiredElementJudgeSingleRopeTeams: JudgeType = {
   name: 'Required Elements',
-  judgeID: 'b',
+  judgeTypeID: 'b',
   fields: [
     ...RequiredElementJudgeSingleRopeMasters.fields,
     {
@@ -376,9 +376,9 @@ const lMaxes = {
 const diffResult = function (l: Function) {
   return function (scores: FISACScore) {
     console.log(scores)
-    let output = {}
+    let output: { T1: number } = { T1: 0 }
     let fields = this.fields
-    let levScores = {}
+    let levScores: { [fieldID: string]: number } = {}
 
     for (let i = fields.length - 1; i >= 0; i--) {
       if (typeof levScores[fields[i].fieldID] === 'undefined') levScores[fields[i].fieldID] = 0
@@ -579,49 +579,49 @@ export const OverallResultTableHeadersIndividual: ResultTableHeader[] = [
   {
     text: 'Score',
     value: 'Y',
-    event: 'srss'
+    eventID: 'srss'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srss',
+    eventID: 'srss',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'Y',
-    event: 'srse'
+    eventID: 'srse'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srse',
+    eventID: 'srse',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'A',
-    event: 'srsf'
+    eventID: 'srsf'
   }, {
     text: 'Rank',
     value: 'multipliedRank',
-    event: 'srsf',
+    eventID: 'srsf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'score',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank Sum',
     value: 'RSum',
     color: 'green',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }
 ]
@@ -675,92 +675,92 @@ export const OverallResultTableHeadersTeam: ResultTableHeader[] = [
   {
     text: 'Score',
     value: 'Y',
-    event: 'srsr'
+    eventID: 'srsr'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srsr',
+    eventID: 'srsr',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'A',
-    event: 'srpf'
+    eventID: 'srpf'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srpf',
+    eventID: 'srpf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'A',
-    event: 'srtf'
+    eventID: 'srtf'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srtf',
+    eventID: 'srtf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'Y',
-    event: 'ddsr'
+    eventID: 'ddsr'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'ddsr',
+    eventID: 'ddsr',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'A',
-    event: 'ddsf'
+    eventID: 'ddsf'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'ddsf',
+    eventID: 'ddsf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'A',
-    event: 'ddpf'
+    eventID: 'ddpf'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'ddpf',
+    eventID: 'ddpf',
     color: 'red'
   },
 
   {
     text: 'Score',
     value: 'score',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank Sum',
     value: 'RSum',
     color: 'green',
-    event: 'overall'
+    eventID: 'overall'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }
 ]
 
-export const SpeedResult = function (event: string) {
+export const SpeedResult = function (eventID: string) {
   return function (scores: { [judgeID: string]: FISACScore }, judges: [string, string]) {
     let judgeResults: FISACResult[] = []
     let output: FISACResult = {}
 
-    let eventObj = config.events.find(el => el.eventID === event)
+    let eventObj = config.events.find(el => el.eventID === eventID)
     let eventJudgeTypes = eventObj!.judges
 
     for (let judge of judges) {
@@ -785,7 +785,7 @@ export const SpeedResult = function (event: string) {
     }
 
     // Calc T
-    let Ts: number[] = judgeResults.map((el: FISACResult): number | undefined => el.T).filter((el: number | undefined): boolean => typeof el === 'number')
+    let Ts: number[] = judgeResults.map((el: FISACResult): number | undefined => el.T).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
     Ts.sort((a, b) => Number(a) - Number(b))
 
     /* special case if there's only one score entered */
@@ -803,7 +803,7 @@ export const SpeedResult = function (event: string) {
     }
 
     // Calc W
-    let Ws: number[] = judgeResults.map((el: FISACResult): number | undefined => el.W).filter((el: number | undefined): boolean => typeof el === 'number')
+    let Ws: number[] = judgeResults.map((el: FISACResult): number | undefined => el.W).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
     Ws.sort((a, b) => Number(a) - Number(b))
     /* special case if there's only one score entered */
     if (Ws.length === 1) {
@@ -827,13 +827,13 @@ export const SpeedResult = function (event: string) {
   }
 }
 
-export const FreestyleResult = function (event: string) {
+export const FreestyleResult = function (eventID: string) {
   return function (scores: { [judgeID: string]: FISACScore }, judges: [string, string]) {
     let judgeResults: FISACResult[] = []
     let Ts: { [T: string]: number[] } = {}
     let output: FISACResult = {}
 
-    let eventObj = config.events.find(el => el.eventID === event)
+    let eventObj = config.events.find(el => el.eventID === eveventIDent)
     let eventJudgeTypes = eventObj!.judges
 
     for (let judge of judges) {
@@ -871,7 +871,7 @@ export const FreestyleResult = function (event: string) {
       if (i === 3) write = 'T3'
       if (i === 4) write = 'T4'
       if (i === 5) write = 'T5'
-      Ts[write] = judgeResults.map((el: FISACResult): number | undefined => el[write]).filter((el: number | undefined): boolean => typeof el === 'number')
+      Ts[write] = judgeResults.map((el: FISACResult): number | undefined => el[write]).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
       Ts[write].sort((a: number, b: number) => a - b)
 
       if (Ts[write].length === 1) {
@@ -886,7 +886,7 @@ export const FreestyleResult = function (event: string) {
       }
 
       if (i === 5) {
-        Ts.deduc = judgeResults.map(el => el['deduc']).filter(el => typeof el === 'number')
+        Ts.deduc = judgeResults.map(el => el.deduc).filter(el => typeof el === 'number')
         Ts.deduc.sort(function (a, b) {
           return a - b
         })
@@ -940,9 +940,9 @@ export const SpeedRank = function (results: any[] = []): any[] {
   return results
 }
 
-export const FreestyleRank = function (event: string) {
+export const FreestyleRank = function (eventID: string) {
   return function (results: any[] = []): any[] {
-    const eventObj = config.events.find(el => el.eventID === event) || {}
+    const eventObj = config.events.find(el => el.eventID === eventID)
     let CScores = results.map(el => el.Crea)
     let DScores = results.map(el => el.Diff)
 
@@ -981,7 +981,7 @@ export const FreestyleRank = function (event: string) {
     results = results.map((el, idx, arr) => ({
       ...el,
       rank: idx + 1,
-      multipliedRank: (idx + 1) * (eventObj.rankMultiplier || 1)
+      multipliedRank: (idx + 1) * (eventObj?.rankMultiplier ?? 1)
     }))
 
     // DEV SORT BY ID
@@ -993,15 +993,17 @@ export const FreestyleRank = function (event: string) {
 
 export const OverallRank = function (overall: string) {
   return function (results = {}) {
-    let ranked = {
+    let ranked: { overall: any[]; [eventID: string]: any[] } = { // TODO: type
       overall: []
     }
     const overallObj = config.overalls.find(el => el.overallID === overall)
+    if (!overallObj) return
     let tiePriority = ['overall', 'srsf', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr']
 
     for (const event of overallObj.events) {
       const eventObj = config.events.find(el => el.eventID === event)
-      ranked[event] = eventObj?.rank(results[event])
+      if (!eventObj) continue
+      ranked[event] = eventObj.rank(results[event])
 
       for (const scoreObj of ranked[event]) {
         let idx = ranked.overall.findIndex(el => el.participant === scoreObj.participant)

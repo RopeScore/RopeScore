@@ -126,8 +126,11 @@ export default class Category<VueClass> extends Vue {
     const hasScore = category.scores.findIndex(score => score.participantID === participant.participantID && score.eventID === eventID) > -1
 
     if (dns) {
+      // !hasScore && locked
       return 'grey';
     } else if (hasScore) {
+      // return 'primary'
+      // else if hasScore && locked
       return 'success';
     } else {
       return 'error'

@@ -40,15 +40,15 @@
             :headers="eventByID(event).headers"
             :results="rankedResults[event]"
             :participants="category.participants"
-            :logo="(category.printConfig || {}).logo"
+            :logo="category.printConfig.logo"
           />
         </ExcelWorkbook>
-        <v-btn @click="imageSelect()" text>Add Logo</v-btn>
-          <!-- @click="$store.dispatch('categories/printLogo', { id: $route.params.id })" -->
+        <v-btn @click="imageSelect()" text>{{ category.printConfig.logo ? 'Replace' : 'Add' }} Logo</v-btn>
         <v-btn
-          v-if="(category.printConfig || {}).logo"
+          v-if="category.printConfig.logo"
           color="error"
           text
+          @click="categories.printLogo({ id: $route.params.id })"
         >Remove Logo</v-btn>
       </v-card-actions>
     </v-card>
@@ -64,10 +64,10 @@
       :participants="category.participants"
       :logo="(category.printConfig || {}).logo"
       :exclude="((category.printConfig || {})[overall.overallID] || {}).exclude"
+      @printchange="categories.excludePrint({ id: $route.params.id, table: overall.overallID })"
       :zoom="((category.printConfig || {})[overall.overallID] || {}).zoom"
       @zoomchange="zoomChanged(overall.overallID, $event)"
     />
-      <!-- @printchange="$store.dispatch('categories/excludePrint', { id: $route.params.id, table: overall.overallID, value: $event })" -->
     <!-- Events -->
     <ResultTable
       v-for="event in category.config.events"
@@ -97,6 +97,9 @@ import ResultTable from "@/components/ResultTable.vue";
 import ExcelWorkbook from "@/components/ExcelWorkbook.vue";
 import ExcelResultTable from "@/components/ExcelResultTable.vue";
 import CategoriesModule from '../store/categories';
+
+export interface ResultObj { participantID: string; [prop: string]: any }
+export interface ResultsObj { [eventID: string]: ResultObj[] }
 
 @Component({
   components: {
@@ -161,7 +164,7 @@ export default class Results<VueClass> extends Vue {
   }
 
   get results() {
-    let results: { [eventID: string]: { participantID: string; [prop: string]: any }[] } = {} // TODO: type
+    let results: ResultsObj = {}
     for (let eventID of this.category.config.events || []) {
       results[eventID] = this.eventResults(eventID);
     }
@@ -183,7 +186,7 @@ export default class Results<VueClass> extends Vue {
   }
 
   overallResults(overall: Overall) {
-    let results: { [participantID: string]: { participantID: string; [prop: string]: any }[] } = {};
+    let results: ResultsObj = {};
     let participants: { [participantID: string]: string[] } = {};
 
     // TODO: there must be a quicker/simpler way to do this...
@@ -227,11 +230,11 @@ export default class Results<VueClass> extends Vue {
     window.print();
   }
 
-  zoomChanged(table: string, zoom: number) {
-    this.$store.dispatch("categories/zoomChange", {
+  zoomChanged(table: string, value: number) {
+    this.categories.zoomChange({
       id: this.$route.params.id,
       table,
-      zoom
+      value
     });
   }
 
@@ -239,6 +242,7 @@ export default class Results<VueClass> extends Vue {
     let input = document.createElement("input");
     const self = this
     input.type = "file";
+    input.accept = 'image/*'
 
     input.onchange = e => {
       let file = (e.target as HTMLInputElement & EventTarget)?.files?.[0];
@@ -246,10 +250,10 @@ export default class Results<VueClass> extends Vue {
 
       let reader = new FileReader();
       reader.onload = readerEvent => {
-        let data = readerEvent.target?.result;
-        self.$store.dispatch("categories/printLogo", {
+        let data = readerEvent.target?.result as string;
+        self.categories.printLogo({
           id: self.$route.params.id,
-          data
+          value: data
         });
       }
       reader.readAsDataURL(file);

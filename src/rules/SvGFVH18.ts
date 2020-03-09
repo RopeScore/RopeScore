@@ -1,8 +1,8 @@
-import { roundTo, roundToMultiple } from '@/common'
-import { Ruleset, JudgeType, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField } from '.'
+import { roundTo } from '@/common'
+import { Ruleset, JudgeType, ResultTableHeaders } from '.'
 
 import {
-  SpeedJudge as FISACSpeedJudge
+  SpeedJudge as FISACSpeedJudge, FISACResult
 } from './FISAC1718'
 
 const PresMapped = [0, 0.5, 0.5, 1, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
@@ -60,8 +60,8 @@ export const PresentationJudge: JudgeType = {
 }
 
 export const SpeedResult = function (scores, judges) {
-  let judgeResults = []
-  let output = {}
+  let judgeResults: FISACResult[] = []
+  let output: { S: number } = { S: 0 }
 
   let judgeObj = SpeedJudge
   let resultFunction = judgeObj.result
@@ -146,12 +146,12 @@ export const UtmaningsRank = function (results: any[] = []): any[] {
   return results
 }
 
-export const FreestyleResult = function (event: string) {
+export const FreestyleResult = function (eventID: string) {
   return function (scores, judges) {
-    let judgeResults = []
-    let output = {}
+    let judgeResults: FISACResult[] = []
+    let output: { [prop: string]: number } = {}
 
-    let eventObj = config.events.find(el => el.eventID === event)
+    let eventObj = config.events.find(el => el.eventID === eventID)
     let eventJudgeTypes = eventObj!.judges
 
     for (let JudgeType of judges) {
@@ -258,13 +258,15 @@ export const FreestyleRank = function (results: any[] = []): any[] {
 
 export const OverallRank = function (overall: string) {
   return function (results = {}) {
-    let ranked = {
+    let ranked: { overall: any[]; [prop: string]: any[] } = { // TODO: type
       overall: []
     }
     const overallObj = config.overalls.find(el => el.overallID === overall)
+    if (!overallObj) return
 
-    for (const event of overallObj?.events || []) {
+    for (const event of overallObj.events) {
       const eventObj = config.events.find(el => el.eventID === event)
+      if (!eventObj) continue
       ranked[event] = eventObj.rank(results[event])
 
       for (const scoreObj of ranked[event]) {
@@ -356,56 +358,56 @@ export const IndividualOverallTableHeaders: ResultTableHeaders = {
   headers: [{
     text: 'Steg',
     value: 'S',
-    event: 'srss'
+    eventID: 'srss'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srss',
+    eventID: 'srss',
     color: 'red'
   },
 
   {
     text: 'Antal',
     value: 'S',
-    event: 'srdu'
+    eventID: 'srdu'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srdu',
+    eventID: 'srdu',
     color: 'red'
   },
 
   {
     text: 'Steg',
     value: 'S',
-    event: 'srse'
+    eventID: 'srse'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srse',
+    eventID: 'srse',
     color: 'red'
   },
 
   {
     text: 'Poäng',
     value: 'S',
-    event: 'srsf'
+    eventID: 'srsf'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srsf',
+    eventID: 'srsf',
     color: 'red'
   },
 
   {
     text: 'Rank Summa',
     value: 'RSum',
-    event: 'overall',
+    eventID: 'overall',
     color: 'green'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }]
 }
@@ -433,45 +435,45 @@ export const SingleRopeTeamOverallTableHeaders: ResultTableHeaders = {
   headers: [{
     text: 'Steg',
     value: 'S',
-    event: 'srsr'
+    eventID: 'srsr'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srsr',
+    eventID: 'srsr',
     color: 'red'
   },
 
   {
     text: 'Antal',
     value: 'S',
-    event: 'srdr'
+    eventID: 'srdr'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srdr',
+    eventID: 'srdr',
     color: 'red'
   },
 
   {
     text: 'Poäng',
     value: 'S',
-    event: 'srtf'
+    eventID: 'srtf'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'srtf',
+    eventID: 'srtf',
     color: 'red'
   },
 
   {
     text: 'Rank Summa',
     value: 'RSum',
-    event: 'overall',
+    eventID: 'overall',
     color: 'green'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }]
 }
@@ -499,45 +501,45 @@ export const DoubleDutchTeamOverallTableHeaders: ResultTableHeaders = {
   headers: [{
     text: 'Steg',
     value: 'S',
-    event: 'ddsr'
+    eventID: 'ddsr'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'ddsr',
+    eventID: 'ddsr',
     color: 'red'
   },
 
   {
     text: 'Sekunder',
     value: 'S',
-    event: 'ddut'
+    eventID: 'ddut'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'ddut',
+    eventID: 'ddut',
     color: 'red'
   },
 
   {
     text: 'Poäng',
     value: 'S',
-    event: 'ddtf'
+    eventID: 'ddtf'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'ddtf',
+    eventID: 'ddtf',
     color: 'red'
   },
 
   {
     text: 'Rank Summa',
     value: 'RSum',
-    event: 'overall',
+    eventID: 'overall',
     color: 'green'
   }, {
     text: 'Rank',
     value: 'rank',
-    event: 'overall',
+    eventID: 'overall',
     color: 'red'
   }]
 }

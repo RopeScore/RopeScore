@@ -36,13 +36,13 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-content class="mb-8">
+    <v-content>
       <v-container fluid>
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
     </v-content>
 
-    <v-footer app>
+    <v-footer app absolute>
       <span text class="mr-2">&copy; Swantzter 2017-2019</span>
       <v-spacer/>
       <span text class="mr-2">{{ version }}</span>

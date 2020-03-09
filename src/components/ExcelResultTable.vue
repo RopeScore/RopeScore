@@ -8,6 +8,7 @@ import {
 import ExcelWorkbook from './ExcelWorkbook.vue';
 import Excel from 'exceljs';
 import { TeamPerson, Team } from '../store/categories';
+import { ResultsObj, ResultObj } from '../views/CategoryResults.vue';
 
 const colors = require('vuetify/lib/util/colors')
 
@@ -19,7 +20,7 @@ export default class ExcelResultTable<VueClass> extends Vue {
   @Prop({ default: 'individual' }) private type: string;
   @Prop({ default: '' }) private logo: string;
   @Prop({ default: () => {} }) private headers: ResultTableHeaders;
-  @Prop({ default: () => {} }) private results;
+  @Prop({ default: () => {} }) private results: ResultsObj;
   @Prop({ default: () => {} }) private participants: TeamPerson[];
 
   @Watch('id')
@@ -259,23 +260,23 @@ export default class ExcelResultTable<VueClass> extends Vue {
     worksheet: any,
     type: string,
     headers: ResultTableHeader[],
-    results,
+    results: ResultsObj,
     participants: TeamPerson[],
   ) {
     for (let result of (results || {}).overall || results) {
       let row: (string | number)[] = new Array(1)
       if (type === 'team') {
         row.push(
-          participants.find(tp => tp.participantID === result.participant)?.name ?? '',
-          this.memberNames(participants.find(tp => tp.participantID === result.participant) as Team | undefined),
-          participants.find(tp => tp.participantID === result.participant)?.club ?? '',
-          result.participant ?? '' // ID
+          participants.find(tp => tp.participantID === result.participantID)?.name ?? '',
+          this.memberNames(participants.find(tp => tp.participantID === result.participantID) as Team | undefined),
+          participants.find(tp => tp.participantID === result.participantID)?.club ?? '',
+          result.participantID ?? '' // ID
         )
       } else {
         row.push(
-          participants.find(tp => tp.participantID === result.participant)?.name ?? '',
-          participants.find(tp => tp.participantID === result.participant)?.club ?? '',
-          result.participant
+          participants.find(tp => tp.participantID === result.participantID)?.name ?? '',
+          participants.find(tp => tp.participantID === result.participantID)?.club ?? '',
+          result.participantID
         )
       }
       let offset: number = row.length - 1
@@ -290,7 +291,7 @@ export default class ExcelResultTable<VueClass> extends Vue {
         //     }
         //   ]
         // });
-        row.push(this.getScore(result, header.value, header.event))
+        row.push(this.getScore(result, header.value, header.eventID))
       }
 
       worksheet.addRow(row)
@@ -331,11 +332,11 @@ export default class ExcelResultTable<VueClass> extends Vue {
     return team?.members.map(psn => psn.name).join(', ') ?? ''
   }
 
-  getScore (result, value: string, event?: string) {
+  getScore (result: ResultObj, value: string, event?: string) {
     if (event) {
       return this.results[event].find(
-        el => result.participant === el.participant
-      )[value]
+        el => result.participantID === el.participantID
+      )?.[value]
     } else {
       return result[value]
     }
