@@ -10,17 +10,17 @@
       ></v-text-field>
     </v-card-title>
 
-    <!-- <v-dialog v-model="editPersonDialog" max-width="500px" :retain-focus="false">
+    <v-dialog v-model="editParticipantDialog" v-if="focusedParticipant" :max-width="team ? '900px' : '500px'" :retain-focus="false" @click:outside="closeDialogs">
       <v-card>
         <v-card-title>
-          <span class="headline">Edit Person {{ focusedPerson.participantID }}</span>
+          <span class="headline">Edit Participant {{ focusedParticipant.participantID }}</span>
         </v-card-title>
 
         <v-card-text>
-          <v-text-field v-model="focusedPerson.name" label="Name" />
+          <v-text-field v-model="focusedParticipant.name" label="Name" />
           <v-combobox
-            v-model="focusedPerson.club"
-            :items="$store.getters['people/clubs']"
+            v-model="focusedParticipant.club"
+            :items="categories.clubs"
             label="Club"
           />
           <v-autocomplete
@@ -28,45 +28,94 @@
             label="Nationality"
             item-value="id"
             item-text="name"
-            v-model="focusedPerson.country"
+            v-model="focusedParticipant.country"
           />
+          <v-text-field v-model="focusedParticipant.ijruID" label="IJRU ID" v-if="!team" />
+
+          <span v-if="team" class="subtitle-1">Team Members</span>
+          <v-data-table
+            :headers="headers(false)"
+            :items="focusedParticipant.members"
+            v-if="team"
+          >
+           <template v-slot:item.country="{ item }">{{ countriesJSON[item.country.toUpperCase()] }}</template>
+
+            <template v-slot:item.action="{ item }">
+              <div class="text-no-wrap">
+                <!-- <v-btn small color="primary" class="mr-2" @click="openEditParticipantDialog(item)">Edit</v-btn> -->
+                <v-btn small color="error" @click="openDeleteParticipantDialog(item)">Delete</v-btn>
+              </div>
+            </template>
+
+            <template v-slot:body.append>
+              <tr>
+                <td></td>
+                <td>
+                  <v-text-field v-model="newTeamMember.name" label="Name" />
+                </td>
+                <td>
+                  <v-combobox
+                    v-model="newTeamMember.club"
+                    :items="categories.clubs"
+                    label="Club"
+                  />
+                </td>
+                <td>
+                  <v-autocomplete
+                    :items="countries"
+                    label="Nationality"
+                    item-value="id"
+                    item-text="name"
+                    v-model="newTeamMember.country"
+                  />
+                </td>
+                <td><v-text-field v-model="newTeamMember.ijruID" label="IJRU ID" /></td>
+                <td class="text-end">
+                  <v-btn color="primary" @click="addTeamMember">Add</v-btn>
+                </td>
+              </tr>
+            </template>
+          </v-data-table>
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="editPersonDialog = false">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="savePerson">Save</v-btn>
+          <v-btn color="grey" text @click="closeDialogs">Cancel</v-btn>
+          <v-btn color="primary" text @click="saveParticipant">Save</v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>-->
+    </v-dialog>
 
-    <v-dialog v-model="deletePersonDialog" max-width="500px" :retain-focus="false">
+    <v-dialog v-model="deleteParticipantDialog" v-if="focusedParticipant" max-width="500px" :retain-focus="false" @click:outside="closeDialogs">
       <v-card>
         <v-card-title>
-          <span class="headline">Delete {{ focused }}</span>
+          <span class="headline">Delete {{ focusedParticipant.participantID }}</span>
         </v-card-title>
 
-        <v-card-text>Are you sure you want to remove {{ getParticipant(focused).name }} ({{ getParticipant(focused).participantID }}) from {{ getParticipant(focused).club }}? This cannot be undone</v-card-text>
+        <v-card-text>Are you sure you want to remove {{ focusedParticipant.name }} ({{ focusedParticipant.participantID }}) from {{ focusedParticipant.club }}? This cannot be undone</v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="deletePersonDialog = false">Cancel</v-btn>
-          <v-btn color="red darken-1" text @click="deletePerson">Delete</v-btn>
+          <v-btn color="grey" text @click="closeDialogs">Cancel</v-btn>
+          <v-btn color="error" text @click="deleteParticipant">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-data-table
-      :headers="headers"
+      :headers="headers(team)"
       :items="value"
       :search="search"
-      @input="$emit('input', $event)"
     >
       <!-- show-group-by -->
       <template v-slot:item.country="{ item }">{{ countriesJSON[item.country.toUpperCase()] }}</template>
+      <template v-slot:item.members="{ item }">{{ memberNames(item) }}</template>
 
       <template v-slot:item.action="{ item }">
-        <v-btn small color="error" @click="openDeletePersonDialog(item)">Delete</v-btn>
+        <div class="text-no-wrap">
+          <v-btn small color="primary" class="mr-2" @click="openEditParticipantDialog(item)">Edit</v-btn>
+          <v-btn small color="error" @click="openDeleteParticipantDialog(item)">Delete</v-btn>
+        </div>
       </template>
 
       <template v-slot:body.append>
@@ -75,11 +124,13 @@
           <td>
             <v-text-field v-model="newParticipant.name" label="Name" />
           </td>
+          <td v-if="team">
+            <v-text-field v-model="newParticipant.memberNames" label="Team Member Names (comma-separated)" />
+          </td>
           <td>
-            <!-- TODO: clubs from either all categories or current category -->
             <v-combobox
               v-model="newParticipant.club"
-              :items="$store.getters['people/clubs']"
+              :items="categories.clubs"
               label="Club"
             />
           </td>
@@ -92,18 +143,11 @@
               v-model="newParticipant.country"
             />
           </td>
-          <!-- <td></td> -->
+          <td v-if="!team"><v-text-field v-model="newParticipant.ijruID" label="IJRU ID" /></td>
           <td class="text-end">
             <v-btn color="primary" @click="addParticipant()">Add</v-btn>
           </td>
         </tr>
-        <!-- <tr>
-          <td colspan="4"></td>
-          <td><v-text-field v-model="newParticipant.name" label="IJRU ID" /></td>
-          <td class="text-end">
-            <v-btn color="primary" @click="importPerson()">Import</v-btn>
-          </td>
-        </tr>-->
       </template>
     </v-data-table>
   </v-container>
@@ -112,74 +156,174 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { TableHeader as VuetifyTableHeader } from "../plugins/vuetify";
-import { TeamPerson } from "../store/categories";
+import CategoriesModule, { TeamPerson, Team, Person } from "../store/categories";
 import countriesJSON from "../data/countries.json";
+import { getModule } from 'vuex-module-decorators';
+import { memberNames } from '@/common'
 
 @Component
 export default class PeopleTable<VueClass> extends Vue {
   search: string = "";
-  deletePersonDialog: boolean = false;
+  deleteParticipantDialog: boolean = false;
+  editParticipantDialog: boolean = false;
   countriesJSON = countriesJSON;
+  focusedParticipant: TeamPerson | null = null
+  categories = getModule(CategoriesModule);
+  memberNames = memberNames
 
   @Prop({ default: () => [] }) value: TeamPerson[];
+  @Prop({ default: false }) team: boolean;
 
-  headers: VuetifyTableHeader[] = [
-    {
-      text: "ID",
-      value: "participantID",
-      align: "end"
-    },
-    {
-      text: "Name",
-      value: "name"
-    },
-    {
-      text: "Club",
-      value: "club"
-    },
-    {
-      text: "Nationality",
-      value: "country"
-    },
-    // {
-    //   text: 'IJRU ID',
-    //   value: 'ijruID',
-    //   align: 'end'
-    // },
-    {
-      text: "Actions",
-      value: "action",
-      sortable: false,
-      align: "end"
+  headers (team: boolean): VuetifyTableHeader[] {
+    if (team) {
+      return [
+        {
+          text: "ID",
+          value: "participantID",
+          align: "end"
+        },
+        {
+          text: "Name",
+          value: "name"
+        },
+        {
+          text: 'Members',
+          value: 'members'
+        },
+        {
+          text: "Club",
+          value: "club"
+        },
+        {
+          text: "Nationality",
+          value: "country"
+        },
+        {
+          text: "Actions",
+          value: "action",
+          sortable: false,
+          align: "end"
+        }
+      ]
+    } else {
+      return [
+        {
+          text: "ID",
+          value: "participantID",
+          align: "end"
+        },
+        {
+          text: "Name",
+          value: "name"
+        },
+        {
+          text: "Club",
+          value: "club"
+        },
+        {
+          text: "Nationality",
+          value: "country"
+        },
+        {
+          text: 'IJRU ID',
+          value: 'ijruID',
+          align: 'end'
+        },
+        {
+          text: "Actions",
+          value: "action",
+          sortable: false,
+          align: "end"
+        }
+      ]
     }
-  ];
+  }
 
-  newParticipant: Omit<TeamPerson, "participantID"> = {
+  newParticipant: Omit<Team & Person, "participantID" | 'members'> & { memberNames: string } = {
     name: "",
     club: "",
-    country: ""
+    country: "",
+    memberNames: '',
+    ijruID: ""
   };
 
-  focused?: string = "";
+  newTeamMember: Omit<Person, "participantID"> = {
+    name: '',
+    club: '',
+    country: '',
+    ijruID: ''
+  }
 
   addParticipant() {
-    this.$emit("add", this.newParticipant);
+    const { memberNames, ijruID, ...rest } = this.newParticipant
+
+    if (!this.team) this.$set(rest, 'ijruID', ijruID)
+    if (this.team) {
+      const names = memberNames.trim().length ? memberNames.split(',') : []
+      const members: Omit<Person, 'participantID'>[] = names.map(name => ({
+        name: name.trim(),
+        club: this.newParticipant.club,
+        country: this.newParticipant.country,
+        ijruID: ''
+      }));
+      this.$set(rest, 'members', members)
+    }
+
+    this.$emit("add", rest);
+
     this.newParticipant.name = "";
+    this.newParticipant.memberNames = "";
+    this.newParticipant.ijruID = "";
   }
 
-  deletePerson() {
-    this.$emit("delete", this.focused);
-    this.deletePersonDialog = false;
+  addTeamMember() {
+    const self = this
+    this.$emit("add-teammember", { participant: this.focusedParticipant, teamMember: this.newTeamMember })
+    this.newTeamMember.name = ''
+    setTimeout(() => self.focusedParticipant && self.$set(self.focusedParticipant, 'members', (self.value.find(part => part.participantID === self.focusedParticipant?.participantID) as Team)?.members || []))
   }
 
-  openDeletePersonDialog(participant: TeamPerson) {
-    this.focused = participant.participantID;
-    console.log(this.focused);
-    this.deletePersonDialog = true;
+  deleteTeamMember(teamMember: Person) {
+    const self = this
+    this.$emit('delete-teammember', { participantID: this.focusedParticipant?.participantID, teamMemberID: teamMember.participantID })
+    setTimeout(() => self.focusedParticipant && self.$set(self.focusedParticipant, 'members', (self.value.find(part => part.participantID === self.focusedParticipant?.participantID) as Team)?.members || []))
+
   }
 
-  getParticipant(participantID: string) {
-    return this.value.find(par => par.participantID === participantID) || {};
+  deleteParticipant() {
+    if (!this.focusedParticipant) return
+    this.$emit("delete", this.focusedParticipant);
+    this.closeDialogs()
+  }
+
+  saveParticipant() {
+    if (!this.focusedParticipant) return
+    this.$emit("update", this.focusedParticipant);
+    this.closeDialogs()
+  }
+
+  openDeleteParticipantDialog(participant: TeamPerson) {
+    this.focusedParticipant = this.$set(this, 'focusedParticipant', { ...participant })
+    console.log(this.focusedParticipant.participantID);
+    this.deleteParticipantDialog = true;
+  }
+
+  openEditParticipantDialog (participant: TeamPerson) {
+    this.focusedParticipant = this.$set(this, 'focusedParticipant', { ...participant })
+
+    if (this.team) {
+      this.newTeamMember.club = this.focusedParticipant.club
+      this.newTeamMember.country = this.focusedParticipant.country
+    }
+
+    this.editParticipantDialog = true;
+  }
+
+  closeDialogs () {
+    const self = this
+    this.editParticipantDialog = false;
+    this.deleteParticipantDialog = false;
+    setTimeout(() => (self.$set(self, 'focusedParticipant', null)), 500)
   }
 
   get countries(): { id: string; name: string }[] {

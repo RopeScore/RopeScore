@@ -7,14 +7,17 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
+import { getModule } from 'vuex-module-decorators'
 import Excel from "exceljs";
 import { DateTime } from "luxon";
+import SystemModule from '@/store/system';
 
 const colors = require("vuetify/lib/util/colors")
 
 @Component
 export default class ExcelWorkbook<VueClass> extends Vue {
   workbookInternal = new Excel.Workbook();
+  system = getModule(SystemModule)
 
   @Prop({ default: "" }) title: string;
 
@@ -30,7 +33,7 @@ export default class ExcelWorkbook<VueClass> extends Vue {
 
   mounted() {
     this.workbookInternal.creator =
-      this.$store.state.system.computerName ||
+      this.system.computerName ||
       `RopeScore v${require("./../../package.json").version}`;
     this.workbookInternal.lastModifiedBy = `RopeScore v${
       require("./../../package.json").version
@@ -59,7 +62,7 @@ export default class ExcelWorkbook<VueClass> extends Vue {
       link.download = `RopeScore-${this.nameCleaner(
         this.title
       )}-${this.nameCleaner(
-        this.$store.state.system.computerName
+        this.system.computerName
       )}-${DateTime.local().toFormat("yyMMdd")}.xlsx`;
       link.click();
     });

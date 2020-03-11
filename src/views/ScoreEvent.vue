@@ -103,13 +103,15 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { getModule } from 'vuex-module-decorators';
-import rulesets, { Rulesets, JudgeType, InputField } from "@/rules";
+import rulesets, { Rulesets, JudgeType, InputField, Ruleset, EventTypes } from "@/rules";
 import CategoriesModule, { Team, Judge, TeamPerson } from '@/store/categories';
+import { memberNames } from '@/common'
 
 @Component
 export default class ScoreParticipant<VueClass> extends Vue {
   rulesets = rulesets;
   categories = getModule(CategoriesModule)
+  memberNames = memberNames
 
   get ruleset() {
     return this.rulesets.find(
@@ -124,7 +126,7 @@ export default class ScoreParticipant<VueClass> extends Vue {
   }
 
   get event() {
-    return this.ruleset?.events.find(
+    return (this.ruleset?.events as Ruleset['events']).find(
       el => el.eventID === this.$route.params.event
     );
   }
@@ -144,7 +146,7 @@ export default class ScoreParticipant<VueClass> extends Vue {
   }
 
   participantScoreObj (participant: TeamPerson) {
-    return this.categories.participantScoreObj({ id: this.$route.params.id, eventID: this.$route.params.event, participantID: participant.participantID })
+    return this.categories.participantScoreObj({ id: this.$route.params.id, eventID: this.$route.params.event as EventTypes, participantID: participant.participantID })
   }
 
   fieldScore (judge: Judge, field: InputField, participant: TeamPerson): string | number {
@@ -156,7 +158,7 @@ export default class ScoreParticipant<VueClass> extends Vue {
   setScore (judge: Judge, field: InputField, participant: TeamPerson, value?: number, ) {
     this.categories.setScore({
       id: this.$route.params.id,
-      eventID: this.$route.params.event,
+      eventID: this.$route.params.event as EventTypes,
       participantID: participant.participantID,
 
       judgeID: judge.judgeID,
@@ -170,10 +172,6 @@ export default class ScoreParticipant<VueClass> extends Vue {
 
   judgeAssigned (judge: Judge, judgeType: JudgeType) {
     return judge.assignments.findIndex(ass => ass.judgeTypeID === judgeType.judgeTypeID && ass.eventID === this.$route.params.event) > -1
-  }
-
-  memberNames (team?: Team): string {
-    return team?.members.map(psn => psn.name).join(', ') ?? ''
   }
 }
 </script>

@@ -97,9 +97,12 @@
         flat
         class="mb-4"
         :value="categories.categories[id].participants"
-        :team="categories.categories[id].type === 'team'"
+        :team="categories.categories[id].config.type === 'team'"
         @add="categories.newParticipant({ id, value: $event })"
         @delete="categories.deleteParticipant({ id, value: $event })"
+        @update="updateParticipant($event)"
+        @add-teammember="categories.addTeamMember({ id, ...$event })"
+        @delete-teammember="categories._deleteTeamMember({ id, ...$event })"
       />
       <v-btn color="primary" @click="step = 4" class="mr-2">Continue</v-btn>
       <v-btn text @click="step = 2">Back</v-btn>
@@ -164,7 +167,7 @@ import { Component, Vue } from "vue-property-decorator";
 import rulesets, { Rulesets, Ruleset } from "../rules";
 import TeamPersonTable from "../components/TeamPersonTable.vue";
 import { wrap } from "comlink";
-import CategoriesModule from "../store/categories";
+import CategoriesModule, { TeamPerson } from "../store/categories";
 import { getModule } from "vuex-module-decorators";
 
 interface SelectedJudges {
@@ -215,7 +218,7 @@ export default class CategoryConfig<VueClass> extends Vue {
     this.categories.updateEvents({
       id: this.id,
       events: arr,
-      template: this.ruleset?.events.map(el => el.eventID) ?? []
+      template: (this.ruleset?.events as Ruleset['events']).map(el => el.eventID) ?? []
     });
   }
 
@@ -245,14 +248,14 @@ export default class CategoryConfig<VueClass> extends Vue {
   }
 
   eventByID(eventID: string) {
-    return this.ruleset?.events.filter(el => el.eventID === eventID)[0];
+    return (this.ruleset?.events as Ruleset['events']).find(el => el.eventID === eventID);
   }
 
-  updateParticipants(arr: string[]) {
+  updateParticipant(arr: TeamPerson) {
     console.log(arr);
     this.categories.updateParticipants({
       id: this.id,
-      participants: arr
+      participants: [arr]
     });
   }
 
@@ -263,7 +266,6 @@ export default class CategoryConfig<VueClass> extends Vue {
 
   // selectedJudge(judgeID) {
   //   if (this.selectedJudges[judgeID]) return [this.selectedJudges[judgeID]];
-  //   let person = this.$store.state.people.people[judgeID];
   //   if (person) {
   //     return [person.id];
   //   } else {

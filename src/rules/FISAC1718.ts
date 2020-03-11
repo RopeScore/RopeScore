@@ -1,15 +1,25 @@
 import { roundTo } from '@/common'
-import { Ruleset, JudgeType, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField, ScoreInfo } from '.'
+import { Ruleset, JudgeType, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField, ScoreInfo, ResultInfo } from '.'
 
-interface PresentationJudge extends JudgeType {
+export type FISAC1718Events =
+  // Ind
+  'srss' | 'srse' | 'srtu' | 'srsf' |
+  // Team SR
+  'srsr' | 'srpf' | 'srtf' |
+  // Team DD
+  'ddsr' | 'ddsf' | 'ddpf'
+
+export type FISAC1718Overalls = 'indoverall' | 'teamoverall'
+
+interface PresentationJudge extends JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> {
   fields: WeightedInputField[]
 }
 
-export interface WeightedInputField extends InputField {
+export interface WeightedInputField extends InputField<FISAC1718Score, FISAC1718Events> {
   weight?: number
 }
 
-export interface FISACScore extends ScoreInfo {
+export interface FISAC1718Score extends ScoreInfo<FISAC1718Events> {
   // speed
   s?: number
   fStart?: number
@@ -50,12 +60,9 @@ export interface FISACScore extends ScoreInfo {
   l4?: number
   l5?: number
   l6?: number
-
 }
 
-export interface FISACResult {
-  judgeID?: string
-
+export interface FISAC1718Result extends ResultInfo {
   T?: number
   W?: number
   PreY?: number
@@ -70,9 +77,17 @@ export interface FISACResult {
   Crea?: number
   PreA?: number
   A?: number
+
+  deduc?: number
+
+  DRank?: number
+  CRank?: number
+  RSum?: number
+  multipliedRank?: number
+  score?: number
 }
 
-export const SpeedJudge: JudgeType = {
+export const SpeedJudge: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Speed',
   judgeTypeID: 's',
   fields: [{
@@ -82,11 +97,11 @@ export const SpeedJudge: JudgeType = {
     step: 1
   }],
   result: scores => ({
-    T: scores.s as number
+    T: scores.s
   })
 }
 
-export const SpeedHeadJudgeMasters: JudgeType = {
+export const SpeedHeadJudgeMasters: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Speed Head Judge',
   judgeTypeID: 'shj',
   fields: [
@@ -100,12 +115,12 @@ export const SpeedHeadJudgeMasters: JudgeType = {
     }
   ],
   result: scores => ({
-    T: scores.s as number,
-    W: ((scores.fSwitch as number || 0) + (scores.fStart as number || 0)) * 5
+    T: scores.s,
+    W: ((scores.fSwitch || 0) + (scores.fStart || 0)) * 5
   })
 }
 
-export const SpeedHeadJudgeRelays: JudgeType = {
+export const SpeedHeadJudgeRelays: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Speed Head Judge',
   judgeTypeID: 'shj',
   fields: [
@@ -190,12 +205,12 @@ export const PresentationJudge: PresentationJudge = {
         .filter(field => field.fieldID !== 'mim' && field.fieldID !== 'mam')
         .map(field => (scores[field.fieldID] || 0) * (field.weight || 1))
         .reduce((a, b) => a + b) * 5, 4),
-      T5: ((scores.mim as number || 0) * 12.5) + ((scores.mam as number || 0) * 25)
+      T5: ((scores.mim || 0) * 12.5) + ((scores.mam || 0) * 25)
     }
   }
 }
 
-export const RequiredElementJudgeSingleRopeMasters: JudgeType = {
+export const RequiredElementJudgeSingleRopeMasters: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Required Elements',
   judgeTypeID: 'b',
   fields: [{
@@ -257,12 +272,12 @@ export const RequiredElementJudgeSingleRopeMasters: JudgeType = {
 
     return {
       T3: roundTo(score * fac, 4),
-      T5: ((scores.mim as number || 0) * 12.5) + ((scores.mam as number || 0) * 25)
+      T5: ((scores.mim || 0) * 12.5) + ((scores.mam || 0) * 25)
     }
   }
 }
 
-export const RequiredElementJudgeSingleRopeTeams: JudgeType = {
+export const RequiredElementJudgeSingleRopeTeams: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Required Elements',
   judgeTypeID: 'b',
   fields: [
@@ -277,7 +292,7 @@ export const RequiredElementJudgeSingleRopeTeams: JudgeType = {
   result: RequiredElementJudgeSingleRopeMasters.result
 }
 
-export const RequiredElementJudgeDoubleDutchSingle: JudgeType = {
+export const RequiredElementJudgeDoubleDutchSingle: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Required Elements',
   judgeTypeID: 'b',
   fields: [{
@@ -347,12 +362,12 @@ export const RequiredElementJudgeDoubleDutchSingle: JudgeType = {
 
     return {
       T3: roundTo(score * fac, 4),
-      T5: ((scores.mim as number || 0) * 12.5) + ((scores.mam as number || 0) * 25)
+      T5: ((scores.mim || 0) * 12.5) + ((scores.mam || 0) * 25)
     }
   }
 }
 
-export const RequiredElementJudgeDoubleDutchPair: JudgeType = {
+export const RequiredElementJudgeDoubleDutchPair: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Required Elements',
   judgeTypeID: 'b',
   fields: [
@@ -374,19 +389,24 @@ const lMaxes = {
 }
 
 const diffResult = function (l: Function) {
-  return function (scores: FISACScore) {
+  return function (this: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events>, scores: Omit<FISAC1718Score, keyof ScoreInfo<FISAC1718Events>>) {
     console.log(scores)
     let output: { T1: number } = { T1: 0 }
     let fields = this.fields
     let levScores: { [fieldID: string]: number } = {}
 
     for (let i = fields.length - 1; i >= 0; i--) {
-      if (typeof levScores[fields[i].fieldID] === 'undefined') levScores[fields[i].fieldID] = 0
-      levScores[fields[i].fieldID] += (scores[fields[i].fieldID] || 0) * l(Number(fields[i].fieldID.substring(1)))
+      const levID = fields[i].fieldID
+      if (typeof levScores[levID] === 'undefined') levScores[levID] = 0
 
-      if (lMaxes[fields[i].fieldID] && levScores[fields[i].fieldID] > lMaxes[fields[i].fieldID]) {
-        if (i > 0) levScores[fields[i - 1].fieldID] = levScores[fields[i].fieldID] - lMaxes[fields[i].fieldID]
-        levScores[fields[i].fieldID] = lMaxes[fields[i].fieldID]
+      levScores[levID] += (scores[levID] || 0) * l(Number(levID.substring(1)))
+
+      if (Object.prototype.hasOwnProperty.call(lMaxes, levID)) {
+        const partLevID = levID as keyof typeof lMaxes
+        if (levScores[levID] > lMaxes[partLevID]) {
+          if (i > 0) levScores[fields[i - 1].fieldID] = levScores[partLevID] - lMaxes[partLevID]
+          levScores[partLevID] = lMaxes[partLevID]
+        }
       }
     }
 
@@ -396,37 +416,37 @@ const diffResult = function (l: Function) {
   }
 }
 
-export const DifficultyJudgeMasters: JudgeType = {
+export const DifficultyJudgeMasters: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Difficulty',
   judgeTypeID: 'd',
   fields: Array(5).fill(undefined).map((el, idx) => ({
     name: `Level ${idx + 2}`,
-    fieldID: `l${idx + 2}`
+    fieldID: `l${idx + 2}`  as 'l2' | 'l3' | 'l4' | 'l5' | 'l6'
   })),
   result: diffResult((lev: number): number => (3 / (Math.pow(1.5, (6 - lev)))))
 }
 
-export const DifficultyJudgeSingleRopeTeams: JudgeType = {
+export const DifficultyJudgeSingleRopeTeams: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Difficulty',
   judgeTypeID: 'd',
   fields: Array(5).fill(undefined).map((el, idx) => ({
     name: `Level ${idx + 2}`,
-    fieldID: `l${idx + 2}`
+    fieldID: `l${idx + 2}` as 'l2' | 'l3' | 'l4' | 'l5' | 'l6'
   })),
   result: diffResult((lev: number): number => (3.5 / (Math.pow(1.5, (5 - lev)))))
 }
 
-export const DifficultyJudgeDoubleDutchTeams: JudgeType = {
+export const DifficultyJudgeDoubleDutchTeams: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Difficulty',
   judgeTypeID: 'd',
   fields: Array(4).fill(undefined).map((el, idx) => ({
     name: `Level ${idx + 2}`,
-    fieldID: `l${idx + 2}`
+    fieldID: `l${idx + 2}` as 'l2' | 'l3' | 'l4' | 'l5'
   })),
   result: diffResult((lev: number): number => (3 / (Math.pow(1.5, (5 - lev)))))
 }
 
-export const HeadJudgeSingleRope: JudgeType = {
+export const HeadJudgeSingleRope: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Head Judge',
   judgeTypeID: 'hj',
   fields: [{
@@ -452,13 +472,13 @@ export const HeadJudgeSingleRope: JudgeType = {
   }],
   result: function (scores) {
     return {
-      T5: ((scores.mim as number || 0) * 12.5) + ((scores.mam as number || 0) * 25),
-      deduc: ((scores.spc as number || 0) * 12.5) + ((scores.tim as number || 0) * 25) + ((scores.few as number || 0) * 25)
+      T5: ((scores.mim || 0) * 12.5) + ((scores.mam || 0) * 25),
+      deduc: ((scores.spc || 0) * 12.5) + ((scores.tim || 0) * 25) + ((scores.few|| 0) * 25)
     }
   }
 }
 
-export const HeadJudgeDoubleDutchSingle: JudgeType = {
+export const HeadJudgeDoubleDutchSingle: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Head Judge',
   judgeTypeID: 'hj',
   fields: [
@@ -473,7 +493,7 @@ export const HeadJudgeDoubleDutchSingle: JudgeType = {
   result: HeadJudgeSingleRope.result
 }
 
-export const HeadJudgeDoubleDutchPair: JudgeType = {
+export const HeadJudgeDoubleDutchPair: JudgeType<FISAC1718Score, FISAC1718Result, FISAC1718Events> = {
   name: 'Head Judge',
   judgeTypeID: 'hj',
   fields: [
@@ -488,7 +508,7 @@ export const HeadJudgeDoubleDutchPair: JudgeType = {
   result: HeadJudgeSingleRope.result
 }
 
-export const SpeedResultTableHeaders: ResultTableHeaders = {
+export const SpeedResultTableHeaders: ResultTableHeaders<FISAC1718Events> = {
   headers: [{
     text: 'Score',
     value: 'PreY'
@@ -499,7 +519,7 @@ export const SpeedResultTableHeaders: ResultTableHeaders = {
   }]
 }
 
-export const FreestyleResultTableHeaders: ResultTableHeaders = {
+export const FreestyleResultTableHeaders: ResultTableHeaders<FISAC1718Events> = {
   headers: [{
     text: 'Req El',
     value: 'T3',
@@ -548,7 +568,7 @@ export const FreestyleResultTableHeaders: ResultTableHeaders = {
   }]
 }
 
-export const OverallResultTableGroupsIndividual: ResultTableHeaderGroup[][] = [
+export const OverallResultTableGroupsIndividual: ResultTableHeaderGroup<FISAC1718Events>[][] = [
   [{
     text: 'Single Rope',
     value: 'sr',
@@ -575,7 +595,7 @@ export const OverallResultTableGroupsIndividual: ResultTableHeaderGroup[][] = [
   }]
 ]
 
-export const OverallResultTableHeadersIndividual: ResultTableHeader[] = [
+export const OverallResultTableHeadersIndividual: ResultTableHeader<FISAC1718Events | 'overall'>[] = [
   {
     text: 'Score',
     value: 'Y',
@@ -626,7 +646,7 @@ export const OverallResultTableHeadersIndividual: ResultTableHeader[] = [
   }
 ]
 
-export const OverallResultTableGroupsTeam: ResultTableHeaderGroup[][] = [
+export const OverallResultTableGroupsTeam: ResultTableHeaderGroup<FISAC1718Events>[][] = [
   [{
     text: 'Single Rope',
     value: 'sr',
@@ -671,7 +691,7 @@ export const OverallResultTableGroupsTeam: ResultTableHeaderGroup[][] = [
   }]
 ]
 
-export const OverallResultTableHeadersTeam: ResultTableHeader[] = [
+export const OverallResultTableHeadersTeam: ResultTableHeader<FISAC1718Events | 'overall'>[] = [
   {
     text: 'Score',
     value: 'Y',
@@ -756,9 +776,82 @@ export const OverallResultTableHeadersTeam: ResultTableHeader[] = [
 ]
 
 export const SpeedResult = function (eventID: string) {
-  return function (scores: { [judgeID: string]: FISACScore }, judges: [string, string]) {
-    let judgeResults: FISACResult[] = []
-    let output: FISACResult = {}
+  return function (scores: { [judgeID: string]: FISAC1718Score }, judges: [string, string][]) {
+    let judgeResults: FISAC1718Result[] = []
+    let output: FISAC1718Result = {}
+
+    let eventObj = config.events.find(el => el.eventID === eventID)
+    let eventJudgeTypes = eventObj!.judges
+
+    for (let judge of judges) {
+      let judgeID = judge[0]
+      let judgeType = judge[1]
+
+      let judgeObj = eventJudgeTypes!.find(el => el.judgeTypeID === judgeType)!
+      let resultFunction = judgeObj.result
+
+      let idx: number = judgeResults.findIndex(el => el.judgeID === judgeID)
+      if (idx < 0) {
+        judgeResults.push({
+          judgeID,
+          ...resultFunction.call(judgeObj, scores[judgeID] || {})
+        })
+      } else {
+        judgeResults[idx] = {
+          ...judgeResults[idx],
+          ...resultFunction.call(judgeObj, scores[judgeID]|| {})
+        }
+      }
+    }
+
+    // Calc T
+    let Ts: number[] = judgeResults.map((el: FISAC1718Result): number | undefined => el.T).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
+    Ts.sort((a, b) => Number(a) - Number(b))
+
+    /* special case if there's only one score entered */
+    if (Ts.length === 1) {
+      output.T = roundTo(Ts[0], 4)
+    } else {
+      let diff: number | undefined
+      for (let i = 1; i < Ts.length; i++) {
+        let cdiff = Math.abs(Ts[i] - Ts[i - 1])
+        if (typeof diff === 'undefined' || cdiff <= diff) {
+          diff = cdiff
+          output.T = roundTo((Ts[i] + Ts[i - 1]) / 2, 4)
+        }
+      }
+    }
+
+    // Calc W
+    let Ws: number[] = judgeResults.map((el: FISAC1718Result): number | undefined => el.W).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
+    Ws.sort((a, b) => Number(a) - Number(b))
+    /* special case if there's only one score entered */
+    if (Ws.length === 1) {
+      output.W = roundTo(Ws[0], 4)
+    } else {
+      let diff: number | undefined
+      for (let i = 1; i < Ws.length; i++) {
+        let cdiff = Math.abs(Ws[i] - Ws[i - 1])
+        if (typeof diff === 'undefined' || cdiff <= diff) {
+          diff = cdiff
+          output.W = roundTo((Ws[i] + Ws[i - 1]) / 2, 4)
+        }
+      }
+    }
+
+    output.PreY = roundTo((output.T || 0) - (output.W || 0), 4)
+
+    output.Y = roundTo(output.PreY * ((eventObj || {}).scoreMultiplier || 1), 4)
+
+    return output
+  }
+}
+
+export const FreestyleResult = function (eventID: string) {
+  return function (scores: { [judgeID: string]: FISAC1718Score }, judges: [string, string][]) {
+    let judgeResults: FISAC1718Result[] = []
+    let Ts: { [T: string]: number[] } = {}
+    let output: FISAC1718Result = {}
 
     let eventObj = config.events.find(el => el.eventID === eventID)
     let eventJudgeTypes = eventObj!.judges
@@ -784,82 +877,9 @@ export const SpeedResult = function (eventID: string) {
       }
     }
 
-    // Calc T
-    let Ts: number[] = judgeResults.map((el: FISACResult): number | undefined => el.T).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
-    Ts.sort((a, b) => Number(a) - Number(b))
-
-    /* special case if there's only one score entered */
-    if (Ts.length === 1) {
-      output.T = roundTo(Ts[0], 4)
-    } else {
-      let diff: number
-      for (let i = 1; i < Ts.length; i++) {
-        let cdiff = Math.abs(Ts[i] - Ts[i - 1])
-        if (typeof diff === 'undefined' || cdiff <= diff) {
-          diff = cdiff
-          output.T = roundTo((Ts[i] + Ts[i - 1]) / 2, 4)
-        }
-      }
-    }
-
-    // Calc W
-    let Ws: number[] = judgeResults.map((el: FISACResult): number | undefined => el.W).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
-    Ws.sort((a, b) => Number(a) - Number(b))
-    /* special case if there's only one score entered */
-    if (Ws.length === 1) {
-      output.W = roundTo(Ws[0], 4)
-    } else {
-      let diff: number
-      for (let i = 1; i < Ws.length; i++) {
-        let cdiff = Math.abs(Ws[i] - Ws[i - 1])
-        if (typeof diff === 'undefined' || cdiff <= diff) {
-          diff = cdiff
-          output.W = roundTo((Ws[i] + Ws[i - 1]) / 2, 4)
-        }
-      }
-    }
-
-    output.PreY = roundTo((output.T as number || 0) - (output.W as number || 0), 4)
-
-    output.Y = roundTo(output.PreY * ((eventObj || {}).scoreMultiplier as number || 1), 4)
-
-    return output
-  }
-}
-
-export const FreestyleResult = function (eventID: string) {
-  return function (scores: { [judgeID: string]: FISACScore }, judges: [string, string]) {
-    let judgeResults: FISACResult[] = []
-    let Ts: { [T: string]: number[] } = {}
-    let output: FISACResult = {}
-
-    let eventObj = config.events.find(el => el.eventID === eveventIDent)
-    let eventJudgeTypes = eventObj!.judges
-
-    for (let judge of judges) {
-      let judgeID = judge[0]
-      let judgeType = judge[1]
-
-      let judgeObj = eventJudgeTypes!.find(el => el.judgeTypeID === judgeType)!
-      let resultFunction = judgeObj.result
-
-      let idx: number = judgeResults.findIndex(el => el.judgeID === judgeID)
-      if (idx < 0) {
-        judgeResults.push({
-          judgeID,
-          ...resultFunction.call(judgeObj, scores[judgeID] || {})
-        })
-      } else {
-        judgeResults[idx] = {
-          ...judgeResults[idx],
-          ...resultFunction.call(judgeObj, scores[judgeID] || {})
-        }
-      }
-    }
-
     // Calc T's
     for (let i of [1, 2, 3, 4, 5]) {
-      let write: string = 'T1'
+      let write: 'T1' | 'T2' | 'T3' | 'T4' | 'T5' = 'T1'
       if (i === 4) {
         if (typeof output.T3 === 'undefined') { output.T4 = output.T2; continue }
         if (typeof output.T2 === 'undefined') { output.T4 = output.T3; continue }
@@ -871,7 +891,7 @@ export const FreestyleResult = function (eventID: string) {
       if (i === 3) write = 'T3'
       if (i === 4) write = 'T4'
       if (i === 5) write = 'T5'
-      Ts[write] = judgeResults.map((el: FISACResult): number | undefined => el[write]).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
+      Ts[write] = judgeResults.map((el: FISAC1718Result): number | undefined => el[write]).filter((el: number | undefined): boolean => typeof el === 'number') as number[]
       Ts[write].sort((a: number, b: number) => a - b)
 
       if (Ts[write].length === 1) {
@@ -886,31 +906,31 @@ export const FreestyleResult = function (eventID: string) {
       }
 
       if (i === 5) {
-        Ts.deduc = judgeResults.map(el => el.deduc).filter(el => typeof el === 'number')
+        Ts.deduc = judgeResults.map(el => el.deduc).filter(el => typeof el === 'number') as number[]
         Ts.deduc.sort(function (a, b) {
           return a - b
         })
 
         if (Ts.deduc.length === 1) {
-          output[write] += Ts.deduc[0]
+          output[write] = (output[write] || 0) + Ts.deduc[0]
         } else if (Ts.deduc.length <= 3) {
-          let diff: number
+          let diff: number | undefined
           for (let j = 1; j < Ts[write].length; j++) {
             let cdiff = Math.abs(Ts[write][j] - Ts[write][j - 1])
             if (typeof diff === 'undefined' || cdiff <= diff) {
               diff = cdiff
-              output[write] += (Ts.deduc[j] + Ts.deduc[j - 1]) / 2
+              output[write] = (output[write] || 0) + (Ts.deduc[j] + Ts.deduc[j - 1]) / 2
             }
           }
         } else {
           Ts.deduc.pop()
           Ts.deduc.shift()
 
-          output[write] += (Ts.deduc.reduce((a, b) => a + b, 0) / Ts.deduc.length) || 0
+          output[write] = (output[write] || 0) + (Ts.deduc.reduce((a, b) => a + b, 0) / Ts.deduc.length) || 0
         }
       }
 
-      output[write] = roundTo(output[write], 4) || 0
+      output[write] = roundTo(output[write] || 0, 4) || 0
     }
 
     output.Diff = roundTo((output.T1 || 0) - ((output.T5 || 0) / 2), 4)
@@ -922,10 +942,10 @@ export const FreestyleResult = function (eventID: string) {
   }
 }
 
-export const SpeedRank = function (results: any[] = []): any[] {
+export const SpeedRank = function (results: FISAC1718Result[] = []): FISAC1718Result[] {
   // results = results.filter(el => typeof el.Y === 'number')
   results.sort(function (a, b) {
-    return b.Y - a.Y // sort descending
+    return (b.Y || 0) - (a.Y || 0) // sort descending
   })
 
   results = results.map((el, idx, arr) => ({
@@ -940,11 +960,11 @@ export const SpeedRank = function (results: any[] = []): any[] {
   return results
 }
 
-export const FreestyleRank = function (eventID: string) {
-  return function (results: any[] = []): any[] {
+export const FreestyleRank = function (eventID: FISAC1718Events) {
+  return function (results: FISAC1718Result[] = []): FISAC1718Result[] {
     const eventObj = config.events.find(el => el.eventID === eventID)
-    let CScores = results.map(el => el.Crea)
-    let DScores = results.map(el => el.Diff)
+    let CScores = results.map(el => el.Crea || -Infinity)
+    let DScores = results.map(el => el.Diff || -Infinity)
 
     /* sort descending */
     CScores.sort(function (a, b) {
@@ -954,15 +974,15 @@ export const FreestyleRank = function (eventID: string) {
       return b - a // sort descending
     })
 
-    results = results.map((el, idx, arr) => {
-      let CRank = CScores.findIndex(score => score === el.Crea) + 1
-      let DRank = DScores.findIndex(score => score === el.Diff) + 1
-      Object.keys(el).forEach(score => {
-        if (typeof el[score] !== 'number') return
-        el[score] = roundTo(el[score], 2)
+    results = results.map((result, idx, arr) => {
+      let CRank = CScores.findIndex(score => score === result.Crea) + 1
+      let DRank = DScores.findIndex(score => score === result.Diff) + 1;
+      (Object.keys(result) as Array<keyof Omit<FISAC1718Result, keyof ScoreInfo<FISAC1718Events>>>).forEach(score => {
+        if (typeof result[score] !== 'number') return
+        result[score] = roundTo(result[score] || 0, 2)
       })
       return {
-        ...el,
+        ...result,
         CRank,
         DRank,
         RSum: CRank + DRank
@@ -972,9 +992,9 @@ export const FreestyleRank = function (eventID: string) {
     /* sort ascending on rank but descending on score if ranksums are equal */
     results.sort(function (a, b) {
       if (a.RSum === b.RSum) {
-        return b.A - a.A
+        return (b.A ?? 0) - (a.A ?? 0)
       } else {
-        return a.RSum - b.RSum
+        return (a.RSum ?? 0) - (b.RSum ?? 0)
       }
     })
 
@@ -991,33 +1011,37 @@ export const FreestyleRank = function (eventID: string) {
   }
 }
 
-export const OverallRank = function (overall: string) {
-  return function (results = {}) {
-    let ranked: { overall: any[]; [eventID: string]: any[] } = { // TODO: type
+type eventResults = {
+  [eventID in FISAC1718Events]?: FISAC1718Result[]
+}
+
+export const OverallRank = function (overallID: FISAC1718Overalls) {
+  return function (results: eventResults = {}) {
+    let ranked: { overall: FISAC1718Result[] } & eventResults = {
       overall: []
     }
-    const overallObj = config.overalls.find(el => el.overallID === overall)
+    const overallObj = config.overalls.find(el => el.overallID === overallID)
     if (!overallObj) return
-    let tiePriority = ['overall', 'srsf', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr']
+    let tiePriority: (FISAC1718Events | 'overall')[] = ['overall', 'srsf', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr']
 
     for (const event of overallObj.events) {
       const eventObj = config.events.find(el => el.eventID === event)
       if (!eventObj) continue
-      ranked[event] = eventObj.rank(results[event])
+      ranked[event] = eventObj.rank(results[event]!)
 
-      for (const scoreObj of ranked[event]) {
-        let idx = ranked.overall.findIndex(el => el.participant === scoreObj.participant)
+      for (const scoreObj of ranked[event]!) {
+        let idx = ranked.overall.findIndex(el => el.participantID === scoreObj.participantID)
 
         if (idx >= 0) {
-          if (typeof scoreObj.A === 'number') ranked.overall[idx].score = roundTo(ranked.overall[idx].score + scoreObj.A, 4)
-          if (typeof scoreObj.Y === 'number') ranked.overall[idx].score = roundTo(ranked.overall[idx].score + scoreObj.Y, 4)
-          ranked.overall[idx].RSum += scoreObj.multipliedRank
+          if (typeof scoreObj.A === 'number') ranked.overall[idx].score = roundTo((ranked.overall[idx].score ?? 0) + scoreObj.A, 4)
+          if (typeof scoreObj.Y === 'number') ranked.overall[idx].score = roundTo((ranked.overall[idx].score ?? 0) + scoreObj.Y, 4)
+          ranked.overall[idx].RSum = (ranked.overall[idx].RSum ?? 0) + (scoreObj.multipliedRank ?? 0)
         } else {
           let score
           if (typeof scoreObj.A === 'number') score = roundTo(scoreObj.A, 4)
           if (typeof scoreObj.Y === 'number') score = roundTo(scoreObj.Y, 4)
           ranked.overall.push({
-            participant: scoreObj.participant,
+            participantID: scoreObj.participantID,
             score,
             RSum: scoreObj.multipliedRank
           })
@@ -1032,14 +1056,14 @@ export const OverallRank = function (overall: string) {
         /* resolve ties */
         for (let event of tiePriority) {
           if (ranked[event]) {
-            let eventA = ranked[event].find(el => el.participant === a.participant)
-            let eventB = ranked[event].find(el => el.participant === b.participant)
-            let field = (typeof eventA.Y === 'number' ? 'Y' : 'A')
-            if (eventB[field] !== eventA[field]) return eventB[field] - eventA[field]
+            let eventA = ranked[event]?.find(el => el.participantID === a.participantID)
+            let eventB = ranked[event]?.find(el => el.participantID === b.participantID)
+            let field: 'Y' | 'A' = (typeof eventA?.Y === 'number' ? 'Y' : 'A')
+            if (eventB?.[field] ?? 0 !== eventA?.[field] ?? 0) return (eventB?.[field] ?? 0) - (eventA?.[field] ?? 0)
           }
         }
       }
-      return a.RSum - b.RSum
+      return (a.RSum ?? 0) - (b.RSum ?? 0)
     })
     ranked.overall = ranked.overall.map((el, idx, arr) => ({
       ...el,
@@ -1053,7 +1077,7 @@ export const OverallRank = function (overall: string) {
   }
 }
 
-const config: Ruleset = {
+const config: Ruleset<FISAC1718Score, FISAC1718Result, FISAC1718Events, FISAC1718Overalls> = {
   name: 'FISAC-IRSF 2017-2018',
   rulesetID: 'FISAC1718',
   versions: ['intl'],

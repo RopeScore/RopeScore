@@ -128,7 +128,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import { getModule } from 'vuex-module-decorators'
 import { wrap } from "comlink";
-import rulesets, { Rulesets, JudgeType, InputField } from "@/rules";
+import rulesets, { Rulesets, JudgeType, InputField, Ruleset, EventTypes } from "@/rules";
 import CategoriesModule, { Team, Judge } from '@/store/categories';
 
 @Component
@@ -149,7 +149,7 @@ export default class ScoreParticipant<VueClass> extends Vue {
   }
 
   get event() {
-    return this.ruleset?.events.find(
+    return (this.ruleset?.events as Ruleset['events']).find(
       el => el.eventID === this.$route.params.event
     );
   }
@@ -169,7 +169,7 @@ export default class ScoreParticipant<VueClass> extends Vue {
   }
 
   get participantScoreObj () {
-    return this.categories.participantScoreObj({ id: this.$route.params.id, eventID: this.$route.params.event, participantID: this.$route.params.participant })
+    return this.categories.participantScoreObj({ id: this.$route.params.id, eventID: this.$route.params.event as EventTypes, participantID: this.$route.params.participant })
   }
 
   fieldScore (judge: Judge, field: InputField): string | number {
@@ -181,7 +181,7 @@ export default class ScoreParticipant<VueClass> extends Vue {
   setScore (judge: Judge, field: InputField, value?: number) {
     this.categories.setScore({
       id: this.$route.params.id,
-      eventID: this.$route.params.event,
+      eventID: this.$route.params.event as EventTypes,
       participantID: this.$route.params.participant,
 
       judgeID: judge.judgeID,
@@ -209,10 +209,6 @@ export default class ScoreParticipant<VueClass> extends Vue {
 
     if (idx < 0) return undefined;
     return this.category.participants[idx].participantID;
-  }
-
-  memberNames (team?: Team): string {
-    return team?.members.map(psn => psn.name).join(', ') ?? ''
   }
 }
 </script>

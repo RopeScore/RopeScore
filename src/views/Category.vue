@@ -43,7 +43,7 @@
             :key="`header-${eventID}`"
           >
             <v-btn
-              v-if="eventByID(eventID).multipleEntry"
+              v-if="(eventByID(eventID) || {}).multipleEntry"
               text
               link
               :to="`/category/${$route.params.id}/score/${eventID}`"
@@ -65,7 +65,7 @@
             v-if="categories.categories[$route.params.id].config.type === 'team'"
             class="caption text-truncate"
             max-width="20em"
-          >{{ memberNames(participant.members) }}</td>
+          >{{ memberNames(participant) }}</td>
           <td>{{ participant.club }}</td>
           <td>{{ participant.participantID }}</td>
 
@@ -93,16 +93,18 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import SHA1 from "crypto-js/sha1";
-import rulesets, { Rulesets } from "../rules";
+import rulesets, { Rulesets, Ruleset } from "../rules";
 import TableHeader from "../plugins/vuetify";
 import { wrap } from "comlink";
 import CategoriesModule, { Person, TeamPerson } from "../store/categories";
 import { getModule } from "vuex-module-decorators";
+import { memberNames } from '@/common'
 
 @Component
 export default class Category<VueClass> extends Vue {
   rulesets = rulesets;
   categories = getModule(CategoriesModule);
+  memberNames = memberNames
 
   get ruleset() {
     return this.rulesets.find(
@@ -113,11 +115,7 @@ export default class Category<VueClass> extends Vue {
   }
 
   eventByID(eventID: string) {
-    return this.ruleset?.events.find(el => el.eventID === eventID);
-  }
-
-  memberNames(members: Person[] = []): string {
-    return members.map(psn => psn.name).join(", ");
+    return (this.ruleset?.events as Ruleset['events']).find(el => el.eventID === eventID);
   }
 
   scoreColor(eventID: string, participant: TeamPerson): string {

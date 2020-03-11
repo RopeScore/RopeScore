@@ -63,36 +63,36 @@
       :results="overallRanks(overall)"
       :participants="category.participants"
       :logo="(category.printConfig || {}).logo"
-      :exclude="((category.printConfig || {})[overall.overallID] || {}).exclude"
-      @printchange="categories.excludePrint({ id: $route.params.id, table: overall.overallID })"
-      :zoom="((category.printConfig || {})[overall.overallID] || {}).zoom"
+      :exclude="excluded(overall.overallID)"
+      :zoom="categories.tableZoom({ id: $route.params.id, table: overall.overallID})"
       @zoomchange="zoomChanged(overall.overallID, $event)"
+      @printchange="categories._toggleExcludeTable({ id: $route.params.id, table: overall.overallID })"
     />
     <!-- Events -->
     <ResultTable
-      v-for="event in category.config.events"
-      :key="event"
+      v-for="eventID in category.config.events"
+      :key="eventID"
       :print-view="printView"
       :category="category.config.name"
-      :title="eventByID(event).name"
+      :title="eventID"
       :type="category.config.type"
-      :headers="eventByID(event).headers"
-      :results="rankedResults[event]"
+      :headers="eventByID(eventID).headers"
+      :results="rankedResults[eventID]"
       :participants="category.participants"
       :logo="(category.printConfig || {}).logo"
-      :exclude="((category.printConfig || {})[event] || {}).exclude"
-      :zoom="((category.printConfig || {})[event] || {}).zoom"
+      :exclude="excluded(eventID)"
+      :zoom="categories.tableZoom({ id: $route.params.id, table: eventID})"
       @should-print="updateWorksheet('hello')"
-      @zoomchange="zoomChanged(event, $event)"
+      @zoomchange="zoomChanged(eventID, $event)"
+      @printchange="categories._toggleExcludeTable({ id: $route.params.id, table: eventID })"
     />
-      <!-- @printchange="$store.dispatch('categories/excludePrint', { id: $route.params.id, table: event, value: $event })" -->
   </v-container>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { getModule } from "vuex-module-decorators";
-import rulesets, { Overall } from "@/rules";
+import rulesets, { Overall, Ruleset, EventTypes, Overalls } from "@/rules";
 import ResultTable from "@/components/ResultTable.vue";
 import ExcelWorkbook from "@/components/ExcelWorkbook.vue";
 import ExcelResultTable from "@/components/ExcelResultTable.vue";
@@ -126,31 +126,32 @@ export default class Results<VueClass> extends Vue {
   }
 
   get overalls() {
-    return this.ruleset?.overalls.filter(
+    const overalls = (this.ruleset?.overalls as Ruleset['overalls']).filter(
       el =>
         el.type ===
         this.category.config.type
     );
+    return overalls
   }
 
   eventByID(eventID: string) {
-    return this.ruleset?.events.find(el => el.eventID === eventID);
+    return (this.ruleset?.events as Ruleset['events']).find(el => el.eventID === eventID);
   }
 
-  judgesArr (eventID: string) {
+  judgesArr (eventID: string): [string, string][] {
     return this.categories.categories[this.$route.params.id].judges
       .filter(judge => judge.assignments.findIndex(ass => ass.eventID === eventID && ass.judgeTypeID.length > 0) > -1)
       .map(judge => [judge.judgeID, judge.assignments.find(ass => ass.eventID === eventID)!.judgeTypeID])
   }
 
-  eventResults(eventID: string): { participantID: string; [prop: string]: any }[] {
+  eventResults(eventID: EventTypes): { participantID: string; [prop: string]: any }[] {
     let results = [];
 
     let scores = this.categories.eventScoreObj({
       id: this.$route.params.id,
       eventID
     });
-    let participants = Object.keys(scores);
+    let participants = Object.keys(scores).filter(partID => this.category.participants.map(p => p.participantID).includes(partID));
     let eventObj = this.eventByID(eventID);
 
     if (!eventObj) return []
@@ -191,8 +192,8 @@ export default class Results<VueClass> extends Vue {
 
     // TODO: there must be a quicker/simpler way to do this...
 
-    overall.events.forEach(eventID =>
-      this.results[eventID].forEach(result => {
+    (overall.events || []).forEach(eventID =>
+      (this.results[eventID] || []).forEach(result => {
         if (!participants[result.participantID]) {
           participants[result.participantID] = [];
         }
@@ -230,12 +231,16 @@ export default class Results<VueClass> extends Vue {
     window.print();
   }
 
-  zoomChanged(table: string, value: number) {
+  zoomChanged(table: EventTypes | Overalls, value: number) {
     this.categories.zoomChange({
       id: this.$route.params.id,
       table,
       value
     });
+  }
+
+  excluded (table: EventTypes | Overalls) {
+    return (this.category.printConfig.exclude ?? []).includes(table)
   }
 
   imageSelect() {

@@ -1,76 +1,87 @@
-// import { expose } from 'comlink'
-import FISAC1718 from './FISAC1718'
-import IJRU1_0_0 from './IJRU1-0-0'
+import FISAC1718, { FISAC1718Score, FISAC1718Result, FISAC1718Events, FISAC1718Overalls } from './FISAC1718'
+import IJRU1_0_0, { IJRU1_0_0Events, IJRU1_0_0Overalls, IJRU1_0_0Result, IJRU1_0_0Score } from './IJRU1-0-0'
+import SvGFVH18, { SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls } from './SvGFVH18'
 // import SvGFRH1718 from './SvGFRH1718'
-import SvGFVH18 from './SvGFVH18'
 
-export interface ScoreInfo {
-  eventID: string;
+export type Score = FISAC1718Score | IJRU1_0_0Score | SvGFVH18Score
+export type Result = FISAC1718Result | IJRU1_0_0Result | SvGFVH18Result
+export type EventTypes = FISAC1718Events | IJRU1_0_0Events | SvGFVH18Events
+export type Overalls = FISAC1718Overalls | IJRU1_0_0Overalls | SvGFVH18Overalls
+
+export interface ScoreInfo<E = EventTypes> {
+  eventID: E;
   judgeID: string
   participantID: string;
 }
 
-export interface InputField {
-  fieldID: string
+export interface ResultInfo {
+  judgeID?: string
+  participantID?: string
+}
+
+export interface InputField<S = Score, E = EventTypes> {
+  fieldID: keyof Omit<S, keyof ScoreInfo<E>>
   name: string
   min?: number
   max?: number
   step?: number
 }
 
-export interface JudgeType {
+export interface JudgeType<S = Score, R = Result, E = EventTypes> {
   judgeTypeID: string,
   name: string
-  fields: InputField[]
-  result: (scores: { [fieldID: string]: number }) => { [fieldID: string]: number } | undefined
+  fields: InputField<S, E>[]
+  result: (scores: Partial<Omit<S, keyof ScoreInfo<E>>>) => Partial<R> | undefined
 }
 
-export interface ResultTableHeader {
+export interface ResultTableHeader<E = EventTypes> {
   text: string
   value: string
-  eventID?: string
+  eventID?: E | 'overall'
   color?: string
 }
 
-export interface ResultTableHeaderGroup extends ResultTableHeader {
+export interface ResultTableHeaderGroup<E = EventTypes> extends ResultTableHeader<E> {
   colspan?: number
   rowspan?: number
 }
 
-export interface ResultTableHeaders {
-  groups?: ResultTableHeaderGroup[][]
-  headers: ResultTableHeader[]
+export interface ResultTableHeaders<E = EventTypes> {
+  groups?: ResultTableHeaderGroup<E>[][]
+  headers: ResultTableHeader<E>[]
 }
 
-export interface Event {
-  eventID: string
+export interface Event<S = Score, R = Result, E = EventTypes, O = Overalls> {
+  eventID: E
   name: string
-  judges: JudgeType[]
-  result: Function
-  rank: Function
-  headers: ResultTableHeaders
+  judges: JudgeType<S, R, E>[]
+  result: (scores: { [judgeID: string]: S; }, judges: [string, string][]) => R
+  rank: (results: R[]) => R[]
+  headers: ResultTableHeaders<E | 'overall'>
   scoreMultiplier?: number
   rankMultiplier?: number
   multipleEntry?: boolean
 }
 
-export interface Overall extends ResultTableHeaders {
-  overallID: string
+type eventResults<R, T> = { [K in T extends string ? T : never]?: R[] }
+
+export interface Overall<S = Score, R = Result, E = EventTypes, O = Overalls> extends ResultTableHeaders<E | 'overall'> {
+  overallID: O
   text: string
-  type: string
-  events: string[]
-  rank: Function
+  type: 'team' | 'individual'
+  events: E[]
+  rank: (results?: eventResults<R, E>) => ({ overall: R[] } & eventResults<R, E>) | undefined
 }
 
-export interface Ruleset {
+export interface Ruleset<S = Score, R = Result, E = EventTypes, O = Overalls> {
   rulesetID: string
   name: string
   versions: string[]
-  events: Event[]
-  overalls: Overall[]
+  events: Event<S, R, E>[]
+  overalls: Overall<S, R, E, O>[]
 }
 
-export type Rulesets = Ruleset[]
+export type Rulesets<S = Score, R = Result, E = EventTypes, O = Overalls> = Ruleset<S, R, E, O>[]
 
 export default [
   FISAC1718,
@@ -78,5 +89,3 @@ export default [
   // SvGFRH1718,
   SvGFVH18
 ]
-
-// export default {} as typeof Worker & { new(): Worker }

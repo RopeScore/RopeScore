@@ -1,12 +1,13 @@
 // import { Module } from 'vuex'
 // import Vue from 'vue'
-import { leftFillNum, roundToMultiple } from '@/common'
+import { leftFillNum, roundToMultiple, nextID } from '@/common'
 import Vue from 'vue'
 
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import store from '@/plugins/store'
 
 import VuexPersistance from 'vuex-persist'
+import { Score, EventTypes, Overalls } from '@/rules'
 
 const VuexLocal = new VuexPersistance({
   storage: window.localStorage,
@@ -19,7 +20,7 @@ interface BasePayload<T = string> {
   value?: T
 }
 
-interface ParticipantDataPayload extends BasePayload<TeamPerson> {
+interface ParticipantDataPayload extends BasePayload<Partial<TeamPerson>> {
   participantID: string
 }
 
@@ -28,11 +29,11 @@ interface JudgeDataPayload<T = Omit<Judge, 'id'>> extends BasePayload<T> {
 }
 
 interface EventBasePayload<T = string> extends BasePayload<T> {
-  eventID: string
+  eventID: EventTypes
 }
 
 interface ScoreBasePayload<T = string> extends BasePayload<T> {
-  eventID: string
+  eventID: EventTypes
   participantID: string
 }
 
@@ -49,15 +50,13 @@ interface SetScorePayloadExtended extends Omit<SetScorePayload, 'value'> {
   value?: number
 }
 
-interface TableBasePayload<T = string> extends BasePayload<T> {
-  table: string
+interface UpdateParticipantsPayload {
+  id: string
+  participants: Array<Partial<TeamPerson>>
 }
 
-interface Score {
-  participantID: string
-  eventID: string
-  judgeID: string
-  [prop: string]: number | string
+interface TableBasePayload<T = string> extends BasePayload<T> {
+  table: EventTypes | Overalls
 }
 
 interface Categories {
@@ -70,7 +69,7 @@ interface Category {
     group?: string
     ruleset?: string
     type?: 'team' | 'individual'
-    events?: string[]
+    events?: EventTypes[]
   },
   judges: Judge[],
   participants: TeamPerson[],
@@ -81,8 +80,8 @@ interface Category {
 
 interface PrintConfig {
   logo?: string
-  exclude: string[]
-  zoom: [string, number][]
+  exclude: (EventTypes | Overalls)[]
+  zoom: [EventTypes | Overalls, number][]
 }
 
 interface TPBase {
@@ -110,13 +109,13 @@ export interface Judge {
 }
 
 interface Assignment {
-  eventID: string
+  eventID: EventTypes
   judgeTypeID: string
 }
 
 interface DNS {
   participantID: string;
-  eventID: string;
+  eventID: EventTypes;
 }
 
 @Module({ namespaced: true, name: 'categories', dynamic: true, store })
@@ -152,7 +151,7 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _setCategoryName({ id, value }: BasePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set name`)
     if (!this.categories[id].config) this.categories[id].config = {}
 
     this.categories[id].config.name = value
@@ -160,7 +159,7 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _setCategoryGroup({ id, value }: BasePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set group`)
     if (!this.categories[id].config) this.categories[id].config = {}
 
     this.categories[id].config.group = value
@@ -168,7 +167,7 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _setCategoryRuleset({ id, value }: BasePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set ruleset`)
     if (!this.categories[id].config) this.categories[id].config = {}
 
     this.categories[id].config.ruleset = value
@@ -176,24 +175,24 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _setCategoryType({ id, value }: BasePayload<'team' | 'individual'>) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set type`)
     if (!this.categories[id].config) this.categories[id].config = {}
 
     this.categories[id].config.type = value
-    this.categories[id].participants = []
+    this.categories[id].participants.splice(0, this.categories[id].participants.length)
   }
 
   @Mutation
   _setCategoryEvents({ id, value }: BasePayload<string[]>) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set events`)
     if (!this.categories[id].config) this.categories[id].config = {}
 
-    this.categories[id].config.events = value
+    Vue.set(this.categories[id].config, 'events', value)
   }
 
   @Mutation
   _sortCategoryEvents({ id, template }: { id: string, template: string[] }) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't sort events`)
     if (!this.categories[id].config) this.categories[id].config = {};
 
     (this.categories[id].config.events || []).sort((a, b) => template.indexOf(a) - template.indexOf(b))
@@ -201,9 +200,9 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _addParticipant({ id, value }: BasePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't add participant`)
     if (!this.categories[id].judges) this.categories[id].judges = []
-    if (!value) return
+    if (!value) throw new Error(`no participantID for new participant provided`)
 
     this.categories[id].participants.push(<TPBase>{
       participantID: value,
@@ -215,9 +214,12 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _setParticipantInfo({ id, participantID, value }: ParticipantDataPayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].participants) this.categories[id].participants = []
-    if (!value) return
+    if (!value) throw new Error(`No participantID to update provided`)
+
+    if ((value as Partial<Team>)?.members) delete (value as Team).members
+    if (this.categories[id].config.type === 'team' && typeof (value as Partial<Person>)?.ijruID === 'string') delete (value as Person).ijruID
 
     let idx = this.categories[id].participants.findIndex(el => el.participantID === participantID)
     if (idx >= 0) {
@@ -225,24 +227,57 @@ export default class CategoriesModule extends VuexModule {
         ...this.categories[id].participants[idx],
         ...value
       })
+    } else {
+      throw new Error(`Participant ${participantID} not found in category ${id}. Can't update`)
     }
   }
 
   @Mutation
   _deleteParticipant({ id, value }: BasePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].participants) this.categories[id].participants = []
-    if (!value) return
+    if (!value) throw new Error(`No participantID to delete provided`)
 
     let idx = this.categories[id].participants.findIndex(el => el.participantID === value)
     if (idx >= 0) this.categories[id].participants.splice(idx, 1)
   }
 
   @Mutation
+  _addTeamMember ({ id, participantID, value }: { id: string, participantID: string, value: Person }) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't add participant`)
+    if (!this.categories[id].participants) this.categories[id].participants = []
+    if (!participantID) throw new Error(`no participantID provided to add team member to`)
+    if (!value) throw new Error(`no teamMember to add provided`)
+
+    const pIdx = this.categories[id].participants.findIndex(part => part.participantID === participantID)
+
+    if (pIdx < 0) throw new Error(`Team ${participantID} to add member to doesn't exist on category ${id}`)
+    if (!(this.categories[id].participants[pIdx] as Team).members) Vue.set(this.categories[id].participants[pIdx], 'members', []);
+
+    (this.categories[id].participants[pIdx] as Team).members.push(value)
+  }
+
+  @Mutation
+  _deleteTeamMember ({ id, participantID, teamMemberID }: { id: string, participantID: string, teamMemberID: string }) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't add participant`)
+    if (!this.categories[id].participants) this.categories[id].participants = []
+    if (!participantID) throw new Error(`no participantID provided to add team member to`)
+    if (!teamMemberID) throw new Error(`no teamMemberID to delete provided`)
+
+    const pIdx = this.categories[id].participants.findIndex(part => part.participantID === participantID)
+
+    if (pIdx < 0) throw new Error(`Team ${participantID} to add member to doesn't exist on category ${id}`)
+    if (!(this.categories[id].participants[pIdx] as Team).members) Vue.set(this.categories[id].participants[pIdx], 'members', [])
+
+    let idx = (this.categories[id].participants[pIdx] as Team).members.findIndex(el => el.participantID === teamMemberID)
+    if (idx >= 0) (this.categories[id].participants[pIdx] as Team).members.splice(idx, 1)
+  }
+
+  @Mutation
   _addJudge({ id, value }: BasePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].judges) this.categories[id].judges = []
-    if (!value) return
+    if (!value) throw new Error(`No judgeID provided for new judge`)
 
     this.categories[id].judges.push({
       judgeID: value,
@@ -253,9 +288,9 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _setJudgeInfo({ id, judgeID, value }: JudgeDataPayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].judges) this.categories[id].judges = []
-    if (!value) return
+    if (!value) throw new Error(`No judgeID to update provided`)
 
     let idx = this.categories[id].judges.findIndex(el => el.judgeID === judgeID)
     if (idx >= 0) {
@@ -263,48 +298,49 @@ export default class CategoriesModule extends VuexModule {
         ...this.categories[id].participants[idx],
         ...value
       })
+    } else {
+      throw new Error(`Judge ${judgeID} not found in category ${id}. Can't update`)
     }
   }
 
   @Mutation
   _setJudgeAssignment({ id, judgeID, value }: JudgeDataPayload<Assignment>) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].judges) this.categories[id].judges = []
-    if (!value) return
+    if (!value) throw new Error(`No judgeID to assign provided`)
 
     const jIdx = this.categories[id].judges.findIndex(el => el.judgeID === judgeID)
-    if (jIdx < 0) return
+    if (jIdx < 0) throw new Error(`Judge ${judgeID} not found in category ${id}. Can't assign`)
 
     const aIdx = this.categories[id].judges[jIdx].assignments.findIndex(asg => asg.eventID === value.eventID)
     if (aIdx >= 0 && !value.judgeTypeID) {
       // is assigned but new assignment is none, remove
       this.categories[id].judges[jIdx].assignments.splice(aIdx, 1)
-    }
-
-    if (aIdx >= 0 && value.judgeTypeID) {
+    } else if (aIdx >= 0 && value.judgeTypeID) {
       // is assigned and has changed
       this.categories[id].judges[jIdx].assignments.splice(aIdx, 1, value)
-    }
-
-    if (aIdx < 0 && value.judgeTypeID) {
+    } else if (aIdx < 0 && value.judgeTypeID) {
       // not assigned but will be
       this.categories[id].judges[jIdx].assignments.push(value)
+    } else {
+      throw new Error(`no judgeType provided for assignment`)
     }
   }
 
   @Mutation
   _deleteJudge({ id, value }: BasePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].judges) this.categories[id].judges = []
-    if (!value) return
+    if (!value) throw new Error(`No judgeID to delete provided`)
 
     let idx = this.categories[id].judges.findIndex(el => el.judgeID === value)
     if (idx >= 0) this.categories[id].judges.splice(idx, 1)
+    else throw new Error(`Judge ${value} not found in category ${id}. Can't delete`)
   }
 
   @Mutation
   _setDNS ({ id, participantID, eventID }: ScoreBasePayload<undefined>) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].dns) Vue.set(this.categories[id], 'dns', [])
 
     this.categories[id].dns.push({
@@ -315,19 +351,21 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _deleteDNS ({ id, participantID, eventID }: ScoreBasePayload<undefined>) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].dns) Vue.set(this.categories[id], 'dns', [])
 
     let idx = this.categories[id].dns.findIndex(el => el.eventID === eventID && el.participantID === participantID)
 
     if (idx >= 0) {
       this.categories[id].dns.splice(idx, 1)
+    } else {
+      throw new Error(`the participant ${participantID} is not listed in DNS for category ${id}. Can't unset`)
     }
   }
 
   @Mutation
   _setScore({ id, eventID, participantID, judgeID, value, fieldID }: SetScorePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
 
     let idx = this.categories[id].scores.findIndex(score => {
@@ -350,7 +388,7 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _deleteScore({ id, eventID, participantID, judgeID, fieldID }: Omit<SetScorePayload, 'value'>) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
 
     let idx = this.categories[id].scores.findIndex(score => {
@@ -364,24 +402,24 @@ export default class CategoriesModule extends VuexModule {
       if (Object.keys(this.categories[id].scores[idx]).filter(el => !['eventID', 'participantID', 'judgeID'].includes(el)).length === 0) {
         this.categories[id].scores.splice(idx, 1)
       }
-    }
+    } else throw new Error(`Score for participant ${participantID} and event ${eventID} by judgeID ${judgeID} not found in category ${id}. Can't delete`)
   }
 
   @Mutation
-  _tableZoomChange({ id, table, value }: TableBasePayload) {
-    if (!this.categories[id]) return
-    if (typeof value !== 'number') return
-    if (!this.categories[id].printConfig) Vue.set(this.categories[id], 'printConfig', <PrintConfig>{ exclude: [], zoom: [] })
+  _tableZoomChange({ id, table, value }: TableBasePayload<number>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (typeof value !== 'number') throw new Error(`Must provide a number for table zoom`)
+    if (!this.categories[id].printConfig || !this.categories[id].printConfig.zoom) Vue.set(this.categories[id], 'printConfig', <PrintConfig>{ exclude: [], zoom: [] })
 
     const zoomIdx = this.categories[id].printConfig.zoom.findIndex(([tbl, _]) => tbl === table)
 
-    if (zoomIdx > -1) this.categories[id].printConfig.zoom[zoomIdx][1] = value
+    if (zoomIdx > -1) this.categories[id].printConfig.zoom[zoomIdx].splice(1, 1, value)
     else this.categories[id].printConfig.zoom.push([table, value])
   }
 
   @Mutation
   _setCategoryLogo({ id, value }: BasePayload) {
-    if (!this.categories[id]) return
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].printConfig) Vue.set(this.categories[id], 'printConfig', {})
 
     Vue.set(this.categories[id].printConfig, 'logo', value)
@@ -394,8 +432,8 @@ export default class CategoriesModule extends VuexModule {
 
   @Mutation
   _toggleExcludeTable({ id, table }: TableBasePayload) {
-    if (!this.categories[id]) return
-    if (!this.categories[id].printConfig) Vue.set(this.categories[id], 'printConfig', <PrintConfig>{ exclude: [], zoom: [] })
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].printConfig || !this.categories[id].printConfig.exclude) Vue.set(this.categories[id], 'printConfig', <PrintConfig>{ exclude: [], zoom: [] })
 
     const excludeIdx = this.categories[id].printConfig.exclude.indexOf(table)
 
@@ -404,49 +442,83 @@ export default class CategoriesModule extends VuexModule {
   }
 
   @Action
-  newParticipant({ id, value }: BasePayload<Omit<TeamPerson, 'participantID'>>) {
-    if (!this.categories[id]) return
+  newParticipant({ id, value, startAt }: BasePayload<Omit<Team & Person, 'participantID'>> & { startAt?: number }) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].participants) this.categories[id].participants = []
     if (!value) return
 
-    let participantID = 'P001RS'
-    const participantIDs = this.categories[id].participants
-      .map(el => el.participantID)
-      .sort((a, b) => Number(a.substring(1, 4)) - Number(b.substring(1, 4)))
+    const team = this.categories[id].config.type === 'team'
+    const prefix = team ? 'T' : 'P'
+    const suffix = 'RS'
 
-    if (participantIDs.length > 0) {
-      let last = participantIDs[participantIDs.length - 1]
-      let lastID = Number(last.substring(1, 4))
+    const participantID = nextID(
+      this.categories[id].participants.map(el => el.participantID),
+      prefix,
+      suffix,
+      startAt
+    )
 
-      participantID = `P${leftFillNum(lastID + 1, 3)}RS`
-    }
+    const members = value.members ? [ ...value.members ] : []
 
     this.context.commit('_addParticipant', { id, value: participantID })
     this.context.commit('_setParticipantInfo', { id, participantID, value })
+
+    if (team && members) {
+      for (const teamMember of members) {
+        this.addTeamMember({ id, participant: { participantID, ...value }, teamMember })
+      }
+    }
   }
 
   @Action
-  deleteParticipant({ id, value }: BasePayload) {
+  updateParticipants ({ id, participants }: UpdateParticipantsPayload) {
+    for (const participant of participants) {
+      this.context.commit('_setParticipantInfo', { id, participantID: participant.participantID, value: participant })
+    }
+  }
+
+  @Action
+  deleteParticipant({ id, value }: BasePayload<TeamPerson>) {
+    if (!value) return
     // TODO: remove the aprticipant's scores
-    this.context.commit('_deleteParticipant', { id, value })
+    this.context.commit('_deleteParticipant', { id, value: value.participantID })
   }
 
   @Action
-  addJudge({ id, value }: BasePayload<Omit<Judge, 'id'>>) {
-    if (!this.categories[id]) return
+  addTeamMember({ id, participant: { participantID }, teamMember }: { id: string; participant: Team; teamMember: Partial<Person> }) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].participants) this.categories[id].participants = []
+
+    const members = (this.categories[id].participants as Team[]).find(p => p.participantID === participantID)?.members || []
+    const teamMemberID = nextID(
+      members.map(m => m.participantID),
+      participantID
+    )
+
+    this.context.commit('_addTeamMember', {
+      id,
+      participantID,
+      value: {
+        participantID: teamMemberID,
+        ...teamMember
+      }
+    })
+  }
+
+  @Action
+  addJudge({ id, value, startAt }: BasePayload<Omit<Judge, 'id'>> & { startAt?: number }) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].judges) this.categories[id].judges = []
 
-    let judgeID = 'J001RS'
-    const judgeIDs = this.categories[id].judges
-      .map(el => el.judgeID)
-      .sort((a, b) => Number(a.substring(1, 4)) - Number(b.substring(1, 4)))
+    const prefix = 'J'
+    const suffix = 'RS'
 
-    if (judgeIDs.length > 0) {
-      let last = judgeIDs[judgeIDs.length - 1]
-      let lastID = Number(last.substring(1, 4))
-
-      judgeID = `J${leftFillNum(lastID + 1, 3)}RS`
-    }
+    const judgeID = nextID(
+      this.categories[id].judges.map(el => el.judgeID),
+      prefix,
+      suffix,
+      startAt
+    )
 
     this.context.commit('_addJudge', { id, value: judgeID })
     this.context.commit('_setJudgeInfo', { id, judgeID, value })
@@ -519,16 +591,12 @@ export default class CategoriesModule extends VuexModule {
     this.context.commit('_setCategoryLogo', { id, value })
   }
 
-  @Action
-  excludePrint ({ id, table }: TableBasePayload) {
-    this.context.commit('_toggleExcludeTable', { id, table })
-  }
-
   get participantScoreObj () {
     return ({ id, eventID, participantID }: ScoreBasePayload<undefined>) => {
       let obj: { [judgeID: string]: Score } = {}
       let related = this.categories[id].scores.filter(el => el.eventID === eventID && el.participantID === participantID)
       related.forEach(el => { obj[el.judgeID] = { ...el } })
+      console.log('oi', obj)
       return obj
     }
   }
@@ -561,31 +629,14 @@ export default class CategoriesModule extends VuexModule {
       return obj
     }
   }
+
+  get clubs () {
+    return [...new Set(Object.values(this.categories).flatMap(cat => cat.participants).map(part => part.club))]
+  }
+
+  get tableZoom () {
+    return ({ id, table }: TableBasePayload) => (this.categories[id].printConfig.zoom ?? []).find(([tbl, _]) => table === tbl)?.[1] ?? 1
+  }
 }
 
 VuexLocal.plugin(store)
-
-// const module: Module<any, any> = {
-//   state: {},
-//   mutations: {
-//   },
-//   actions: {
-//   },
-//   getters: {
-//     categoriesList: state => {
-//       return Object.keys(state).map((id: string) => ({
-//         id,
-//         name: state[id].config.name,
-//         group: state[id].config.group,
-//         ruleset: state[id].config.ruleset
-//       }))
-//     },
-//     groups: state => {
-//       return Object.keys(state)
-//         .map((id: string) => state[id].config.group)
-//         .filter((el: string, idx: number, arr: string[]): boolean => arr.indexOf(el) === idx)
-//         .filter((el: string): boolean => !!el)
-//     },
-// }
-
-// export default module

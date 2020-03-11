@@ -9,6 +9,7 @@ import ExcelWorkbook from './ExcelWorkbook.vue';
 import Excel from 'exceljs';
 import { TeamPerson, Team } from '../store/categories';
 import { ResultsObj, ResultObj } from '../views/CategoryResults.vue';
+import { memberNames } from '../common';
 
 const colors = require('vuetify/lib/util/colors')
 
@@ -82,8 +83,7 @@ export default class ExcelResultTable<VueClass> extends Vue {
     worksheet.pageSetup.fitToPage = true
     // worksheet.pageSetup.printArea = "A1:G20";
 
-    worksheet.headerFooter.oddFooter =
-      '&LScores from RopeScore - ropescore.com&RPage &P of &N';
+    worksheet.headerFooter.oddFooter = '&LScores from RopeScore - ropescore.com&RPage &P of &N';
     worksheet.headerFooter.oddHeader = `&L${this.category} - ${this.title}` // worksheet name, add &R&G to add the logo?
 
     return worksheet
@@ -236,7 +236,11 @@ export default class ExcelResultTable<VueClass> extends Vue {
     // }
 
     for (let merge of merges) {
-      worksheet.mergeCells(...merge) // top,left,bottom,right
+      try {
+        worksheet.mergeCells(...merge) // top,left,bottom,right
+      } catch {
+        console.log('already merged')
+      }
     }
 
     worksheet.eachRow((row: any) =>
@@ -268,7 +272,7 @@ export default class ExcelResultTable<VueClass> extends Vue {
       if (type === 'team') {
         row.push(
           participants.find(tp => tp.participantID === result.participantID)?.name ?? '',
-          this.memberNames(participants.find(tp => tp.participantID === result.participantID) as Team | undefined),
+          memberNames(participants.find(tp => tp.participantID === result.participantID) as Team | undefined),
           participants.find(tp => tp.participantID === result.participantID)?.club ?? '',
           result.participantID ?? '' // ID
         )
@@ -326,10 +330,6 @@ export default class ExcelResultTable<VueClass> extends Vue {
         }
       ).base.substring(1)
     )
-  }
-
-  memberNames (team?: Team): string {
-    return team?.members.map(psn => psn.name).join(', ') ?? ''
   }
 
   getScore (result: ResultObj, value: string, event?: string) {

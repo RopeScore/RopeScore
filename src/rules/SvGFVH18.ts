@@ -1,20 +1,54 @@
 import { roundTo } from '@/common'
-import { Ruleset, JudgeType, ResultTableHeaders } from '.'
+import { Ruleset, JudgeType, ResultTableHeaders, ScoreInfo, ResultInfo, Event } from '.'
 
 import {
-  SpeedJudge as FISACSpeedJudge, FISACResult
+  SpeedJudge as FISACSpeedJudge
 } from './FISAC1718'
 
 const PresMapped = [0, 0.5, 0.5, 1, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
 
-export const SpeedJudge: JudgeType = {
-  ...FISACSpeedJudge,
+export type SvGFVH18Events =
+  // Ind
+  'srss' | 'srdu' | 'srse' | 'srsf' |
+  // Team SR
+  'srsr' | 'srdr' | 'srtf' |
+  // Team DD
+  'ddsr' | 'ddut' | 'ddtf'
+
+export type SvGFVH18Overalls = 'indoverall' | 'teamddoverall' | 'teamsroverall'
+
+export interface SvGFVH18Score extends ScoreInfo<SvGFVH18Events> {
+  s?: number
+
+  oa?: number
+
+  l1?: number
+  l2?: number
+  l3?: number
+  l4?: number
+  l5?: number
+
+  p?: number
+}
+
+export interface SvGFVH18Result extends ResultInfo {
+  S?: number
+  O?: number
+  D?: number
+  P?: number
+
+  rank?: number
+  RSum?: number
+}
+
+export const SpeedJudge: JudgeType<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events> = {
+  ...FISACSpeedJudge as JudgeType<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events>,
   result: scores => ({
-    S: scores.s || 0
+    S: scores.s ?? 0
   })
 }
 
-export const ObligaJudge: JudgeType = {
+export const ObligaJudge: JudgeType<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events> = {
   name: 'Obligatoriska',
   judgeTypeID: 'o',
   fields: [{
@@ -25,16 +59,16 @@ export const ObligaJudge: JudgeType = {
     step: 1
   }],
   result: scores => ({
-    O: (scores.oa || 0) * 2
+    O: (scores.oa ?? 0) * 2
   })
 }
 
-export const DifficultyJudge: JudgeType = {
+export const DifficultyJudge: JudgeType<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events> = {
   name: 'Svårighet',
   judgeTypeID: 'd',
   fields: Array(5).fill(undefined).map((el, idx) => ({
     name: `Level ${idx + 1}`,
-    fieldID: `l${idx + 1}`
+    fieldID: `l${idx + 1}` as 'l1' | 'l2' | 'l3' | 'l4' | 'l5'
   })),
   result: scores => ({
     D: (scores.l1 || 0) +
@@ -45,7 +79,7 @@ export const DifficultyJudge: JudgeType = {
   })
 }
 
-export const PresentationJudge: JudgeType = {
+export const PresentationJudge: JudgeType<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events> = {
   name: 'Presentation',
   judgeTypeID: 'p',
   fields: [{
@@ -59,9 +93,9 @@ export const PresentationJudge: JudgeType = {
   })
 }
 
-export const SpeedResult = function (scores, judges) {
-  let judgeResults: FISACResult[] = []
-  let output: { S: number } = { S: 0 }
+export const SpeedResult: Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls>['result'] = function (scores, judges) {
+  let judgeResults: SvGFVH18Result[] = []
+  let output: SvGFVH18Result = { S: 0 }
 
   let judgeObj = SpeedJudge
   let resultFunction = judgeObj.result
@@ -84,7 +118,7 @@ export const SpeedResult = function (scores, judges) {
   }
 
   // Calc T
-  let Ss = judgeResults.map(el => el.S).filter(el => typeof el === 'number')
+  let Ss = judgeResults.map(el => el.S).filter(el => typeof el === 'number') as number[]
   Ss.sort(function (a, b) {
     return a - b
   })
@@ -93,7 +127,7 @@ export const SpeedResult = function (scores, judges) {
   if (Ss.length === 1) {
     output.S = roundTo(Ss[0], 4)
   } else {
-    let diff: number
+    let diff: number | undefined
     for (let i = 1; i < Ss.length; i++) {
       let cdiff = Math.abs(Ss[i] - Ss[i - 1])
       if (typeof diff === 'undefined' || cdiff <= diff) {
@@ -106,13 +140,13 @@ export const SpeedResult = function (scores, judges) {
   return output
 }
 
-export const SpeedRank = function (results: any[] = []): any[] {
+export const SpeedRank: Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls>['rank'] = function (results = []) {
   // results = results.filter(el => typeof el.Y === 'number')
   results.sort(function (a, b) {
-    return b.S - a.S // sort descending
+    return (b.S ?? 0) - (a.S ?? 0) // sort descending
   })
 
-  results = results.map((el, idx, arr) => ({
+  results = results.map((el, _, arr) => ({
     ...el,
     rank: arr.findIndex(obj => obj.S === el.S) + 1
   }))
@@ -129,10 +163,10 @@ export const SpeedRank = function (results: any[] = []): any[] {
   return results
 }
 
-export const UtmaningsRank = function (results: any[] = []): any[] {
+export const UtmaningsRank: Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls>['rank'] = function (results= []) {
   // results = results.filter(el => typeof el.Y === 'number')
   results.sort(function (a, b) {
-    return a.S - b.S // sort ascending
+    return (a.S ?? 0) - (b.S ?? 0) // sort ascending
   })
 
   results = results.map((el, idx, arr) => ({
@@ -146,9 +180,9 @@ export const UtmaningsRank = function (results: any[] = []): any[] {
   return results
 }
 
-export const FreestyleResult = function (eventID: string) {
+export const FreestyleResult = function (eventID: string): Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls>['result'] {
   return function (scores, judges) {
-    let judgeResults: FISACResult[] = []
+    let judgeResults: SvGFVH18Result[] = []
     let output: { [prop: string]: number } = {}
 
     let eventObj = config.events.find(el => el.eventID === eventID)
@@ -175,9 +209,9 @@ export const FreestyleResult = function (eventID: string) {
       }
     }
 
-    for (let result of ['O', 'P', 'D']) {
+    for (let result of ['O', 'P', 'D'] as Array<keyof SvGFVH18Result>) {
       // Calc T
-      let Ts = judgeResults.map(el => el[result]).filter(el => typeof el === 'number')
+      let Ts = judgeResults.map(el => el[result]).filter(el => typeof el === 'number') as number[]
 
       output[result] = roundTo(Ts.reduce((a, b) => a + b) / Ts.length, 1)
     }
@@ -256,9 +290,13 @@ export const FreestyleRank = function (results: any[] = []): any[] {
   return results
 }
 
+type eventResults = {
+  [eventID in SvGFVH18Events]?: SvGFVH18Result[]
+}
+
 export const OverallRank = function (overall: string) {
-  return function (results = {}) {
-    let ranked: { overall: any[]; [prop: string]: any[] } = { // TODO: type
+  return function (results: eventResults = {}) {
+    let ranked: { overall: SvGFVH18Result[] } & eventResults = {
       overall: []
     }
     const overallObj = config.overalls.find(el => el.overallID === overall)
@@ -267,16 +305,16 @@ export const OverallRank = function (overall: string) {
     for (const event of overallObj.events) {
       const eventObj = config.events.find(el => el.eventID === event)
       if (!eventObj) continue
-      ranked[event] = eventObj.rank(results[event])
+      ranked[event] = eventObj.rank(results[event]!)
 
-      for (const scoreObj of ranked[event]) {
-        let idx = ranked.overall.findIndex(el => el.participant === scoreObj.participant)
+      for (const scoreObj of ranked[event]!) {
+        let idx = ranked.overall.findIndex(el => el.participantID === scoreObj.participantID)
 
         if (idx >= 0) {
-          ranked.overall[idx].RSum += scoreObj.rank
+          ranked.overall[idx].RSum = (ranked.overall[idx].RSum ?? 0) + (scoreObj.rank ?? 0)
         } else {
           ranked.overall.push({
-            participant: scoreObj.participant,
+            participantID: scoreObj.participantID,
             RSum: scoreObj.rank
           })
         }
@@ -285,20 +323,20 @@ export const OverallRank = function (overall: string) {
 
     console.log(ranked)
 
-    ranked.overall.sort((a, b) => a.RSum - b.RSum)
+    ranked.overall.sort((a, b) => (a.RSum ?? 0) - (b.RSum ?? 0))
     ranked.overall = ranked.overall.map((el, idx, arr) => ({
       ...el,
       rank: arr.findIndex(obj => obj.RSum === el.RSum) + 1
     }))
 
     // DEV SORT BY ID
-    ranked.overall.sort((a, b) => Number(a.participantID.substring(1, 4) - Number(b.participantID.substring(1, 4))))
+    ranked.overall.sort((a, b) => Number(a.participantID?.substring(1, 4)) - Number(b.participantID?.substring(1, 4)))
 
     return ranked
   }
 }
 
-export const SpeedResultTableHeaders: ResultTableHeaders = {
+export const SpeedResultTableHeaders: ResultTableHeaders<SvGFVH18Events> = {
   headers: [{
     text: 'Steg',
     value: 'S'
@@ -309,7 +347,7 @@ export const SpeedResultTableHeaders: ResultTableHeaders = {
   }]
 }
 
-export const UtmaningsResultTableHeaders: ResultTableHeaders = {
+export const UtmaningsResultTableHeaders: ResultTableHeaders<SvGFVH18Events> = {
   headers: [{
     text: 'Sekunder',
     value: 'S'
@@ -320,7 +358,7 @@ export const UtmaningsResultTableHeaders: ResultTableHeaders = {
   }]
 }
 
-export const FreestyleResultTableHeaders: ResultTableHeaders = {
+export const FreestyleResultTableHeaders: ResultTableHeaders<SvGFVH18Events> = {
   headers: [{
     text: 'Summa',
     value: 'S'
@@ -331,7 +369,7 @@ export const FreestyleResultTableHeaders: ResultTableHeaders = {
   }]
 }
 
-export const IndividualOverallTableHeaders: ResultTableHeaders = {
+export const IndividualOverallTableHeaders: ResultTableHeaders<SvGFVH18Events> = {
   groups: [
     [{
       text: 'Snabbhet 30s',
@@ -412,7 +450,7 @@ export const IndividualOverallTableHeaders: ResultTableHeaders = {
   }]
 }
 
-export const SingleRopeTeamOverallTableHeaders: ResultTableHeaders = {
+export const SingleRopeTeamOverallTableHeaders: ResultTableHeaders<SvGFVH18Events> = {
   groups: [
     [{
       text: 'Snabbhet 4*30s',
@@ -478,7 +516,7 @@ export const SingleRopeTeamOverallTableHeaders: ResultTableHeaders = {
   }]
 }
 
-export const DoubleDutchTeamOverallTableHeaders: ResultTableHeaders = {
+export const DoubleDutchTeamOverallTableHeaders: ResultTableHeaders<SvGFVH18Events> = {
   groups: [
     [{
       text: 'Snabbhet 2*45s',
@@ -544,7 +582,7 @@ export const DoubleDutchTeamOverallTableHeaders: ResultTableHeaders = {
   }]
 }
 
-const config: Ruleset = {
+const config: Ruleset<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls> = {
   name: 'SvGF Vikingahoppet',
   rulesetID: 'SvGFVH18',
   versions: ['se'],

@@ -29,8 +29,8 @@
             <th v-else-if="idx === 0" colspan="3" :rowspan="headers.groups.length"></th>
 
             <th
-              v-for="group in row"
-              :key="`row-${idx}-${group.text}`"
+              v-for="(group, gIdx) in row"
+              :key="`row-${idx}-${gIdx}`"
               :colspan="group.colspan"
               :rowspan="group.rowspan"
             >{{ group.text }}</th>
@@ -88,6 +88,7 @@ import {
 } from '@/rules';
 import CategoriesModule, { TeamPerson, Team } from '@/store/categories';
 import { ResultsObj } from '../views/CategoryResults.vue';
+import { memberNames } from '@/common'
 
 @Component
 export default class ResultTable<VueClass> extends Vue {
@@ -103,10 +104,11 @@ export default class ResultTable<VueClass> extends Vue {
 
   version: string = require('@/../package.json').version;
   categories = getModule(CategoriesModule)
+  memberNames = memberNames
 
   @Emit('printchange')
-  togglePrint (): void {
-    return
+  togglePrint () {
+    return true
   }
 
   classColorObj (color: string = 'black'): { [cssClass: string]: boolean } {
@@ -116,11 +118,7 @@ export default class ResultTable<VueClass> extends Vue {
   }
 
   getParticipant(participantID: string) {
-    return this.participants.find(part => part.participantID === participantID)
-  }
-
-  memberNames (team?: Team): string {
-    return team?.members.map(psn => psn.name).join(', ') ?? ''
+    return this.participants.find(part => part.participantID === participantID) || {}
   }
 
   getScore (result: any, value: string, event?: string) {
@@ -145,6 +143,7 @@ export default class ResultTable<VueClass> extends Vue {
   }
 
   mounted (): void {
+    if (!(this.$el as any).style) return;
     (this.$el as any).style.setProperty(
       '--page-zoom',
       `${Math.round(this.zoom * 100)}%`
