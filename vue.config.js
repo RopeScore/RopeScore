@@ -22,7 +22,7 @@ module.exports = {
         mac: {
           target: 'dmg',
           category: 'public.app-category.sports',
-          icon: 'build/icons.icns'
+          icon: 'src/assets/icons.icns'
         },
         win: {
           target: [{
@@ -32,7 +32,7 @@ module.exports = {
               'ia32'
             ]
           }],
-          icon: 'public/icon.ico'
+          icon: 'src/assets/icon.ico'
         }
       }
     }
