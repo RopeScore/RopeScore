@@ -18,13 +18,20 @@ module.exports = {
         appId: 'com.ropescore.app',
         copyright: 'Copyright © 2017-2020 Swantzter',
         productName: 'RopeScore',
+        publish: ['github'],
         mac: {
           target: 'dmg',
           category: 'public.app-category.sports',
           icon: 'build/icons.icns'
         },
         win: {
-          target: 'nsis',
+          target: [{
+            target: 'nsis',
+            arch: [
+              'x64',
+              'ia32'
+            ]
+          }],
           icon: 'public/icon.ico'
         }
       }

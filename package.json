@@ -23,6 +23,7 @@
     "comlink": "^4.2.0",
     "core-js": "^3.6.4",
     "crypto-js": "^3.3.0",
+    "electron-updater": "^4.2.4",
     "exceljs": "^3.8.1",
     "luxon": "^1.22.0",
     "vue": "^2.6.11",
