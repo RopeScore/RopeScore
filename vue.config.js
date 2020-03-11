@@ -24,7 +24,8 @@ module.exports = {
           icon: 'build/icons.icns'
         },
         win: {
-          target: 'nsis'
+          target: 'nsis',
+          icon: 'public/icon.ico'
         }
       }
     }

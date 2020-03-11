@@ -3,7 +3,7 @@
     <v-card-title>
       {{ categories.categories[$route.params.id].config.name }}
       <v-spacer />
-      <v-btn link :to="`/category/${$route.params.id}/config`">Configure</v-btn>
+      <v-btn link text :to="`/category/${$route.params.id}/config`">Configure</v-btn>
     </v-card-title>
     <v-divider />
     <v-simple-table fixed-header dense>

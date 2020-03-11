@@ -31,14 +31,14 @@
           />
 
           <ExcelResultTable
-            v-for="event in category.config.events"
-            :key="`excelsheet-${event}`"
-            :id="event"
+            v-for="eventID in category.config.events"
+            :key="`excelsheet-${eventID}`"
+            :id="eventID"
             :category="category.config.name"
-            :title="eventByID(event).name"
+            :title="eventByID(eventID).name"
             :type="category.config.type"
-            :headers="eventByID(event).headers"
-            :results="rankedResults[event]"
+            :headers="eventByID(eventID).headers"
+            :results="rankedResults[eventID]"
             :participants="category.participants"
             :logo="category.printConfig.logo"
           />
@@ -74,7 +74,7 @@
       :key="eventID"
       :print-view="printView"
       :category="category.config.name"
-      :title="eventID"
+      :title="eventByID(eventID).name"
       :type="category.config.type"
       :headers="eventByID(eventID).headers"
       :results="rankedResults[eventID]"
@@ -202,15 +202,15 @@ export default class Results<VueClass> extends Vue {
     );
 
     let inAll = Object.keys(participants).filter(
-      participant => participants[participant].length === overall.events.length
+      participantID => participants[participantID].length === overall.events.length
     );
 
     overall.events.forEach(eventID => {
       if (!results[eventID]) results[eventID] = [];
 
-      inAll.forEach(participant => {
+      inAll.forEach(participantID => {
         let idx = this.results[eventID].findIndex(
-          el => el.participant === participant
+          el => el.participantID === participantID
         );
         results[eventID].push({ ...this.results[eventID][idx] });
       });

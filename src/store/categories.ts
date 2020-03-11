@@ -596,7 +596,6 @@ export default class CategoriesModule extends VuexModule {
       let obj: { [judgeID: string]: Score } = {}
       let related = this.categories[id].scores.filter(el => el.eventID === eventID && el.participantID === participantID)
       related.forEach(el => { obj[el.judgeID] = { ...el } })
-      console.log('oi', obj)
       return obj
     }
   }

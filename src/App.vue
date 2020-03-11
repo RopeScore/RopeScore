@@ -43,7 +43,7 @@
     </v-content>
 
     <v-footer app absolute>
-      <span text class="mr-2">&copy; Swantzter 2017-2019</span>
+      <span text class="mr-2">&copy; Swantzter 2017-2020</span>
       <v-spacer/>
       <span text class="mr-2">{{ version }}</span>
     </v-footer>

@@ -116,7 +116,7 @@ export const SpeedHeadJudgeMasters: JudgeType<FISAC1718Score, FISAC1718Result, F
   ],
   result: scores => ({
     T: scores.s,
-    W: ((scores.fSwitch || 0) + (scores.fStart || 0)) * 5
+    W: ((scores.fSwitch ?? 0) + (scores.fStart ?? 0)) * 5
   })
 }
 
@@ -203,9 +203,9 @@ export const PresentationJudge: PresentationJudge = {
     return {
       T2: roundTo(this.fields
         .filter(field => field.fieldID !== 'mim' && field.fieldID !== 'mam')
-        .map(field => (scores[field.fieldID] || 0) * (field.weight || 1))
+        .map(field => (scores[field.fieldID] ?? 0) * (field.weight ?? 1))
         .reduce((a, b) => a + b) * 5, 4),
-      T5: ((scores.mim || 0) * 12.5) + ((scores.mam || 0) * 25)
+      T5: ((scores.mim ?? 0) * 12.5) + ((scores.mam ?? 0) * 25)
     }
   }
 }
@@ -266,13 +266,13 @@ export const RequiredElementJudgeSingleRopeMasters: JudgeType<FISAC1718Score, FI
     let max = (rqFields.length * 2) + 2
     let fac = 50 / max
 
-    let score = rqFields.map(field => scores[field.fieldID] || 0).reduce((a, b) => a + b)
+    let score = rqFields.map(field => scores[field.fieldID] ?? 0).reduce((a, b) => a + b)
     score = score > max ? max : score
     if (typeof scores.pai !== 'undefined' && scores.pai < 2) score -= -Number(scores.pai) + 2
 
     return {
       T3: roundTo(score * fac, 4),
-      T5: ((scores.mim || 0) * 12.5) + ((scores.mam || 0) * 25)
+      T5: ((scores.mim ?? 0) * 12.5) + ((scores.mam ?? 0) * 25)
     }
   }
 }
@@ -350,19 +350,19 @@ export const RequiredElementJudgeDoubleDutchSingle: JudgeType<FISAC1718Score, FI
 
     // add all scores to scpre, except turner involement skills.
     // in double dutch releases are worth 2 pts
-    let score = rqFields.map(field => field.fieldID !== 'tis' ? (scores[field.fieldID] || 0) * (field.fieldID === 'rel' ? 2 : 1) : 0).reduce((a, b) => a + b)
+    let score = rqFields.map(field => field.fieldID !== 'tis' ? (scores[field.fieldID] ?? 0) * (field.fieldID === 'rel' ? 2 : 1) : 0).reduce((a, b) => a + b)
     /* aerials + not aereals = gymnastics which is max 3 */
-    if ((scores.nae || 0) + (scores.aer || 0) > 3) score -= ((scores.nae || 0) + (scores.aer || 0)) - 3
+    if ((scores.nae ?? 0) + (scores.aer ?? 0) > 3) score -= ((scores.nae ?? 0) + (scores.aer ?? 0)) - 3
     /* Max without turner involvement skills is 10 */
     score = score > max - 6 ? max - 6 : score
     /* add turner involvement skills */
-    score += scores.tis || 0
+    score += scores.tis ?? 0
     /* round to max */
     score = score > max ? max : score
 
     return {
       T3: roundTo(score * fac, 4),
-      T5: ((scores.mim || 0) * 12.5) + ((scores.mam || 0) * 25)
+      T5: ((scores.mim ?? 0) * 12.5) + ((scores.mam ?? 0) * 25)
     }
   }
 }
@@ -399,7 +399,7 @@ const diffResult = function (l: Function) {
       const levID = fields[i].fieldID
       if (typeof levScores[levID] === 'undefined') levScores[levID] = 0
 
-      levScores[levID] += (scores[levID] || 0) * l(Number(levID.substring(1)))
+      levScores[levID] += (scores[levID] ?? 0) * l(Number(levID.substring(1)))
 
       if (Object.prototype.hasOwnProperty.call(lMaxes, levID)) {
         const partLevID = levID as keyof typeof lMaxes
@@ -472,8 +472,8 @@ export const HeadJudgeSingleRope: JudgeType<FISAC1718Score, FISAC1718Result, FIS
   }],
   result: function (scores) {
     return {
-      T5: ((scores.mim || 0) * 12.5) + ((scores.mam || 0) * 25),
-      deduc: ((scores.spc || 0) * 12.5) + ((scores.tim || 0) * 25) + ((scores.few|| 0) * 25)
+      T5: ((scores.mim ?? 0) * 12.5) + ((scores.mam ?? 0) * 25),
+      deduc: ((scores.spc ?? 0) * 12.5) + ((scores.tim ?? 0) * 25) + ((scores.few?? 0) * 25)
     }
   }
 }
@@ -799,7 +799,7 @@ export const SpeedResult = function (eventID: string) {
       } else {
         judgeResults[idx] = {
           ...judgeResults[idx],
-          ...resultFunction.call(judgeObj, scores[judgeID]|| {})
+          ...resultFunction.call(judgeObj, scores[judgeID] || {})
         }
       }
     }
@@ -839,9 +839,9 @@ export const SpeedResult = function (eventID: string) {
       }
     }
 
-    output.PreY = roundTo((output.T || 0) - (output.W || 0), 4)
+    output.PreY = roundTo((output.T ?? 0) - (output.W ?? 0), 4)
 
-    output.Y = roundTo(output.PreY * ((eventObj || {}).scoreMultiplier || 1), 4)
+    output.Y = roundTo(output.PreY * ((eventObj ?? {}).scoreMultiplier ?? 1), 4)
 
     return output
   }
@@ -902,7 +902,7 @@ export const FreestyleResult = function (eventID: string) {
           Ts[write].shift()
         }
 
-        output[write] = (Ts[write].reduce((a, b) => a + b, 0) / Ts[write].length) || 0
+        output[write] = (Ts[write].reduce((a, b) => a + b, 0) / Ts[write].length) ?? 0
       }
 
       if (i === 5) {
@@ -912,31 +912,31 @@ export const FreestyleResult = function (eventID: string) {
         })
 
         if (Ts.deduc.length === 1) {
-          output[write] = (output[write] || 0) + Ts.deduc[0]
+          output[write] = (output[write] ?? 0) + Ts.deduc[0]
         } else if (Ts.deduc.length <= 3) {
           let diff: number | undefined
           for (let j = 1; j < Ts[write].length; j++) {
             let cdiff = Math.abs(Ts[write][j] - Ts[write][j - 1])
             if (typeof diff === 'undefined' || cdiff <= diff) {
               diff = cdiff
-              output[write] = (output[write] || 0) + (Ts.deduc[j] + Ts.deduc[j - 1]) / 2
+              output[write] = (output[write] ?? 0) + (Ts.deduc[j] + Ts.deduc[j - 1]) / 2
             }
           }
         } else {
           Ts.deduc.pop()
           Ts.deduc.shift()
 
-          output[write] = (output[write] || 0) + (Ts.deduc.reduce((a, b) => a + b, 0) / Ts.deduc.length) || 0
+          output[write] = (output[write] ?? 0) + (Ts.deduc.reduce((a, b) => a + b, 0) / Ts.deduc.length) ?? 0
         }
       }
 
-      output[write] = roundTo(output[write] || 0, 4) || 0
+      output[write] = roundTo(output[write] ?? 0, 4) ?? 0
     }
 
-    output.Diff = roundTo((output.T1 || 0) - ((output.T5 || 0) / 2), 4)
-    output.Crea = roundTo((output.T4 || 0) - ((output.T5 || 0) / 2), 4)
-    output.PreA = roundTo((output.T1 || 0) + (output.T4 || 0) - (output.T5 || 0), 4)
-    output.A = roundTo((output.PreA || 0) * ((eventObj || {}).scoreMultiplier || 1), 4)
+    output.Diff = roundTo((output.T1 ?? 0) - ((output.T5 ?? 0) / 2), 4)
+    output.Crea = roundTo((output.T4 ?? 0) - ((output.T5 ?? 0) / 2), 4)
+    output.PreA = roundTo((output.T1 ?? 0) + (output.T4 ?? 0) - (output.T5 ?? 0), 4)
+    output.A = roundTo((output.PreA ?? 0) * ((eventObj ?? {}).scoreMultiplier ?? 1), 4)
 
     return output
   }
@@ -945,7 +945,7 @@ export const FreestyleResult = function (eventID: string) {
 export const SpeedRank = function (results: FISAC1718Result[] = []): FISAC1718Result[] {
   // results = results.filter(el => typeof el.Y === 'number')
   results.sort(function (a, b) {
-    return (b.Y || 0) - (a.Y || 0) // sort descending
+    return (b.Y ?? 0) - (a.Y ?? 0) // sort descending
   })
 
   results = results.map((el, idx, arr) => ({
@@ -963,8 +963,8 @@ export const SpeedRank = function (results: FISAC1718Result[] = []): FISAC1718Re
 export const FreestyleRank = function (eventID: FISAC1718Events) {
   return function (results: FISAC1718Result[] = []): FISAC1718Result[] {
     const eventObj = config.events.find(el => el.eventID === eventID)
-    let CScores = results.map(el => el.Crea || -Infinity)
-    let DScores = results.map(el => el.Diff || -Infinity)
+    let CScores = results.map(el => el.Crea ?? -Infinity)
+    let DScores = results.map(el => el.Diff ?? -Infinity)
 
     /* sort descending */
     CScores.sort(function (a, b) {
@@ -979,7 +979,7 @@ export const FreestyleRank = function (eventID: FISAC1718Events) {
       let DRank = DScores.findIndex(score => score === result.Diff) + 1;
       (Object.keys(result) as Array<keyof Omit<FISAC1718Result, keyof ScoreInfo<FISAC1718Events>>>).forEach(score => {
         if (typeof result[score] !== 'number') return
-        result[score] = roundTo(result[score] || 0, 2)
+        result[score] = roundTo(result[score] ?? 0, 2)
       })
       return {
         ...result,

@@ -1,5 +1,5 @@
 <template>
-  <v-expansion-panels multiple v-model="open">
+  <v-expansion-panels multiple v-model="open" v-if="categories.groupedCategories.length">
     <v-expansion-panel v-for="group in categories.groupedCategories" :key="group.name">
       <v-expansion-panel-header>{{ group.name }}</v-expansion-panel-header>
       <v-expansion-panel-content>
@@ -20,6 +20,12 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
+  <v-card v-else>
+    <v-card-title>No Categories</v-card-title>
+    <v-card-actions>
+      <v-btn text link to="/new" color="primary">New Category</v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script lang="ts">

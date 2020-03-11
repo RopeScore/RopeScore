@@ -7,7 +7,7 @@ import {
   SpeedHeadJudgeRelays as FISACSpeedHeadJudgeRelays
 } from './FISAC1718'
 
-export type IJRU1_0_0Events =
+export type IJRU1_1_0Events =
   // Ind
   'srss' | 'srse' | 'srtu' | 'srif' |
   // Team SR
@@ -19,9 +19,9 @@ export type IJRU1_0_0Events =
   // Show Comp
   'sctf'
 
-export type IJRU1_0_0Overalls = 'isro' | 'tsro' | 'tddo' | 'taac'
+export type IJRU1_1_0Overalls = 'isro' | 'tsro' | 'tddo' | 'taac'
 
-export interface IJRU1_0_0Score extends ScoreInfo<IJRU1_0_0Events> {
+export interface IJRU1_1_0Score extends ScoreInfo<IJRU1_1_0Events> {
   // Speed
   s?: number
   fStart?: number
@@ -65,7 +65,7 @@ export interface IJRU1_0_0Score extends ScoreInfo<IJRU1_0_0Events> {
   l8?: number
 }
 
-export interface IJRU1_0_0Result extends ResultInfo {
+export interface IJRU1_1_0Result extends ResultInfo {
   // speed
   a?: number
   m?: number
@@ -73,10 +73,17 @@ export interface IJRU1_0_0Result extends ResultInfo {
   // FS
   D?: number
   P?: number
+  aF?: number
+  aE?: number
+  aM?: number
+
   M?: number
   v?: number
-  Q?: number
+
   U?: number
+  r?: number
+
+  Q?: number
   R?: number
 
   // Overall
@@ -118,37 +125,37 @@ const average = (scores: number[]): number => {
   }
 }
 
-interface DifficultyField extends InputField<IJRU1_0_0Score> {
+interface DifficultyField extends InputField<IJRU1_1_0Score> {
   level: number
 }
 
-interface DifficultyJudge extends JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> {
+interface DifficultyJudge extends JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> {
   fields: DifficultyField[]
 }
 
 /* SPEED */
-export const SpeedJudge: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
-  ...FISACSpeedJudge as JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events>,
+export const SpeedJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
+  ...FISACSpeedJudge as JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events>,
   result: scores => ({
     a: scores.s
   })
 }
 
-export const SpeedHeadJudgeMasters: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
-  ...FISACSpeedHeadJudgeMasters as JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events>,
+export const SpeedHeadJudgeMasters: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
+  ...FISACSpeedHeadJudgeMasters as JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events>,
   result: scores => ({
-    a: scores.s as number,
-    m: ((scores.fStart as number || 0) + (scores.fSwitch as number || 0)) * 10
+    a: scores.s ?? 0,
+    m: ((scores.fStart ?? 0) + (scores.fSwitch ?? 0)) * 10
   })
 }
 
-export const SpeedHeadJudgeRelays: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
-  ...FISACSpeedHeadJudgeRelays as JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events>,
+export const SpeedHeadJudgeRelays: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
+  ...FISACSpeedHeadJudgeRelays as JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events>,
   result: SpeedHeadJudgeMasters.result
 }
 
 /* PRESENTATION */
-export const AthletePresentationJudge: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
+export const AthletePresentationJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
   name: 'Athlete Presentation',
   judgeTypeID: 'Pa',
   fields: [
@@ -178,22 +185,29 @@ export const AthletePresentationJudge: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result
     }
   ],
   result: scores => {
-    let top = (scores.pafep || 0) - (scores.pafem || 0)
-    let bottom = (scores.pafep || 0) + (scores.pafec || 0) + (scores.pafem || 0)
-    let avg = top / (bottom || 1)
+    const top = (scores.pafep ?? 0) - (scores.pafem ?? 0)
+    const bottom = (scores.pafep ?? 0) + (scores.pafec ?? 0) + (scores.pafem ?? 0)
+    const avg = top / (bottom || 1)
 
-    let P = 1 + (avg * 0.35)
+    const aF = (avg * 0.35 * 0.5)
     return {
-      m: roundTo(1 - ((scores.mis || 0) * 0.05), 2),
-      P: roundTo(P, 2)
+      m: roundTo(1 - ((scores.mis ?? 0) * 0.025), 2),
+      aF: roundTo(aF, 2)
     }
   }
 }
 
-export const RoutinePresentationJudge: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
+export const RoutinePresentationJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
   name: 'Routine Presentation',
   judgeTypeID: 'Pr',
   fields: [
+    {
+      name: 'Repeated Skills',
+      fieldID: 'rep',
+      min: 0,
+      step: 1
+    },
+
     {
       name: 'Entertainment +',
       fieldID: 'prenp',
@@ -233,28 +247,26 @@ export const RoutinePresentationJudge: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result
     }
   ],
   result: scores => {
-    let enTop = (scores.prenp || 0) - (scores.prenm || 0)
-    let enBottom = (scores.prenp || 0) + (scores.prenc || 0) + (scores.prenm || 0)
+    const enTop = (scores.prenp ?? 0) - (scores.prenm ?? 0)
+    const enBottom = (scores.prenp ?? 0) + (scores.prenc ?? 0) + (scores.prenm ?? 0)
+    const enAvg = enTop / (enBottom || 1)
 
-    let muTop = (scores.prmup || 0) - (scores.prmum || 0)
-    let muBottom = (scores.prmup || 0) + (scores.prmuc || 0) + (scores.prmum || 0)
+    const muTop = (scores.prmup ?? 0) - (scores.prmum ?? 0)
+    const muBottom = (scores.prmup ?? 0) + (scores.prmuc ?? 0) + (scores.prmum ?? 0)
+    const muAvg = muTop / (muBottom || 1)
 
-    let top = (enTop || 0) + (muTop || 0)
-    let bottom = (enBottom || 0) + (muBottom || 0)
-
-    let avg = top / (bottom || 1)
-
-    let P = 1 + (avg * 0.35)
     return {
-      P: roundTo(P, 2)
+      r: roundTo((scores.rep ?? 0) * 0.0125, 2),
+      aE: roundTo((enAvg * 0.35 * 0.25), 2),
+      aM: roundTo((muAvg * 0.35 * 0.25), 2)
     }
   }
 }
 
 /* REQUIRED ELEMENTS */
-export const MissJudgeSingleRopeIndividual: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
-  name: 'Misses',
-  judgeTypeID: 'M',
+export const MissJudgeSingleRopeIndividual: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
+  name: 'Required Elements',
+  judgeTypeID: 'R',
   fields: [
     {
       name: 'Misses',
@@ -294,25 +306,25 @@ export const MissJudgeSingleRopeIndividual: JudgeType<IJRU1_0_0Score, IJRU1_0_0R
   ],
   result: function (scores) {
     if (!this) return
-    let rqFields: InputField<IJRU1_0_0Score>[] = this.fields.filter(field => field.fieldID !== 'mis' && field.fieldID !== 'spc' && field.fieldID !== 'tim')
-    let max: number = rqFields.reduce((acc, curr) => (acc + (curr.max || 0)), 0)
+    const rqFields: InputField<IJRU1_1_0Score>[] = this.fields.filter(field => field.fieldID !== 'mis' && field.fieldID !== 'spc' && field.fieldID !== 'tim')
+    const max: number = rqFields.reduce((acc, curr) => (acc + (curr.max ?? 0)), 0)
 
-    let score = rqFields.map(field => scores[field.fieldID] || 0).reduce((a, b) => a + b)
+    let score = rqFields.map(field => scores[field.fieldID] ?? 0).reduce((a, b) => a + b)
     score = score > max ? max : score
 
-    let missing = max - score
+    const missing = max - score
 
-    let deduc = missing * 0.025
+    const deduc = missing * 0.025
 
     return {
       Q: roundTo(1 - deduc, 3),
-      m: roundTo(1 - ((scores.mis || 0) * 0.05), 2),
-      v: roundTo(1 - (((scores.spc || 0) + (scores.tim || 0)) * 0.05), 2)
+      m: roundTo(1 - ((scores.mis ?? 0) * 0.05), 2),
+      v: roundTo(1 - (((scores.spc ?? 0) + (scores.tim ?? 0)) * 0.05), 2)
     }
   }
 }
 
-export const MissJudgeSingleRopeTeam: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
+export const MissJudgeSingleRopeTeam: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
   ...MissJudgeSingleRopeIndividual,
   fields: [
     ...MissJudgeSingleRopeIndividual.fields,
@@ -325,11 +337,11 @@ export const MissJudgeSingleRopeTeam: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result,
   ]
 }
 
-export const MissJudgeWheels: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
+export const MissJudgeWheels: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
   ...MissJudgeSingleRopeTeam
 }
 
-export const MissJudgeDoubleDutchSingle: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
+export const MissJudgeDoubleDutchSingle: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
   ...MissJudgeSingleRopeIndividual,
   fields: [
     {
@@ -359,32 +371,33 @@ export const MissJudgeDoubleDutchSingle: JudgeType<IJRU1_0_0Score, IJRU1_0_0Resu
       fieldID: 'rqgyp',
       min: 0,
       max: 4
-    },
-    // {
-    //   name: 'Athletes who performed at least 4 skills',
-    //   fieldID: 'rqgyp',
-    //   min: 0,
-    //   max: 3
-    // }
+    }
   ]
 }
 
-export const MissJudgeDoubleDutchPair: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
+export const MissJudgeDoubleDutchPair: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
   ...MissJudgeDoubleDutchSingle,
   fields: [
-    ...MissJudgeDoubleDutchSingle.fields
-    // TODO: int
-    // {
-    //   ...MissJudgeDoubleDutchSingle.fields[5],
-    //   max: 4
-    // }
+    ...MissJudgeDoubleDutchSingle.fields,
+    {
+      name: 'Amount of different Interactions',
+      fieldID: 'rqint',
+      min: 0,
+      max: 4
+    }
   ]
 }
 
-export const MissJudgeDoubleDutchTriad: JudgeType<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events> = {
+export const MissJudgeDoubleDutchTriad: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
   ...MissJudgeDoubleDutchSingle,
   fields: [
-    ...MissJudgeDoubleDutchPair.fields
+    ...MissJudgeDoubleDutchPair.fields,
+    {
+      name: 'Amount of different Interactions',
+      fieldID: 'rqint',
+      min: 0,
+      max: 4
+    }
   ]
 }
 
@@ -409,7 +422,7 @@ export const DifficultyJudge: DifficultyJudge = {
     if (!this) return
     let l = (l: number): number => roundTo(0.1 * Math.pow(1.8, l), 2)
 
-    let score = this.fields.map(field => (scores[field.fieldID] || 0) * l(field.level)).reduce((a, b) => a + b)
+    let score = this.fields.map(field => (scores[field.fieldID] ?? 0) * l(field.level)).reduce((a, b) => a + b)
 
     return {
       D: roundTo(score, 2)
@@ -418,7 +431,7 @@ export const DifficultyJudge: DifficultyJudge = {
 }
 
 /* RESULT TABLES */
-export const SpeedResultTableHeaders: ResultTableHeaders<IJRU1_0_0Events> = {
+export const SpeedResultTableHeaders: ResultTableHeaders<IJRU1_1_0Events> = {
   headers: [{
     text: 'Score',
     value: 'R'
@@ -429,7 +442,7 @@ export const SpeedResultTableHeaders: ResultTableHeaders<IJRU1_0_0Events> = {
   }]
 }
 
-export const FreestyleResultTableHeaders: ResultTableHeaders<IJRU1_0_0Events> = {
+export const FreestyleResultTableHeaders: ResultTableHeaders<IJRU1_1_0Events> = {
   headers: [
     {
       text: 'Diff',
@@ -447,6 +460,10 @@ export const FreestyleResultTableHeaders: ResultTableHeaders<IJRU1_0_0Events> = 
       text: 'Deduc',
       value: 'M',
       color: 'grey'
+    }, {
+      text: 'Rep',
+      value: 'U',
+      color: 'grey'
     },
 
     {
@@ -459,7 +476,7 @@ export const FreestyleResultTableHeaders: ResultTableHeaders<IJRU1_0_0Events> = 
     }]
 }
 
-export const OverallResultTableGroupsIndividual: ResultTableHeaderGroup<IJRU1_0_0Events>[][] = [
+export const OverallResultTableGroupsIndividual: ResultTableHeaderGroup<IJRU1_1_0Events>[][] = [
   [{
     text: 'Single Rope',
     value: 'sr',
@@ -486,7 +503,7 @@ export const OverallResultTableGroupsIndividual: ResultTableHeaderGroup<IJRU1_0_
   }]
 ]
 
-export const OverallResultTableHeadersIndividual: ResultTableHeader<IJRU1_0_0Events>[] = [
+export const OverallResultTableHeadersIndividual: ResultTableHeader<IJRU1_1_0Events>[] = [
   {
     text: 'Score',
     value: 'R',
@@ -537,7 +554,7 @@ export const OverallResultTableHeadersIndividual: ResultTableHeader<IJRU1_0_0Eve
   }
 ]
 
-export const SingleRopeOverallResultTableGroupsTeam: ResultTableHeaderGroup<IJRU1_0_0Events>[][] = [
+export const SingleRopeOverallResultTableGroupsTeam: ResultTableHeaderGroup<IJRU1_1_0Events>[][] = [
   [{
     text: 'Single Rope',
     value: 'sr',
@@ -569,7 +586,7 @@ export const SingleRopeOverallResultTableGroupsTeam: ResultTableHeaderGroup<IJRU
   }]
 ]
 
-export const SingleRopeOverallResultTableHeadersTeam: ResultTableHeader<IJRU1_0_0Events>[] = [
+export const SingleRopeOverallResultTableHeadersTeam: ResultTableHeader<IJRU1_1_0Events>[] = [
   {
     text: 'Score',
     value: 'R',
@@ -627,7 +644,7 @@ export const SingleRopeOverallResultTableHeadersTeam: ResultTableHeader<IJRU1_0_
   }
 ]
 
-export const DoubleDutchOverallResultTableGroupsTeam: ResultTableHeaderGroup<IJRU1_0_0Events>[][] = [
+export const DoubleDutchOverallResultTableGroupsTeam: ResultTableHeaderGroup<IJRU1_1_0Events>[][] = [
   [{
     text: 'Double Dutch',
     value: 'dd',
@@ -658,7 +675,7 @@ export const DoubleDutchOverallResultTableGroupsTeam: ResultTableHeaderGroup<IJR
   }]
 ]
 
-export const DoubleDutchOverallResultTableHeadersTeam: ResultTableHeader<IJRU1_0_0Events>[] = [
+export const DoubleDutchOverallResultTableHeadersTeam: ResultTableHeader<IJRU1_1_0Events>[] = [
   {
     text: 'Score',
     value: 'R',
@@ -716,7 +733,7 @@ export const DoubleDutchOverallResultTableHeadersTeam: ResultTableHeader<IJRU1_0
   }
 ]
 
-export const AllAroundResultTableGroupsTeam: ResultTableHeaderGroup<IJRU1_0_0Events>[][] = [
+export const AllAroundResultTableGroupsTeam: ResultTableHeaderGroup<IJRU1_1_0Events>[][] = [
   [{
     text: 'Single Rope',
     value: 'sr',
@@ -770,7 +787,7 @@ export const AllAroundResultTableGroupsTeam: ResultTableHeaderGroup<IJRU1_0_0Eve
   }]
 ]
 
-export const AllAroundResultTableHeadersTeam: ResultTableHeader<IJRU1_0_0Events>[] = [
+export const AllAroundResultTableHeadersTeam: ResultTableHeader<IJRU1_1_0Events>[] = [
   {
     text: 'Score',
     value: 'R',
@@ -872,10 +889,10 @@ export const AllAroundResultTableHeadersTeam: ResultTableHeader<IJRU1_0_0Events>
   }
 ]
 
-export const SpeedResult = function (eventID: string): Event<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events, IJRU1_0_0Overalls>['result'] {
-  return function (scores: { [judgeID: string]: IJRU1_0_0Score }, judges: [string, string][]) {
-    let judgeResults: IJRU1_0_0Result[] = []
-    let output: IJRU1_0_0Result = {}
+export const SpeedResult = function (eventID: string): Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls>['result'] {
+  return function (scores: { [judgeID: string]: IJRU1_1_0Score }, judges: [string, string][]) {
+    let judgeResults: IJRU1_1_0Result[] = []
+    let output: IJRU1_1_0Result = {}
 
     let eventObj = config.events.find(el => el.eventID === eventID)
     if (!eventObj) throw new Error('Could not find event ' + eventID)
@@ -892,12 +909,12 @@ export const SpeedResult = function (eventID: string): Event<IJRU1_0_0Score, IJR
       if (idx < 0) {
         judgeResults.push({
           judgeID,
-          ...resultFunction.call(judgeObj, scores[judgeID] || {})
+          ...resultFunction.call(judgeObj, scores[judgeID] ?? {})
         })
       } else {
         judgeResults[idx] = {
           ...judgeResults[idx],
-          ...resultFunction.call(judgeObj, scores[judgeID] || {})
+          ...resultFunction.call(judgeObj, scores[judgeID] ?? {})
         }
       }
     }
@@ -910,25 +927,25 @@ export const SpeedResult = function (eventID: string): Event<IJRU1_0_0Score, IJR
     let ms = judgeResults.map(el => el.m).filter(el => typeof el === 'number') as number[]
     output.m = average(ms)
 
-    output.R = roundTo((output.a as number || 0) - (output.m as number || 0), 2)
+    output.R = roundTo((output.a ?? 0) - (output.m ?? 0), 2)
 
     return output
   }
 }
 
-export const SpeedRank: Event<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events, IJRU1_0_0Overalls>['rank'] = function (results: IJRU1_0_0Result[] = []): IJRU1_0_0Result[] {
+export const SpeedRank: Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls>['rank'] = function (results: IJRU1_1_0Result[] = []): IJRU1_1_0Result[] {
   // results = results.filter(el => typeof el.Y === 'number')
   results.sort(function (a, b) {
     return (b.R ?? 0) - (a.R?? 0) // sort descending
   })
 
-  let high = results.length > 0 ? results[0].R ?? 0: 0
-  let low = results.length > 0 ? results[results.length - 1].R ?? 0 : 0
+  const high = results.length > 0 ? results[0].R ?? 0: 0
+  const low = results.length > 1 ? results[results.length - 1].R ?? 0 : 0
 
-  results = results.map((el, idx, arr) => ({
+  results = results.map((el, _, arr) => ({
     ...el,
     S: arr.findIndex(obj => obj.R === el.R) + 1,
-    N: roundTo((((100 - 1) * ((el.R ?? 0) - low)) / (high - low)) + 1, 2)
+    N: roundTo((((100 - 1) * ((el.R ?? 0) - low)) / ((high - low !== 0 ) ? high - low : 1)) + 1, 2)
   }))
 
   // DEV SORT BY ID
@@ -937,10 +954,10 @@ export const SpeedRank: Event<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events, 
   return results
 }
 
-const FreestyleResult = function (eventID: string): Event<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events, IJRU1_0_0Overalls>['result'] {
-  return function (scores: { [judgeID: string]: IJRU1_0_0Score }, judges: [string, string][]) {
-    let judgeResults: IJRU1_0_0Result[] = []
-    let output: IJRU1_0_0Result = {}
+const FreestyleResult = function (eventID: string): Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls>['result'] {
+  return function (scores: { [judgeID: string]: IJRU1_1_0Score }, judges: [string, string][]) {
+    let judgeResults: IJRU1_1_0Result[] = []
+    let output: IJRU1_1_0Result = {}
 
     let eventObj = config.events.find(el => el.eventID === eventID)
     if (!eventObj) throw new Error('Could not find event ' + eventID)
@@ -968,62 +985,72 @@ const FreestyleResult = function (eventID: string): Event<IJRU1_0_0Score, IJRU1_
       }
     }
 
-    for (let scoreType of ['D', 'P', 'm', 'v', 'Q'] as Array<'D' | 'P' | 'm' | 'v' | 'Q'>) {
+    for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'r', 'Q'] as Array<keyof Omit<IJRU1_1_0Result, keyof ResultInfo>>) {
       let scores = judgeResults.map(el => el[scoreType]).filter(el => typeof el === 'number') as number[]
-      if (scoreType !== 'm' && scoreType !== 'v') output[scoreType] = roundTo(average(scores), 2)
+      if (['m', 'v', 'r'].includes(scoreType)) output[scoreType] = roundTo(average(scores), 2)
       else output[scoreType] = average(scores)
       if (typeof output[scoreType] !== 'number') output[scoreType] = (scoreType === 'D' ? 0 : 1)
     }
 
     output.M = roundTo(-(1 - (output.m ?? 0) - (output.v ?? 0)), 2)
+    console.log(output.v, output.m)
+    output.U = roundTo((1 - (output.r ?? 0)), 2)
+
+    output.P = roundTo(1 - ((output.aE ?? 1) + (output.aF ?? 1) + (output.aM ?? 1)) ,2)
 
     output.R = roundTo((output.D ?? 0) * (output.P ?? 1) * output.M * (output.Q ?? 1), 2)
     output.R = output.R < 0 ? 0 : output.R
+
 
     return output
   }
 }
 
-export const FreestyleRank: Event<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events, IJRU1_0_0Overalls>['rank'] = function (results: IJRU1_0_0Result[] = []): IJRU1_0_0Result[] {
+export const FreestyleRank: Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls>['rank'] = function (results: IJRU1_1_0Result[] = []): IJRU1_1_0Result[] {
   // results = results.filter(el => typeof el.Y === 'number')
-  let tiePriority = ['M', 'D', 'P', 'R']
+  let tiePriority = ['R', 'M', 'Q', 'D', 'P'] as Array<keyof IJRU1_1_0Result>
   results.sort(function (a, b) {
     if (a.R !== b.R) return (b.R ?? 0) - (a.R ?? 0) // descending 100 wins over 50
     if (a.M !== b.M) return (b.M ?? 1) - (a.M ?? 1) // descending *1 wins over *.9
-    // if (a.R !== b.R) return b.R - a.R // descending *1 wins over *.9
+    if (a.Q !== b.Q) return (b.Q ?? 1) - (a.Q ?? 1) // descending *1 wins over *.9
     if (a.D !== b.D) return (b.D ?? 0) - (a.D ?? 0) // descending 100 wins over 50
     if (a.P !== b.P) return (b.P ?? 1) - (a.P ?? 1) // descending 1.35 wins over 0.95
     return 0
   })
 
-  // TODO: handle that S in extreme cases can be equal
-  let high = results.length > 0 ? results[0].R ?? 0 : 0
-  let low = results.length > 0 ? results[results.length - 1].R ?? 0 : 0
+  const high = results.length > 0 ? results[0].R ?? 0 : 0
+  const low = results.length > 1 ? results[results.length - 1].R ?? 0 : 0
 
   results = results.map((el, idx, arr) => ({
     ...el,
-    S: idx + 1,
-    N: roundTo((((100 - 1) * ((el.R ?? 0) - low)) / (high - low)) + 1, 2)
+    S: arr.findIndex(score =>
+      score.R === el.R &&
+      score.M === el.M &&
+      score.Q === el.Q &&
+      score.D === el.D &&
+      score.P === el.P
+    ) + 1,
+    N: roundTo((((100 - 1) * ((el.R ?? 0) - low)) / ((high - low) !== 0 ? high - low : 1)) + 1, 2)
   }))
 
   // DEV SORT BY ID
-  // results.sort((a, b) => Number(a.participant.substring(1, 4) - Number(b.participant.substring(1, 4))))
+  // results.sort((a, b) => Number(a.participant.substring(1, 4)) - Number(b.participant.substring(1, 4)))
 
   return results
 }
 
 type eventResults = {
-  [eventID in IJRU1_0_0Events]?: IJRU1_0_0Result[]
+  [eventID in IJRU1_1_0Events]?: IJRU1_1_0Result[]
 }
 
 const OverallRank = function (overallID: string) {
   return function (results: eventResults = {}) {
-    let ranked: { overall: IJRU1_0_0Result[] } & eventResults = {
+    let ranked: { overall: IJRU1_1_0Result[] } & eventResults = {
       overall: []
     }
     const overallObj = config.overalls.find(el => el.overallID === overallID)
     if (!overallObj) throw new Error('Could not find event ' + overallID)
-    let tiePriority: (IJRU1_0_0Events | 'overall')[] = ['overall', 'srif', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr'] // TODO: break ties
+    let tiePriority: (IJRU1_1_0Events | 'overall')[] = ['overall', 'srif', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr'] // TODO: break ties
 
     for (const eventID of overallObj.events) {
       const eventObj = config.events.find(el => el.eventID === eventID)
@@ -1033,18 +1060,19 @@ const OverallRank = function (overallID: string) {
       for (const scoreObj of ranked[eventID]!) {
         let idx = ranked.overall.findIndex(el => el.participantID === scoreObj.participantID)
         if (!scoreObj) continue
+        console.log(scoreObj)
 
         if (idx >= 0) {
-          ranked.overall[idx].R = roundTo((ranked.overall[idx].R ?? 0) + (scoreObj.R ?? 0), 4)
-          ranked.overall[idx].T = (ranked.overall[idx].T ?? 0) + (scoreObj.S ?? 0) || 0
-          ranked.overall[idx].B = (ranked.overall[idx].B ?? 0) + (scoreObj.N ?? 0) || 0
+          ranked.overall[idx].R = roundTo((ranked.overall[idx].R ?? 0) + ((scoreObj.R ?? 0) * (eventObj.scoreMultiplier ?? 1)), 4)
+          ranked.overall[idx].T = ((ranked.overall[idx].T ?? 0) + ((scoreObj.S ?? 0) * (eventObj.rankMultiplier ?? 1))) ?? 0
+          ranked.overall[idx].B = ((ranked.overall[idx].B ?? 0) + (scoreObj.N ?? 0)) ?? 0
         } else {
           let R = roundTo(scoreObj.R ?? 0, 4)
           ranked.overall.push({
             participantID: scoreObj.participantID,
             R,
-            T: scoreObj.S || 0,
-            B: scoreObj.N || 0
+            T: scoreObj.S ?? 0,
+            B: scoreObj.N ?? 0
           })
         }
       }
@@ -1070,7 +1098,7 @@ const OverallRank = function (overallID: string) {
   }
 }
 
-const config: Ruleset<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events, IJRU1_0_0Overalls> = {
+const config: Ruleset<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls> = {
   name: 'IJRU v1.0.0-pr.1',
   rulesetID: 'IJRU1-0-0',
   versions: ['intl'],
@@ -1105,7 +1133,8 @@ const config: Ruleset<IJRU1_0_0Score, IJRU1_0_0Result, IJRU1_0_0Events, IJRU1_0_
     judges: [AthletePresentationJudge, RoutinePresentationJudge, MissJudgeSingleRopeIndividual, DifficultyJudge],
     result: FreestyleResult('srif'),
     rank: FreestyleRank,
-    headers: FreestyleResultTableHeaders
+    headers: FreestyleResultTableHeaders,
+    rankMultiplier: 2
   },
 
   {

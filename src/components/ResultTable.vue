@@ -67,10 +67,10 @@
 
             <td
               v-for="header in headers.headers"
-              :key="`${result.participantID}-${header.event || title}-${header.value}`"
+              :key="`${result.participantID}-${header.eventID || title}-${header.value}`"
               class="text-right"
               :class="classColorObj(header.color)"
-            >{{ getScore(result, header.value, header.event) }}</td>
+            >{{ getScore(result, header.value, header.eventID) }}</td>
           </tr>
         </tbody>
       </table>
