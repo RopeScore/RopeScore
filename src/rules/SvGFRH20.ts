@@ -6,7 +6,7 @@ import {
   SpeedHeadJudgeMasters as FISACSpeedHeadJudgeMasters,
   SpeedHeadJudgeRelays as FISACSpeedHeadJudgeRelays,
 } from './FISAC1718'
-import { IJRU1_1_0average } from './IJRU1-1-0'
+import { SvGFRH20average } from './IJRU1-1-0'
 
 export type SvGFRH20Events =
   // Ind
@@ -60,6 +60,15 @@ export interface SvGFRH20Result extends ResultInfo {
   score?: number
 }
 
+interface DifficultyField extends InputField<SvGFRH20Score> {
+  level: number
+}
+
+interface DifficultyJudge extends JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events> {
+  fields: DifficultyField[]
+}
+
+/* SPEED */
 export const SpeedJudge: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events> = {
   ...FISACSpeedJudge as JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events>,
   result: scores => ({
@@ -80,6 +89,35 @@ export const SpeedHeadJudgeRelays: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGF
   result: SpeedHeadJudgeMasters.result
 }
 
+/* DIFFICULTY */
+export const DifficultyJudge: DifficultyJudge = {
+  name: 'Difficulty',
+  judgeTypeID: 'D',
+  fields: [
+    {
+      name: 'Level 0.5',
+      fieldID: 'l05',
+      min: 0,
+      level: 0.5
+    },
+    ...Array(5).fill(undefined).map((el, idx) => ({
+      name: `Level ${idx + 1}`,
+      fieldID: `l${idx + 1}` as 'l1' | 'l2' | 'l3' | 'l4' | 'l5',
+      level: idx + 1
+    }))
+  ],
+  result: function (scores) {
+    if (!this) return
+    let l = (l: number): number => l === 0.5 ? 0.5 : (0.5 * x) + 0.5
+
+    let score = this.fields.map(field => (scores[field.fieldID] ?? 0) * l(field.level)).reduce((a, b) => a + b)
+
+    return {
+      D: roundTo(score, 2)
+    }
+  }
+}
+
 export const SpeedResultTableHeaders: ResultTableHeaders<SvGFRH20Events> = {
   headers: [{
     text: 'Score',
@@ -87,6 +125,39 @@ export const SpeedResultTableHeaders: ResultTableHeaders<SvGFRH20Events> = {
   }, {
     text: 'Rank',
     value: 'rank',
+    color: 'red'
+  }]
+}
+
+export const FreestyleResultTableHeaders: ResultTableHeaders<SvGFRH20Events> = {
+  headers: [{
+    text: 'Pres',
+    value: 'P',
+    color: 'grey'
+  }, {
+    text: 'Crea Rank',
+    value: 'CRank',
+    color: 'grey'
+  }, {
+    text: 'Diff',
+    value: 'D',
+    color: 'grey'
+  }, {
+    text: 'Diff Rank',
+    value: 'DRank',
+    color: 'grey'
+  },
+
+  {
+    text: 'Score',
+    value: 'R'
+  }, {
+    text: 'Rank Sum',
+    value: 'RSum',
+    color: 'green'
+  }, {
+    text: 'Rank',
+    value: 'S',
     color: 'red'
   }]
 }
@@ -123,11 +194,11 @@ export const SpeedResult = function (eventID: string): Event<SvGFRH20Score, SvGF
 
     // Calc a
     let as = judgeResults.map(el => el.a).filter(el => typeof el === 'number') as number[]
-    output.a = IJRU1_1_0average(as)
+    output.a = SvGFRH20average(as)
 
     // Calc m
     let ms = judgeResults.map(el => el.m).filter(el => typeof el === 'number') as number[]
-    output.m = IJRU1_1_0average(ms)
+    output.m = SvGFRH20average(ms)
 
     output.R = roundTo((output.a ?? 0) - (output.m ?? 0), 2)
 
@@ -187,9 +258,7 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
     judges: [PresentationJudge, DifficultyJudgeMasters],
     result: FreestyleResult('srsf'),
     rank: FreestyleRank('srsf'),
-    headers: FreestyleResultTableHeaders,
-    scoreMultiplier: 2,
-    rankMultiplier: 2
+    headers: FreestyleResultTableHeaders
   }, {
     eventID: 'srsr',
     name: 'Single Rope Speed Relay',
