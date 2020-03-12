@@ -6,7 +6,7 @@ import {
   SpeedHeadJudgeMasters as FISACSpeedHeadJudgeMasters,
   SpeedHeadJudgeRelays as FISACSpeedHeadJudgeRelays,
 } from './FISAC1718'
-import { SvGFRH20average } from './IJRU1-1-0'
+import { IJRU1_1_0average } from './IJRU1-1-0'
 
 export type SvGFRH20Events =
   // Ind
@@ -16,7 +16,7 @@ export type SvGFRH20Events =
   // Team DD
   'ddsr' | 'ddss' | 'ddsf' | 'ddpf'
 
-export type SvGFRH20Overalls = 'indoverall' | 'teamoverall'
+export type SvGFRH20Overalls = 'indoverall' | 'teamoverall6' | 'teamoverall8'
 
 export interface SvGFRH20Score extends ScoreInfo<SvGFRH20Events> {
   // speed
@@ -55,9 +55,8 @@ export interface SvGFRH20Result extends ResultInfo {
 
   DRank?: number
   CRank?: number
-  RSum?: number
-  multipliedRank?: number
-  score?: number
+  S?: number
+  T?: number
 }
 
 interface DifficultyField extends InputField<SvGFRH20Score> {
@@ -90,7 +89,7 @@ export const SpeedHeadJudgeRelays: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGF
 }
 
 /* DIFFICULTY */
-export const DifficultyJudge: DifficultyJudge = {
+export const DifficultyJudgeMasters: DifficultyJudge = {
   name: 'Difficulty',
   judgeTypeID: 'D',
   fields: [
@@ -108,12 +107,89 @@ export const DifficultyJudge: DifficultyJudge = {
   ],
   result: function (scores) {
     if (!this) return
-    let l = (l: number): number => l === 0.5 ? 0.5 : (0.5 * x) + 0.5
+    let l = (x: number): number => x === 0.5 ? 0.5 : (0.5 * x) + 0.5
 
     let score = this.fields.map(field => (scores[field.fieldID] ?? 0) * l(field.level)).reduce((a, b) => a + b)
 
     return {
       D: roundTo(score, 2)
+    }
+  }
+}
+
+export const DifficultyJudgeTeams: DifficultyJudge = {
+  ...DifficultyJudgeMasters,
+  fields: [
+    {
+      name: 'Level 0.5',
+      fieldID: 'l05',
+      min: 0,
+      level: 0.5
+    },
+    ...Array(4).fill(undefined).map((el, idx) => ({
+      name: `Level ${idx + 1}`,
+      fieldID: `l${idx + 1}` as 'l1' | 'l2' | 'l3' | 'l4',
+      level: idx + 1
+    }))
+  ]
+}
+
+/* PRESENTATION */
+export const PresentationJudge: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events> = {
+  name: 'Presentation',
+  judgeTypeID: 'P',
+  fields: [
+    {
+      name: 'Hoppar i takt till musiken',
+      fieldID: 'pmob',
+      min: 0,
+      max: 10,
+      step: 0.5
+    },
+    {
+      name: 'Använder Musikem',
+      fieldID: 'puom',
+      min: 0,
+      max: 10,
+      step: 0.5
+    },
+    {
+      name: 'Rörelse',
+      fieldID: 'pmov',
+      min: 0,
+      max: 10,
+      step: 0.5
+    },
+    {
+      name: 'Utförande, teknik',
+      fieldID: 'pfbe',
+      min: 0,
+      max: 10,
+      step: 0.5
+    },
+    {
+      name: 'Helhetsintryck',
+      fieldID: 'pimp',
+      min: 0,
+      max: 10,
+      step: 0.5
+    },
+    {
+      name: 'Missar',
+      fieldID: 'pmis',
+      min: 0,
+      max: 10,
+      step: 0.5
+    },
+  ],
+  result: function (scores) {
+    if (!this) return
+    let l = (x: number): number => x === 0.5 ? 0.5 : (0.5 * x) + 0.5
+
+    let score = this.fields.map(field => scores[field.fieldID] ?? 0).reduce((a, b) => a + b)
+
+    return {
+      P: roundTo(score, 2)
     }
   }
 }
@@ -133,27 +209,22 @@ export const FreestyleResultTableHeaders: ResultTableHeaders<SvGFRH20Events> = {
   headers: [{
     text: 'Pres',
     value: 'P',
-    color: 'grey'
   }, {
     text: 'Crea Rank',
     value: 'CRank',
-    color: 'grey'
+    color: 'red'
   }, {
     text: 'Diff',
     value: 'D',
-    color: 'grey'
   }, {
     text: 'Diff Rank',
     value: 'DRank',
-    color: 'grey'
+    color: 'red'
   },
 
   {
-    text: 'Score',
-    value: 'R'
-  }, {
     text: 'Rank Sum',
-    value: 'RSum',
+    value: 'T',
     color: 'green'
   }, {
     text: 'Rank',
@@ -162,7 +233,420 @@ export const FreestyleResultTableHeaders: ResultTableHeaders<SvGFRH20Events> = {
   }]
 }
 
-export const SpeedResult = function (eventID: string): Event<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Overalls>['result'] {
+export const OverallResultTableGroupsIndividual: ResultTableHeaderGroup<SvGFRH20Events>[][] = [
+  [{
+    text: 'Single Rope',
+    value: 'sr',
+    colspan: 8
+  }, {
+    text: 'Overall',
+    value: 'oa',
+    colspan: 3,
+    rowspan: 2
+  }],
+
+  [{
+    text: 'Speed Sprint',
+    value: 'srss',
+    colspan: 2
+  }, {
+    text: 'Speed Endurance',
+    value: 'srse',
+    colspan: 2
+  }, {
+    text: 'Individual Freestyle',
+    value: 'srif',
+    colspan: 4
+  }]
+]
+
+export const OverallResultTableHeadersIndividual: ResultTableHeader<SvGFRH20Events>[] = [
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'srss'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'srss',
+    color: 'red'
+  },
+
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'srse'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'srse',
+    color: 'red'
+  },
+
+  {
+    text: 'Pres',
+    value: 'P',
+    eventID: 'srif'
+  }, {
+    text: 'Rank',
+    value: 'CRank',
+    eventID: 'srif',
+    color: 'red'
+  }, {
+    text: 'Diff',
+    value: 'D',
+    eventID: 'srif'
+  }, {
+    text: 'Rank',
+    value: 'DRank',
+    eventID: 'srif',
+    color: 'red'
+  },
+
+  {
+    text: 'Rank Sum',
+    value: 'T',
+    color: 'green',
+    eventID: 'overall'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'overall',
+    color: 'red'
+  }
+]
+
+export const OverallResultTableGroupsTeam6: ResultTableHeaderGroup<SvGFRH20Events>[][] = [
+  [{
+    text: 'Single Rope',
+    value: 'sr',
+    colspan: 8
+  }, {
+    text: 'Double Dutch',
+    value: 'dd',
+    colspan: 8
+  }, {
+    text: 'Overall',
+    value: 'oa',
+    colspan: 2,
+    rowspan: 2
+  }],
+
+  [{
+    text: 'Speed Relay',
+    value: 'srsr',
+    colspan: 2
+  }, {
+    text: 'Pairs Double Unders',
+    value: 'srdr',
+    colspan: 2
+  }, {
+    text: 'Team Freestyle',
+    value: 'srtf',
+    colspan: 4
+  },
+
+  {
+    text: 'Speed Relay',
+    value: 'ddsr',
+    colspan: 2
+  }, {
+    text: 'Speed Sprint',
+    value: 'ddss',
+    colspan: 2
+  }, {
+    text: 'Pair Freestyle',
+    value: 'ddpf',
+    colspan: 4
+  }]
+]
+
+export const OverallResultTableGroupsTeam8: ResultTableHeaderGroup<SvGFRH20Events>[][] = [
+  [{
+    text: 'Single Rope',
+    value: 'sr',
+    colspan: 12
+  }, {
+    text: 'Double Dutch',
+    value: 'dd',
+    colspan: 12
+  }, {
+    text: 'Overall',
+    value: 'oa',
+    colspan: 2,
+    rowspan: 2
+  }],
+
+  [{
+    text: 'Speed Relay',
+    value: 'srsr',
+    colspan: 2
+  }, {
+    text: 'Pairs Double Unders',
+    value: 'srdr',
+    colspan: 2
+  }, {
+    text: 'Pair Freestyle',
+    value: 'srpf',
+    colspan: 4
+  }, {
+    text: 'Team Freestyle',
+    value: 'srtf',
+    colspan: 4
+  },
+
+  {
+    text: 'Speed Relay',
+    value: 'ddsr',
+    colspan: 2
+  }, {
+    text: 'Speed Sprint',
+    value: 'ddss',
+    colspan: 2
+  }, {
+    text: 'Pair Freestyle',
+    value: 'ddsf',
+    colspan: 4
+  }, {
+    text: 'Team Freestyle',
+    value: 'ddpf',
+    colspan: 4
+  }]
+]
+
+export const OverallResultTableHeadersTeam6: ResultTableHeader<SvGFRH20Events>[] = [
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'srsr'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'srsr',
+    color: 'red'
+  },
+
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'srdr'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'srdr',
+    color: 'red'
+  },
+
+  {
+    text: 'Pres',
+    value: 'P',
+    eventID: 'srtf'
+  }, {
+    text: 'Crea Rank',
+    value: 'CRank',
+    color: 'red',
+    eventID: 'srtf'
+  }, {
+    text: 'Diff',
+    value: 'D',
+    eventID: 'srtf'
+  }, {
+    text: 'Diff Rank',
+    value: 'DRank',
+    color: 'red',
+    eventID: 'srtf'
+  },
+
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'ddsr'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'ddsr',
+    color: 'red'
+  },
+
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'ddss'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'ddss',
+    color: 'red'
+  },
+
+  {
+    text: 'Pres',
+    value: 'P',
+    eventID: 'ddpf'
+  }, {
+    text: 'Crea Rank',
+    value: 'CRank',
+    color: 'red',
+    eventID: 'ddpf'
+  }, {
+    text: 'Diff',
+    value: 'D',
+    eventID: 'ddpf'
+  }, {
+    text: 'Diff Rank',
+    value: 'DRank',
+    color: 'red',
+    eventID: 'ddpf'
+  },
+
+  {
+    text: 'Rank Sum',
+    value: 'T',
+    color: 'green'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    color: 'red'
+  }
+]
+
+export const OverallResultTableHeadersTeam8: ResultTableHeader<SvGFRH20Events>[] = [
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'srsr'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'srsr',
+    color: 'red'
+  },
+
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'srdr'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'srdr',
+    color: 'red'
+  },
+
+  {
+    text: 'Pres',
+    value: 'P',
+    eventID: 'srpf'
+  }, {
+    text: 'Crea Rank',
+    value: 'CRank',
+    color: 'red',
+    eventID: 'srpf'
+  }, {
+    text: 'Diff',
+    value: 'D',
+    eventID: 'srpf'
+  }, {
+    text: 'Diff Rank',
+    value: 'DRank',
+    color: 'red',
+    eventID: 'srpf'
+  },
+
+  {
+    text: 'Pres',
+    value: 'P',
+    eventID: 'srtf'
+  }, {
+    text: 'Crea Rank',
+    value: 'CRank',
+    color: 'red',
+    eventID: 'srtf'
+  }, {
+    text: 'Diff',
+    value: 'D',
+    eventID: 'srtf'
+  }, {
+    text: 'Diff Rank',
+    value: 'DRank',
+    color: 'red',
+    eventID: 'srtf'
+  },
+
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'ddsr'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'ddsr',
+    color: 'red'
+  },
+
+  {
+    text: 'Score',
+    value: 'R',
+    eventID: 'ddss'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    eventID: 'ddss',
+    color: 'red'
+  },
+
+  {
+    text: 'Pres',
+    value: 'P',
+    eventID: 'ddsf'
+  }, {
+    text: 'Crea Rank',
+    value: 'CRank',
+    color: 'red',
+    eventID: 'ddsf'
+  }, {
+    text: 'Diff',
+    value: 'D',
+    eventID: 'ddsf'
+  }, {
+    text: 'Diff Rank',
+    value: 'DRank',
+    color: 'red',
+    eventID: 'ddsf'
+  },
+
+  {
+    text: 'Pres',
+    value: 'P',
+    eventID: 'ddpf'
+  }, {
+    text: 'Crea Rank',
+    value: 'CRank',
+    color: 'red',
+    eventID: 'ddpf'
+  }, {
+    text: 'Diff',
+    value: 'D',
+    eventID: 'ddpf'
+  }, {
+    text: 'Diff Rank',
+    value: 'DRank',
+    color: 'red',
+    eventID: 'ddpf'
+  },
+
+  {
+    text: 'Rank Sum',
+    value: 'T',
+    color: 'green'
+  }, {
+    text: 'Rank',
+    value: 'S',
+    color: 'red'
+  }
+]
+
+export const SpeedResult = function (eventID: SvGFRH20Events): Event<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Overalls>['result'] {
   return function (scores: { [judgeID: string]: SvGFRH20Score }, judges: [string, string][]) {
     let judgeResults: SvGFRH20Result[] = []
     let output: SvGFRH20Result = {}
@@ -194,11 +678,11 @@ export const SpeedResult = function (eventID: string): Event<SvGFRH20Score, SvGF
 
     // Calc a
     let as = judgeResults.map(el => el.a).filter(el => typeof el === 'number') as number[]
-    output.a = SvGFRH20average(as)
+    output.a = IJRU1_1_0average(as)
 
     // Calc m
     let ms = judgeResults.map(el => el.m).filter(el => typeof el === 'number') as number[]
-    output.m = SvGFRH20average(ms)
+    output.m = IJRU1_1_0average(ms)
 
     output.R = roundTo((output.a ?? 0) - (output.m ?? 0), 2)
 
@@ -223,6 +707,147 @@ export const SpeedRank: Event<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvG
   return results
 }
 
+export const FreestyleResult = function (eventID: SvGFRH20Events): Event<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Overalls>['result'] {
+  return function (scores, judges) {
+    let judgeResults: SvGFRH20Result[] = []
+    let output: SvGFRH20Result = {}
+
+    let eventObj = config.events.find(el => el.eventID === eventID)
+    if (!eventObj) throw new Error('Could not find event ' + eventID)
+    let eventJudgeTypes = eventObj.judges
+
+    for (let JudgeType of judges) {
+      let judgeID = JudgeType[0]
+      let judgeType = JudgeType[1]
+
+      let judgeObj = eventJudgeTypes.find(el => el.judgeTypeID === judgeType)
+      if (!judgeObj) throw new Error('Invalid judgeType')
+      let resultFunction = judgeObj.result
+
+      let idx: number = judgeResults.findIndex(el => el.judgeID === judgeID)
+      if (idx < 0) {
+        judgeResults.push({
+          judgeID,
+          ...resultFunction.call(judgeObj, scores[judgeID] || {})
+        })
+      } else {
+        judgeResults[idx] = {
+          ...judgeResults[idx],
+          ...resultFunction.call(judgeObj, scores[judgeID] || {})
+        }
+      }
+    }
+
+    const Ps = judgeResults.map(score => score.P).filter(el => typeof el === 'number') as number[]
+    output.P = roundTo(IJRU1_1_0average(Ps) ?? 0, 2)
+
+    const Ds = judgeResults.map(score => score.D).filter(el => typeof el === 'number') as number[]
+    output.D = roundTo(IJRU1_1_0average(Ds) ?? 0, 2)
+
+    output.R = roundTo((output.D ?? 0) + (output.P ?? 0), 2)
+    output.R = output.R < 0 ? 0 : output.R
+
+    return output
+  }
+}
+
+export const FreestyleRank: Event<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Overalls>['rank'] = function (results = []) {
+  const CScores = results.map(el => el.P ?? -Infinity)
+  const DScores = results.map(el => el.D ?? -Infinity)
+
+  /* sort descending */
+  CScores.sort(function (a, b) {
+    return b - a // sort descending
+  })
+  DScores.sort(function (a, b) {
+    return b - a // sort descending
+  })
+
+  results = results.map(result => {
+    let CRank = CScores.findIndex(score => score === result.P) + 1
+    let DRank = DScores.findIndex(score => score === result.D) + 1;
+
+    return {
+      ...result,
+      CRank,
+      DRank,
+      T: CRank + DRank
+    }
+  })
+
+  /* sort ascending on rank but descending on score if ranksums are equal */
+  results.sort((a, b) => {
+    if (a.T === b.T) {
+      return a.participantID?.localeCompare(b.participantID ?? '') ?? 0
+    } else {
+      return (a.T ?? 0) - (b.T ?? 0)
+    }
+  })
+
+  results = results.map((el, idx, arr) => ({
+    ...el,
+    S: idx + 1,
+  }))
+
+  // DEV SORT BY ID
+  // results.sort((a, b) => Number(a.participant.substring(1, 4) - Number(b.participant.substring(1, 4))))
+
+  return results
+}
+
+type eventResults = {
+  [eventID in SvGFRH20Events]?: SvGFRH20Result[]
+}
+
+const OverallRank = function (overallID: string) {
+  return function (results: eventResults = {}) {
+    let ranked: { overall: SvGFRH20Result[] } & eventResults = {
+      overall: []
+    }
+    const overallObj = config.overalls.find(el => el.overallID === overallID)
+    if (!overallObj) throw new Error('Could not find event ' + overallID)
+
+    for (const eventID of overallObj.events) {
+      const eventObj = config.events.find(el => el.eventID === eventID)
+      if (!eventObj) continue
+      ranked[eventID] = eventObj.rank(results[eventID]!)
+
+      for (const scoreObj of ranked[eventID]!) {
+        let idx = ranked.overall.findIndex(el => el.participantID === scoreObj.participantID)
+        if (!scoreObj) continue
+        console.log(scoreObj)
+
+        if (idx >= 0) {
+          ranked.overall[idx].R = roundTo((ranked.overall[idx].R ?? 0) + ((scoreObj.R ?? 0) * (eventObj.scoreMultiplier ?? 1)), 4)
+          ranked.overall[idx].T = ((ranked.overall[idx].T ?? 0) + ((scoreObj.S ?? 0) * (eventObj.rankMultiplier ?? 1))) ?? 0
+        } else {
+          let R = roundTo(scoreObj.R ?? 0, 4)
+          ranked.overall.push({
+            participantID: scoreObj.participantID,
+            R,
+            T: scoreObj.S ?? 0
+          })
+        }
+      }
+    }
+
+    console.log(ranked)
+
+    ranked.overall.sort((a, b) => {
+      return (a.T ?? Infinity) - (b.T ?? Infinity)
+    })
+    ranked.overall = ranked.overall.map((el, idx, arr) => ({
+      ...el,
+      S: arr.findIndex(obj => obj.T === el.T) + 1
+    }))
+
+    // DEV SORT BY ID
+    // ranked.overall.sort((a, b) => Number(a.participant.substring(1, 4) - Number(b.participant.substring(1, 4))))
+
+    return ranked
+  }
+}
+
 
 const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Overalls> = {
   name: 'SvGF Rikshoppet 2020',
@@ -234,7 +859,6 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
     result: SpeedResult('srss'),
     rank: SpeedRank,
     headers: SpeedResultTableHeaders,
-    scoreMultiplier: 5,
     multipleEntry: true
   }, {
     eventID: 'srse',
@@ -256,8 +880,8 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
     eventID: 'srif',
     name: 'Single Rope Master Freestyle',
     judges: [PresentationJudge, DifficultyJudgeMasters],
-    result: FreestyleResult('srsf'),
-    rank: FreestyleRank('srsf'),
+    result: FreestyleResult('srif'),
+    rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
     eventID: 'srsr',
@@ -280,30 +904,30 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
   }, {
     eventID: 'srpf',
     name: 'Single Rope Pair Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeSingleRopeTeams],
+    judges: [PresentationJudge, DifficultyJudgeTeams],
     result: FreestyleResult('srpf'),
-    rank: FreestyleRank('srpf'),
+    rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
     eventID: 'srtf',
     name: 'Single Rope Team Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeSingleRopeTeams],
+    judges: [PresentationJudge, DifficultyJudgeTeams],
     result: FreestyleResult('srtf'),
-    rank: FreestyleRank('srtf'),
+    rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
     eventID: 'ddsf',
     name: 'Double Dutch Single Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeDoubleDutchTeams],
+    judges: [PresentationJudge, DifficultyJudgeTeams],
     result: FreestyleResult('ddsf'),
-    rank: FreestyleRank('ddsf'),
+    rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
     eventID: 'ddpf',
     name: 'Double Dutch Pair Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeDoubleDutchTeams],
+    judges: [PresentationJudge, DifficultyJudgeTeams],
     result: FreestyleResult('ddpf'),
-    rank: FreestyleRank('ddpf'),
+    rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }],
 
@@ -317,13 +941,22 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
     rank: OverallRank('indoverall')
   },
   {
-    overallID: 'teamoverall',
+    overallID: 'teamoverall6',
     text: 'Overall',
     type: 'team',
-    groups: OverallResultTableGroupsTeam,
-    headers: OverallResultTableHeadersTeam,
-    events: ['srsr', 'ddsr', 'srpf', 'srtf', 'ddsf', 'ddpf'],
-    rank: OverallRank('teamoverall')
+    groups: OverallResultTableGroupsTeam6,
+    headers: OverallResultTableHeadersTeam6,
+    events: ['srsr', 'srdr', 'ddsr', 'ddss', 'srtf', 'ddpf'],
+    rank: OverallRank('teamoverall6')
+  },
+  {
+    overallID: 'teamoverall8',
+    text: 'Overall',
+    type: 'team',
+    groups: OverallResultTableGroupsTeam8,
+    headers: OverallResultTableHeadersTeam8,
+    events: ['srsr', 'srdr', 'ddsr', 'ddss', 'srpf', 'srtf', 'ddsf', 'ddpf'],
+    rank: OverallRank('teamoverall8')
   }]
 }
 
