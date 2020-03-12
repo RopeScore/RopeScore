@@ -200,7 +200,7 @@ export const SpeedResultTableHeaders: ResultTableHeaders<SvGFRH20Events> = {
     value: 'R'
   }, {
     text: 'Rank',
-    value: 'rank',
+    value: 'S',
     color: 'red'
   }]
 }
@@ -786,7 +786,7 @@ export const FreestyleRank: Event<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events,
 
   results = results.map((el, idx, arr) => ({
     ...el,
-    S: idx + 1,
+    S: arr.findIndex(score => score.T === el.T) + 1,
   }))
 
   // DEV SORT BY ID
@@ -818,14 +818,14 @@ const OverallRank = function (overallID: string) {
         console.log(scoreObj)
 
         if (idx >= 0) {
-          ranked.overall[idx].R = roundTo((ranked.overall[idx].R ?? 0) + ((scoreObj.R ?? 0) * (eventObj.scoreMultiplier ?? 1)), 4)
-          ranked.overall[idx].T = ((ranked.overall[idx].T ?? 0) + ((scoreObj.S ?? 0) * (eventObj.rankMultiplier ?? 1))) ?? 0
+          ranked.overall[idx].R = roundTo((ranked.overall[idx].R ?? 0) + (scoreObj.R ?? 0), 4)
+          ranked.overall[idx].T = ((ranked.overall[idx].T ?? 0) + (scoreObj.T ?? scoreObj.S ?? 0)) ?? 0
         } else {
           let R = roundTo(scoreObj.R ?? 0, 4)
           ranked.overall.push({
             participantID: scoreObj.participantID,
             R,
-            T: scoreObj.S ?? 0
+            T: scoreObj.T ?? scoreObj.S ?? 0
           })
         }
       }
@@ -890,7 +890,14 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
     result: SpeedResult('srsr'),
     rank: SpeedRank,
     headers: SpeedResultTableHeaders,
-    scoreMultiplier: 3,
+    multipleEntry: true
+  }, {
+    eventID: 'srdr',
+    name: 'Single Rope Double Unders Relay',
+    judges: [SpeedJudge, SpeedHeadJudgeRelays],
+    result: SpeedResult('srdr'),
+    rank: SpeedRank,
+    headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
     eventID: 'ddsr',
@@ -899,7 +906,14 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
     result: SpeedResult('ddsr'),
     rank: SpeedRank,
     headers: SpeedResultTableHeaders,
-    scoreMultiplier: 2,
+    multipleEntry: true
+  }, {
+    eventID: 'ddss',
+    name: 'Double Dutch Speed Sprint',
+    judges: [SpeedJudge, SpeedHeadJudgeRelays],
+    result: SpeedResult('ddss'),
+    rank: SpeedRank,
+    headers: SpeedResultTableHeaders,
     multipleEntry: true
   }, {
     eventID: 'srpf',
@@ -942,7 +956,7 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
   },
   {
     overallID: 'teamoverall6',
-    text: 'Overall',
+    text: 'Rikshoppet 6:an Overall',
     type: 'team',
     groups: OverallResultTableGroupsTeam6,
     headers: OverallResultTableHeadersTeam6,
@@ -951,7 +965,7 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
   },
   {
     overallID: 'teamoverall8',
-    text: 'Overall',
+    text: 'Rikshoppet 8:an Overall',
     type: 'team',
     groups: OverallResultTableGroupsTeam8,
     headers: OverallResultTableHeadersTeam8,
