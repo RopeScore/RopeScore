@@ -180,7 +180,7 @@ export const UtmaningsRank: Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events,
   return results
 }
 
-export const FreestyleResult = function (eventID: string): Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls>['result'] {
+export const FreestyleResult = function (eventID: SvGFVH18Events): Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls>['result'] {
   return function (scores, judges) {
     let judgeResults: SvGFVH18Result[] = []
     let output: { [prop: string]: number } = {}

@@ -880,7 +880,7 @@ export const AllAroundResultTableHeadersTeam: ResultTableHeader<IJRU1_1_0Events>
   }
 ]
 
-export const SpeedResult = function (eventID: string): Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls>['result'] {
+export const SpeedResult = function (eventID: IJRU1_1_0Events): Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls>['result'] {
   return function (scores: { [judgeID: string]: IJRU1_1_0Score }, judges: [string, string][]) {
     let judgeResults: IJRU1_1_0Result[] = []
     let output: IJRU1_1_0Result = {}
@@ -945,7 +945,7 @@ export const SpeedRank: Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, 
   return results
 }
 
-const FreestyleResult = function (eventID: string): Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls>['result'] {
+const FreestyleResult = function (eventID: IJRU1_1_0Events): Event<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls>['result'] {
   return function (scores: { [judgeID: string]: IJRU1_1_0Score }, judges: [string, string][]) {
     let judgeResults: IJRU1_1_0Result[] = []
     let output: IJRU1_1_0Result = {}
@@ -978,7 +978,7 @@ const FreestyleResult = function (eventID: string): Event<IJRU1_1_0Score, IJRU1_
 
     for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'r', 'Q'] as Array<keyof Omit<IJRU1_1_0Result, keyof ResultInfo>>) {
       let scores = judgeResults.map(el => el[scoreType]).filter(el => typeof el === 'number') as number[]
-      if (['m', 'v', 'r'].includes(scoreType)) output[scoreType] = roundTo(IJRU1_1_0average(scores), 2)
+      if (!['m', 'v', 'r'].includes(scoreType)) output[scoreType] = roundTo(IJRU1_1_0average(scores), 2)
       else output[scoreType] = IJRU1_1_0average(scores)
       if (typeof output[scoreType] !== 'number') output[scoreType] = (scoreType === 'D' ? 0 : 1)
     }

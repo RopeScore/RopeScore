@@ -775,7 +775,7 @@ export const OverallResultTableHeadersTeam: ResultTableHeader<FISAC1718Events | 
   }
 ]
 
-export const SpeedResult = function (eventID: string) {
+export const SpeedResult = function (eventID: FISAC1718Events) {
   return function (scores: { [judgeID: string]: FISAC1718Score }, judges: [string, string][]) {
     let judgeResults: FISAC1718Result[] = []
     let output: FISAC1718Result = {}
@@ -847,7 +847,7 @@ export const SpeedResult = function (eventID: string) {
   }
 }
 
-export const FreestyleResult = function (eventID: string) {
+export const FreestyleResult = function (eventID: FISAC1718Events) {
   return function (scores: { [judgeID: string]: FISAC1718Score }, judges: [string, string][]) {
     let judgeResults: FISAC1718Result[] = []
     let Ts: { [T: string]: number[] } = {}
