@@ -93,8 +93,7 @@ export interface IJRU1_1_0Result extends ResultInfo {
   B?: number
 }
 
-const average = (scores: number[]): number => {
-
+export const IJRU1_1_0average = (scores: number[]): number => {
   // sort ascending
   scores.sort(function (a, b) {
     return a - b
@@ -107,16 +106,8 @@ const average = (scores: number[]): number => {
     let score = scores.reduce((a, b) => a + b)
     return score / scores.length
   } else if (scores.length === 3) {
-    let diff: number | undefined
-    let output: number | undefined
-    for (let i = 1; i < scores.length; i++) {
-      let cdiff = Math.abs(scores[i] - scores[i - 1])
-      if (typeof diff === 'undefined' || cdiff <= diff) {
-        diff = cdiff
-        output = roundTo((scores[i] + scores[i - 1]) / 2, 4)
-      }
-    }
-    return output ?? 0
+    const closest = scores[2] - scores[1] <= scores[2] - scores[1] ? scores[2] + scores[1] : scores[1] + scores[0]
+    return (closest / 2) ?? 0
   } else if (scores.length === 2) {
     let score = scores.reduce((a, b) => a + b)
     return score / scores.length
@@ -921,11 +912,11 @@ export const SpeedResult = function (eventID: string): Event<IJRU1_1_0Score, IJR
 
     // Calc a
     let as = judgeResults.map(el => el.a).filter(el => typeof el === 'number') as number[]
-    output.a = average(as)
+    output.a = IJRU1_1_0average(as)
 
     // Calc m
     let ms = judgeResults.map(el => el.m).filter(el => typeof el === 'number') as number[]
-    output.m = average(ms)
+    output.m = IJRU1_1_0average(ms)
 
     output.R = roundTo((output.a ?? 0) - (output.m ?? 0), 2)
 
@@ -987,8 +978,8 @@ const FreestyleResult = function (eventID: string): Event<IJRU1_1_0Score, IJRU1_
 
     for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'r', 'Q'] as Array<keyof Omit<IJRU1_1_0Result, keyof ResultInfo>>) {
       let scores = judgeResults.map(el => el[scoreType]).filter(el => typeof el === 'number') as number[]
-      if (['m', 'v', 'r'].includes(scoreType)) output[scoreType] = roundTo(average(scores), 2)
-      else output[scoreType] = average(scores)
+      if (['m', 'v', 'r'].includes(scoreType)) output[scoreType] = roundTo(IJRU1_1_0average(scores), 2)
+      else output[scoreType] = IJRU1_1_0average(scores)
       if (typeof output[scoreType] !== 'number') output[scoreType] = (scoreType === 'D' ? 0 : 1)
     }
 
@@ -1101,7 +1092,6 @@ const OverallRank = function (overallID: string) {
 const config: Ruleset<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls> = {
   name: 'IJRU v1.1.0',
   rulesetID: 'IJRU1-0-0',
-  versions: ['intl'],
   events: [{
     eventID: 'srss',
     name: 'Single Rope Speed Sprint',

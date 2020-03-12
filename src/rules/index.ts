@@ -76,7 +76,6 @@ export interface Overall<S = Score, R = Result, E = EventTypes, O = Overalls> ex
 export interface Ruleset<S = Score, R = Result, E = EventTypes, O = Overalls> {
   rulesetID: string
   name: string
-  versions: string[]
   events: Event<S, R, E>[]
   overalls: Overall<S, R, E, O>[]
 }

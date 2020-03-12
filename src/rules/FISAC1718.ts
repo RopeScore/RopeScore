@@ -1080,7 +1080,6 @@ export const OverallRank = function (overallID: FISAC1718Overalls) {
 const config: Ruleset<FISAC1718Score, FISAC1718Result, FISAC1718Events, FISAC1718Overalls> = {
   name: 'FISAC-IRSF 2017-2018',
   rulesetID: 'FISAC1718',
-  versions: ['intl'],
   events: [{
     eventID: 'srss',
     name: 'Single Rope Speed Sprint',
