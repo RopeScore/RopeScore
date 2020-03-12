@@ -585,7 +585,6 @@ export const DoubleDutchTeamOverallTableHeaders: ResultTableHeaders<SvGFVH18Even
 const config: Ruleset<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls> = {
   name: 'SvGF Vikingahoppet',
   rulesetID: 'SvGFVH18',
-  versions: ['se'],
   events: [{
     eventID: 'srss',
     name: 'Snabbhet 30s',
