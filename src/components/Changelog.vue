@@ -12,14 +12,11 @@
         <li>Autosave</li>
         <li>Support for more than two rulesets at the same time</li>
         <ul>
-          <li>Added Support for IJRU Rules v1.0.0</li>
+          <li>Added Support for IJRU Rules v1.1.0</li>
         </ul>
-        <li>People and Teams are now separated from categories allowing you to share anonymized, GDPR compliant, exports</li>
-        <li>People and Teams can now be easily reused between categories</li>
-        <li>A person can now be assigned as a judge, so you know where to typethe scores and to prepare for IJRU compliance</li>
         <li>Completely redesigned user interface</li>
         <li>When Grouping Categories you can quickly select a group that one of your other categories belongs to</li>
-        <li>Updated Excel Export Library, this ióne should hopefully work better</li>
+        <li>Updated Excel Export Library, this one should hopefully work better</li>
         <ul>
           <li>Page headers and footers when Printing via Excel</li>
           <li>When printing via Excel the pages are automatically set to landscape and fit-to-page</li>
