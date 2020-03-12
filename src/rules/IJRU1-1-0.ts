@@ -1099,7 +1099,7 @@ const OverallRank = function (overallID: string) {
 }
 
 const config: Ruleset<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events, IJRU1_1_0Overalls> = {
-  name: 'IJRU v1.0.0-pr.1',
+  name: 'IJRU v1.1.0',
   rulesetID: 'IJRU1-0-0',
   versions: ['intl'],
   events: [{
