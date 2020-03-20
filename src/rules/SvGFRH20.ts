@@ -31,6 +31,7 @@ export interface SvGFRH20Score extends ScoreInfo<SvGFRH20Events> {
   pfbe?: number
   pimp?: number
   pmis?: number
+  pint?: number
 
   // Diff
   l05?: number
@@ -135,7 +136,7 @@ export const DifficultyJudgeTeams: DifficultyJudge = {
 }
 
 /* PRESENTATION */
-export const PresentationJudge: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events> = {
+export const PresentationJudgeSingleRope: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events> = {
   name: 'Presentation',
   judgeTypeID: 'P',
   fields: [
@@ -192,6 +193,21 @@ export const PresentationJudge: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH2
       P: roundTo(score, 2)
     }
   }
+}
+
+export const PresentationJudgeDoubleDutch: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events> = {
+  ...PresentationJudgeSingleRope,
+  fields: PresentationJudgeSingleRope.fields.splice(
+    PresentationJudgeSingleRope.fields.findIndex(field => field.fieldID === 'puom'),
+    1,
+    {
+      name: 'Interaktioner',
+      fieldID: 'pint',
+      min: 0,
+      max: 10,
+      step: 0.5
+    }
+  )
 }
 
 export const SpeedResultTableHeaders: ResultTableHeaders<SvGFRH20Events> = {
@@ -879,7 +895,7 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
   }, {
     eventID: 'srif',
     name: 'Single Rope Master Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeMasters],
+    judges: [PresentationJudgeSingleRope, DifficultyJudgeMasters],
     result: FreestyleResult('srif'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
@@ -918,28 +934,28 @@ const config: Ruleset<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Ove
   }, {
     eventID: 'srpf',
     name: 'Single Rope Pair Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeTeams],
+    judges: [PresentationJudgeSingleRope, DifficultyJudgeTeams],
     result: FreestyleResult('srpf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
     eventID: 'srtf',
     name: 'Single Rope Team Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeTeams],
+    judges: [PresentationJudgeSingleRope, DifficultyJudgeTeams],
     result: FreestyleResult('srtf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
     eventID: 'ddsf',
     name: 'Double Dutch Single Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeTeams],
+    judges: [PresentationJudgeDoubleDutch, DifficultyJudgeTeams],
     result: FreestyleResult('ddsf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
   }, {
     eventID: 'ddpf',
     name: 'Double Dutch Pair Freestyle',
-    judges: [PresentationJudge, DifficultyJudgeTeams],
+    judges: [PresentationJudgeDoubleDutch, DifficultyJudgeTeams],
     result: FreestyleResult('ddpf'),
     rank: FreestyleRank,
     headers: FreestyleResultTableHeaders
