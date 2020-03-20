@@ -2,6 +2,16 @@
   <v-card>
     <v-card-title>Changelog</v-card-title>
     <v-card-text>
+      <h2>v3.1.1</h2>
+      <ul>
+        <li>Bugfix for Swedish Rikshoppet Rules presentation Double Dutch</li>
+        <li>Fix a bug where the ruleset were'n displayed for categories on the dashboard</li>
+        <li>Fix a bug where team members couldn't be removed from a team</li>
+      </ul>
+      <h2>v3.1.0</h2>
+      <ul>
+        <li>Add Swedish Rikshoppet Rules</li>
+      </ul>
       <h2>v3.0.0</h2>
       <span>
         A complete rewrite of RopeScore to add support
