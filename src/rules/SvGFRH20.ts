@@ -195,19 +195,22 @@ export const PresentationJudgeSingleRope: JudgeType<SvGFRH20Score, SvGFRH20Resul
   }
 }
 
+const ddPresFields = PresentationJudgeSingleRope.fields.slice(0)
+ddPresFields.splice(
+  PresentationJudgeSingleRope.fields.findIndex(field => field.fieldID === 'puom'),
+  1,
+  {
+    name: 'Interaktioner',
+    fieldID: 'pint',
+    min: 0,
+    max: 10,
+    step: 0.5
+  }
+)
+
 export const PresentationJudgeDoubleDutch: JudgeType<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events> = {
   ...PresentationJudgeSingleRope,
-  fields: PresentationJudgeSingleRope.fields.splice(
-    PresentationJudgeSingleRope.fields.findIndex(field => field.fieldID === 'puom'),
-    1,
-    {
-      name: 'Interaktioner',
-      fieldID: 'pint',
-      min: 0,
-      max: 10,
-      step: 0.5
-    }
-  )
+  fields: ddPresFields
 }
 
 export const SpeedResultTableHeaders: ResultTableHeaders<SvGFRH20Events> = {
