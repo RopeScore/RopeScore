@@ -22,7 +22,7 @@ module.exports = {
         mac: {
           target: 'dmg',
           category: 'public.app-category.sports',
-          icon: 'src/assets/icons.icns'
+          icon: 'src/assets/icon.icns'
         },
         win: {
           target: [{
