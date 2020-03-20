@@ -1,41 +1,8 @@
-# RS-v3
+# RopeScore
 
-country codes and names from country.io
+![Release](https://github.com/svbeon/RopeScore/workflows/Build%20and%20Release%20RopeScore/badge.svg)
 
-## Project setup
-```
-npm install
-```
+A scoring system for Rope Skipping that is built to work offline and be easy to work with for small competitions
+Its main goal is to support competitions with custom rulesets
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Run your end-to-end tests
-```
-npm run test:e2e
-```
-
-### Run your unit tests
-```
-npm run test:unit
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Country codes and names from country.io
