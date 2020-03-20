@@ -13,7 +13,7 @@
           >
             <v-card link :to="`/category/${category.id}`" elevation="0" color="grey lighten-2">
               <v-card-title>{{ category.name }}</v-card-title>
-              <v-card-text>{{ (rulesets.find(rs => rs.id === category.ruleset) || {}).name }}</v-card-text>
+              <v-card-text>{{ (rulesets.find(rs => rs.rulesetID === category.ruleset) || {}).name }}</v-card-text>
             </v-card>
           </v-flex>
         </v-layout>
