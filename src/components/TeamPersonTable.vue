@@ -43,7 +43,7 @@
             <template v-slot:item.action="{ item }">
               <div class="text-no-wrap">
                 <!-- <v-btn small color="primary" class="mr-2" @click="openEditParticipantDialog(item)">Edit</v-btn> -->
-                <v-btn small color="error" @click="openDeleteParticipantDialog(item)">Delete</v-btn>
+                <v-btn small color="error" @click="deleteTeamMember(item)">Delete</v-btn>
               </div>
             </template>
 
@@ -287,7 +287,6 @@ export default class PeopleTable<VueClass> extends Vue {
     const self = this
     this.$emit('delete-teammember', { participantID: this.focusedParticipant?.participantID, teamMemberID: teamMember.participantID })
     setTimeout(() => self.focusedParticipant && self.$set(self.focusedParticipant, 'members', (self.value.find(part => part.participantID === self.focusedParticipant?.participantID) as Team)?.members || []))
-
   }
 
   deleteParticipant() {
