@@ -151,12 +151,6 @@ export const AthletePresentationJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result
   judgeTypeID: 'Pa',
   fields: [
     {
-      name: 'Misses',
-      fieldID: 'mis',
-      min: 0
-    },
-
-    {
       name: 'Form and Execution +',
       fieldID: 'pafep',
       min: 0,
@@ -173,6 +167,12 @@ export const AthletePresentationJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result
       fieldID: 'pafem',
       min: 0,
       step: 1
+    },
+
+    {
+      name: 'Misses',
+      fieldID: 'mis',
+      min: 0
     }
   ],
   result: scores => {
@@ -183,7 +183,7 @@ export const AthletePresentationJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result
     const aF = (avg * 0.35 * 0.5)
     return {
       m: roundTo(1 - ((scores.mis ?? 0) * 0.025), 3),
-      aF: roundTo(aF, 2)
+      aF: roundTo(aF, 6)
     }
   }
 }
@@ -248,8 +248,8 @@ export const RoutinePresentationJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result
 
     return {
       r: roundTo((scores.rep ?? 0) * 0.0125, 4),
-      aE: roundTo((enAvg * 0.35 * 0.25), 2),
-      aM: roundTo((muAvg * 0.35 * 0.25), 2)
+      aE: roundTo((enAvg * 0.35 * 0.25), 6),
+      aM: roundTo((muAvg * 0.35 * 0.25), 6)
     }
   }
 }
@@ -260,9 +260,10 @@ export const MissJudgeSingleRopeIndividual: JudgeType<IJRU1_1_0Score, IJRU1_1_0R
   judgeTypeID: 'R',
   fields: [
     {
-      name: 'Misses',
-      fieldID: 'mis',
-      min: 0
+      name: 'Time Violations',
+      fieldID: 'tim',
+      min: 0,
+      max: 2
     },
     {
       name: 'Space Violations',
@@ -270,21 +271,20 @@ export const MissJudgeSingleRopeIndividual: JudgeType<IJRU1_1_0Score, IJRU1_1_0R
       min: 0
     },
     {
-      name: 'Time Violations',
-      fieldID: 'tim',
-      min: 0,
-      max: 2
+      name: 'Misses',
+      fieldID: 'mis',
+      min: 0
     },
 
     {
-      name: 'Amount of different Multiples',
-      fieldID: 'rqmul',
+      name: 'Amount of different Gymnastics and Power Skills',
+      fieldID: 'rqgyp',
       min: 0,
       max: 4
     },
     {
-      name: 'Amount of different Gymnastics and Power Skills',
-      fieldID: 'rqgyp',
+      name: 'Amount of different Multiples',
+      fieldID: 'rqmul',
       min: 0,
       max: 4
     },
@@ -305,12 +305,11 @@ export const MissJudgeSingleRopeIndividual: JudgeType<IJRU1_1_0Score, IJRU1_1_0R
 
     const missing = max - score
 
-    const deduc = missing * 0.025
 
     return {
-      Q: roundTo(1 - deduc, 3),
-      m: roundTo(1 - ((scores.mis ?? 0) * 0.05), 2),
-      v: roundTo(1 - (((scores.spc ?? 0) + (scores.tim ?? 0)) * 0.05), 2)
+      Q: roundTo(1 - (missing * 0.025), 3),
+      m: roundTo(1 - ((scores.mis ?? 0) * 0.025), 3),
+      v: roundTo(1 - (((scores.spc ?? 0) + (scores.tim ?? 0)) * 0.025), 3)
     }
   }
 }
@@ -336,8 +335,8 @@ export const MissJudgeDoubleDutchSingle: JudgeType<IJRU1_1_0Score, IJRU1_1_0Resu
   ...MissJudgeSingleRopeIndividual,
   fields: [
     {
-      name: 'Misses',
-      fieldID: 'mis',
+      name: 'Time Violations',
+      fieldID: 'tim',
       min: 0
     },
     {
@@ -346,50 +345,43 @@ export const MissJudgeDoubleDutchSingle: JudgeType<IJRU1_1_0Score, IJRU1_1_0Resu
       min: 0
     },
     {
-      name: 'Time Violations',
-      fieldID: 'tim',
+      name: 'Misses',
+      fieldID: 'mis',
       min: 0
     },
 
-    {
-      name: 'Amount of different Turner Involvement Skills',
-      fieldID: 'rqtis',
-      min: 0,
-      max: 4
-    },
     {
       name: 'Amount of different Gymnastics and Power Skills',
       fieldID: 'rqgyp',
       min: 0,
       max: 4
-    }
-  ]
-}
-
-export const MissJudgeDoubleDutchPair: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
-  ...MissJudgeDoubleDutchSingle,
-  fields: [
-    ...MissJudgeDoubleDutchSingle.fields,
+    },
     {
-      name: 'Amount of different Interactions',
-      fieldID: 'rqint',
+      name: 'Amount of different Turner Involvement Skills',
+      fieldID: 'rqtis',
       min: 0,
       max: 4
     }
   ]
+}
+
+const DDRequiredFeilds = MissJudgeDoubleDutchSingle.fields.slice(0)
+const rqgypIdx = DDRequiredFeilds.findIndex(field => field.fieldID === 'rqgyp')
+DDRequiredFeilds.splice(rqgypIdx + 1, 0, {
+  name: 'Amount of different Interactions',
+  fieldID: 'rqint',
+  min: 0,
+  max: 4
+})
+
+export const MissJudgeDoubleDutchPair: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
+  ...MissJudgeDoubleDutchSingle,
+  fields: DDRequiredFeilds
 }
 
 export const MissJudgeDoubleDutchTriad: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result, IJRU1_1_0Events> = {
   ...MissJudgeDoubleDutchSingle,
-  fields: [
-    ...MissJudgeDoubleDutchPair.fields,
-    {
-      name: 'Amount of different Interactions',
-      fieldID: 'rqint',
-      min: 0,
-      max: 4
-    }
-  ]
+  fields: DDRequiredFeilds
 }
 
 /* DIFFICULTY */
@@ -413,10 +405,10 @@ export const DifficultyJudge: DifficultyJudge = {
     if (!this) return
     let l = (l: number): number => roundTo(0.1 * Math.pow(1.8, l), 2)
 
-    let score = this.fields.map(field => (scores[field.fieldID] ?? 0) * l(field.level)).reduce((a, b) => a + b)
+    let D = this.fields.map(field => (scores[field.fieldID] ?? 0) * l(field.level)).reduce((a, b) => a + b)
 
     return {
-      D: roundTo(score, 2)
+      D: roundTo(D, 2)
     }
   }
 }
@@ -978,13 +970,14 @@ const FreestyleResult = function (eventID: IJRU1_1_0Events): Event<IJRU1_1_0Scor
 
     for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'r', 'Q'] as Array<keyof Omit<IJRU1_1_0Result, keyof ResultInfo>>) {
       let scores = judgeResults.map(el => el[scoreType]).filter(el => typeof el === 'number') as number[]
-      if (!['m', 'v', 'r'].includes(scoreType)) output[scoreType] = roundTo(IJRU1_1_0average(scores), 2)
-      else output[scoreType] = IJRU1_1_0average(scores)
-      if (typeof output[scoreType] !== 'number') output[scoreType] = (scoreType === 'D' ? 0 : 1)
+      if (['m', 'v', 'r'].includes(scoreType)) output[scoreType] = roundTo(IJRU1_1_0average(scores), 4)
+      else if (['aF', 'aE', 'aM'].includes(scoreType)) output[scoreType] = roundTo(IJRU1_1_0average(scores), 6)
+      else output[scoreType] = roundTo(IJRU1_1_0average(scores), 2) // D, Q
+
+      if (typeof output[scoreType] !== 'number' || isNaN(Number(output[scoreType]))) output[scoreType] = (scoreType === 'D' ? 0 : 1)
     }
 
-    output.M = roundTo(-(1 - (output.m ?? 0) - (output.v ?? 0)), 2)
-    console.log(output.v, output.m)
+    output.M = roundTo(-(1 - (output.m ?? 0) - (output.v ?? 0)), 2) // the minus is because they're adlreay prepped to 1- and that needs to be reversed
     output.U = roundTo((1 - (output.r ?? 0)), 2)
 
     output.P = roundTo(1 + ((output.aE ?? 1) + (output.aF ?? 1) + (output.aM ?? 1)), 2)
