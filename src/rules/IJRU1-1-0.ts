@@ -182,7 +182,7 @@ export const AthletePresentationJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result
 
     const aF = (avg * 0.35 * 0.5)
     return {
-      m: roundTo(1 - ((scores.mis ?? 0) * 0.025), 2),
+      m: roundTo(1 - ((scores.mis ?? 0) * 0.025), 3),
       aF: roundTo(aF, 2)
     }
   }
@@ -247,7 +247,7 @@ export const RoutinePresentationJudge: JudgeType<IJRU1_1_0Score, IJRU1_1_0Result
     const muAvg = muTop / (muBottom || 1)
 
     return {
-      r: roundTo((scores.rep ?? 0) * 0.0125, 2),
+      r: roundTo((scores.rep ?? 0) * 0.0125, 4),
       aE: roundTo((enAvg * 0.35 * 0.25), 2),
       aM: roundTo((muAvg * 0.35 * 0.25), 2)
     }
@@ -987,11 +987,10 @@ const FreestyleResult = function (eventID: IJRU1_1_0Events): Event<IJRU1_1_0Scor
     console.log(output.v, output.m)
     output.U = roundTo((1 - (output.r ?? 0)), 2)
 
-    output.P = roundTo(1 - ((output.aE ?? 1) + (output.aF ?? 1) + (output.aM ?? 1)) ,2)
+    output.P = roundTo(1 + ((output.aE ?? 1) + (output.aF ?? 1) + (output.aM ?? 1)), 2)
 
     output.R = roundTo((output.D ?? 0) * (output.P ?? 1) * output.M * (output.Q ?? 1), 2)
     output.R = output.R < 0 ? 0 : output.R
-
 
     return output
   }
