@@ -2,6 +2,11 @@
   <v-card>
     <v-card-title>Changelog</v-card-title>
     <v-card-text>
+      <h2>v3.1.4</h2>
+      <ul>
+        <li>Improved handling of rounding for IJRU rules</li>
+        <li>Fix a bug where Required elements judges' reported misses and time- and space violations were reported as 5% each, instead of 2.5% each</li>
+      </ul>
       <h2>v3.1.3</h2>
       <ul>
         <li>Bugfix for IJRU Presentation</li>
