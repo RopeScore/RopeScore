@@ -2,6 +2,10 @@
   <v-card>
     <v-card-title>Changelog</v-card-title>
     <v-card-text>
+      <h2>v3.1.3</h2>
+      <ul>
+        <li>Bugfix for IJRU Presentation</li>
+      </ul>
       <h2>v3.1.2</h2>
       <ul>
         <li>Bugfix for Swedish Rikshoppet</li>
