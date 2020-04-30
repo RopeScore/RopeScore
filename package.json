@@ -14,7 +14,9 @@
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "main": "background.js",
   "dependencies": {
@@ -38,7 +40,8 @@
     "vuex-module-decorators": "^0.16.0",
     "vuex-persist": "^2.2.0",
     "vuex-shared-mutations": "^1.0.2",
-    "worker-loader": "^2.0.0"
+    "worker-loader": "^2.0.0",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
@@ -89,5 +92,6 @@
   },
   "homepage": "https://ropescore.com",
   "productName": "RopeScore",
-  "repository": "svbeon/RopeScore"
+  "repository": "svbeon/RopeScore",
+  "snyk": true
 }
