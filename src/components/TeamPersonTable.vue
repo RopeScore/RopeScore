@@ -153,7 +153,7 @@
 
     <v-expand-transition>
       <div v-show="showExcelImport">
-        <v-textarea full-width label="Paste from Excel" outlined v-model="excelPaste" :error="!!excelError" />
+        <v-textarea outlined v-model="excelPaste" :error="!!excelError" :placeholder="excelPlaceholder" label="Paste from Excel"/>
         <v-alert type="error" v-if="excelError">{{ excelError }}</v-alert>
       </div>
     </v-expand-transition>
@@ -424,6 +424,12 @@ export default class PeopleTable<VueClass> extends Vue {
       id: el.toLowerCase(),
       name: countriesJSON[el as keyof typeof countriesJSON]
     }));
+  }
+
+  get excelPlaceholder () {
+    return this.team
+      ? 'Name	Club	Nationality	Members\n...'
+      : 'Name	Club	Nationality	IJRU ID\n...'
   }
 }
 </script>
