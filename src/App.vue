@@ -36,11 +36,11 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-content>
+    <v-main>
       <v-container fluid>
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
-    </v-content>
+    </v-main>
 
     <v-footer app absolute>
       <span text class="mr-2">&copy; Swantzter 2017-2020</span>
