@@ -145,11 +145,22 @@
           </td>
           <td v-if="!team"><v-text-field v-model="newParticipant.ijruID" label="IJRU ID" /></td>
           <td class="text-end">
-            <v-btn color="primary" @click="addParticipant()">Add</v-btn>
+            <v-btn color="primary" @click="addParticipant(newParticipant)">Add</v-btn>
           </td>
         </tr>
       </template>
     </v-data-table>
+
+    <v-expand-transition>
+      <div v-show="showExcelImport">
+        <v-textarea full-width label="Paste from Excel" outlined v-model="excelPaste" :error="!!excelError" />
+        <v-alert type="error" v-if="excelError">{{ excelError }}</v-alert>
+      </div>
+    </v-expand-transition>
+    <div class="text-end">
+      <v-btn color="primary" @click="showExcelImport = !showExcelImport" v-if="!showExcelImport">Show Excel Import</v-btn>
+      <v-btn color="primary" @click="importParticipants(excelPaste)" v-else :loading="excelLoading">Import</v-btn>
+    </div>
   </v-container>
 </template>
 
@@ -160,6 +171,7 @@ import CategoriesModule, { TeamPerson, Team, Person } from "../store/categories"
 import countriesJSON from "../data/countries.json";
 import { getModule } from 'vuex-module-decorators';
 import { memberNames } from '@/common'
+import { parse as parseCsv } from 'papaparse'
 
 @Component
 export default class PeopleTable<VueClass> extends Vue {
@@ -168,8 +180,12 @@ export default class PeopleTable<VueClass> extends Vue {
   editParticipantDialog: boolean = false;
   countriesJSON = countriesJSON;
   focusedParticipant: TeamPerson | null = null
-  categories = getModule(CategoriesModule);
+  categories = getModule(CategoriesModule)
   memberNames = memberNames
+  showExcelImport = false
+  excelPaste: string = ''
+  excelError: string | null = null
+  excelLoading = false
 
   @Prop({ default: () => [] }) value: TeamPerson[];
   @Prop({ default: false }) team: boolean;
@@ -254,17 +270,95 @@ export default class PeopleTable<VueClass> extends Vue {
     ijruID: ''
   }
 
-  addParticipant() {
-    const { memberNames, ijruID, ...rest } = this.newParticipant
+  importParticipants (csv: string) {
+    this.excelLoading = true
+    this.excelError = null
+    let parsed = parseCsv<string[]>(csv, { delimiter: '\t', skipEmptyLines: true })
+
+    if (parsed.data.length < 1) {
+      this.excelError = 'Not enough data provided'
+      this.excelLoading = false
+      return
+    }
+
+    const hasHeaders = parsed.data[0].map(el => el.toLowerCase()).includes('name')
+    let indexes ={
+        name: 0,
+        club: 1,
+        country: 2,
+        memberNames: this.team ? 3 : -1,
+        ijruID: this.team ? -1 : 3
+      }
+
+    if (hasHeaders) {
+      const headers = parsed.data.shift()!.map(el => el.toLowerCase().replace(/[^\w]/g, ''))
+
+      indexes = {
+        name: headers.indexOf('name'),
+        club: headers.indexOf('club'),
+        country: headers.indexOf('nationality'),
+        memberNames: this.team ? headers.indexOf('members') : -1,
+        ijruID: this.team ? -1 : headers.indexOf('ijruid')
+      }
+
+      if (!this.team && headers.includes('members')) {
+        this.excelError = 'It looks like you are trying to import teams into an individual event, remove the Members header and try again'
+        this.excelLoading = false
+        return
+      }
+
+      if (this.team && headers.includes('ijruid')) {
+        this.excelError = 'It looks like you are trying to import individuals into a team event, remove the IJRU ID header and try again'
+        this.excelLoading = false
+        return
+      }
+    }
+
+    for (let dataRow of parsed.data) {
+      const teamPerson = {
+        name: dataRow[indexes.name] ?? '',
+        club: dataRow[indexes.club] ?? '',
+        country: dataRow[indexes.country] ?? '',
+        memberNames: '',
+        ijruID: ''
+      }
+      if (this.team) teamPerson.memberNames = dataRow[indexes.memberNames ?? -1] ?? ''
+      else teamPerson.ijruID = dataRow[indexes.ijruID ?? -1] ?? ''
+
+      if (teamPerson.country.length && teamPerson.country.length !== 2) {
+        teamPerson.country = (this.countries.find(country => country.name === teamPerson.country) ?? {}).id ?? ''
+      }
+
+      this.addParticipant(teamPerson)
+    }
+
+    this.excelPaste = ''
+    this.excelError = null
+    this.showExcelImport = false
+    this.excelLoading = false
+  }
+
+  addParticipant(newParticipant: Omit<Team & Person, "participantID" | 'members'> & { memberNames: string }) {
+    const { memberNames, ijruID, ...rest } = newParticipant
 
     if (!this.team) this.$set(rest, 'ijruID', ijruID)
     if (this.team) {
-      const names = memberNames.trim().length ? memberNames.split(',') : []
+      const names = memberNames.trim().length
+      ? memberNames.split(',').map(str => {
+        const matches = /([\w\s]*)(\((\d+)\))?/.exec(str)
+
+        return {
+          name: (matches?.[1] ?? '').trim(),
+          ijruID: (matches?.[3] ?? '').trim()
+        }
+      })
+      : []
+
       const members: Omit<Person, 'participantID'>[] = names.map(name => ({
-        name: name.trim(),
-        club: this.newParticipant.club,
-        country: this.newParticipant.country,
-        ijruID: ''
+        name: name.name,
+        club: newParticipant.club,
+        country: newParticipant.country,
+        ijruID: name.ijruID
       }));
       this.$set(rest, 'members', members)
     }

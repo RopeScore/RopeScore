@@ -2,6 +2,10 @@
   <v-card>
     <v-card-title>Changelog</v-card-title>
     <v-card-text>
+      <h2>v3.2.0</h2>
+      <ul>
+        <li>Added the ability to paste multiple participants from excel</li>
+      </ul>
       <h2>v3.1.4</h2>
       <ul>
         <li>Improved handling of rounding for IJRU rules</li>
