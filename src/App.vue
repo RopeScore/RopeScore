@@ -104,7 +104,7 @@ export default class App extends Vue {
   .v-application {
     background: #fff !important;
   }
-  .v-content,
+  .v-main,
   .container,
   .v-card {
     padding: 0 !important;

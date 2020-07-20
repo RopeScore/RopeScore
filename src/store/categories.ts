@@ -1,7 +1,6 @@
-// import { Module } from 'vuex'
-// import Vue from 'vue'
-import { leftFillNum, roundToMultiple, nextID } from '@/common'
+import { roundToMultiple, nextID } from '@/common'
 import Vue from 'vue'
+import { version } from '../../package.json'
 
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import store from '@/plugins/store'
@@ -116,6 +115,13 @@ interface Assignment {
 interface DNS {
   participantID: string;
   eventID: EventTypes;
+}
+
+export interface CategoryWithInfo {
+  id: string
+  name: string
+  group: string
+  ruleset: string
 }
 
 @Module({ namespaced: true, name: 'categories', dynamic: true, store })
@@ -480,7 +486,7 @@ export default class CategoriesModule extends VuexModule {
   @Action
   deleteParticipant({ id, value }: BasePayload<TeamPerson>) {
     if (!value) return
-    // TODO: remove the aprticipant's scores
+    // TODO: remove the participant's scores
     this.context.commit('_deleteParticipant', { id, value: value.participantID })
   }
 
@@ -617,6 +623,16 @@ export default class CategoriesModule extends VuexModule {
       })
   }
 
+  get categoriesWithInfo (): CategoryWithInfo[]  {
+    return Object.keys(this.categories)
+      .map(id => ({
+        id,
+        group: this.categories[id].config.group || 'Ungrouped',
+        name: this.categories[id].config.name,
+        ruleset: this.categories[id].config.ruleset
+      }))
+  }
+
   get eventScoreObj () {
     return ({ id, eventID }: EventBasePayload<undefined>) => {
       let obj: { [participantID: string]: { [judgeID: string]: Score } } = {}
@@ -635,6 +651,20 @@ export default class CategoriesModule extends VuexModule {
 
   get tableZoom () {
     return ({ id, table }: TableBasePayload) => (this.categories[id].printConfig.zoom ?? []).find(([tbl, _]) => table === tbl)?.[1] ?? 1
+  }
+
+  get export () {
+    return (ids?: Array<keyof Categories>) => {
+      let categoryEntries = Object.entries(this.categories)
+
+      if (ids) categoryEntries = categoryEntries.filter(([id]) => ids.includes(id))
+
+      const categories = Object.fromEntries(categoryEntries)
+      return {
+        version,
+        categories
+      }
+    }
   }
 }
 

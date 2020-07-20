@@ -11,6 +11,7 @@ import { getModule } from 'vuex-module-decorators'
 import Excel from "exceljs";
 import { DateTime } from "luxon";
 import SystemModule from '@/store/system';
+import { nameCleaner } from '../common';
 
 const colors = require("vuetify/lib/util/colors")
 
@@ -24,11 +25,6 @@ export default class ExcelWorkbook<VueClass> extends Vue {
   get workbook() {
     this.workbookInternal.modified = new Date();
     return this.workbookInternal;
-  }
-
-  nameCleaner(str: string): string {
-    str.replace(/[#%&{}\\<>*?/$!'":@|\s]/gi, "_");
-    return str;
   }
 
   mounted() {
@@ -59,9 +55,9 @@ export default class ExcelWorkbook<VueClass> extends Vue {
       let blob = new Blob([bytes], { type: "application/octet-streaml" });
       let link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
-      link.download = `RopeScore-${this.nameCleaner(
+      link.download = `RopeScore-${nameCleaner(
         this.title
-      )}-${this.nameCleaner(
+      )}-${nameCleaner(
         this.system.computerName
       )}-${DateTime.local().toFormat("yyMMdd")}.xlsx`;
       link.click();

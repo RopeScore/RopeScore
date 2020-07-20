@@ -44,3 +44,8 @@ export function nextID (ids: string[], prefix: string = '', suffix: string = '',
 export function memberNames (team?: Team): string {
   return team?.members?.map(psn => psn.name).join(', ') ?? ''
 }
+
+
+export function nameCleaner (str: string): string {
+  return str.replace(/[#%&{}\\<>*?/$!'":@|\s]/gi, "_")
+}

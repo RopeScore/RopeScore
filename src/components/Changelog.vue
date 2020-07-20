@@ -5,6 +5,7 @@
       <h2>v3.2.0</h2>
       <ul>
         <li>Added the ability to paste multiple participants from excel</li>
+        <li>Added the ability to export/import v3 format data</li>
       </ul>
       <h2>v3.1.4</h2>
       <ul>
