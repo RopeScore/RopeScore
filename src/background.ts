@@ -1,8 +1,6 @@
 import { app, protocol, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
-import {
-  createProtocol,
-  installVueDevtools
-} from 'vue-cli-plugin-electron-builder/lib'
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { autoUpdater } from "electron-updater"
 import * as path from 'path'
 
@@ -21,7 +19,7 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION as boolean | undefined
     },
     icon: path.join(__dirname, '../src/assets/icon.png')
   }))
@@ -219,7 +217,7 @@ app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {
-      await installVueDevtools()
+      await installExtension(VUEJS_DEVTOOLS)
     } catch (e) {
       console.error('Vue Devtools failed to install:', e.toString())
     }
