@@ -10,6 +10,21 @@
         />
       </v-card-text>
     </v-card>
+
+    <v-card class="mb-4">
+      <v-row>
+        <v-col cols="12" md="6">
+          <v-card-title>Export</v-card-title>
+
+          <Export />
+        </v-col>
+
+        <v-col cols="12" md="6">
+          <v-card-title>Import</v-card-title>
+        </v-col>
+      </v-row>
+    </v-card>
+
     <Changelog class="mb-4" />
   </v-container>
 </template>
@@ -18,10 +33,14 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { getModule } from "vuex-module-decorators";
 import Changelog from "@/components/Changelog.vue";
+import Export from "@/components/Export.vue";
 import SystemModule from '@/store/system';
 
 @Component({
-  components: { Changelog }
+  components: {
+    Changelog,
+    Export
+  }
 })
 export default class SysConfig<VueClass> extends Vue {
   config = getModule(SystemModule)
