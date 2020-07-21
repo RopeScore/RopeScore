@@ -1,12 +1,13 @@
 import FISAC1718, { FISAC1718Score, FISAC1718Result, FISAC1718Events, FISAC1718Overalls } from './FISAC1718'
 import IJRU1_1_0, { IJRU1_1_0Events, IJRU1_1_0Overalls, IJRU1_1_0Result, IJRU1_1_0Score } from './IJRU1-1-0'
+import IJRU2_0_0, { IJRU2_0_0Overalls, IJRU2_0_0Result, IJRU2_0_0Score } from './IJRU2-0-0'
 import SvGFVH18, { SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls } from './SvGFVH18'
 import SvGFRH20 from './SvGFRH20'
 
-export type Score = FISAC1718Score | IJRU1_1_0Score | SvGFVH18Score
-export type Result = FISAC1718Result | IJRU1_1_0Result | SvGFVH18Result
+export type Score = FISAC1718Score | IJRU1_1_0Score | IJRU2_0_0Score | SvGFVH18Score
+export type Result = FISAC1718Result | IJRU1_1_0Result | IJRU2_0_0Result | SvGFVH18Result
 export type EventTypes = FISAC1718Events | IJRU1_1_0Events | SvGFVH18Events
-export type Overalls = FISAC1718Overalls | IJRU1_1_0Overalls | SvGFVH18Overalls
+export type Overalls = FISAC1718Overalls | IJRU1_1_0Overalls | IJRU2_0_0Overalls | SvGFVH18Overalls
 
 export interface ScoreInfo<E = EventTypes> {
   eventID: E;
@@ -85,6 +86,7 @@ export type Rulesets<S = Score, R = Result, E = EventTypes, O = Overalls> = Rule
 export default [
   FISAC1718,
   IJRU1_1_0,
+  IJRU2_0_0,
   SvGFRH20,
   SvGFVH18
 ]
