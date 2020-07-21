@@ -1,4 +1,4 @@
-import { Team } from './store/categories'
+import { Team, Categories, CategoryWithInfo } from './store/categories'
 
 export function leftFillNum (num: number, width: number): string {
   return num
@@ -48,4 +48,14 @@ export function memberNames (team?: Team): string {
 
 export function nameCleaner (str: string): string {
   return str.replace(/[#%&{}\\<>*?/$!'":@|\s]/gi, "_")
+}
+
+export function getInfoFromCategories (categories: Categories): CategoryWithInfo[] {
+  return Object.entries(categories)
+  .map(([id, category]) => ({
+    id,
+    group: category.config.group || 'Ungrouped',
+    name: category.config.name,
+    ruleset: category.config.ruleset
+  }))
 }

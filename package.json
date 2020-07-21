@@ -29,6 +29,7 @@
     "exceljs": "^4.1.1",
     "luxon": "^1.24.1",
     "papaparse": "^5.2.0",
+    "semver": "^7.3.2",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-electron": "^1.0.6",

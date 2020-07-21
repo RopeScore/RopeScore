@@ -1,6 +1,7 @@
-import { roundToMultiple, nextID } from '@/common'
+import { roundToMultiple, nextID, getInfoFromCategories } from '@/common'
 import Vue from 'vue'
 import { version } from '../../package.json'
+import { DateTime } from 'luxon'
 
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import store from '@/plugins/store'
@@ -58,11 +59,11 @@ interface TableBasePayload<T = string> extends BasePayload<T> {
   table: EventTypes | Overalls
 }
 
-interface Categories {
+export interface Categories {
   [key: string]: Category
 }
 
-interface Category {
+export interface Category {
   config: {
     name?: string
     group?: string
@@ -119,9 +120,16 @@ interface DNS {
 
 export interface CategoryWithInfo {
   id: string
-  name: string
-  group: string
-  ruleset: string
+  name?: string
+  group?: string
+  ruleset?: string
+}
+
+export interface Export {
+  version: string
+  exportedAt: number
+  computerName?: string
+  categories: Categories
 }
 
 @Module({ namespaced: true, name: 'categories', dynamic: true, store })
@@ -153,6 +161,11 @@ export default class CategoriesModule extends VuexModule {
   @Mutation
   _deleteCategory({ id }: BasePayload) {
     Vue.delete(this.categories, id)
+  }
+
+  @Mutation
+  _importCategory({ id, value }: BasePayload<Category>) {
+    Vue.set(this.categories, id, value)
   }
 
   @Mutation
@@ -597,6 +610,13 @@ export default class CategoriesModule extends VuexModule {
     this.context.commit('_setCategoryLogo', { id, value })
   }
 
+  @Action
+  resetStore () {
+    for (const id of Object.keys(this.categories)) {
+      this.context.commit('_deleteCategory', { id })
+    }
+  }
+
   get participantScoreObj () {
     return ({ id, eventID, participantID }: ScoreBasePayload<undefined>) => {
       let obj: { [judgeID: string]: Score } = {}
@@ -624,13 +644,7 @@ export default class CategoriesModule extends VuexModule {
   }
 
   get categoriesWithInfo (): CategoryWithInfo[]  {
-    return Object.keys(this.categories)
-      .map(id => ({
-        id,
-        group: this.categories[id].config.group || 'Ungrouped',
-        name: this.categories[id].config.name,
-        ruleset: this.categories[id].config.ruleset
-      }))
+    return getInfoFromCategories(this.categories)
   }
 
   get eventScoreObj () {
@@ -653,8 +667,12 @@ export default class CategoriesModule extends VuexModule {
     return ({ id, table }: TableBasePayload) => (this.categories[id].printConfig.zoom ?? []).find(([tbl, _]) => table === tbl)?.[1] ?? 1
   }
 
+  get hasCategory () {
+    return (id: string): boolean => Object.prototype.hasOwnProperty.call(this.categories, id)
+  }
+
   get export () {
-    return (ids?: Array<keyof Categories>) => {
+    return ({ ids, computerName }: { computerName?: string, ids?: Array<keyof Categories> }): Export => {
       let categoryEntries = Object.entries(this.categories)
 
       if (ids) categoryEntries = categoryEntries.filter(([id]) => ids.includes(id))
@@ -662,7 +680,9 @@ export default class CategoriesModule extends VuexModule {
       const categories = Object.fromEntries(categoryEntries)
       return {
         version,
-        categories
+        categories,
+        exportedAt: DateTime.local().toSeconds(),
+        computerName
       }
     }
   }

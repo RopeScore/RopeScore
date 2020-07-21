@@ -8,6 +8,7 @@
       show-select
       item-key="id"
       disable-pagination
+      hide-default-footer
     />
 
     <v-card-actions>
@@ -51,7 +52,7 @@ export default class Export extends Vue {
     let ids: string[] | undefined = (selected ?? []).map(selected => selected.id)
     ids = ids.length ? ids : undefined
 
-    const exported = this.categories.export(ids)
+    const exported = this.categories.export({ ids, computerName: this.system.computerName })
 
     const a = document.createElement('a')
     a.href = 'data:application/json;base64,' + window.btoa(unescape(encodeURIComponent(JSON.stringify(exported))))

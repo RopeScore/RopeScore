@@ -6,6 +6,7 @@
       <ul>
         <li>Added the ability to paste multiple participants from excel</li>
         <li>Added the ability to export/import v3 format data</li>
+        <li>Added a feature to remove all categories from the system</li>
       </ul>
       <h2>v3.1.4</h2>
       <ul>
