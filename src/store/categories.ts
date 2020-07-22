@@ -326,7 +326,7 @@ export default class CategoriesModule extends VuexModule {
   _setJudgeAssignment({ id, judgeID, value }: JudgeDataPayload<Assignment>) {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].judges) this.categories[id].judges = []
-    if (!value) throw new Error(`No judgeID to assign provided`)
+    if (!value) throw new Error(`No assignment provided`)
 
     const jIdx = this.categories[id].judges.findIndex(el => el.judgeID === judgeID)
     if (jIdx < 0) throw new Error(`Judge ${judgeID} not found in category ${id}. Can't assign`)
@@ -438,6 +438,20 @@ export default class CategoriesModule extends VuexModule {
     for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
       const score = this.categories[id].scores[idx]
       if (score.eventID === eventID && score.participantID === participantID) {
+        this.categories[id].scores.splice(idx, 1)
+        idx--
+      }
+    }
+  }
+
+  @Mutation
+  _clearJudgeScoresForEvent ({ id, eventID, judgeID }: Omit<SetScorePayload, 'value' | 'participantID' | 'fieldID'>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
+
+    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+      const score = this.categories[id].scores[idx]
+      if (score.eventID === eventID && score.judgeID === judgeID) {
         this.categories[id].scores.splice(idx, 1)
         idx--
       }
@@ -607,6 +621,22 @@ export default class CategoriesModule extends VuexModule {
 
     this.context.commit('_addJudge', { id, value: judgeID })
     if (value) this.context.commit('_setJudgeInfo', { id, judgeID, value })
+  }
+
+  @Action
+  setJudgeAssignment ({ id, judgeID, value }: JudgeDataPayload<Assignment>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].judges) this.categories[id].judges = []
+    if (!value) throw new Error(`No assignment provided`)
+
+    const judge = this.categories[id].judges.find(el => el.judgeID === judgeID)
+    if (!judge) throw new Error(`Judge ${judgeID} not found in category ${id}. Can't assign`)
+    const assignment = judge.assignments.find(asg => asg.eventID === value.eventID)
+
+    if (value && value.eventID && (assignment ? assignment.judgeTypeID !== value.judgeTypeID : true)) {
+      this.context.commit('_clearJudgeScoresForEvent', { id, judgeID, eventID: value.eventID })
+    }
+    this.context.commit('_setJudgeAssignment', { id, judgeID, value })
   }
 
   @Action
