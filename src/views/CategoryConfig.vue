@@ -125,10 +125,14 @@
     <v-stepper-step :complete="step > 4" step="4" :editable="step > 4">Judges</v-stepper-step>
     <v-stepper-content step="4">
       <v-card flat v-if="ruleset">
-        <v-card-title>
+        <v-card-actions>
           <v-spacer />
           <v-btn color="primary" dark class="mb-2" @click="categories.addJudge({ id })">Add Judge</v-btn>
-        </v-card-title>
+        </v-card-actions>
+
+        <v-card-subtitle>
+          Changing a judge assignment will clear all scores for that judge
+        </v-card-subtitle>
 
         <v-data-table :headers="judgeTableHeaders" :items="categories.categories[id].judges">
           <template v-slot:item.id="{ item }">
@@ -146,7 +150,7 @@
               item-text="judgeTypeID"
               item-value="judgeTypeID"
               clearable
-              @input="categories._setJudgeAssignment({ id, judgeID: item.judgeID, value: { eventID: header.text, judgeTypeID: $event } })"
+              @input="categories.setJudgeAssignment({ id, judgeID: item.judgeID, value: { eventID: header.text, judgeTypeID: $event } })"
               :value="((item.assignments || []).find(asg => asg.eventID === header.text) || {}).judgeTypeID"
             />
             <!-- {{ item }} -->
