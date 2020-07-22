@@ -309,7 +309,7 @@ export default class CategoriesModule extends VuexModule {
   _setJudgeInfo({ id, judgeID, value }: JudgeDataPayload) {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].judges) this.categories[id].judges = []
-    if (!value) throw new Error(`No judgeID to update provided`)
+    if (!value) throw new Error(`No data to change for the judge`)
 
     let idx = this.categories[id].judges.findIndex(el => el.judgeID === judgeID)
     if (idx >= 0) {
@@ -540,7 +540,7 @@ export default class CategoriesModule extends VuexModule {
     )
 
     this.context.commit('_addJudge', { id, value: judgeID })
-    this.context.commit('_setJudgeInfo', { id, judgeID, value })
+    if (value) this.context.commit('_setJudgeInfo', { id, judgeID, value })
   }
 
   @Action
