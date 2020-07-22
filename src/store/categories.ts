@@ -431,6 +431,34 @@ export default class CategoriesModule extends VuexModule {
   }
 
   @Mutation
+  _clearParticipantScoresForEvent ({ id, eventID, participantID }: Omit<SetScorePayload, 'value' | 'judgeID' | 'fieldID'>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
+
+    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+      const score = this.categories[id].scores[idx]
+      if (score.eventID === eventID && score.participantID === participantID) {
+        this.categories[id].scores.splice(idx, 1)
+        idx--
+      }
+    }
+  }
+
+  @Mutation
+  _clearJudgeScores ({ id, judgeID }: Omit<SetScorePayload, 'value' | 'participantID' | 'fieldID' | 'eventID'>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
+
+    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+      const score = this.categories[id].scores[idx]
+      if (score.judgeID === judgeID) {
+        this.categories[id].scores.splice(idx, 1)
+        idx--
+      }
+    }
+  }
+
+  @Mutation
   _tableZoomChange({ id, table, value }: TableBasePayload<number>) {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (typeof value !== 'number') throw new Error(`Must provide a number for table zoom`)
@@ -594,7 +622,7 @@ export default class CategoriesModule extends VuexModule {
 
   @Action
   deleteJudge({ id, value }: BasePayload) {
-    // TODO: remove the judges scores
+    this.context.commit('_clearJudgeScores', { id, judgeID: value })
     this.context.commit('_deleteJudge', { id, value })
   }
 
@@ -605,7 +633,7 @@ export default class CategoriesModule extends VuexModule {
     if (idx >= 0) {
       this.context.commit('_deleteDNS', { id, participantID, eventID })
     } else {
-      this.context.commit('_', { id, participantID, eventID })
+      this.context.commit('_clearParticipantScoresForEvent', { id, participantID, eventID })
       this.context.commit('_setDNS', { id, participantID, eventID })
     }
   }
