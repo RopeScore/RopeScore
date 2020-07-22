@@ -487,6 +487,20 @@ export default class CategoriesModule extends VuexModule {
   }
 
   @Mutation
+  _clearEventScores ({ id, eventID }: Omit<SetScorePayload, 'value' | 'participantID' | 'fieldID' | 'judgeID'>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
+
+    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+      const score = this.categories[id].scores[idx]
+      if (score.eventID === eventID) {
+        this.categories[id].scores.splice(idx, 1)
+        idx--
+      }
+    }
+  }
+
+  @Mutation
   _tableZoomChange({ id, table, value }: TableBasePayload<number>) {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (typeof value !== 'number') throw new Error(`Must provide a number for table zoom`)
@@ -655,8 +669,14 @@ export default class CategoriesModule extends VuexModule {
 
   @Action
   updateEvents({ id, events, template }: { id: string, events: string[], template: string[] }) {
-    // TODO: get prev state, compare to new state remove scores entered for that event
-    // also use addCategoryEvent and deleteCategoryEvent methods for each changed event
+    // maybe use addCategoryEvent and deleteCategoryEvent methods for each changed event
+    const selected = this.categories[id]?.config?.events ?? []
+
+    for (const oldEventID of selected) {
+      // if the new list of events don't include the old event we remove all scores for the old event
+      if (!events.includes(oldEventID)) this.context.commit('_clearEventScores', { id, eventID: oldEventID })
+    }
+
     this.context.commit('_setCategoryEvents', {
       id: id,
       value: events.filter(el => !!el)
