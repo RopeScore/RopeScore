@@ -445,6 +445,20 @@ export default class CategoriesModule extends VuexModule {
   }
 
   @Mutation
+  _clearParticipantScores ({ id, participantID }: Omit<SetScorePayload, 'value' | 'judgeID' | 'fieldID' | 'eventID'>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
+
+    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+      const score = this.categories[id].scores[idx]
+      if (score.participantID === participantID) {
+        this.categories[id].scores.splice(idx, 1)
+        idx--
+      }
+    }
+  }
+
+  @Mutation
   _clearJudgeScoresForEvent ({ id, eventID, judgeID }: Omit<SetScorePayload, 'value' | 'participantID' | 'fieldID'>) {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
@@ -579,7 +593,7 @@ export default class CategoriesModule extends VuexModule {
   @Action
   deleteParticipant({ id, value }: BasePayload<TeamPerson>) {
     if (!value) return
-    // TODO: remove the participant's scores
+    this.context.commit('_clearParticipantScores', { id, participantID: value.participantID })
     this.context.commit('_deleteParticipant', { id, value: value.participantID })
   }
 
