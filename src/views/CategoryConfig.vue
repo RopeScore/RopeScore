@@ -76,20 +76,22 @@
     <v-stepper-content step="2" v-if="ruleset">
       <v-form ref="eventsForm" @submit.prevent="step = 3">
         <v-card-subtitle>Removing an event will remove all scores entered for that event</v-card-subtitle>
-        <v-row>
-          <v-col
-            cols="12"
-            md="6"
-            v-for="event in ruleset.events"
-            :key="event.eventID"
-          >
-            <v-switch
-              :label="`${event.name} (${event.eventID.toUpperCase()})`"
-              :value="event.eventID"
-              v-model="events"
-            />
-          </v-col>
-        </v-row>
+          <v-card-text>
+          <v-row>
+            <v-col
+              cols="12"
+              md="6"
+              v-for="event in ruleset.events"
+              :key="event.eventID"
+            >
+              <v-switch
+                :label="`${event.name} (${event.eventID.toUpperCase()})`"
+                :value="event.eventID"
+                v-model="events"
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
         <v-card-actions>
           <v-btn color="primary" type="submit" class="mr-2">Continue</v-btn>
           <v-btn text @click="step = 1">Back</v-btn>
