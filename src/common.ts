@@ -59,3 +59,10 @@ export function getInfoFromCategories (categories: Categories): CategoryWithInfo
     ruleset: category.config.ruleset
   }))
 }
+
+export function factorFormat (value: number): string {
+  if (typeof value !== 'number' || isNaN(value)) return ''
+  else if (value === 1) return `±0 %`
+  else if (value > 1) return `+${roundTo((value - 1) * 100, 0)} %`
+  else return `-${roundTo((1 - value) * 100, 0)} %`
+}

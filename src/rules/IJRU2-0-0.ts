@@ -1,5 +1,5 @@
-import { Ruleset, JudgeType, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField, ScoreInfo, ResultInfo, Event } from '.'
-import { roundTo } from '@/common'
+import { Ruleset, JudgeType, ResultTableHeader, ResultTableHeaders, ResultTableHeaderGroup, InputField, ResultInfo, Event } from '.'
+import { roundTo, factorFormat } from '@/common'
 
 import {
   IJRU1_1_0Events as IJRU2_0_0Events,
@@ -24,21 +24,28 @@ export type IJRU2_0_0Overalls = 'isro' | 'tsro' | 'tddo' | 'tcaa'
 export interface IJRU2_0_0Result extends ResultInfo {
   // speed
   a?: number // count
-  m?: number // violations
+  m?: number // violations in SP, misses in FS
 
   // FS
   D?: number // diff
+  DFmt?: string
+
+  U?: number // repeated skills
+  UFmt?: string
+
   P?: number // pres
+  PFmt?: string
   aF?: number // pres component form
   aE?: number // pres component exec
   aM?: number // pres component mus
 
+  Q?: number // ReqEl
+  QFmt?: string
+
   M?: number // Miss
+  MFmt?: string
   v?: number // violations
 
-  U?: number // repeated skills
-
-  Q?: number // ReqEl
   R?: number // Result
 
   // Overall
@@ -109,8 +116,16 @@ export const RoutinePresentationJudge: JudgeType<IJRU2_0_0Score, IJRU2_0_0Result
 }
 
 /* REQUIRED ELEMENTS */
+interface ReqElField extends InputField<IJRU2_0_0Score> {
+  level?: number
+}
+
+interface ReqElJudge extends JudgeType<IJRU2_0_0Score, IJRU2_0_0Result, IJRU2_0_0Events> {
+  fields: ReqElField[]
+}
+
 // include diff levels for repeated skills
-export const MissJudgeSingleRopeIndividual: JudgeType<IJRU2_0_0Score, IJRU2_0_0Result, IJRU2_0_0Events> = {
+export const MissJudgeSingleRopeIndividual: ReqElJudge = {
   name: 'Required Elements',
   judgeTypeID: 'R',
   fields: [
@@ -262,23 +277,23 @@ export const FreestyleResultTableHeaders: ResultTableHeaders<IJRU2_0_0Events> = 
   headers: [
     {
       text: 'Diff',
-      value: 'D',
-      color: 'grey'
-    }, {
-      text: 'Pres',
-      value: 'P',
-      color: 'grey'
-    }, {
-      text: 'Req. El',
-      value: 'Q',
-      color: 'grey'
-    }, {
-      text: 'Deduc',
-      value: 'M',
+      value: 'DFmt',
       color: 'grey'
     }, {
       text: 'Rep',
-      value: 'U',
+      value: 'UFmt',
+      color: 'grey'
+    }, {
+      text: 'Pres',
+      value: 'PFmt',
+      color: 'grey'
+    }, {
+      text: 'Req. El',
+      value: 'QFmt',
+      color: 'grey'
+    }, {
+      text: 'Deduc',
+      value: 'MFmt',
       color: 'grey'
     },
 
@@ -737,7 +752,7 @@ const FreestyleResult = function (eventID: IJRU2_0_0Events): Event<IJRU2_0_0Scor
       }
     }
 
-    for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'Q', 'U'] as Array<keyof Omit<IJRU2_0_0Result, keyof ResultInfo>>) {
+    for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'Q', 'U'] as Array<keyof Omit<IJRU2_0_0Result, keyof ResultInfo>> as Array<'D' | 'aF' | 'aE' | 'aM'|  'm'|  'v'|  'Q'|  'U'>) { // what in the heck is this type...
       let scores = judgeResults.map(el => el[scoreType]).filter(el => typeof el === 'number') as number[]
       if (['m', 'v'].includes(scoreType)) output[scoreType] = roundTo(IJRU1_1_0average(scores), 4)
       else if (['aF', 'aE', 'aM'].includes(scoreType)) output[scoreType] = roundTo(IJRU1_1_0average(scores), 6)
@@ -753,6 +768,13 @@ const FreestyleResult = function (eventID: IJRU2_0_0Events): Event<IJRU2_0_0Scor
 
     output.R = roundTo(((output.D ?? 0) - (output.U ?? 0)) * (output.P ?? 1) * output.M * (output.Q ?? 1), 2)
     output.R = output.R < 0 ? 0 : output.R
+
+    // Format
+    output.DFmt = `${output.D}`
+    output.UFmt = `-${output.U}`
+    output.PFmt = factorFormat(output.P)
+    output.QFmt = factorFormat(output.Q as number)
+    output.MFmt = factorFormat(output.M)
 
     return output
   }
