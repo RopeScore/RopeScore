@@ -383,6 +383,32 @@ export default class CategoriesModule extends VuexModule {
   }
 
   @Mutation
+  _clearParticipantDNS ({ id, participantID }: ScoreBasePayload<undefined>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].dns) Vue.set(this.categories[id], 'dns', [])
+
+    for (let idx = this.categories[id].dns.length - 1; idx >= 0; idx--) {
+      const dns = this.categories[id].dns[idx]
+      if (dns.participantID === participantID) {
+        this.categories[id].dns.splice(idx, 1)
+      }
+    }
+  }
+
+  @Mutation
+  _clearEventDNS ({ id, eventID }: ScoreBasePayload<undefined>) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    if (!this.categories[id].dns) Vue.set(this.categories[id], 'dns', [])
+
+    for (let idx = this.categories[id].dns.length - 1; idx >= 0; idx--) {
+      const dns = this.categories[id].dns[idx]
+      if (dns.eventID === eventID) {
+        this.categories[id].dns.splice(idx, 1)
+      }
+    }
+  }
+
+  @Mutation
   _setScore({ id, eventID, participantID, judgeID, value, fieldID }: SetScorePayload) {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
@@ -435,11 +461,10 @@ export default class CategoriesModule extends VuexModule {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
 
-    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+    for (let idx = this.categories[id].scores.length - 1; idx >= 0; idx--) {
       const score = this.categories[id].scores[idx]
       if (score.eventID === eventID && score.participantID === participantID) {
         this.categories[id].scores.splice(idx, 1)
-        idx--
       }
     }
   }
@@ -449,11 +474,10 @@ export default class CategoriesModule extends VuexModule {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
 
-    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+    for (let idx = this.categories[id].scores.length - 1; idx >= 0; idx--) {
       const score = this.categories[id].scores[idx]
       if (score.participantID === participantID) {
         this.categories[id].scores.splice(idx, 1)
-        idx--
       }
     }
   }
@@ -463,11 +487,10 @@ export default class CategoriesModule extends VuexModule {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
 
-    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+    for (let idx = this.categories[id].scores.length - 1; idx >= 0; idx--) {
       const score = this.categories[id].scores[idx]
       if (score.eventID === eventID && score.judgeID === judgeID) {
         this.categories[id].scores.splice(idx, 1)
-        idx--
       }
     }
   }
@@ -477,11 +500,10 @@ export default class CategoriesModule extends VuexModule {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
 
-    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+    for (let idx = this.categories[id].scores.length - 1; idx >= 0; idx--) {
       const score = this.categories[id].scores[idx]
       if (score.judgeID === judgeID) {
         this.categories[id].scores.splice(idx, 1)
-        idx--
       }
     }
   }
@@ -491,11 +513,10 @@ export default class CategoriesModule extends VuexModule {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].scores) Vue.set(this.categories[id], 'scores', [])
 
-    for (let idx = 0; idx < this.categories[id].scores.length; idx++) {
+    for (let idx = this.categories[id].scores.length - 1; idx >= 0; idx--) {
       const score = this.categories[id].scores[idx]
       if (score.eventID === eventID) {
         this.categories[id].scores.splice(idx, 1)
-        idx--
       }
     }
   }
@@ -608,6 +629,7 @@ export default class CategoriesModule extends VuexModule {
   deleteParticipant({ id, value }: BasePayload<TeamPerson>) {
     if (!value) return
     this.context.commit('_clearParticipantScores', { id, participantID: value.participantID })
+    this.context.commit('_clearParticipantDNS', { id, participantID: value.participantID })
     this.context.commit('_deleteParticipant', { id, value: value.participantID })
   }
 
@@ -674,7 +696,10 @@ export default class CategoriesModule extends VuexModule {
 
     for (const oldEventID of selected) {
       // if the new list of events don't include the old event we remove all scores for the old event
-      if (!events.includes(oldEventID)) this.context.commit('_clearEventScores', { id, eventID: oldEventID })
+      if (!events.includes(oldEventID)) {
+        this.context.commit('_clearEventScores', { id, eventID: oldEventID })
+        this.context.commit('_clearEventDNS', { id, eventID: oldEventID })
+      }
     }
 
     this.context.commit('_setCategoryEvents', {
