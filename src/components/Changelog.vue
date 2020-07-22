@@ -10,6 +10,12 @@
         <li>Bugfixes for repeated skill handling in IJRU v1.1.0</li>
         <li>Bugfixes for tie handling in IJRU v1.1.0</li>
         <li>Add IJRU Rules v2.0.0</li>
+        <li>When changing ruleset for an event all scores, judge assignments, and events will now be removed from the event</li>
+        <li>When removing a participant their scores will now be deleted</li>
+        <li>When removing a judge their scores will now be deleted</li>
+        <li>When removing an event all scores for that event will be deleted</li>
+        <li>When DNS (Did Not Skip) is toggled on for a participant in one event their scores for that event will be removed</li>
+        <li>If a Judge's assignment is changed their scores will be removed for that event</li>
       </ul>
       <h2>v3.1.4</h2>
       <ul>
