@@ -425,6 +425,12 @@ export default class CategoriesModule extends VuexModule {
   }
 
   @Mutation
+  _clearScores ({ id }: BasePayload) {
+    if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
+    Vue.set(this.categories[id], 'scores', [])
+  }
+
+  @Mutation
   _tableZoomChange({ id, table, value }: TableBasePayload<number>) {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (typeof value !== 'number') throw new Error(`Must provide a number for table zoom`)
@@ -458,6 +464,38 @@ export default class CategoriesModule extends VuexModule {
 
     if (excludeIdx > -1) this.categories[id].printConfig.exclude.splice(excludeIdx, 1)
     else this.categories[id].printConfig.exclude.push(table)
+  }
+
+  @Action
+  setCategoryRuleset ({ id, value }: BasePayload) {
+    if (!this.categories[id]) return
+
+    // remove all DNS
+    if (Array.isArray(this.categories[id].dns)) {
+      for (const { participantID, eventID } of this.categories[id].dns) {
+        this.context.commit('_deleteDNS', { id, participantID, eventID })
+      }
+    }
+
+    // remove all Scores
+    this.context.commit('_clearScores', { id })
+
+    // remove all Judge Assignments
+    if (Array.isArray(this.categories[id].judges)) {
+      for (const judge of this.categories[id].judges) {
+        if (Array.isArray(judge.assignments)) {
+          for (const assignment of judge.assignments) {
+            this.context.commit('_setJudgeAssignment', { id, judgeID: judge.judgeID, value: { eventID: assignment.eventID, judgeTypeID: undefined } })
+          }
+        }
+      }
+    }
+
+    // Remove all Events
+    this.context.commit('_setCategoryEvents', { id, value: [] })
+
+    // change the ruleset
+    this.context.commit('_setCategoryRuleset', { id, value })
   }
 
   @Action
@@ -567,8 +605,8 @@ export default class CategoriesModule extends VuexModule {
     if (idx >= 0) {
       this.context.commit('_deleteDNS', { id, participantID, eventID })
     } else {
+      this.context.commit('_', { id, participantID, eventID })
       this.context.commit('_setDNS', { id, participantID, eventID })
-      // TODO: remove all related scores
     }
   }
 
@@ -661,6 +699,10 @@ export default class CategoriesModule extends VuexModule {
 
   get clubs () {
     return [...new Set(Object.values(this.categories).flatMap(cat => cat.participants).map(part => part.club))]
+  }
+
+  get groups () {
+    return [...new Set(Object.values(this.categories).map(cat => cat.config.group).filter(g => !!g))]
   }
 
   get tableZoom () {

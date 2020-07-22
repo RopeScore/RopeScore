@@ -34,8 +34,14 @@
           required
           class="mb-6"
           :value="categories.categories[id].config.ruleset"
-          @input="categories._setCategoryRuleset({id, value: $event})"
-        />
+          @input="categories.setCategoryRuleset({id, value: $event})"
+        >
+          <template v-slot:prepend-item v-if="categories.categories[id].config.ruleset">
+            <v-list-item>
+              <v-list-item-subtitle>Changing the ruleset will clear all scores, events and judge assignments</v-list-item-subtitle>
+            </v-list-item>
+          </template>
+        </v-select>
         <v-radio-group
           :value="categories.categories[id].config.type"
           @change="categories._setCategoryType({ id, value: $event })"
