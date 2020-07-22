@@ -44,7 +44,7 @@ function createWindow () {
 
   const menu: (MenuItemConstructorOptions | MenuItem)[] = [
     {
-      label: 'Edit',
+      role: 'editMenu',
       submenu: [
         { role: 'undo' },
         { role: 'redo' },
@@ -52,20 +52,20 @@ function createWindow () {
         { role: 'cut' },
         { role: 'copy' },
         { role: 'paste' },
-        { role: 'pasteandmatchstyle' },
+        { role: 'pasteAndMatchStyle' },
         { role: 'delete' },
-        { role: 'selectall' }
+        { role: 'selectAll' }
       ]
     },
     {
-      label: 'View',
+      role: 'viewMenu',
       submenu: [
         { role: 'reload' },
-        { role: 'forcereload' },
+        { role: 'forceReload' },
         { type: 'separator' },
-        { role: 'resetzoom' },
-        { role: 'zoomin' },
-        { role: 'zoomout' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
         { type: 'separator' },
         { role: 'togglefullscreen' }
       ]
@@ -97,15 +97,15 @@ function createWindow () {
         {
           label: 'Documentation',
           accelerator: 'F1',
-          click: function (item: MenuItem, focusedWindow: BrowserWindow) {
-            if (focusedWindow) { focusedWindow.loadURL('http://localhost:3333/docs') }
+          click: function (item: MenuItem, focusedWindow?: BrowserWindow) {
+            // if (focusedWindow) { focusedWindow.loadURL('http://localhost:3333/docs') }
           }
         },
         {
           label: 'Report Bugs',
-          click: function (item: MenuItem, focusedWindow: BrowserWindow) {
+          click: function (item: MenuItem, focusedWindow?: BrowserWindow) {
             if (focusedWindow) {
-              focusedWindow.loadURL('http://localhost:3333/bugreport')
+              // focusedWindow.loadURL('http://localhost:3333/bugreport')
             }
           }
         },
@@ -113,7 +113,7 @@ function createWindow () {
           label: 'Licence',
           click: function (item, focusedWindow) {
             if (focusedWindow) {
-              focusedWindow.loadURL('http://localhost:3333/licence')
+              // focusedWindow.loadURL('http://localhost:3333/licence')
             }
           }
         }
@@ -123,10 +123,10 @@ function createWindow () {
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     const viewMenu = menu.find(function (m) {
-      return m.role === 'view'
+      return m.role === 'viewMenu'
     })
     if (viewMenu && Array.isArray(viewMenu.submenu)) {
-      viewMenu.submenu.push({ role: 'toggledevtools' })
+      viewMenu.submenu.push({ role: 'toggleDevTools' })
     }
   }
 
@@ -150,7 +150,7 @@ function createWindow () {
       return m.role === 'window'
     })
     const editMenu = menu.find(function (m) {
-      return m.role === 'edit'
+      return m.role === 'editMenu'
     })
     if (windowMenu) {
       windowMenu.submenu = [
@@ -181,8 +181,8 @@ function createWindow () {
         {
           label: 'Speech',
           submenu: [
-            { role: 'startspeaking' },
-            { role: 'stopspeaking' }
+            { role: 'startSpeaking' },
+            { role: 'stopSpeaking' }
           ]
         }
       )
