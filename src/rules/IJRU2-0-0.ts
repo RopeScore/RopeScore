@@ -11,8 +11,7 @@ import {
   AthletePresentationJudge,
   DifficultyJudge,
   SpeedResult,
-  SpeedRank,
-  OverallRank
+  SpeedRank
 } from './IJRU1-1-0'
 
 // we just remove the count for repeated skills and use the difficulty levels to track repeated skills instead
@@ -815,6 +814,64 @@ export const FreestyleRank: Event<IJRU2_0_0Score, IJRU2_0_0Result, IJRU2_0_0Even
   return results
 }
 
+type eventResults = {
+  [eventID in IJRU2_0_0Events]?: IJRU2_0_0Result[]
+}
+
+export const OverallRank = function (overallID: string) {
+  return function (results: eventResults = {}) {
+    let ranked: { overall: IJRU2_0_0Result[] } & eventResults = {
+      overall: []
+    }
+    const overallObj = config.overalls.find(el => el.overallID === overallID)
+    if (!overallObj) throw new Error('Could not find event ' + overallID)
+    let tiePriority: (IJRU2_0_0Events | 'overall')[] = ['overall', 'srif', 'ddpf', 'ddsf', 'srtf', 'srpf', 'srse', 'srss', 'ddsr', 'srsr'] // TODO: break ties
+
+    for (const eventID of overallObj.events) {
+      const eventObj = config.events.find(el => el.eventID === eventID)
+      if (!eventObj) continue
+      ranked[eventID] = eventObj.rank(results[eventID]!)
+
+      for (const scoreObj of ranked[eventID]!) {
+        let idx = ranked.overall.findIndex(el => el.participantID === scoreObj.participantID)
+        if (!scoreObj) continue
+        console.log(scoreObj)
+
+        if (idx >= 0) {
+          ranked.overall[idx].R = roundTo((ranked.overall[idx].R ?? 0) + ((scoreObj.R ?? 0) * (eventObj.scoreMultiplier ?? 1)), 4)
+          ranked.overall[idx].T = ((ranked.overall[idx].T ?? 0) + ((scoreObj.S ?? 0) * (eventObj.rankMultiplier ?? 1))) ?? 0
+          ranked.overall[idx].B = ((ranked.overall[idx].B ?? 0) + (scoreObj.N ?? 0)) ?? 0
+        } else {
+          let R = roundTo(scoreObj.R ?? 0, 4)
+          ranked.overall.push({
+            participantID: scoreObj.participantID,
+            R,
+            T: scoreObj.S ?? 0,
+            B: scoreObj.N ?? 0
+          })
+        }
+      }
+    }
+
+    console.log(ranked)
+
+    ranked.overall.sort((a, b) => {
+      // TODO: tiebreak
+      if (a.T !== b.T) return (a.T ?? 0) -(b.T ?? 0)
+      return (b.B ?? 0) - (a.B ?? 0)
+    })
+    ranked.overall = ranked.overall.map((el, idx, arr) => ({
+      ...el,
+      // S: arr.findIndex(obj => obj.T === el.T) + 1
+      S: idx + 1
+    }))
+
+    // DEV SORT BY ID
+    // ranked.overall.sort((a, b) => Number(a.participant.substring(1, 4) - Number(b.participant.substring(1, 4))))
+
+    return ranked
+  }
+}
 
 /* CONFIG OBJECT */
 const config: Ruleset<IJRU2_0_0Score, IJRU2_0_0Result, IJRU2_0_0Events, IJRU2_0_0Overalls> = {
