@@ -17,6 +17,7 @@
         <li>When DNS (Did Not Skip) is toggled on for a participant in one event their scores for that event will be removed</li>
         <li>If a Judge's assignment is changed their scores will be removed for that event</li>
         <li>Add the ability to set judge name and judge IJRU ID for stats purposes</li>
+        <li>Show and print results for an entire group at once</li>
       </ul>
       <h2>v3.1.4</h2>
       <ul>

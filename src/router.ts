@@ -47,6 +47,11 @@ export default new Router({
       path: '/category/:id/results',
       name: 'categoryresults',
       component: () => import(/* webpackChunkName: "categoryresults" */ '@/views/CategoryResults.vue')
+    },
+    {
+      path: '/group/:name/results',
+      name: 'groupresults',
+      component: () => import(/* webpackChunkName: "categoryresults" */ '@/views/CategoryResults.vue')
     }
   ]
 })

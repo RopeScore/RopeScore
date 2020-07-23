@@ -16,76 +16,84 @@
       </v-card-text>
       <v-card-actions>
         <v-btn @click="print()" color="primary" text>Print</v-btn>
-        <ExcelWorkbook :title="category.config.name">
-          <ExcelResultTable
-            v-for="overall in overalls"
-            :key="`excelsheet-${overall.overallID}`"
-            :id="overall.overallID"
-            :category="category.config.name"
-            :title="overall.text"
-            :type="category.config.type"
-            :headers="overall"
-            :results="overallRanks(overall)"
-            :participants="category.participants"
-            :logo="(category.printConfig || {}).logo"
-          />
+        <ExcelWorkbook :title="excelTitle">
+          <template v-for="id in selectedCategories">
+            <ExcelResultTable
+              v-for="overall in overalls(id)"
+              :key="`excelsheet-${id}-${overall.overallID}`"
+              :id="overall.overallID"
+              :category="category(id).config.name"
+              :group="category(id).config.group"
+              :title="overall.text"
+              :type="category(id).config.type"
+              :headers="overall"
+              :results="overallRanks(id, overall)"
+              :participants="category(id).participants"
+              :logo="(category(id).printConfig || {}).logo"
+            />
 
-          <ExcelResultTable
-            v-for="eventID in category.config.events"
-            :key="`excelsheet-${eventID}`"
-            :id="eventID"
-            :category="category.config.name"
-            :title="eventByID(eventID).name"
-            :type="category.config.type"
-            :headers="eventByID(eventID).headers"
-            :results="rankedResults[eventID]"
-            :participants="category.participants"
-            :logo="category.printConfig.logo"
-          />
+            <ExcelResultTable
+              v-for="eventID in category(id).config.events"
+              :key="`excelsheet-${id}-${eventID}`"
+              :id="eventID"
+              :category="category(id).config.name"
+              :group="category(id).config.group"
+              :title="eventByID(id, eventID).name"
+              :type="category(id).config.type"
+              :headers="eventByID(id, eventID).headers"
+              :results="rankedResults(id)[eventID]"
+              :participants="category(id).participants"
+              :logo="(category(id).printConfig || {}).logo"
+            />
+          </template>
         </ExcelWorkbook>
-        <v-btn @click="imageSelect()" text>{{ category.printConfig.logo ? 'Replace' : 'Add' }} Logo</v-btn>
+        <v-btn @click="imageSelect()" text>Set Logo</v-btn>
         <v-btn
-          v-if="category.printConfig.logo"
+          v-if="hasLogo"
           color="error"
           text
-          @click="categories.printLogo({ id: $route.params.id })"
+          @click="removeLogos()"
         >Remove Logo</v-btn>
       </v-card-actions>
     </v-card>
-    <ResultTable
-      v-for="overall in overalls"
-      :key="overall.overallID"
-      :print-view="printView"
-      :category="category.config.name"
-      :title="overall.text"
-      :type="category.config.type"
-      :headers="overall"
-      :results="overallRanks(overall)"
-      :participants="category.participants"
-      :logo="(category.printConfig || {}).logo"
-      :exclude="excluded(overall.overallID)"
-      :zoom="categories.tableZoom({ id: $route.params.id, table: overall.overallID})"
-      @zoomchange="zoomChanged(overall.overallID, $event)"
-      @printchange="categories._toggleExcludeTable({ id: $route.params.id, table: overall.overallID })"
-    />
-    <!-- Events -->
-    <ResultTable
-      v-for="eventID in category.config.events"
-      :key="eventID"
-      :print-view="printView"
-      :category="category.config.name"
-      :title="eventByID(eventID).name"
-      :type="category.config.type"
-      :headers="eventByID(eventID).headers"
-      :results="rankedResults[eventID]"
-      :participants="category.participants"
-      :logo="(category.printConfig || {}).logo"
-      :exclude="excluded(eventID)"
-      :zoom="categories.tableZoom({ id: $route.params.id, table: eventID})"
-      @should-print="updateWorksheet('hello')"
-      @zoomchange="zoomChanged(eventID, $event)"
-      @printchange="categories._toggleExcludeTable({ id: $route.params.id, table: eventID })"
-    />
+    <template v-for="id in selectedCategories">
+      <ResultTable
+        v-for="overall in overalls(id)"
+        :key="`${id}-${overall.overallID}`"
+        :print-view="printView"
+        :category="category(id).config.name"
+        :group="category(id).config.group"
+        :title="overall.text"
+        :type="category(id).config.type"
+        :headers="overall"
+        :results="overallRanks(id, overall)"
+        :participants="category(id).participants"
+        :logo="(category(id).printConfig || {}).logo"
+        :exclude="excluded(id, overall.overallID)"
+        :zoom="categories.tableZoom({ id, table: overall.overallID})"
+        @zoomchange="zoomChanged(id, overall.overallID, $event)"
+        @printchange="categories._toggleExcludeTable({ id, table: overall.overallID })"
+      />
+      <!-- Events -->
+      <ResultTable
+        v-for="eventID in category(id).config.events"
+        :key="`${id}-${eventID}`"
+        :print-view="printView"
+        :category="category(id).config.name"
+        :group="category(id).config.group"
+        :title="eventByID(id, eventID).name"
+        :type="category(id).config.type"
+        :headers="eventByID(id, eventID).headers"
+        :results="rankedResults(id)[eventID]"
+        :participants="category(id).participants"
+        :logo="(category(id).printConfig || {}).logo"
+        :exclude="excluded(id, eventID)"
+        :zoom="categories.tableZoom({ id, table: eventID})"
+        @should-print="updateWorksheet('hello')"
+        @zoomchange="zoomChanged(id, eventID, $event)"
+        @printchange="categories._toggleExcludeTable({ id, table: eventID })"
+      />
+    </template>
   </v-container>
 </template>
 
@@ -113,72 +121,95 @@ export default class Results<VueClass> extends Vue {
   rulesets = rulesets;
   printView: boolean = false;
 
-  get ruleset() {
+  created () {
+    console.log('categories:', this.selectedCategories)
+  }
+
+  get selectedCategories () {
+    if (this.$route.params.id) return [this.$route.params.id]
+    else if (this.$route.params.name) {
+      const groupName = atob(decodeURIComponent(this.$route.params.name))
+      return this.categories.categoriesWithInfo.filter(cat => cat.group === groupName).map(cat => cat.id)
+    }
+    else return []
+  }
+
+  get isGroup () {
+    return this.selectedCategories.length > 1
+  }
+
+  get excelTitle () {
+    return this.category(this.selectedCategories[0]).config[this.isGroup ? 'group' : 'name'] ?? (this.isGroup ? 'Ungrouped' : 'Unnamed')
+  }
+
+  ruleset (id: string) {
     return this.rulesets.find(
       rs =>
         rs.rulesetID ===
-        this.category.config.ruleset
+        this.category(id).config.ruleset
     );
   }
 
-  get category () {
-    return this.categories.categories[this.$route.params.id]
+  category (id: string) {
+    return this.categories.categories[id]
   }
 
-  get overalls() {
-    const overalls = (this.ruleset?.overalls as Ruleset['overalls']).filter(
+  overalls (id: string) {
+    const overalls = (this.ruleset(id)?.overalls as Ruleset['overalls']).filter(
       el =>
         el.type ===
-        this.category.config.type
+        this.category(id).config.type
     );
     return overalls
   }
 
-  eventByID(eventID: string) {
-    return (this.ruleset?.events as Ruleset['events']).find(el => el.eventID === eventID);
+  eventByID (id: string, eventID: string) {
+    return (this.ruleset(id)?.events as Ruleset['events']).find(el => el.eventID === eventID);
   }
 
-  judgesArr (eventID: string): [string, string][] {
-    return this.categories.categories[this.$route.params.id].judges
+  judgesArr (id: string, eventID: string): [string, string][] {
+    return this.category(id).judges
       .filter(judge => judge.assignments.findIndex(ass => ass.eventID === eventID && ass.judgeTypeID.length > 0) > -1)
       .map(judge => [judge.judgeID, judge.assignments.find(ass => ass.eventID === eventID)!.judgeTypeID])
   }
 
-  eventResults(eventID: EventTypes): { participantID: string; [prop: string]: any }[] {
+  eventResults(id: string, eventID: EventTypes): { participantID: string; [prop: string]: any }[] {
     let results = [];
 
     let scores = this.categories.eventScoreObj({
-      id: this.$route.params.id,
+      id,
       eventID
     });
-    let participants = Object.keys(scores).filter(partID => this.category.participants.map(p => p.participantID).includes(partID));
-    let eventObj = this.eventByID(eventID);
+    let participants = Object.keys(scores).filter(partID => this.category(id).participants.map(p => p.participantID).includes(partID));
+    let eventObj = this.eventByID(id, eventID);
 
     if (!eventObj) return []
 
     results = participants.map(participantID => ({
       participantID,
-      ...eventObj!.result(scores[participantID], this.judgesArr(eventID))
+      ...eventObj!.result(scores[participantID], this.judgesArr(id, eventID))
     }));
 
     return results;
   }
 
-  get results() {
+  results (id: string) {
     let results: ResultsObj = {}
-    for (let eventID of this.category.config.events || []) {
-      results[eventID] = this.eventResults(eventID);
+    for (let eventID of this.category(id).config.events || []) {
+      results[eventID] = this.eventResults(id, eventID);
     }
     return results;
   }
 
-  get rankedResults() {
+  rankedResults (id: string) {
     let ranked: { [eventID: string]: any } = {} // TODO: type
 
-    for (let eventID in this.results) {
-      const eventObj = this.eventByID(eventID);
+    let results = this.results(id)
+
+    for (let eventID in results) {
+      const eventObj = this.eventByID(id, eventID);
       if (!eventObj) continue
-      ranked[eventID] = eventObj.rank(this.results[eventID]);
+      ranked[eventID] = eventObj.rank(results[eventID]);
     }
 
     console.log(ranked);
@@ -186,14 +217,16 @@ export default class Results<VueClass> extends Vue {
     return ranked;
   }
 
-  overallResults(overall: Overall) {
-    let results: ResultsObj = {};
+  overallResults(id: string, overall: Overall) {
+    let calculatedResults: ResultsObj = {};
     let participants: { [participantID: string]: string[] } = {};
 
     // TODO: there must be a quicker/simpler way to do this...
 
-    (overall.events || []).forEach(eventID =>
-      (this.results[eventID] || []).forEach(result => {
+    const resultsCache = this.results(id)
+
+    ; (overall.events || []).forEach(eventID =>
+      (resultsCache[eventID] || []).forEach(result => {
         if (!participants[result.participantID]) {
           participants[result.participantID] = [];
         }
@@ -206,21 +239,21 @@ export default class Results<VueClass> extends Vue {
     );
 
     overall.events.forEach(eventID => {
-      if (!results[eventID]) results[eventID] = [];
+      if (!calculatedResults[eventID]) calculatedResults[eventID] = [];
 
       inAll.forEach(participantID => {
-        let idx = this.results[eventID].findIndex(
+        let idx = resultsCache[eventID].findIndex(
           el => el.participantID === participantID
         );
-        results[eventID].push({ ...this.results[eventID][idx] });
+        calculatedResults[eventID].push({ ...resultsCache[eventID][idx] });
       });
     });
 
-    return results;
+    return calculatedResults;
   }
 
-  overallRanks(overall: Overall) {
-    let results = this.overallResults(overall);
+  overallRanks(id: string, overall: Overall) {
+    let results = this.overallResults(id, overall);
 
     let ranked = overall.rank(results);
 
@@ -231,16 +264,16 @@ export default class Results<VueClass> extends Vue {
     window.print();
   }
 
-  zoomChanged(table: EventTypes | Overalls, value: number) {
+  zoomChanged(id: string, table: EventTypes | Overalls, value: number) {
     this.categories.zoomChange({
-      id: this.$route.params.id,
+      id,
       table,
       value
     });
   }
 
-  excluded (table: EventTypes | Overalls) {
-    return (this.category.printConfig.exclude ?? []).includes(table)
+  excluded (id: string, table: EventTypes | Overalls) {
+    return (this.category(id)?.printConfig?.exclude ?? []).includes(table)
   }
 
   imageSelect() {
@@ -256,15 +289,31 @@ export default class Results<VueClass> extends Vue {
       let reader = new FileReader();
       reader.onload = readerEvent => {
         let data = readerEvent.target?.result as string;
-        self.categories.printLogo({
-          id: self.$route.params.id,
-          value: data
-        });
+
+        for (const id of self.selectedCategories) {
+          self.categories.printLogo({
+            id,
+            value: data
+          });
+        }
       }
       reader.readAsDataURL(file);
     };
 
     input.click();
+  }
+
+  removeLogos() {
+    for (const id of this.selectedCategories) {
+      this.categories.printLogo({ id })
+    }
+  }
+
+  get hasLogo () {
+    for (const id of this.selectedCategories) {
+      if (this.category(id)?.printConfig?.logo) return true
+    }
+    return false
   }
 }
 </script>

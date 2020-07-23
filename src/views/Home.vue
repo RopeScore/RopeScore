@@ -2,6 +2,7 @@
   <v-expansion-panels multiple v-model="open" v-if="categories.groupedCategories.length">
     <v-expansion-panel v-for="group in categories.groupedCategories" :key="group.name">
       <v-expansion-panel-header>{{ group.name }}</v-expansion-panel-header>
+
       <v-expansion-panel-content>
         <v-layout justify-space-between wrap>
           <v-flex
@@ -17,6 +18,11 @@
             </v-card>
           </v-flex>
         </v-layout>
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn link :to="`/group/${urlSafe(group.name)}/results`">Group Results</v-btn>
+        </v-card-actions>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -41,5 +47,9 @@ export default class Home extends Vue {
   categories = getModule(CategoriesModule);
 
   open: number[] = this.categories.groupedCategories.map((el, idx) => idx);
+
+  urlSafe (value: string) {
+    return encodeURIComponent(btoa(value))
+  }
 }
 </script>
