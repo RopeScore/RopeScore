@@ -37,7 +37,6 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import rulesets, { Rulesets } from "../rules";
-import { wrap } from "comlink";
 import CategoriesModule from "../store/categories";
 import { getModule } from "vuex-module-decorators";
 

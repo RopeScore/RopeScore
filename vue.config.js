@@ -5,11 +5,11 @@ module.exports = {
 
   chainWebpack: config => {
     config.module.rule('eslint').exclude.add(/.*$/)
-    config.module.rule('worker-loader')
-      .before('ts')
-      .test(/\.worker\.(ts|js)$/)
-      .use('worker-loader')
-      .loader('worker-loader')
+    // config.module.rule('worker-loader')
+    //   .before('ts')
+    //   .test(/\.worker\.(ts|js)$/)
+    //   .use('worker-loader')
+    //   .loader('worker-loader')
   },
 
   pluginOptions: {

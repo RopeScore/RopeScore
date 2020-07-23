@@ -95,7 +95,6 @@ import { Component, Vue } from "vue-property-decorator";
 import SHA1 from "crypto-js/sha1";
 import rulesets, { Rulesets, Ruleset } from "../rules";
 import TableHeader from "../plugins/vuetify";
-import { wrap } from "comlink";
 import CategoriesModule, { Person, TeamPerson } from "../store/categories";
 import { getModule } from "vuex-module-decorators";
 import { memberNames } from '@/common'

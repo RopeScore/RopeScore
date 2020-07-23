@@ -211,7 +211,6 @@
 import { Component, Vue } from "vue-property-decorator";
 import rulesets, { Rulesets, Ruleset } from "../rules";
 import TeamPersonTable from "../components/TeamPersonTable.vue";
-import { wrap } from "comlink";
 import CategoriesModule, { TeamPerson, Judge } from "../store/categories";
 import { getModule } from "vuex-module-decorators";
 

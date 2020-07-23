@@ -1,6 +1,5 @@
 import { app, protocol, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { autoUpdater } from "electron-updater"
 import * as path from 'path'
 
@@ -8,38 +7,41 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win: BrowserWindow[] = []
+const win = new Map<number, BrowserWindow>()
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
 function createWindow () {
   // Create the browser window.
-  win.push(new BrowserWindow({
+  const newWin = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION as boolean | undefined
     },
     icon: path.join(__dirname, '../src/assets/icon.png')
-  }))
+  })
+  win.set(newWin.id, newWin)
+
+  const winId = newWin.id
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
-    win[win.length - 1].loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
-    if (!process.env.IS_TEST) win[win.length - 1].webContents.openDevTools()
+    newWin.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
+    if (!process.env.IS_TEST) newWin.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
-    win[win.length - 1].loadURL('app://./index.html')
+    newWin.loadURL('app://./index.html')
     autoUpdater.checkForUpdatesAndNotify()
   }
 
-  win[win.length - 1].on('closed', () => {
+  newWin.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    win.splice(win.length - 1, 1)
+    win.delete(winId)
   })
 
   const menu: (MenuItemConstructorOptions | MenuItem)[] = [
@@ -84,7 +86,7 @@ function createWindow () {
           label: 'Print',
           accelerator: 'CmdOrCtrl+P',
           click: () => {
-            win[win.length - 1].webContents.print()
+            newWin.webContents.print()
           }
         },
         { role: 'minimize' },
@@ -165,7 +167,7 @@ function createWindow () {
           label: 'Print',
           accelerator: 'CmdOrCtrl+P',
           click: () => {
-            win[win.length - 1].webContents.print()
+            newWin.webContents.print()
           }
         },
         { role: 'close' },
@@ -216,6 +218,7 @@ app.on('activate', () => {
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
+    const { default: installExtension, VUEJS_DEVTOOLS } = await import('electron-devtools-installer')
     try {
       await installExtension(VUEJS_DEVTOOLS)
     } catch (e) {

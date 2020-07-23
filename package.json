@@ -20,11 +20,8 @@
   "dependencies": {
     "@sentry/browser": "^5.19.2",
     "@sentry/integrations": "^5.19.2",
-    "chai-as-promised": "^7.1.1",
-    "comlink": "^4.3.0",
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
-    "electron-devtools-installer": "^3.1.1",
     "electron-updater": "^4.3.1",
     "exceljs": "^4.1.1",
     "luxon": "^1.24.1",
@@ -40,8 +37,7 @@
     "vuex-electron": "^1.0.3",
     "vuex-module-decorators": "^0.17.0",
     "vuex-persist": "^2.2.0",
-    "vuex-shared-mutations": "^1.0.2",
-    "worker-loader": "^2.0.0"
+    "vuex-shared-mutations": "^1.0.2"
   },
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.10.4",
@@ -67,7 +63,8 @@
     "babel-eslint": "^10.1.0",
     "chai": "^4.1.2",
     "css-loader": "^3.6.0",
-    "electron": "^9.1.0",
+    "electron": "^8.4.1",
+    "electron-devtools-installer": "^3.1.1",
     "eslint": "^7.5.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-config-vuetify": "^0.4.0",
@@ -95,5 +92,5 @@
   },
   "homepage": "https://ropescore.com",
   "productName": "RopeScore",
-  "repository": "svbeon/RopeScore"
+  "repository": "swantzter/RopeScore"
 }

@@ -52,7 +52,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { wrap } from "comlink";
 import { getModule } from "vuex-module-decorators";
 import Menu from "./components/Menu.vue";
 import rulesets, { Rulesets } from "./rules";

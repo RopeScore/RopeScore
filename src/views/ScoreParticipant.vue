@@ -127,7 +127,6 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { getModule } from 'vuex-module-decorators'
-import { wrap } from "comlink";
 import rulesets, { Rulesets, JudgeType, InputField, Ruleset, EventTypes } from "@/rules";
 import CategoriesModule, { Team, Judge } from '@/store/categories';
 
