@@ -141,8 +141,28 @@
         </v-card-actions>
 
         <v-card-subtitle>
-          Changing a judge assignment will clear all scores for that judge
+          Changing a judge assignment will clear all scores for that judge. <br/>
+          Click edit to set the judge's name.
         </v-card-subtitle>
+
+        <v-dialog :value="!!focusedJudge" v-if="focusedJudge" max-width="500px" :retain-focus="false" @click:outside="editJudge()">
+          <v-card>
+            <v-card-title>
+              <span class="headline">Edit Judge {{ focusedJudge.judgeID }}</span>
+            </v-card-title>
+
+            <v-card-text>
+              <v-text-field v-model="focusedJudge.name" label="Name" />
+              <v-text-field v-model="focusedJudge.ijruID" label="IJRU ID" />
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="grey" text @click="editJudge()">Cancel</v-btn>
+              <v-btn color="primary" text @click="updateJudge(focusedJudge)">Save</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
         <v-data-table :headers="judgeTableHeaders" :items="categories.categories[id].judges">
           <template v-slot:item.id="{ item }">
@@ -163,10 +183,15 @@
               @input="categories.setJudgeAssignment({ id, judgeID: item.judgeID, value: { eventID: header.text, judgeTypeID: $event } })"
               :value="((item.assignments || []).find(asg => asg.eventID === header.text) || {}).judgeTypeID"
             />
-            <!-- {{ item }} -->
           </template>
 
           <template v-slot:item.action="{ item }">
+            <v-btn
+              small
+              color="primary"
+              class="mr-2 caption"
+              @click="editJudge(item)"
+            >Edit</v-btn>
             <v-btn
               small
               color="error"
@@ -187,12 +212,8 @@ import { Component, Vue } from "vue-property-decorator";
 import rulesets, { Rulesets, Ruleset } from "../rules";
 import TeamPersonTable from "../components/TeamPersonTable.vue";
 import { wrap } from "comlink";
-import CategoriesModule, { TeamPerson } from "../store/categories";
+import CategoriesModule, { TeamPerson, Judge } from "../store/categories";
 import { getModule } from "vuex-module-decorators";
-
-interface SelectedJudges {
-  [key: string]: string;
-}
 
 @Component({
   components: {
@@ -203,10 +224,9 @@ export default class CategoryConfig<VueClass> extends Vue {
   id: string;
   step: number = 1;
   deleteCategoryDialog: boolean = false;
+  focusedJudge: Judge | null = null
   rulesets = rulesets;
   categories = getModule(CategoriesModule);
-  assignJudgeDialog = {};
-  selectedJudges: SelectedJudges = {};
 
   created() {
     this.id = this.$route.params.id;
@@ -219,6 +239,28 @@ export default class CategoryConfig<VueClass> extends Vue {
   }
 
   notEmpty = (v: string): string | boolean => !!v || "This cannot be empty";
+
+  editJudge (judge?: Judge) {
+    if (judge) this.$set(this, 'focusedJudge', JSON.parse(JSON.stringify(judge)))
+    else this.$set(this, 'focusedJudge', null)
+  }
+
+  updateJudge (judge: Judge) {
+    this.categories._setJudgeInfo({ id: this.id, judgeID: judge.judgeID, value: { name: judge.name, ijruID: judge.ijruID } })
+    this.editJudge()
+  }
+
+  eventByID(eventID: string) {
+    return (this.ruleset?.events as Ruleset['events']).find(el => el.eventID === eventID);
+  }
+
+  updateParticipant(participant: TeamPerson) {
+    console.log(participant);
+    this.categories.updateParticipants({
+      id: this.id,
+      participants: [participant]
+    });
+  }
 
   get ruleset() {
     if (!this.categories.categories[this.id].config.ruleset) return;
@@ -266,32 +308,6 @@ export default class CategoryConfig<VueClass> extends Vue {
 
     return begining.concat(judges).concat(end);
   }
-
-  eventByID(eventID: string) {
-    return (this.ruleset?.events as Ruleset['events']).find(el => el.eventID === eventID);
-  }
-
-  updateParticipant(arr: TeamPerson) {
-    console.log(arr);
-    this.categories.updateParticipants({
-      id: this.id,
-      participants: [arr]
-    });
-  }
-
-  // closeUpdateJudgeIDDialog(judgeID) {
-  //   this.$delete(this.selectedJudges, judgeID);
-  //   this.assignJudgeDialog[judgeID] = false;
-  // }
-
-  // selectedJudge(judgeID) {
-  //   if (this.selectedJudges[judgeID]) return [this.selectedJudges[judgeID]];
-  //   if (person) {
-  //     return [person.id];
-  //   } else {
-  //     return [];
-  //   }
-  // }
 }
 </script>
 
