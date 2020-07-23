@@ -16,6 +16,7 @@
         <li>When removing an event all scores for that event will be deleted</li>
         <li>When DNS (Did Not Skip) is toggled on for a participant in one event their scores for that event will be removed</li>
         <li>If a Judge's assignment is changed their scores will be removed for that event</li>
+        <li>Add the ability to set judge name and judge IJRU ID for stats purposes</li>
       </ul>
       <h2>v3.1.4</h2>
       <ul>
@@ -133,9 +134,9 @@
         <li>Initial support for RopeScore Live</li>
         <li>Speed improvements for log collection</li>
         <li>
-          <span class="mono">Category</span>
+          <code>Category</code>
           and
-          <span class="mono">Results</span>
+          <code>Results</code>
           buttons are no longer shown in the menu whilst creating a new category
         </li>
         <li>Computer names can now be set. This value will not be perserved through exports</li>
@@ -155,7 +156,7 @@
         <li>Logs are now preserved through restarts</li>
         <li>
           Fix startup error in
-          <span class="mono">v2.6.0</span>
+          <code>v2.6.0</code>
         </li>
       </ul>
       <h2>v2.6.0</h2>
@@ -276,16 +277,14 @@
       <ul>
         <li>
           Overall ties are now automatically resolved according to
-          <span
-            class="mono"
-          >JMC2A5 Tournament Tie</span>
+          <code>JMC2A5 Tournament Tie</code>
         </li>
         <li>It's no longer to enter space misses or time violations into the head judge box</li>
         <li>Result tables for each event is once again ordered by the ranks in that event</li>
         <li>Reorderable dashboard</li>
         <li>
           New interpretation of
-          <span class="mono">JMC3PaA3 Single Rope Required Elements</span>
+          <code>JMC3PaA3 Single Rope Required Elements</code>
           recieved from fisac, system updated to match
         </li>
         <li>
@@ -310,9 +309,7 @@
         <li>Improvements of presentation weight calculation</li>
         <li>
           Always display 1x rank in results tables as per
-          <span
-            class="mono"
-          >JMC2A4 Freestyles, Masters</span>
+          <code>JMC2A4 Freestyles, Masters</code>
         </li>
         <li>Improvements to the round down entered value to max allowed</li>
       </ul>
@@ -347,9 +344,7 @@
       <ul>
         <li>
           Fixes to a bug with score calculations while entering scores introduced in
-          <span
-            class="mono"
-          >v2.0.2</span>, did not affect final results.
+          <code>v2.0.2</code>, did not affect final results.
         </li>
       </ul>
       <h2>v2.0.3</h2>
@@ -365,17 +360,15 @@
       <ul>
         <li>
           New interpretation of
-          <span class="mono">JMC2A1S1 Difficulty</span>
+          <code>JMC2A1S1 Difficulty</code>
           and
-          <span class="mono">JMC2A1S2 Difficulty</span>
+          <code>JMC2A1S2 Difficulty</code>
           <br />This interpretation means that an excess of L2 skills can be converted to L2
           skills if there's also an excess of L3 skills.
         </li>
         <li>
           Revert to RopeScore's original interpretation of
-          <span
-            class="mono"
-          >JMC3PaA3 Single Rope Required Elements</span>
+          <code>JMC3PaA3 Single Rope Required Elements</code>
         </li>
       </ul>
       <h2>v2.0.0</h2>

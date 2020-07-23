@@ -306,17 +306,15 @@ export default class CategoriesModule extends VuexModule {
   }
 
   @Mutation
-  _setJudgeInfo({ id, judgeID, value }: JudgeDataPayload) {
+  _setJudgeInfo({ id, judgeID, value }: JudgeDataPayload<{ name?: string, ijruID?: string }>) {
     if (!this.categories[id]) throw new Error(`Category ${id} doesn't exist. Can't set participant info`)
     if (!this.categories[id].judges) this.categories[id].judges = []
     if (!value) throw new Error(`No data to change for the judge`)
 
     let idx = this.categories[id].judges.findIndex(el => el.judgeID === judgeID)
     if (idx >= 0) {
-      this.categories[id].judges.splice(idx, 1, {
-        ...this.categories[id].participants[idx],
-        ...value
-      })
+      if (value.name)  this.categories[id].judges[idx].name = value.name
+      if (value.ijruID) this.categories[id].judges[idx].ijruID = value.ijruID
     } else {
       throw new Error(`Judge ${judgeID} not found in category ${id}. Can't update`)
     }
