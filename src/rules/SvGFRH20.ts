@@ -260,7 +260,7 @@ export const OverallResultTableGroupsIndividual: ResultTableHeaderGroup<SvGFRH20
   }, {
     text: 'Overall',
     value: 'oa',
-    colspan: 3,
+    colspan: 2,
     rowspan: 2
   }],
 
