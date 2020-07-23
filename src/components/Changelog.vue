@@ -18,6 +18,7 @@
         <li>If a Judge's assignment is changed their scores will be removed for that event</li>
         <li>Add the ability to set judge name and judge IJRU ID for stats purposes</li>
         <li>Show and print results for an entire group at once</li>
+        <li>[SvGFRH20] Fix a bug where there was one column to much on the Overall header in the excel export of the individual overall for SvGF Rikshoppet</li>
       </ul>
       <h2>v3.1.4</h2>
       <ul>
