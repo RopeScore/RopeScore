@@ -17,6 +17,7 @@ const colors = require('vuetify/lib/util/colors')
 export default class ExcelResultTable<VueClass> extends Vue {
   @Prop({ default: '' }) private title: string;
   @Prop({ default: '' }) private category: string;
+  @Prop({ default: '' }) private group: string;
   @Prop({ default: '' }) private id: string;
   @Prop({ default: 'individual' }) private type: string;
   @Prop({ default: '' }) private logo: string;
@@ -84,7 +85,7 @@ export default class ExcelResultTable<VueClass> extends Vue {
     // worksheet.pageSetup.printArea = "A1:G20";
 
     worksheet.headerFooter.oddFooter = '&LScores from RopeScore - ropescore.com&RPage &P of &N';
-    worksheet.headerFooter.oddHeader = `&L${this.category} - ${this.title}` // worksheet name, add &R&G to add the logo?
+    worksheet.headerFooter.oddHeader = `&L${this.category} - ${this.title}&R${this.group}` // worksheet name, add &R&G to add the logo?
 
     return worksheet
   }

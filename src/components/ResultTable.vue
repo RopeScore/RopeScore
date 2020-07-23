@@ -4,7 +4,7 @@
       <img :src="logo" class="cust--page-logo" />
     </v-card-text>
     <v-card-title class="pr-12 mr-12">
-      {{ category }}
+      <span>{{ category }} {{ group ? '&ndash;' : '' }} {{ group }}</span>
       <v-spacer />
       <v-btn text @click="changeZoom(-0.03)" class="cust--noprint">Zoom -</v-btn>
       <v-btn text @click="changeZoom()" class="cust--noprint">Reset Zoom</v-btn>
@@ -94,6 +94,7 @@ import { memberNames } from '@/common'
 export default class ResultTable<VueClass> extends Vue {
   @Prop({ default: '' }) private title: string;
   @Prop({ default: '' }) private category: string;
+  @Prop({ default: '' }) private group: string;
   @Prop({ default: 'individual' }) private type: string;
   @Prop({ default: 1 }) private zoom: number;
   @Prop({ default: '' }) private logo: string;
