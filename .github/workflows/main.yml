@@ -26,11 +26,11 @@ jobs:
         run: npm run electron:build -- -p always
         env:
           GH_TOKEN:  ${{ secrets.GH_TOKEN }}
-      - name: Sentry Release
-        if: startsWith(matrix.os, 'macos')
-        uses: getsentry/action-release@v1.0.0
-        with:
-          # Set the environment for this release. E.g. "production" or "staging".
-          environment: production
-          # Space-separated list of paths to JavaScript sourcemaps. Omit to skip uploading sourcemaps.
-          sourcemaps: dist_electron/bundled/js/*.js.map
+      # - name: Sentry Release
+      #   if: startsWith(matrix.os, 'ubuntu')
+      #   uses: getsentry/action-release@v1.0.0
+      #   with:
+      #     # Set the environment for this release. E.g. "production" or "staging".
+      #     environment: production
+      #     # Space-separated list of paths to JavaScript sourcemaps. Omit to skip uploading sourcemaps.
+      #     sourcemaps: dist_electron/bundled/js/*.js.map
