@@ -163,7 +163,7 @@ export const SpeedRank: Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvG
   return results
 }
 
-export const UtmaningsRank: Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls>['rank'] = function (results= []) {
+export const UtmaningsRank: Event<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls>['rank'] = function (results = []) {
   // results = results.filter(el => typeof el.Y === 'number')
   results.sort(function (a, b) {
     return (a.S ?? 0) - (b.S ?? 0) // sort ascending
@@ -583,7 +583,7 @@ export const DoubleDutchTeamOverallTableHeaders: ResultTableHeaders<SvGFVH18Even
 }
 
 const config: Ruleset<SvGFVH18Score, SvGFVH18Result, SvGFVH18Events, SvGFVH18Overalls> = {
-  name: 'SvGF Vikingahoppet',
+  name: 'SvGF Vikingahoppet (2018)',
   rulesetID: 'SvGFVH18',
   events: [{
     eventID: 'srss',

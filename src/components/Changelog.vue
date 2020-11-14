@@ -2,6 +2,11 @@
   <v-card>
     <v-card-title>Changelog</v-card-title>
     <v-card-text>
+      <h2>v3.2.1</h2>
+      <ul>
+        <li>Add SvGF Vikingahoppet (2020)</li>
+        <li>Fixed a typo in SvGF Vikingahoppet (2018)</li>
+      </ul>
       <h2>v3.2.0</h2>
       <ul>
         <li>Added the ability to paste multiple participants from excel</li>

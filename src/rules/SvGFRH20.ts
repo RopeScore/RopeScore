@@ -148,7 +148,7 @@ export const PresentationJudgeSingleRope: JudgeType<SvGFRH20Score, SvGFRH20Resul
       step: 0.5
     },
     {
-      name: 'Använder Musikem',
+      name: 'Använder Musiken',
       fieldID: 'puom',
       min: 0,
       max: 10,
@@ -712,7 +712,7 @@ export const SpeedResult = function (eventID: SvGFRH20Events): Event<SvGFRH20Sco
 export const SpeedRank: Event<SvGFRH20Score, SvGFRH20Result, SvGFRH20Events, SvGFRH20Overalls>['rank'] = function (results = []) {
   // results = results.filter(el => typeof el.Y === 'number')
   results.sort(function (a, b) {
-    return (b.R ?? 0) - (a.R?? 0) // sort descending
+    return (b.R ?? 0) - (a.R ?? 0) // sort descending
   })
 
   results = results.map((el, _, arr) => ({
