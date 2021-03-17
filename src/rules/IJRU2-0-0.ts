@@ -969,7 +969,7 @@ const config: Ruleset<IJRU2_0_0Score, IJRU2_0_0Result, IJRU2_0_0Events, IJRU2_0_
     groups: AllAroundResultTableGroupsTeam,
     headers: AllAroundResultTableHeadersTeam,
     events: ['srsr', 'srdr', 'srpf', 'srtf', 'ddsr', 'ddss', 'ddsf', 'ddpf'],
-    rank: OverallRank('tcaa')
+    rank: OverallRank('taac')
   }]
 }
 
