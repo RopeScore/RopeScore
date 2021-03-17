@@ -2,6 +2,11 @@
   <v-card>
     <v-card-title>Changelog</v-card-title>
     <v-card-text>
+      <h2>v3.2.2</h2>
+      <ul>
+        <li>Fixed a bug in IJRU v2.0.0 where all around results wouldn't be shown</li>
+        <li>IJRU 2.0.0 Only Level 3 and up will be shown for repeated skills</li>
+      </ul>
       <h2>v3.2.1</h2>
       <ul>
         <li>Add SvGF Vikingahoppet (2020)</li>

@@ -165,7 +165,11 @@ export const MissJudgeSingleRopeIndividual: ReqElJudge = {
       max: 4
     },
 
-    ...DifficultyJudge.fields as InputField<IJRU2_0_0Score, IJRU2_0_0Events>[]
+    ...Array(6).fill(undefined).map((el, idx) => ({
+      name: `Repeated Skills Level ${idx + 3}`,
+      fieldID: `l${idx + 3}` as 'l3' | 'l4' | 'l5' | 'l6' | 'l7' | 'l8',
+      level: idx + 3
+    }))
   ],
   result: function (scores) {
     if (!this) return
@@ -238,7 +242,11 @@ export const MissJudgeDoubleDutchSingle: JudgeType<IJRU2_0_0Score, IJRU2_0_0Resu
       max: 4
     },
 
-    ...DifficultyJudge.fields as InputField<IJRU2_0_0Score, IJRU2_0_0Events>[]
+    ...Array(6).fill(undefined).map((el, idx) => ({
+      name: `Repeated Skills Level ${idx + 3}`,
+      fieldID: `l${idx + 3}` as 'l3' | 'l4' | 'l5' | 'l6' | 'l7' | 'l8',
+      level: idx + 3
+    }))
   ]
 }
 
