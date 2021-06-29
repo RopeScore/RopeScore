@@ -237,7 +237,7 @@ export default class CategoriesModule extends VuexModule {
     if (!this.categories[id].participants) this.categories[id].participants = []
     if (!value) throw new Error(`No participantID to update provided`)
 
-    if ((value as Partial<Team>)?.members) delete (value as Team).members
+    if ((value as Partial<Team>)?.members) delete (value as Partial<Team>).members
     if (this.categories[id].config.type === 'team' && typeof (value as Partial<Person>)?.ijruID === 'string') delete (value as Person).ijruID
 
     let idx = this.categories[id].participants.findIndex(el => el.participantID === participantID)
