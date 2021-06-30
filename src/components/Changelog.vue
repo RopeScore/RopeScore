@@ -2,6 +2,10 @@
   <v-card>
     <v-card-title>Changelog</v-card-title>
     <v-card-text>
+      <h2>v3.2.3</h2>
+      <ul>
+        <li>SvGF Rikshoppet add Level 5 to team difficulty</li>
+      </ul>
       <h2>v3.2.2</h2>
       <ul>
         <li>Fixed a bug in IJRU v2.0.0 where all around results wouldn't be shown</li>

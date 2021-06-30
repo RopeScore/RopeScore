@@ -127,9 +127,9 @@ export const DifficultyJudgeTeams: DifficultyJudge = {
       min: 0,
       level: 0.5
     },
-    ...Array(4).fill(undefined).map((el, idx) => ({
+    ...Array(5).fill(undefined).map((el, idx) => ({
       name: `Level ${idx + 1}`,
-      fieldID: `l${idx + 1}` as 'l1' | 'l2' | 'l3' | 'l4',
+      fieldID: `l${idx + 1}` as 'l1' | 'l2' | 'l3' | 'l4' | 'l5',
       level: idx + 1
     }))
   ]
