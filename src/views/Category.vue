@@ -1,170 +1,178 @@
 <template>
-  <v-card>
-    <v-card-title>
-      {{ categories.categories[$route.params.id].config.name }}
-      <v-spacer />
-      <v-btn link text :to="`/category/${$route.params.id}/config`">Configure</v-btn>
-    </v-card-title>
-    <v-divider />
-    <v-simple-table fixed-header dense>
+  <div class="container mx-auto">
+    <div class="flex justify-between">
+      <h1>{{ category?.name }}</h1>
+      <menu class="m-0 p-0">
+        <button-link :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}/settings`">
+          Settings
+        </button-link>
+      </menu>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto max-w-[calc(100vw-1rem)] relative mt-4">
+    <table class="text-xs min-w-full">
       <thead>
         <tr>
-          <template v-if="categories.categories[$route.params.id].config.type === 'team'">
-            <th class="text-center">Team Name</th>
-            <th class="text-center">Team Members</th>
+          <template v-if="category?.type === 'team'">
+            <th>
+              Team Name
+            </th>
+            <th>
+              Team Members
+            </th>
           </template>
-          <th class="text-center" v-else>Name</th>
-          <th class="text-center">Club</th>
-          <th class="text-center">ID</th>
+          <th v-else>
+            Name
+          </th>
+          <th>
+            Club
+          </th>
+          <th class="min-w-8">
+            ID
+          </th>
 
           <th
-            class="text-center"
-            v-for="eventID in categories.categories[$route.params.id].config.events"
-            :key="`header-${eventID}`"
+            v-for="cEvtDefCode in category?.competitionEvents ?? []"
+            :key="`header-${cEvtDefCode}`"
             colspan="2"
-          >{{ eventID }}</th>
+          >
+            {{ abbr(cEvtDefCode) }}
+          </th>
 
-          <th class="text-center">Checksum</th>
+          <!-- <th>
+            Checksum
+          </th> -->
+        </tr>
+
+        <tr>
+          <th
+            v-if="category?.type === 'team'"
+            colspan="4"
+          />
+          <th v-else colspan="3" />
+          <th
+            v-for="cEvtDefCode in category?.competitionEvents ?? []"
+            :key="cEvtDefCode"
+            colspan="2"
+          >
+            <button-link
+              v-if="isSpeedEvent(cEvtDefCode)"
+              :to="`/groups/${route.params.groupId}/category/${$route.params.categoryId}/competition-events/${cEvtDefCode}`"
+              dense
+            >
+              All
+            </button-link>
+          </th>
+
+          <!-- <th>&nbsp;</th> -->
         </tr>
       </thead>
 
       <tbody>
-        <tr class="crosshair">
-          <th
-            class="text-center"
-            v-if="categories.categories[$route.params.id].config.type === 'team'"
-            colspan="4"
-          ></th>
-          <th class="text-center" v-else colspan="3"></th>
-          <th
-            class="text-center"
-            colspan="2"
-            v-for="eventID in categories.categories[$route.params.id].config.events"
-            :key="`header-${eventID}`"
-          >
-            <v-btn
-              v-if="(eventByID(eventID) || {}).multipleEntry"
-              text
-              link
-              :to="`/category/${$route.params.id}/score/${eventID}`"
-              class="caption"
-              color="primary"
-            >Edit Multiple</v-btn>
-          </th>
-
-          <th class="text-center"></th>
-        </tr>
-
-        <tr
-          v-for="participant in categories.categories[$route.params.id].participants"
-          :key="participant.participantID"
-          class="crosshair"
-        >
+        <tr v-for="participant of participants" :key="participant.id">
           <td>{{ participant.name }}</td>
           <td
-            v-if="categories.categories[$route.params.id].config.type === 'team'"
-            class="caption text-truncate"
-            max-width="20em"
-          >{{ memberNames(participant) }}</td>
+            v-if="category?.type === 'team'"
+            class="max-w-[20rem] truncate"
+          >
+            {{ memberNames(participant) }}
+          </td>
           <td>{{ participant.club }}</td>
-          <td>{{ participant.participantID }}</td>
+          <td class="text-right">
+            {{ participant.id }}
+          </td>
 
-          <template v-for="eventID in categories.categories[$route.params.id].config.events">
-            <td :key="`edit-${participant.participantID}-${eventID}`" class="text-center">
-              <v-btn
-                text
-                link
-                :to="`/category/${$route.params.id}/score/${eventID}/${participant.participantID}`"
-                :color="scoreColor(eventID, participant)"
-              >Edit</v-btn>
+          <template
+            v-for="cEvtDefCode in category?.competitionEvents ?? []"
+            :key="cEvtDefCode"
+          >
+            <td
+              colspan="2"
+              class="text-center font-semibold uppercase cursor-pointer"
+              :class="{
+                'bg-red-100': !entryStatus[participant.id]?.[cEvtDefCode],
+                'hover:bg-red-300': !entryStatus[participant.id]?.[cEvtDefCode],
+
+                'bg-blue-100': entryStatus[participant.id]?.[cEvtDefCode] === 'created',
+                'hover:bg-blue-300': entryStatus[participant.id]?.[cEvtDefCode] === 'created',
+
+                'bg-green-100': entryStatus[participant.id]?.[cEvtDefCode] === 'locked',
+                'hover:bg-green-300': entryStatus[participant.id]?.[cEvtDefCode] === 'locked',
+
+                'bg-gray-100': entryStatus[participant.id]?.[cEvtDefCode] === 'dns',
+                'hover:bg-gray-300': entryStatus[participant.id]?.[cEvtDefCode] === 'dns',
+              }"
+              @click="openEntry(participant, cEvtDefCode)"
+            >
+              Edit
             </td>
-            <td :key="`checksum-${participant.participantID}-${eventID}`" class="cust--monospace text-center">
-              <!-- {{ hashObject(categories.participantScoreObj({ id: $route.params.id, eventID, participantID: participant.participantID })) }} -->
-            </td>
+            <!-- TODO: hash -->
+            <!-- <td class="font-mono" /> -->
           </template>
 
-          <td></td>
+          <!-- <td /> -->
         </tr>
       </tbody>
-    </v-simple-table>
-  </v-card>
+    </table>
+  </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import SHA1 from "crypto-js/sha1";
-import rulesets, { Rulesets, Ruleset } from "../rules";
-import TableHeader from "../plugins/vuetify";
-import CategoriesModule, { Person, TeamPerson } from "../store/categories";
-import { getModule } from "vuex-module-decorators";
-import { memberNames } from '@/common'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useCategory } from '../hooks/categories'
+import { useParticipants } from '../hooks/participants'
+import { useEntries } from '../hooks/entries'
+import { memberNames } from '../helpers'
+import { rulesets } from '../rules'
+import { v4 as uuid } from 'uuid'
 
-@Component
-export default class Category<VueClass> extends Vue {
-  rulesets = rulesets;
-  categories = getModule(CategoriesModule);
-  memberNames = memberNames
+import ButtonLink from '../components/ButtonLink.vue'
 
-  get ruleset() {
-    return this.rulesets.find(
-      rs =>
-        rs.rulesetID ===
-        this.categories.categories[this.$route.params.id].config.ruleset
-    );
+import type { CompetitionEvent, Participant } from '../store/schema'
+
+const route = useRoute()
+const router = useRouter()
+const category = useCategory(route.params.categoryId as string)
+const participants = useParticipants(route.params.categoryId as string)
+const entries = useEntries(route.params.categoryId as string)
+
+function isSpeedEvent (cEvtDefCode: CompetitionEvent) {
+  return cEvtDefCode.split('.')[2] === 'sp'
+}
+
+const ruleset = computed(() => {
+  if (!category.value) return null
+  return rulesets[category.value.ruleset]
+})
+
+const entryStatus = computed(() => {
+  const res: Record<number, Record<string, undefined | 'created' | 'locked' | 'dns'>> = {}
+  for (const entry of entries.value) {
+    res[entry.participantId] ??= {}
+    res[entry.participantId][entry.competitionEvent] ??= 'created'
+    if (entry.lockedAt) res[entry.participantId][entry.competitionEvent] = 'locked'
+    if (entry.didNotSkipAt) res[entry.participantId][entry.competitionEvent] = 'dns'
   }
+  return res
+})
 
-  eventByID(eventID: string) {
-    return (this.ruleset?.events as Ruleset['events']).find(el => el.eventID === eventID);
-  }
+function abbr (cEvtDef: CompetitionEvent) {
+  return cEvtDef.split('.')[4]
+}
 
-  scoreColor(eventID: string, participant: TeamPerson): string {
-    const category = this.categories.categories[this.$route.params.id]
-    const dns = category.dns.findIndex(dns => dns.participantID === participant.participantID && dns.eventID === eventID) > -1
-    const hasScore = category.scores.findIndex(score => score.participantID === participant.participantID && score.eventID === eventID) > -1
-
-    if (dns) {
-      // !hasScore && locked
-      return 'grey';
-    } else if (hasScore) {
-      // return 'primary'
-      // else if hasScore && locked
-      return 'success';
-    } else {
-      return 'error'
+function openEntry (participant: Participant, cEvtDef: CompetitionEvent) {
+  let entry = entries.value.find(en => en.participantId === participant.id && en.competitionEvent === cEvtDef)
+  if (!entry) {
+    entry = {
+      id: uuid(),
+      categoryId: route.params.categoryId as string,
+      participantId: participant.id,
+      competitionEvent: cEvtDef
     }
+    entries.value.push(entry)
   }
-
-  hashObject(obj = {}, len = 5) {
-    let json = JSON.stringify(obj);
-    let bytes = SHA1(json);
-    let hash = bytes.toString();
-    return hash.substring(0, len);
-  }
+  router.push(`/groups/${route.params.groupId}/categories/${route.params.categoryId}/entries/${entry.id}`)
 }
 </script>
-
-<style scoped>
-.cust--monospace {
-  font-family: monospace;
-  white-space: nowrap;
-}
-
-.cust--noborder {
-  border-bottom: none !important;
-}
-
-th,
-td {
-  white-space: nowrap;
-  padding: 0 4px;
-}
-
-th:not(:last-child),
-td:not(:last-child) {
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-tbody tr th {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-}
-</style>

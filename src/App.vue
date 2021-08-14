@@ -1,94 +1,50 @@
 <template>
-  <v-app>
-    <v-app-bar app flat>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title class="headline">
-        <span>RopeScore</span>
-        <span class="font-weight-light" v-if="system.computerName">&nbsp;- {{ system.computerName }}</span>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <Menu :cat="catID" />
-    </v-app-bar>
+  <div class="grid grid-rows-[3.5rem,auto,2rem] grid-cols-[auto,1fr] min-h-[100vh] w-full">
+    <header class="col-span-2 bg-gray-100 flex justify-between items-center px-4">
+      <router-link to="/">
+        <span class="text-2xl font-semibold">RopeScore</span>
+        <span v-if="system.computerName" class="text-2xl font-light">&nbsp;&ndash; {{ system.computerName }}</span>
+      </router-link>
 
-    <v-navigation-drawer v-model="drawer" app disable-resize-watcher temporary>
-      <v-list nav v-for="group in categories.groupedCategories" :key="group.name">
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="title">{{ group.name }}</v-list-item-title>
-            <!-- <v-list-item-subtitle>subtext</v-list-item-subtitle> -->
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-divider></v-divider>
-
-        <v-list-item
-          v-for="category in group.categories"
-          :key="`${group.name} - ${category.id}`"
-          link
-          :to="`/category/${category.id}`"
-          dense
-        >
-          <v-list-item-content>
-            <v-list-item-title>{{ category.name }}</v-list-item-title>
-            <v-list-item-subtitle>{{ getRuleset(category.ruleset).name }}</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-
-    <v-main>
-      <v-container fluid>
-        <router-view :key="$route.fullPath"></router-view>
-      </v-container>
-    </v-main>
-
-    <v-footer app absolute>
-      <span text class="mr-2">&copy; Swantzter 2017-2020</span>
-      <v-spacer/>
-      <span text class="mr-2">{{ version }}</span>
-    </v-footer>
-  </v-app>
+      <nav>
+        <button-link v-if="route.params.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}/results`">
+          Results
+        </button-link>
+        <button-link v-if="route.params.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}`">
+          Category
+        </button-link>
+        <button-link v-if="route.params.groupId" :to="`/groups/${route.params.groupId}/devices`">
+          Devices
+        </button-link>
+        <button-link to="/system">
+          System
+        </button-link>
+        <button-link to="/">
+          Dashboard
+        </button-link>
+      </nav>
+    </header>
+    <aside />
+    <main class="px-2 py-4">
+      <router-view />
+    </main>
+    <footer class="flex col-span-2 justify-between items-center bg-gray-100 px-4">
+      <span>&copy; Swantzter 2017-2021</span>
+      <span>{{ version }}</span>
+    </footer>
+  </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { getModule } from "vuex-module-decorators";
-import Menu from "./components/Menu.vue";
-import rulesets, { Rulesets } from "./rules";
-import SystemModule from "./store/system";
-import CategoriesModule from "./store/categories";
-import { version } from "../package.json";
+<script lang="ts" setup>
+import { useRoute } from 'vue-router'
+import { version } from '../package.json'
+import { useSystem } from './hooks/system'
 
-@Component({
-  components: {
-    Menu
-  }
-})
-export default class App extends Vue {
-  version = version;
-  drawer: boolean = false;
-  rulesets = rulesets;
-  catID: string = "";
+import ButtonLink from './components/ButtonLink.vue'
 
-  system = getModule(SystemModule);
-  categories = getModule(CategoriesModule);
+const route = useRoute()
 
-  mounted() {
-    this.$router.afterEach((to, from) => {
-      let toArr = to.fullPath.split("/");
-      if (toArr[1] === "category") {
-        this.catID = toArr[2];
-      } else {
-        this.catID = "";
-      }
-      console.log("category:", this.catID);
-    });
-  }
-
-  async getRuleset(id: string) {
-    return this.rulesets.find(ruleset => ruleset.rulesetID === id);
-  }
-}
+const system = useSystem()
 </script>
 
 <style>

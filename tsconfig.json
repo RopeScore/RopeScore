@@ -2,44 +2,27 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
-    "importHelpers": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "strictPropertyInitialization": false,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
-    "skipLibCheck": true,
-    "types": [
-      "webpack-env",
-      "mocha",
-      "chai",
-      "vuetify"
-    ],
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    },
+    "esModuleInterop": true,
     "lib": [
       "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
+      "dom"
+    ],
+    "types": [
+      "vite/client",
+    ],
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules"
+    "vite.config.ts",
+    "windi.config.ts"
   ]
 }
