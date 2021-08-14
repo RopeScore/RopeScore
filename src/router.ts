@@ -1,12 +1,8 @@
-import Vue from 'vue'
-import Router from 'vue-router'
 import Home from './views/Home.vue'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
-Vue.use(Router)
-
-export default new Router({
-  mode: process.env.IS_ELECTRON ? 'hash' : 'history',
-  base: process.env.BASE_URL,
+export default createRouter({
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
@@ -16,42 +12,52 @@ export default new Router({
     {
       path: '/system',
       name: 'system',
-      component: () => import(/* webpackChunkName: "system" */ '@/views/SysConfig.vue')
+      component: async () => import('./views/System.vue')
     },
     {
-      path: '/new',
-      name: 'newcategory',
-      component: () => import(/* webpackChunkName: "newcategory" */ '@/components/NewCategory.vue')
+      path: '/groups/:groupId/settings',
+      name: 'group-settings',
+      component: async () => import('./views/GroupSettings.vue')
     },
     {
-      path: '/category/:id',
+      path: '/groups/:groupId/devices',
+      name: 'group-devices',
+      component: async () => import('./views/Devices.vue')
+    },
+    {
+      path: '/groups/:groupId/results',
+      name: 'group-results',
+      component: async () => import('./views/Results.vue')
+    },
+    {
+      path: '/groups/:groupId/categories/:categoryId',
       name: 'category',
-      component: () => import(/* webpackChunkName: "category" */ '@/views/Category.vue')
+      component: async () => import('./views/Category.vue')
     },
     {
-      path: '/category/:id/config',
-      name: 'categoryconfig',
-      component: () => import(/* webpackChunkName: "categoryconfig" */ '@/views/CategoryConfig.vue')
+      path: '/groups/:groupId/categories/:categoryId/settings',
+      name: 'category-settings',
+      component: async () => import('./views/CategorySettings.vue')
     },
     {
-      path: '/category/:id/score/:event',
-      name: 'scoreevent',
-      component: () => import(/* webpackChunkName: "scoreevent" */ '@/views/ScoreEvent.vue')
+      path: '/groups/:groupId/categories/:categoryId/results',
+      name: 'category-results',
+      component: async () => import('./views/Results.vue')
     },
     {
-      path: '/category/:id/score/:event/:participant',
-      name: 'scoreparticipant',
-      component: () => import(/* webpackChunkName: "scoreparticipant" */ '@/views/ScoreParticipant.vue')
-    },
-    {
-      path: '/category/:id/results',
-      name: 'categoryresults',
-      component: () => import(/* webpackChunkName: "categoryresults" */ '@/views/CategoryResults.vue')
-    },
-    {
-      path: '/group/:name/results',
-      name: 'groupresults',
-      component: () => import(/* webpackChunkName: "categoryresults" */ '@/views/CategoryResults.vue')
+      path: '/groups/:groupId/categories/:categoryId/entries/:entryId',
+      name: 'entry',
+      component: async () => import('./views/Entry.vue')
     }
+    // {
+    //   path: '/new',
+    //   name: 'newcategory',
+    //   component: () => import(/* webpackChunkName: "newcategory" */ '@/components/NewCategory.vue')
+    // },
+    // {
+    //   path: '/category/:id/score/:event',
+    //   name: 'scoreevent',
+    //   component: () => import(/* webpackChunkName: "scoreevent" */ '@/views/ScoreEvent.vue')
+    // },
   ]
 })

@@ -1,30 +1,29 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
+import * as Sentry from '@sentry/vue'
+import { Integrations } from '@sentry/tracing'
+import 'virtual:windi.css'
 import App from './App.vue'
 import router from './router'
-import store from './plugins/store'
-import vuetify from './plugins/vuetify'
-
+import { DefaultApolloClient } from '@vue/apollo-composable'
+import { apolloClient } from './apollo'
 import { name, version } from '../package.json'
 
-Vue.config.productionTip = false
+const app = createApp(App)
 
-import * as Sentry from '@sentry/browser';
-import * as Integrations from '@sentry/integrations';
+app.provide(DefaultApolloClient, apolloClient)
+  .use(router)
+  .mount('#app')
 
-Sentry.init({
-  dsn: 'https://dde56038805e456bb0f9bc120547ea07@sentry.io/1045868',
-  integrations: [new Integrations.Vue({Vue, attachProps: true})],
-  release: `${name}@${version}`,
-  debug: true,
-  beforeSend: (event, hint) => {
-    console.error(hint?.originalException || hint?.syntheticException || event);
-    return event;
-   }
-})
-
-new Vue({
-  router,
-  store,
-  vuetify,
-  render: (h: any) => h(App)
-}).$mount('#app')
+if (import.meta.env.PROD) {
+  Sentry.init({
+    app,
+    dsn: 'https://dde56038805e456bb0f9bc120547ea07@sentry.io/1045868',
+    release: `${name}@${version}`,
+    logErrors: true,
+    integrations: [new Integrations.BrowserTracing({
+      tracingOrigins: ['localhost'],
+      routingInstrumentation: Sentry.vueRouterInstrumentation(router)
+    })],
+    tracesSampleRate: 1.0
+  })
+}
