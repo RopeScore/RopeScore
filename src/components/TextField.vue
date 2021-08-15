@@ -6,7 +6,7 @@
       :placeholder="dense ? label : ' '"
       :value="modelValue"
       :list="dataList.length ? `${id}-list` : null"
-      class="block border-0 border-b-2 w-full"
+      class="block border-0 border-b-2 w-full bg-transparent"
       :class="{
         'p-0': dense,
         'px-0.5': dense,

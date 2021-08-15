@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-rows-[3.5rem,auto,2rem] grid-cols-[auto,1fr] min-h-[100vh] w-full">
-    <header class="col-span-2 bg-gray-100 flex justify-between items-center px-4">
+    <header class="col-span-2 bg-gray-100 flex justify-between items-center px-4 sticky top-0 z-1000">
       <router-link to="/">
         <span class="text-2xl font-semibold">RopeScore</span>
         <span v-if="system.computerName" class="text-2xl font-light">&nbsp;&ndash; {{ system.computerName }}</span>
@@ -48,6 +48,10 @@ const system = useSystem()
 </script>
 
 <style>
+table tr:nth-child(even) {
+  @apply bg-gray-100;
+}
+
 .page {
   width: 277mm !important;
   height: 190mm !important;

@@ -4,7 +4,17 @@
       :id="id"
       placeholder=" "
       :value="modelValue"
-      class="block border-0 border-b-2 pt-4 pb-1 px-3 mt-2 w-full"
+      class="block border-0 border-b-2 w-full min-w-12 bg-transparent"
+      :class="{
+        'p-0': dense,
+        'px-0.5': dense,
+        'm-0': dense,
+
+        'pt-4': !dense,
+        'pb-1': !dense,
+        'px-3': !dense,
+        'mt-2': !dense
+      }"
       @change="input"
     >
       <option v-for="item of dataList" :key="value(item)">
@@ -24,6 +34,10 @@ import { v4 as uuid } from 'uuid'
 import type { PropType } from 'vue'
 
 defineProps({
+  dense: {
+    type: Boolean,
+    default: false
+  },
   label: {
     type: String,
     required: true
@@ -43,8 +57,7 @@ const emit = defineEmits(['update:modelValue'])
 const id = uuid().replace(/^[^a-z]+/, '')
 
 function input (event: any) {
-  console.log(event)
-  // emit('update:modelValue', (event.target as HTMLInputElement).value)
+  emit('update:modelValue', (event.target as HTMLInputElement).value)
 }
 
 function value (item: string | { value: string, text: string }) {

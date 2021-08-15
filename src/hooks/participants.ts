@@ -7,7 +7,7 @@ import type { Category, Participant } from '../store/schema'
 
 export function useParticipants (categoryId: MaybeRef<Category['id'] | undefined>) {
   const { read, result } = useDexieArray<Participant>({
-    table: 'participants',
+    tableName: 'participants',
     async read (participants) {
       const key = unref(categoryId)
       if (!key) return
@@ -22,11 +22,11 @@ export function useParticipants (categoryId: MaybeRef<Category['id'] | undefined
 
 export function useParticipant (participantId: MaybeRef<Participant['id'] | undefined>) {
   const { read, result } = useDexie<Participant>({
-    table: 'participants',
+    tableName: 'participants',
     async read (participant) {
       const key = unref(participantId)
       if (typeof key !== 'number') return
-      participant.value = await db.participants.get(key as unknown as string)
+      participant.value = await db.participants.get(key)
     }
   })
 

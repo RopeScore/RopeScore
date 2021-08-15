@@ -7,7 +7,7 @@ import type { Group } from '../store/schema'
 
 export function useGroups () {
   return useDexieArray<Group>({
-    table: 'groups',
+    tableName: 'groups',
     async read (groups) {
       groups.value = await db.groups.orderBy('name').toArray()
       groups.value.sort((a, b) => {
@@ -21,7 +21,7 @@ export function useGroups () {
 
 export function useGroup (id: MaybeRef<Group['id'] | undefined>) {
   const { read, result } = useDexie<Group>({
-    table: 'groups',
+    tableName: 'groups',
     async read (group) {
       const key = unref(id)
       if (!key) return

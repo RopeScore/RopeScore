@@ -16,7 +16,9 @@
     "lint:fix": "npm run lint -- --fix",
     "typecheck": "vue-tsc --noEmit",
     "codegen": "graphql-codegen --config codegen.yml",
-    "codegen:watch": "npm run codegen -- --watch"
+    "codegen:watch": "npm run codegen -- --watch",
+    "test": "ts-mocha -p tsconfig.test.json src/**/*.test.ts",
+    "test:coverage": "c8 -r lcov -r text npm test"
   },
   "main": "electron/background.js",
   "dependencies": {
@@ -49,6 +51,7 @@
     "@types/crypto-js": "^4.0.2",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/luxon": "^2.0.0",
+    "@types/mocha": "^9.0.0",
     "@types/node": "^14.17.4",
     "@types/papaparse": "^5.2.6",
     "@types/uuid": "^8.3.1",
@@ -56,6 +59,7 @@
     "@typescript-eslint/parser": "^4.29.1",
     "@vitejs/plugin-vue": "^1.4.0",
     "@vue/compiler-sfc": "^3.2.2",
+    "c8": "^7.8.0",
     "electron": "^13.1.9",
     "electron-builder": "^22.11.7",
     "electron-devtools-installer": "^3.2.0",
@@ -65,6 +69,8 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-vue": "^7.16.0",
+    "mocha": "^9.0.3",
+    "ts-mocha": "^8.0.0",
     "ts-node": "^10.2.0",
     "typescript": "^4.2.4",
     "vite": "^2.4.4",
