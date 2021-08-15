@@ -1,6 +1,6 @@
 import IJRU_2_0_0 from './ijru@2.0.0'
 
-import type { CompetitionEvent } from '../store/schema'
+import type { CompetitionEvent, Scoresheet } from '../store/schema'
 
 // export const rulesetIds = ['ijru@2.0.0', 'ijru@1.1.0', 'svgf-rh@2020', 'svgf-vh@2020', 'svgf-vh@2018', 'fisac@2017-2018'] as const
 export type RulesetId = keyof typeof rulesets
@@ -17,4 +17,22 @@ export interface Ruleset {
 
 export interface CompetitionEventDefinition {
   name: string
+  judges: JudgeType[]
+}
+
+export interface JudgeType {
+  id: string
+  name: string
+  tallyFields: Readonly<FieldDefinition[]>
+  calculateScoresheet: (scoresheet: Scoresheet) => { [prop: string]: number }
+}
+
+export type JudgeTypeFn = (cEvtDef: CompetitionEvent) => JudgeType
+
+export interface FieldDefinition {
+  schema: string
+  name: string
+  min?: number
+  max?: number
+  step?: number
 }

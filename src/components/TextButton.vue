@@ -1,6 +1,6 @@
 <template>
   <button
-    class="px-2 mx-1 transition-colors rounded uppercase font-semibold disabled:text-gray-400 disabled:cursor-default bg-white disabled:bg-white disabled:hover:bg-white whitespace-nowrap"
+    class="px-2 mx-1 transition-colors rounded uppercase font-semibold disabled:text-gray-400 disabled:cursor-default whitespace-nowrap"
     :class="{
       'py-1': !dense,
       'hover:bg-gray-200': !color,

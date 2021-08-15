@@ -1,21 +1,33 @@
 import Dexie from 'dexie'
 import { useLocalStorage } from '@vueuse/core'
 
-import type { Group, Category, Judge, Device, Participant, Entry, Scoresheet } from './schema'
+import type { Group, Category, Judge, JudgeAssignment, Device, Participant, Entry, Scoresheet } from './schema'
 import type { Ref } from 'vue'
 
-const tables = ['groups', 'categories', 'judges', 'devices', 'participants', 'entries', 'scoresheets'] as const
+const tables = ['groups', 'categories', 'judges', 'judgeAssignments', 'devices', 'participants', 'entries', 'scoresheets'] as const
 export type Table = (typeof tables)[number]
-export type TableTypes = Group | Category | Judge | Device | Participant | Entry | Scoresheet
+export type TableTypes = Group | Category | Judge | JudgeAssignment | Device | Participant | Entry | Scoresheet
 
 export const emitters = Object.fromEntries(tables.map(t => [t, useLocalStorage<[number, string | undefined]>(`rs-update-${t}`, [0, undefined])] as const)) as Record<Table, Ref<[number, string | undefined]>>
 
-class RopeScoreDatabase extends Dexie {
+export interface ObjectStores {
   groups: Dexie.Table<Group, string>
   categories: Dexie.Table<Category, string>
-  judges: Dexie.Table<Judge, string>
+  judges: Dexie.Table<Judge, number>
+  judgeAssignments: Dexie.Table<JudgeAssignment, number>
   devices: Dexie.Table<Device, string>
-  participants: Dexie.Table<Participant, string>
+  participants: Dexie.Table<Participant, number>
+  entries: Dexie.Table<Entry, string>
+  scoresheets: Dexie.Table<Scoresheet, string>
+}
+
+class RopeScoreDatabase extends Dexie implements ObjectStores {
+  groups: Dexie.Table<Group, string>
+  categories: Dexie.Table<Category, string>
+  judges: Dexie.Table<Judge, number>
+  judgeAssignments: Dexie.Table<JudgeAssignment, number>
+  devices: Dexie.Table<Device, string>
+  participants: Dexie.Table<Participant, number>
   entries: Dexie.Table<Entry, string>
   scoresheets: Dexie.Table<Scoresheet, string>
 
@@ -25,6 +37,7 @@ class RopeScoreDatabase extends Dexie {
       groups: 'id, remote, name, completedAt',
       categories: 'id, groupId',
       judges: '++id, groupId',
+      judgeAssignments: '++id, categoryId, judgeId',
       devices: 'id, groupId',
       participants: '++id, categoryId',
       entries: 'id, participantId, categoryId, competitionEvent',
@@ -34,6 +47,7 @@ class RopeScoreDatabase extends Dexie {
     this.groups = this.table('groups')
     this.categories = this.table('categories')
     this.judges = this.table('judges')
+    this.judgeAssignments = this.table('judgeAssignments')
     this.devices = this.table('devices')
     this.participants = this.table('participants')
     this.entries = this.table('entries')

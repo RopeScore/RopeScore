@@ -37,7 +37,7 @@
             :key="`header-${cEvtDefCode}`"
             colspan="2"
           >
-            {{ abbr(cEvtDefCode) }}
+            {{ getAbbr(cEvtDefCode) }}
           </th>
 
           <!-- <th>
@@ -124,7 +124,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useCategory } from '../hooks/categories'
 import { useParticipants } from '../hooks/participants'
 import { useEntries } from '../hooks/entries'
-import { memberNames } from '../helpers'
+import { memberNames, getAbbr } from '../helpers'
 import { rulesets } from '../rules'
 import { v4 as uuid } from 'uuid'
 
@@ -157,10 +157,6 @@ const entryStatus = computed(() => {
   }
   return res
 })
-
-function abbr (cEvtDef: CompetitionEvent) {
-  return cEvtDef.split('.')[4]
-}
 
 function openEntry (participant: Participant, cEvtDef: CompetitionEvent) {
   let entry = entries.value.find(en => en.participantId === participant.id && en.competitionEvent === cEvtDef)

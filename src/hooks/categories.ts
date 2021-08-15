@@ -7,7 +7,7 @@ import type { Category, Group } from '../store/schema'
 
 export function useCategories (groupId: MaybeRef<Group['id'] | undefined>) {
   const { read, result } = useDexieArray<Category>({
-    table: 'categories',
+    tableName: 'categories',
     async read (categories) {
       const key = unref(groupId)
       if (!key) return
@@ -22,7 +22,7 @@ export function useCategories (groupId: MaybeRef<Group['id'] | undefined>) {
 
 export function useCategory (categoryId: MaybeRef<Category['id'] | undefined>) {
   const { read, result } = useDexie<Category>({
-    table: 'categories',
+    tableName: 'categories',
     async read (category) {
       const key = unref(categoryId)
       if (!key) return

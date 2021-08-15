@@ -36,6 +36,15 @@ export interface Judge {
   ijruId?: string
 }
 
+export interface JudgeAssignment {
+  readonly id: number
+  readonly categoryId: Category['id']
+  readonly judgeId: Judge['id']
+
+  judgeType: string
+  competitionEvent: CompetitionEvent
+}
+
 export interface Device {
   readonly id: string
   readonly groupId: Group['id']
@@ -80,12 +89,14 @@ export interface Entry {
   lockedAt?: number | null
 }
 
-interface Mark {
+export interface Mark {
   timestamp: number
   sequence: number
   schema: string
   [prop: string]: any
 }
+
+export type ScoreTally<T extends string = string> = Record<T, number>
 
 export interface ScoresheetBase {
   readonly id: string
@@ -94,7 +105,7 @@ export interface ScoresheetBase {
   readonly judgeType: string
 }
 
-export interface RemoteScoresheet extends ScoresheetBase {
+export interface MarkScoresheet extends ScoresheetBase {
   readonly deviceId: Device['id']
 
   createdAt: number
@@ -109,11 +120,11 @@ export interface RemoteScoresheet extends ScoresheetBase {
 
   marks: Mark[]
 }
-export function isRemoteScoresheet (x: any): x is TallyScoresheet { return 'deviceId' in x }
+export function isMarkScoresheet (x: any): x is MarkScoresheet { return 'marks' in x }
 
 export interface TallyScoresheet extends ScoresheetBase {
-  tally: Record<string, number>
+  tally: ScoreTally
 }
 export function isTallyScoresheet (x: any): x is TallyScoresheet { return 'tally' in x }
 
-export type Scoresheet = TallyScoresheet | RemoteScoresheet
+export type Scoresheet = TallyScoresheet | MarkScoresheet
