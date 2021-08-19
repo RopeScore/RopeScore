@@ -103,13 +103,15 @@ export interface ScoresheetBase {
   readonly judgeId: Judge['id']
   readonly entryId: Entry['id']
   readonly judgeType: string
+  readonly competitionEvent: CompetitionEvent
+
+  createdAt: number
+  updatedAt: number
 }
 
 export interface MarkScoresheet extends ScoresheetBase {
   readonly deviceId: Device['id']
 
-  createdAt: number
-  updatedAt: number
   submittedAt: number
   openedAt: number
   completedAt: number
@@ -120,11 +122,11 @@ export interface MarkScoresheet extends ScoresheetBase {
 
   marks: Mark[]
 }
-export function isMarkScoresheet (x: any): x is MarkScoresheet { return 'marks' in x }
+export function isMarkScoresheet (x: any): x is MarkScoresheet { return 'deviceId' in x }
 
 export interface TallyScoresheet extends ScoresheetBase {
   tally: ScoreTally
 }
-export function isTallyScoresheet (x: any): x is TallyScoresheet { return 'tally' in x }
+export function isTallyScoresheet (x: any): x is TallyScoresheet { return !('deviceId' in x) }
 
 export type Scoresheet = TallyScoresheet | MarkScoresheet

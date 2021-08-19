@@ -18,6 +18,7 @@ export interface Ruleset {
 export interface CompetitionEventDefinition {
   name: string
   judges: JudgeType[]
+  calculateEntry: ReturnType<CalcEntryFn>
 }
 
 export interface JudgeType {
@@ -28,6 +29,8 @@ export interface JudgeType {
 }
 
 export type JudgeTypeFn = (cEvtDef: CompetitionEvent) => JudgeType
+
+export type CalcEntryFn = (cEvtDef: CompetitionEvent) => (scoresheets: Scoresheet[]) => { raw: { [prop: string]: number}, formatted: { [prop: string]: string } }
 
 export interface FieldDefinition {
   schema: string

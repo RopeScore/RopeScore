@@ -35,11 +35,28 @@ export function roundTo (n: number, digits: number = 0): number {
   return test
 }
 
-export function factorFormat (value: number): string {
+export function clampNumber (n: number, { min, max, step }: { min?: number, max?: number, step?: number }) {
+  let num = n
+  if (typeof min === 'number' && num < min) num = min
+  if (typeof max === 'number' && num > max) num = max
+  if (typeof step === 'number') num = roundToMultiple(num, step)
+  return num
+}
+
+export function formatFactor (value: number): string {
   if (typeof value !== 'number' || isNaN(value)) return ''
   else if (value === 1) return '±0 %'
   else if (value > 1) return `+${roundTo((value - 1) * 100, 0)} %`
   else return `-${roundTo((1 - value) * 100, 0)} %`
+}
+
+const dateFormatter = Intl.DateTimeFormat(['en-SE', 'en-AU', 'en-GB'], {
+  dateStyle: 'medium',
+  timeStyle: 'medium',
+  hour12: false
+})
+export function formatDate (timestamp: number): string {
+  return dateFormatter.format(timestamp)
 }
 
 export function calculateTally (scoresheet: Scoresheet, tallyFields?: Readonly<FieldDefinition[]>): ScoreTally {
@@ -61,9 +78,7 @@ export function calculateTally (scoresheet: Scoresheet, tallyFields?: Readonly<F
   if (tallyFields) {
     for (const field of tallyFields) {
       if (typeof tally[field.schema] !== 'number') continue
-      if (typeof field.min === 'number' && tally[field.schema] < field.min) tally[field.schema] = field.min
-      if (typeof field.max === 'number' && tally[field.schema] > field.max) tally[field.schema] = field.max
-      if (typeof field.step === 'number') tally[field.schema] = roundToMultiple(tally[field.schema], field.step)
+      tally[field.schema] = clampNumber(tally[field.schema], field)
     }
   }
 
