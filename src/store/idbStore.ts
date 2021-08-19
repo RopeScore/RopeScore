@@ -37,11 +37,22 @@ class RopeScoreDatabase extends Dexie implements ObjectStores {
       groups: 'id, remote, name, completedAt',
       categories: 'id, groupId',
       judges: '++id, groupId',
-      judgeAssignments: '++id, categoryId, judgeId',
+      judgeAssignments: '++id, categoryId, judgeId, [judgeId+categoryId]',
       devices: 'id, groupId',
       participants: '++id, categoryId',
       entries: 'id, participantId, categoryId, competitionEvent',
-      scoresheets: 'id, judgeId, entryId, deviceId, judgeType'
+      scoresheets: 'id, judgeId, entryId, deviceId, judgeType, [entryId+judgeId]'
+    })
+
+    this.version(2).stores({
+      groups: 'id, remote, name, completedAt',
+      categories: 'id, groupId',
+      judges: '++id, groupId',
+      judgeAssignments: '++id, categoryId, judgeId, [judgeId+categoryId+competitionEvent]',
+      devices: 'id, groupId',
+      participants: '++id, categoryId',
+      entries: 'id, participantId, categoryId, competitionEvent',
+      scoresheets: 'id, judgeId, entryId, deviceId, judgeType, [entryId+judgeId]'
     })
 
     this.groups = this.table('groups')

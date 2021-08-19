@@ -3,7 +3,7 @@ import { db } from '../store/idbStore'
 import { useDexieArray, useDexie } from './dexie'
 
 import type { MaybeRef } from '@vueuse/shared'
-import type { JudgeAssignment, Category, Judge } from '../store/schema'
+import type { JudgeAssignment, Category, Judge, CompetitionEvent } from '../store/schema'
 
 export function useJudgeAssignments (categoryId: MaybeRef<Category['id'] | undefined>) {
   const { read, result } = useDexieArray<JudgeAssignment>({
@@ -20,17 +20,25 @@ export function useJudgeAssignments (categoryId: MaybeRef<Category['id'] | undef
   return result
 }
 
-export function useJudgeAssignment (judgeId: MaybeRef<Judge['id'] | undefined>) {
+export function useJudgeAssignment (
+  judgeIdRef: MaybeRef<Judge['id'] | undefined>,
+  categoryIdRef: MaybeRef<Category['id'] | undefined>,
+  competitionEventRef: MaybeRef<CompetitionEvent | undefined>
+) {
   const { read, result } = useDexie<JudgeAssignment>({
     tableName: 'judgeAssignments',
     async read (assignment) {
-      const key = unref(judgeId)
-      if (typeof key !== 'number') return
-      assignment.value = await db.judgeAssignments.get(key)
+      const judgeId = unref(judgeIdRef)
+      const categoryId = unref(categoryIdRef)
+      const competitionEvent = unref(competitionEventRef)
+      if (typeof judgeId !== 'number' || !categoryId || !competitionEvent) return
+      assignment.value = await db.judgeAssignments.get({ judgeId, categoryId, competitionEvent })
     }
   })
 
-  if (isRef(judgeId)) watch(judgeId, () => read())
+  if (isRef(judgeIdRef)) watch(judgeIdRef, () => read())
+  if (isRef(categoryIdRef)) watch(categoryIdRef, () => read())
+  if (isRef(competitionEventRef)) watch(competitionEventRef, () => read())
 
   return result
 }

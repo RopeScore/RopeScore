@@ -1,6 +1,6 @@
-import { roundTo, calculateTally } from '../helpers'
+import { roundTo, calculateTally, formatFactor } from '../helpers'
 
-import type { Ruleset, JudgeTypeFn, FieldDefinition } from '.'
+import type { Ruleset, JudgeTypeFn, CalcEntryFn, FieldDefinition } from '.'
 import type { CompetitionEvent, ScoreTally } from '../store/schema'
 
 // pres
@@ -14,8 +14,11 @@ const Fd = 0.025
 const Fq = Fd
 const SpeedDed = 10
 
-//
-export function L (l: number): number { return roundTo(0.1 * Math.pow(1.8, l), 2) }
+// Diff
+export function L (l: number): number {
+  if (l === 0) return 0
+  return roundTo(0.1 * Math.pow(1.8, l), 2)
+}
 
 export const ijruAverage = (scores: number[]): number => {
   // sort ascending
@@ -40,6 +43,9 @@ export const ijruAverage = (scores: number[]): number => {
   }
 }
 
+// ======
+// JUDGES
+// ======
 export const speedJudge: JudgeTypeFn = () => {
   const tallyFields: Readonly<FieldDefinition[]> = [{
     schema: 'step',
@@ -211,7 +217,7 @@ export const athletePresentationJudge: JudgeTypeFn = () => {
   }
 }
 
-export const requiredElementsJudge: JudgeTypeFn = (cEvtDef) => {
+export const requiredElementsJudge: JudgeTypeFn = cEvtDef => {
   const isDD = cEvtDef.split('.')[3] === 'dd'
   const hasInteractions = parseInt(cEvtDef.split('.')[5], 10) > (cEvtDef.split('.')[3] === 'dd' ? 3 : 1)
   const tallyFields = [
@@ -337,6 +343,85 @@ export const difficultyJudge: JudgeTypeFn = () => {
   }
 }
 
+// =======
+// ENTRIES
+// =======
+export const calculateSpeedEntry: CalcEntryFn = cEvtDef => rawScsh => {
+  const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
+  // only take the newest scoresheet per judge
+  const scoresheets = rawScsh
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .filter((scsh, idx, arr) =>
+      scsh.competitionEvent === cEvtDef &&
+        idx === arr.findIndex(s => s.judgeId === scsh.judgeId && s.judgeType === scsh.judgeType)
+    )
+
+  console.log(scoresheets)
+
+  const results = scoresheets.map(scsh => judgeTypes[scsh.judgeType].calculateScoresheet(scsh))
+
+  // Calc a
+  const as = results.map(res => res.a).filter(a => typeof a === 'number')
+  const a = ijruAverage(as) ?? 0
+
+  // Calc m
+  const ms = results.map(res => res.m).filter(m => typeof m === 'number')
+  const m = ijruAverage(ms) ?? 0
+
+  return {
+    raw: {
+      a,
+      m,
+      R: roundTo(a - m, 2)
+    },
+    formatted: {
+      a: `${a}`,
+      m: `${m}`,
+      R: `${roundTo(a - m, 2)}`
+    }
+  }
+}
+
+const calculateFreestyleEntry: CalcEntryFn = cEvtDef => rawScsh => {
+  const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
+  // only take the newest scoresheet per judge
+  const scoresheets = rawScsh
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .filter((scsh, idx, arr) =>
+      scsh.competitionEvent === cEvtDef &&
+        idx === arr.findIndex(s => s.judgeId === scsh.judgeId && s.judgeType === scsh.judgeType)
+    )
+
+  const results = scoresheets.map(scsh => judgeTypes[scsh.judgeType].calculateScoresheet(scsh))
+  const raw: { [prop: string]: number } = {}
+  const formatted: { [prop: string]: string } = {}
+
+  for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'Q', 'U'] as const) {
+    const scores = results.map(el => el[scoreType]).filter(el => typeof el === 'number')
+    if (['m', 'v'].includes(scoreType)) raw[scoreType] = roundTo(ijruAverage(scores), 4)
+    else if (['aF', 'aE', 'aM'].includes(scoreType)) raw[scoreType] = roundTo(ijruAverage(scores), 6)
+    else raw[scoreType] = roundTo(ijruAverage(scores), 2) // D, Q, U
+
+    if (typeof raw[scoreType] !== 'number' || isNaN(Number(raw[scoreType]))) raw[scoreType] = (['D', 'U', 'aF', 'aE', 'aM'].includes(scoreType) ? 0 : 1)
+  }
+
+  raw.M = roundTo(-(1 - raw.m - raw.v), 2) // the minus is because they're already prepped to 1- and that needs to be reversed
+
+  raw.P = roundTo(1 + (raw.aE + raw.aF + raw.aM), 2)
+
+  raw.R = roundTo((raw.D - raw.U) * raw.P * raw.M * raw.Q, 2)
+  raw.R = raw.R < 0 ? 0 : raw.R
+
+  // Format
+  formatted.D = `${raw.D}`
+  formatted.U = `-${raw.U}`
+  formatted.P = formatFactor(raw.P)
+  formatted.Q = formatFactor(raw.Q)
+  formatted.M = formatFactor(raw.M)
+  formatted.R = `${raw.R}`
+  return { raw, formatted }
+}
+
 const speedJudges = [speedJudge, speedHeadJudge]
 const freestyleJudges = [routinePresentationJudge, athletePresentationJudge, requiredElementsJudge, difficultyJudge]
 
@@ -346,61 +431,75 @@ const ruleset: Ruleset = {
   competitionEvents: {
     'e.ijru.sp.sr.srss.1.30': {
       name: 'Single Rope Speed Sprint',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srss.1.30'))
+      judges: speedJudges.map(j => j('e.ijru.sp.sr.srss.1.30')),
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')
     },
     'e.ijru.sp.sr.srse.1.180': {
       name: 'Single Rope Speed Endurance',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srse.1.180'))
+      judges: speedJudges.map(j => j('e.ijru.sp.sr.srse.1.180')),
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srse.1.180')
     },
     'e.ijru.sp.sr.srtu.1.0': {
       name: 'Single Rope Triple Unders',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srtu.1.0'))
+      judges: speedJudges.map(j => j('e.ijru.sp.sr.srtu.1.0')),
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srtu.1.0')
     },
     'e.ijru.fs.sr.srif.1.75': {
       name: 'Single Rope Individual Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srif.1.75'))
+      judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srif.1.75')),
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srif.1.75')
     },
 
     'e.ijru.sp.sr.srsr.4.4x30': {
       name: 'Single Rope Speed Relay',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srsr.4.4x30'))
+      judges: speedJudges.map(j => j('e.ijru.sp.sr.srsr.4.4x30')),
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srsr.4.4x30')
     },
     'e.ijru.sp.sr.srdr.2.2x30': {
       name: 'Single Rope Double Unders Relay',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srdr.2.2x30'))
+      judges: speedJudges.map(j => j('e.ijru.sp.sr.srdr.2.2x30')),
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srdr.2.2x30')
     },
     'e.ijru.sp.dd.ddsr.4.4x30': {
       name: 'Double Dutch Speed Relay',
-      judges: speedJudges.map(j => j('e.ijru.sp.dd.ddsr.4.4x30'))
+      judges: speedJudges.map(j => j('e.ijru.sp.dd.ddsr.4.4x30')),
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.dd.ddsr.4.4x30')
     },
     'e.ijru.sp.dd.ddss.3.60': {
       name: 'Double Dutch Speed Sprint',
-      judges: speedJudges.map(j => j('e.ijru.sp.dd.ddss.3.60'))
+      judges: speedJudges.map(j => j('e.ijru.sp.dd.ddss.3.60')),
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.dd.ddss.3.60')
     },
 
     'e.ijru.fs.sr.srpf.2.75': {
       name: 'Single Rope Pair Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srpf.2.75'))
+      judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srpf.2.75')),
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srpf.2.75')
     },
     'e.ijru.fs.sr.srtf.4.75': {
       name: 'Single Rope Team Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srtf.4.75'))
+      judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srtf.4.75')),
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srtf.4.75')
     },
     'e.ijru.fs.dd.ddsf.3.75': {
       name: 'Double Dutch Single Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddsf.3.75'))
+      judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddsf.3.75')),
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddsf.3.75')
     },
     'e.ijru.fs.dd.ddpf.4.75': {
       name: 'Double Dutch Pair Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddpf.4.75'))
+      judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddpf.4.75')),
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddpf.4.75')
     },
     'e.ijru.fs.dd.ddtf.5.90': {
       name: 'Double Dutch Triad Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddtf.5.90'))
+      judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddtf.5.90')),
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddtf.5.90')
     },
     'e.ijru.fs.wh.whpf.2.75': {
       name: 'Wheel Pair Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.wh.whpf.2.75'))
+      judges: freestyleJudges.map(j => j('e.ijru.fs.wh.whpf.2.75')),
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.wh.whpf.2.75')
     }
     // 'e.ijru.fs.ts.sctf.8.300': { name: 'Show Freestyle' }
   }
