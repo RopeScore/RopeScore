@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
+import { useDebounce } from '@vueuse/core'
 import { useRuleset } from '../hooks/rulesets'
 import { useScoresheet } from '../hooks/scoresheets'
 import { isTallyScoresheet } from '../store/schema'
@@ -57,8 +57,9 @@ const judgeTypes = computed(() => Object.fromEntries(
     .map(j => [j.id, j] as const) ?? []
 ))
 
-const setTally = useDebounceFn((schema: string, value: number) => {
+// TODO: debounce/queue changes
+const setTally = (schema: string, value: number) => {
   if (!isTallyScoresheet(scoresheet.value)) return
   scoresheet.value.tally[schema] = value
-}, 250)
+}
 </script>

@@ -45,11 +45,11 @@
 
   <div class="mt-10" />
 
-  <div class="fixed bottom-0 right-0 left-0 h-18 bg-white py-2 border-t">
-    <div class="grid grid-rows-2 grid-cols-[repeat(auto-fill,1fr)] container mx-auto">
+  <div class="fixed bottom-0 right-0 left-0 h-18 bg-white  flex justify-center items-center border-t">
+    <div class="grid grid-rows-2 grid-cols-[repeat(auto-fill,1fr)] container">
       <template v-for="(val, key) of result?.formatted ?? {}" :key="key">
-        <span class="row-start-1 font-bold px-2 border-t border-b">{{ key }}</span>
-        <span class="row-start-2 px-2 border-b">{{ val }}</span>
+        <span class="row-start-1 font-bold px-2 border-b">{{ key }}</span>
+        <span class="row-start-2 px-2">{{ val }}</span>
       </template>
     </div>
   </div>
