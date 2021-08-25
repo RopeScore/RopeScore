@@ -47,9 +47,9 @@
 
   <div class="fixed bottom-0 right-0 left-0 h-18 bg-white  flex justify-center items-center border-t">
     <div class="grid grid-rows-2 grid-cols-[repeat(auto-fill,1fr)] container">
-      <template v-for="(val, key) of result?.formatted ?? {}" :key="key">
-        <span class="row-start-1 font-bold px-2 border-b">{{ key }}</span>
-        <span class="row-start-2 px-2">{{ val }}</span>
+      <template v-for="col of previewTable ?? []" :key="col.key">
+        <span class="row-start-1 font-bold px-2 border-b">{{ col.text }}</span>
+        <span v-if="result" class="row-start-2 px-2">{{ col.formatter?.(result.result[col.key]) ?? result.result[col.key] }}</span>
       </template>
     </div>
   </div>
@@ -74,7 +74,7 @@ const route = useRoute()
 const router = useRouter()
 const category = useCategory(route.params.categoryId as string)
 const entry = useEntry(route.params.entryId as string)
-const ruleset = computed(() => useRuleset(category.value?.ruleset).ruleset.value)
+const ruleset = computed(() => useRuleset(category.value?.ruleset).value)
 const participant = computed(() => useParticipant(entry.value?.participantId))
 const judgeAssignments = useJudgeAssignments(route.params.categoryId as string)
 const scoresheets = useScoresheets(route.params.entryId as string, undefined)
@@ -86,7 +86,12 @@ const competitionEvent = computed(() => {
 
 const result = computed(() => {
   if (!entry.value) return
-  return ruleset.value?.competitionEvents[entry.value.competitionEvent]?.calculateEntry(scoresheets.value)
+  return ruleset.value?.competitionEvents[entry.value.competitionEvent]?.calculateEntry(entry.value, scoresheets.value)
+})
+
+const previewTable = computed(() => {
+  if (!entry.value) return
+  return ruleset.value?.competitionEvents[entry.value.competitionEvent]?.previewTable
 })
 
 function goBack () {
@@ -102,7 +107,10 @@ function toggleDNS () {
 function toggleLock () {
   if (!entry.value) return
   if (entry.value.lockedAt) entry.value.lockedAt = null
-  else entry.value.lockedAt = Date.now()
+  else {
+    entry.value.lockedAt = Date.now()
+    router.go(-1)
+  }
 }
 
 function filterAssignments (assignments: JudgeAssignment[] | undefined, judgeType: string, entry: Entry | undefined) {

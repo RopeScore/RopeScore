@@ -163,6 +163,7 @@ describe('ijru@2.0.0', () => {
         tScsh({ step: 12 }, 'S', 'e.ijru.sp.sr.srss.1.30')
       ]
       assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')(scoresheets), {
+        entryId: 'test-entry',
         raw: {
           a: 10,
           m: 10,
@@ -200,6 +201,7 @@ describe('ijru@2.0.0', () => {
         }
       ]
       assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')(scoresheets), {
+        entryId: 'a',
         raw: {
           a: 10,
           m: 0,

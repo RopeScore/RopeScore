@@ -1,23 +1,54 @@
 import { isTeam, isTallyScoresheet, isMarkScoresheet } from './store/schema'
 
 import type { Participant, CompetitionEvent, ScoreTally, Scoresheet } from './store/schema'
-import type { FieldDefinition } from './rules'
+import type { FieldDefinition, EntryResult } from './rules'
 
+const locales = ['en-SE', 'en-AU', 'en-GB']
+
+/**
+ * Generates a comma separated list of members of a team given a Participant
+ */
 export function memberNames (participant?: Participant): string {
   if (!isTeam(participant)) return ''
   return participant.members?.map(psn => psn.name + (psn.ijruId ? ` (${psn.ijruId})` : '')).join(', ') ?? ''
 }
 
+/**
+ * Removes characters that are invalid in filenames
+ */
+export function nameCleaner (str: string): string {
+  return str.replace(/[#%&{}\\<>*?/$!'":@|\s]/gi, '_')
+}
+
+/**
+ * Gets the 4-character abbreviation of a competition event definition
+ */
 export function getAbbr (cEvtDef: CompetitionEvent) {
   return cEvtDef.split('.')[4]
 }
 
+/**
+ * Returns whether a competition event definition identified an overall
+ */
+export function isOverall (cEvtDef: CompetitionEvent) {
+  return cEvtDef.split('.')[2] === 'oa'
+}
+
+/**
+ * prepends a number with 0 until it is the specified length
+ */
 export function leftFillNum (num: number, width: number): string {
   return num
     .toString()
     .padStart(width, '0')
 }
 
+/**
+ * Rounds a number to the closest multiple of the specified multiple.
+ *
+ * For example if the multiple is 0.5 and the input is 1.25 the number will be
+ * rounded to 1.5
+ */
 export function roundToMultiple (num: number, multiple: number): number {
   const resto = num % multiple
   if (resto <= multiple / 2) {
@@ -27,6 +58,9 @@ export function roundToMultiple (num: number, multiple: number): number {
   }
 }
 
+/**
+ * Rounds a number to the specified number of digits
+ */
 export function roundTo (n: number, digits: number = 0): number {
   const multiplicator = Math.pow(10, digits)
   n = n * multiplicator
@@ -35,6 +69,21 @@ export function roundTo (n: number, digits: number = 0): number {
   return test
 }
 
+/**
+ * Returns a function that will round a number to the number of digits passed
+ * to the outer function. This also casts the result to a string
+ *
+ * Useful for creating formatters for table headers
+ */
+export function roundToCurry (digits: number = 0) {
+  return (n: number) => roundTo(n, digits).toFixed(digits)
+}
+
+/**
+ * Clamps a number to within the specified max and min,
+ * if a step size is provided, the number will be rounded to the closest
+ * multiple of this step size.
+ */
 export function clampNumber (n: number, { min, max, step }: { min?: number, max?: number, step?: number }) {
   let num = n
   if (typeof min === 'number' && num < min) num = min
@@ -43,6 +92,13 @@ export function clampNumber (n: number, { min, max, step }: { min?: number, max?
   return num
 }
 
+/**
+ * Formats a multiplication factor into a percentage adjustment string.
+ * For example:
+ * - a multiplication factor of 1    (100%) results in an adjustment of  ±0 %
+ * - a multiplication factor of 1.35 (135%) results in an adjustment of +35 %
+ * - a multiplication factor of 0.77 ( 77%) results in an adjustment of -23 %
+ */
 export function formatFactor (value: number): string {
   if (typeof value !== 'number' || isNaN(value)) return ''
   else if (value === 1) return '±0 %'
@@ -50,15 +106,38 @@ export function formatFactor (value: number): string {
   else return `-${roundTo((1 - value) * 100, 0)} %`
 }
 
-const dateFormatter = Intl.DateTimeFormat(['en-SE', 'en-AU', 'en-GB'], {
+const dateFormatter = Intl.DateTimeFormat(locales, {
   dateStyle: 'medium',
   timeStyle: 'medium',
   hour12: false
 })
-export function formatDate (timestamp: number): string {
+/**
+ * Formats a date and time into a human readable format, in the en-SE locale
+ * this results in something like 22 Aug 2021, 21:08:27
+ */
+export function formatDate (timestamp: number | Date): string {
   return dateFormatter.format(timestamp)
 }
 
+const shortDateFormatter = Intl.DateTimeFormat(locales, {
+  dateStyle: 'short'
+})
+/**
+ * Formats a date, in the en-SE locale this results in YYYY-MM-DD
+ */
+export function formatShortDate (value: number | Date): string {
+  return shortDateFormatter.format(value)
+}
+
+/**
+ * Takes a scoresheet and returns a tally
+ *
+ * if a MarkScoresheet is provided the marks array will be tallied taking undos
+ * into account.
+ *
+ * Each value of the tally will also be clamped to the specified max, min and
+ * step size for that field schema.
+ */
 export function calculateTally (scoresheet: Scoresheet, tallyFields?: Readonly<FieldDefinition[]>): ScoreTally {
   const tally: ScoreTally = isTallyScoresheet(scoresheet) ? scoresheet.tally : {}
   const allowedSchemas = tallyFields?.map(f => f.schema)
@@ -90,4 +169,37 @@ export function calculateTally (scoresheet: Scoresheet, tallyFields?: Readonly<F
   }
 
   return tally
+}
+
+/**
+ * Filters an array of scoresheets returning only scoresheets for the specified
+ * competition event and only the newest scoresheet for each judge assignment.
+ *
+ * For example if J001 is judge type S and has submitted a MarkScoresheet at
+ * timestamp 1 and a TallyScoresheet at timestamp 5, only the TallyScoresheet
+ * will be left
+ */
+export function filterLatestScoresheets (scoresheets: Scoresheet[], cEvtDef: CompetitionEvent) {
+  return scoresheets
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .filter((scsh, idx, arr) =>
+      scsh.competitionEvent === cEvtDef &&
+        idx === arr.findIndex(s => s.judgeId === scsh.judgeId && s.judgeType === scsh.judgeType)
+    )
+}
+
+/**
+ * Filters an array of all results into only results of component entries where
+ * that participant has results for every competition event of competitionEvents
+ */
+export function filterParticipatingInAll (results: EntryResult[], competitionEvents: CompetitionEvent[]) {
+  const participants = [...new Set(results.map(res => res.participantId))]
+    .filter(pId => competitionEvents.every(cEvt =>
+      results.find(res => res.participantId === pId && res.competitionEvent === cEvt)
+    ))
+
+  return results.filter(res =>
+    participants.includes(res.participantId) &&
+    competitionEvents.includes(res.competitionEvent)
+  )
 }

@@ -280,7 +280,7 @@ function changeType (event: any) {
 
 const ruleset = computed(() => {
   if (!category.value) return null
-  return useRuleset(category.value.ruleset).ruleset.value
+  return useRuleset(category.value.ruleset).value
 })
 
 const clubNames = computed(() => {
@@ -301,6 +301,8 @@ function toggleCEvt (cEvtDef: CompetitionEvent) {
   const existsIdx = category.value.competitionEvents.indexOf(cEvtDef)
   if (existsIdx > -1) category.value.competitionEvents.splice(existsIdx, 1)
   else category.value.competitionEvents.push(cEvtDef)
+
+  // TODO: sort
 }
 
 const memberRegex = /^([^(]+)(?:\((.*)\))?$/

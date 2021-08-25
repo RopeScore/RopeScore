@@ -42,7 +42,7 @@ const props = defineProps({
 const scoresheet = useScoresheet(props.scoresheetId)
 const judgeType = computed(() =>
   useRuleset(props.ruleset)
-    .ruleset.value?.competitionEvents[props.competitionEvent]?.judges
+    .value?.competitionEvents[props.competitionEvent]?.judges
     .find(j => j.id === props.judgeType)
 )
 

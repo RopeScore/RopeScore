@@ -1,6 +1,11 @@
-import { roundTo, calculateTally, formatFactor } from '../helpers'
-
-import type { Ruleset, JudgeTypeFn, CalcEntryFn, FieldDefinition } from '.'
+import type {
+  CalcEntryFn, FieldDefinition, JudgeTypeFn, RankEntriesFn,
+  RankOverallFn, Ruleset, TableHeader, TableHeaderGroup, EntryResult
+} from '.'
+import {
+  calculateTally, filterLatestScoresheets, formatFactor, roundTo,
+  roundToCurry, filterParticipatingInAll
+} from '../helpers'
 import type { CompetitionEvent, ScoreTally } from '../store/schema'
 
 // pres
@@ -346,17 +351,12 @@ export const difficultyJudge: JudgeTypeFn = () => {
 // =======
 // ENTRIES
 // =======
-export const calculateSpeedEntry: CalcEntryFn = cEvtDef => rawScsh => {
+export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
   const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
   // only take the newest scoresheet per judge
-  const scoresheets = rawScsh
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .filter((scsh, idx, arr) =>
-      scsh.competitionEvent === cEvtDef &&
-        idx === arr.findIndex(s => s.judgeId === scsh.judgeId && s.judgeType === scsh.judgeType)
-    )
+  const scoresheets = filterLatestScoresheets(rawScsh, cEvtDef)
 
-  console.log(scoresheets)
+  if (!scoresheets.length) return
 
   const results = scoresheets.map(scsh => judgeTypes[scsh.judgeType].calculateScoresheet(scsh))
 
@@ -368,33 +368,38 @@ export const calculateSpeedEntry: CalcEntryFn = cEvtDef => rawScsh => {
   const ms = results.map(res => res.m).filter(m => typeof m === 'number')
   const m = ijruAverage(ms) ?? 0
 
+  // calc withinThree
+  const minDiff = Math.min(...results
+    .map(res => res.a)
+    .sort((a, b) => a - b)
+    .flatMap((res, idx, arr) => arr[idx + 1] - res)
+    .filter(n => !Number.isNaN(n)))
+  const withinThree = minDiff <= 3 ? 1 : 0
+
   return {
-    raw: {
+    entryId: entry.id,
+    participantId: entry.participantId,
+    competitionEvent: cEvtDef,
+    result: {
       a,
       m,
-      R: roundTo(a - m, 2)
-    },
-    formatted: {
-      a: `${a}`,
-      m: `${m}`,
-      R: `${roundTo(a - m, 2)}`
+      R: roundTo(a - m, 2),
+
+      withinThree
     }
   }
 }
 
-const calculateFreestyleEntry: CalcEntryFn = cEvtDef => rawScsh => {
+export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
   const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
   // only take the newest scoresheet per judge
-  const scoresheets = rawScsh
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .filter((scsh, idx, arr) =>
-      scsh.competitionEvent === cEvtDef &&
-        idx === arr.findIndex(s => s.judgeId === scsh.judgeId && s.judgeType === scsh.judgeType)
-    )
+  const scoresheets = filterLatestScoresheets(rawScsh, cEvtDef)
+
+  if (!scoresheets.length) return
 
   const results = scoresheets.map(scsh => judgeTypes[scsh.judgeType].calculateScoresheet(scsh))
   const raw: { [prop: string]: number } = {}
-  const formatted: { [prop: string]: string } = {}
+  // const formatted: { [prop: string]: string } = {}
 
   for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'Q', 'U'] as const) {
     const scores = results.map(el => el[scoreType]).filter(el => typeof el === 'number')
@@ -412,18 +417,270 @@ const calculateFreestyleEntry: CalcEntryFn = cEvtDef => rawScsh => {
   raw.R = roundTo((raw.D - raw.U) * raw.P * raw.M * raw.Q, 2)
   raw.R = raw.R < 0 ? 0 : raw.R
 
-  // Format
-  formatted.D = `${raw.D}`
-  formatted.U = `-${raw.U}`
-  formatted.P = formatFactor(raw.P)
-  formatted.Q = formatFactor(raw.Q)
-  formatted.M = formatFactor(raw.M)
-  formatted.R = `${raw.R}`
-  return { raw, formatted }
+  return {
+    entryId: entry.id,
+    participantId: entry.participantId,
+    competitionEvent: cEvtDef,
+    result: raw
+  }
 }
 
+// =======
+// RANKING
+// =======
+export const rankFreestyleEntries: RankEntriesFn = cEvtDef => res => {
+  let results = [...res]
+  // const tiePriority = ['R', 'M', 'Q', 'P', 'U', 'D'] as const
+  results.sort(function (a, b) {
+    if (a.result.R !== b.result.R) return (b.result.R ?? 0) - (a.result.R ?? 0) // descending 100 wins over 50
+    if (a.result.M !== b.result.M) return (b.result.M ?? 1) - (a.result.M ?? 1) // descending *1 wins over *.9
+    if (a.result.Q !== b.result.Q) return (b.result.Q ?? 1) - (a.result.Q ?? 1) // descending *1 wins over *.9
+    if (a.result.P !== b.result.P) return (b.result.P ?? 1) - (a.result.P ?? 1) // descending 1.35 wins over 0.95
+    if (a.result.U !== b.result.U) return (a.result.U ?? 0) - (b.result.U ?? 0) // ascending 0 wins over 5
+    if (a.result.D !== b.result.D) return (b.result.D ?? 0) - (a.result.D ?? 0) // descending 100 wins over 50
+    return 0
+  })
+
+  const high = results.length > 0 ? results[0].result.R ?? 0 : 0
+  const low = results.length > 1 ? results[results.length - 1].result.R ?? 0 : 0
+
+  results = results.map((el, idx, arr) => ({
+    ...el,
+    result: {
+      ...el.result,
+      S: arr.findIndex(score =>
+        score.result.R === el.result.R &&
+        score.result.M === el.result.M &&
+        score.result.Q === el.result.Q &&
+        score.result.P === el.result.P &&
+        score.result.U === el.result.U &&
+        score.result.D === el.result.D
+      ) + 1,
+      N: roundTo((((100 - 1) * ((el.result.R ?? 0) - low)) / ((high - low) !== 0 ? high - low : 1)) + 1, 2)
+    }
+  }))
+
+  return results
+}
+
+export const rankSpeedEntries: RankEntriesFn = cEvtDef => res => {
+  let results = [...res]
+  results.sort(function (a, b) {
+    return (b.result.R ?? 0) - (a.result.R ?? 0) // sort descending
+  })
+
+  const high = results.length > 0 ? results[0].result.R ?? 0 : 0
+  const low = results.length > 1 ? results[results.length - 1].result.R ?? 0 : 0
+
+  results = results.map((el, _, arr) => ({
+    ...el,
+    result: {
+      ...el.result,
+      S: arr.findIndex(obj => obj.result.R === el.result.R) + 1,
+      N: roundTo((((100 - 1) * ((el.result.R ?? 0) - low)) / ((high - low !== 0) ? high - low : 1)) + 1, 2)
+    }
+  }))
+
+  return results
+}
+
+export const rankOverall: RankOverallFn = oEvtDef => res => {
+  const overallObj = ruleset.overalls[oEvtDef]
+  if (!overallObj) throw new TypeError('Invalid Overall Event Definition provided')
+  const components: Partial<Record<CompetitionEvent, EntryResult[]>> = {}
+
+  const results = filterParticipatingInAll(res, overallObj.competitionEvents.map(([cEvtDef]) => cEvtDef))
+  const participantIds = [...new Set(results.map(r => r.participantId))]
+
+  for (const [cEvtDef] of overallObj.competitionEvents) {
+    const eventObj = ruleset.competitionEvents[cEvtDef]
+    if (!eventObj) {
+      console.warn('Component event', cEvtDef, 'for overall', oEvtDef, 'not found')
+      continue
+    }
+    const ranked = eventObj.rankEntries(results.filter(result => result.competitionEvent === cEvtDef))
+
+    components[cEvtDef] = ranked
+  }
+
+  const ranked = participantIds.map(participantId => {
+    const cRes = overallObj.competitionEvents
+      .map(([cEvt]) => components[cEvt]?.find(r => r.participantId === participantId))
+      .filter(r => !!r) as EntryResult[]
+
+    const R = roundTo(cRes.reduce((acc, curr) =>
+      acc + (
+        (curr.result.R ?? 0) *
+        (overallObj.competitionEvents.find(([cEvt]) => cEvt === curr.competitionEvent)?.[1].resultMultiplier ?? 1)
+      )
+    , 0), 4)
+    const T = cRes.reduce((acc, curr) =>
+      acc + (
+        (curr.result.S ?? 0) *
+        (overallObj.competitionEvents.find(([cEvt]) => cEvt === curr.competitionEvent)?.[1].rankMultiplier ?? 1)
+      )
+    , 0)
+    const B = cRes.reduce((acc, curr) => acc + curr.result.N, 0)
+
+    return {
+      participantId,
+      competitionEvent: oEvtDef,
+      result: { R, T, B, S: 0 },
+      componentResults: Object.fromEntries(cRes.map(r => [r.competitionEvent, r]))
+    }
+  })
+
+  ranked.sort((a, b) => {
+    if (a.result.T !== b.result.T) return a.result.T - b.result.T
+    return b.result.B - a.result.B
+  })
+
+  for (let idx = 0; idx < ranked.length; idx++) {
+    ranked[idx].result.S = idx + 1
+  }
+
+  return ranked
+}
+
+// ======
+// TABLES
+// ======
+export const speedPreviewTableHeaders: TableHeader[] = [
+  { text: 'Steps (a)', key: 'a' },
+  { text: 'Deduc (m)', key: 'm' },
+  { text: 'Result (R)', key: 'R' },
+
+  { text: 'Reskip Allowed', key: 'withinThree', formatter: (n) => n === 1 ? 'No' : 'Yes' }
+]
+
+export const freestylePreviewTableHeaders: TableHeader[] = [
+  { text: 'Diff (D)', key: 'D', formatter: roundToCurry(2) },
+  { text: 'Rep  (U)', key: 'U', formatter: (n) => `-${roundTo(n, 2)}` },
+  { text: 'Pres (P)', key: 'P', formatter: formatFactor },
+  { text: 'Req. El (Q)', key: 'Q', formatter: formatFactor },
+  { text: 'Deduc (M)', key: 'M', formatter: formatFactor },
+  { text: 'Result (R)', key: 'R', formatter: roundToCurry(2) }
+]
+
+export const speedResultTableHeaders: TableHeader[] = [
+  { text: 'Score', key: 'R' },
+  { text: 'Rank', key: 'S', color: 'red' }
+]
+
+export const freestyleResultTableHeaders: TableHeader[] = [
+  { text: 'Diff', key: 'D', color: 'gray', formatter: roundToCurry(2) },
+  { text: 'Rep', key: 'U', color: 'gray', formatter: (n) => `-${roundTo(n, 2)}` },
+  { text: 'Pres', key: 'P', color: 'gray', formatter: formatFactor },
+  { text: 'Req. El', key: 'Q', color: 'gray', formatter: formatFactor },
+  { text: 'Deduc', key: 'M', color: 'gray', formatter: formatFactor },
+
+  { text: 'Score', key: 'R', formatter: roundToCurry(2) },
+  { text: 'Rank', key: 'S', color: 'red' }
+]
+
+export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: TableHeaderGroup[][], headers: TableHeader[] } = cEvtDefs => {
+  const groups: TableHeaderGroup[][] = []
+
+  const srEvts = cEvtDefs.filter(cEvt => cEvt.split('.')[3] === 'sr')
+  const ddEvts = cEvtDefs.filter(cEvt => cEvt.split('.')[3] === 'dd')
+
+  const disciplineGroup: TableHeaderGroup[] = []
+
+  if (srEvts.length) {
+    disciplineGroup.push({
+      text: 'Single Rope',
+      key: 'sr',
+      colspan: srEvts.length * 2
+    })
+  }
+
+  if (ddEvts.length) {
+    disciplineGroup.push({
+      text: 'Double Dutch',
+      key: 'dd',
+      colspan: ddEvts.length * 2
+    })
+  }
+
+  disciplineGroup.push({
+    text: 'Overall',
+    key: 'oa',
+    colspan: 2,
+    rowspan: 2
+  })
+
+  groups.push(disciplineGroup)
+
+  const evtGroup: TableHeaderGroup[] = []
+
+  for (const cEvt of [...srEvts, ...ddEvts]) {
+    evtGroup.push({
+      text: cEvtToName[cEvt].replace(/^(Double Dutch|Single Rope) /, ''),
+      key: cEvt,
+      colspan: 2
+    })
+  }
+
+  groups.push(evtGroup)
+
+  const headers: TableHeader[] = []
+
+  for (const cEvt of [...srEvts, ...ddEvts]) {
+    headers.push({
+      text: 'Score',
+      key: 'R',
+      component: cEvt
+    }, {
+      text: 'Rank',
+      key: 'S',
+      component: cEvt,
+      color: 'red'
+    })
+  }
+
+  headers.push({
+    text: 'Rank Sum',
+    key: 'T',
+    color: 'green'
+  }, {
+    text: 'Rank',
+    key: 'S',
+    color: 'red'
+  })
+
+  return {
+    groups,
+    headers
+  }
+}
+
+// ==========
+// DEFINITION
+// ==========
 const speedJudges = [speedJudge, speedHeadJudge]
 const freestyleJudges = [routinePresentationJudge, athletePresentationJudge, requiredElementsJudge, difficultyJudge]
+
+const cEvtToName: Record<CompetitionEvent, string> = {
+  'e.ijru.sp.sr.srss.1.30': 'Single Rope Speed Sprint',
+  'e.ijru.sp.sr.srse.1.180': 'Single Rope Speed Endurance',
+  'e.ijru.sp.sr.srtu.1.0': 'Single Rope Triple Unders',
+  'e.ijru.fs.sr.srif.1.75': 'Single Rope Individual Freestyle',
+  'e.ijru.sp.sr.srsr.4.4x30': 'Single Rope Speed Relay',
+  'e.ijru.sp.sr.srdr.2.2x30': 'Single Rope Double Unders Relay',
+  'e.ijru.sp.dd.ddsr.4.4x30': 'Double Dutch Speed Relay',
+  'e.ijru.sp.dd.ddss.3.60': 'Double Dutch Speed Sprint',
+  'e.ijru.fs.sr.srpf.2.75': 'Single Rope Pair Freestyle',
+  'e.ijru.fs.sr.srtf.4.75': 'Single Rope Team Freestyle',
+  'e.ijru.fs.dd.ddsf.3.75': 'Double Dutch Single Freestyle',
+  'e.ijru.fs.dd.ddpf.4.75': 'Double Dutch Pair Freestyle',
+  'e.ijru.fs.dd.ddtf.5.90': 'Double Dutch Triad Freestyle',
+  'e.ijru.fs.wh.whpf.2.75': 'Wheel Pair Freestyle',
+  'e.ijru.fs.ts.sctf.8.300': 'Show Freestyle',
+  'e.ijru.oa.sr.isro.1.0': 'Individual Single Rope Overall',
+  'e.ijru.oa.sr.tsro.4.0': 'Team Single Rope Overall',
+  'e.ijru.oa.dd.tddo.4.0': 'Team Double Dutch Overall',
+  'e.ijru.oa.xd.tcaa.4.0': 'Team All-Around (Cross-Discipline)'
+}
 
 const ruleset: Ruleset = {
   id: 'ijru@2.0.0',
@@ -432,76 +689,192 @@ const ruleset: Ruleset = {
     'e.ijru.sp.sr.srss.1.30': {
       name: 'Single Rope Speed Sprint',
       judges: speedJudges.map(j => j('e.ijru.sp.sr.srss.1.30')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srss.1.30'),
+      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srss.1.30'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: speedResultTableHeaders
     },
     'e.ijru.sp.sr.srse.1.180': {
       name: 'Single Rope Speed Endurance',
       judges: speedJudges.map(j => j('e.ijru.sp.sr.srse.1.180')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srse.1.180')
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srse.1.180'),
+      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srse.1.180'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: speedResultTableHeaders
     },
     'e.ijru.sp.sr.srtu.1.0': {
       name: 'Single Rope Triple Unders',
       judges: speedJudges.map(j => j('e.ijru.sp.sr.srtu.1.0')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srtu.1.0')
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srtu.1.0'),
+      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srtu.1.0'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: speedResultTableHeaders
     },
     'e.ijru.fs.sr.srif.1.75': {
       name: 'Single Rope Individual Freestyle',
       judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srif.1.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srif.1.75')
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srif.1.75'),
+      rankEntries: rankFreestyleEntries('e.ijru.fs.sr.srif.1.75'),
+      previewTable: freestylePreviewTableHeaders,
+      resultTable: freestyleResultTableHeaders
     },
 
     'e.ijru.sp.sr.srsr.4.4x30': {
       name: 'Single Rope Speed Relay',
       judges: speedJudges.map(j => j('e.ijru.sp.sr.srsr.4.4x30')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srsr.4.4x30')
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srsr.4.4x30'),
+      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srsr.4.4x30'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: speedResultTableHeaders
     },
     'e.ijru.sp.sr.srdr.2.2x30': {
       name: 'Single Rope Double Unders Relay',
       judges: speedJudges.map(j => j('e.ijru.sp.sr.srdr.2.2x30')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srdr.2.2x30')
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srdr.2.2x30'),
+      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srdr.2.2x30'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: speedResultTableHeaders
     },
     'e.ijru.sp.dd.ddsr.4.4x30': {
       name: 'Double Dutch Speed Relay',
       judges: speedJudges.map(j => j('e.ijru.sp.dd.ddsr.4.4x30')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.dd.ddsr.4.4x30')
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.dd.ddsr.4.4x30'),
+      rankEntries: rankSpeedEntries('e.ijru.sp.dd.ddsr.4.4x30'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: speedResultTableHeaders
     },
     'e.ijru.sp.dd.ddss.3.60': {
       name: 'Double Dutch Speed Sprint',
       judges: speedJudges.map(j => j('e.ijru.sp.dd.ddss.3.60')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.dd.ddss.3.60')
+      calculateEntry: calculateSpeedEntry('e.ijru.sp.dd.ddss.3.60'),
+      rankEntries: rankSpeedEntries('e.ijru.sp.dd.ddss.3.60'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: speedResultTableHeaders
     },
 
     'e.ijru.fs.sr.srpf.2.75': {
       name: 'Single Rope Pair Freestyle',
       judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srpf.2.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srpf.2.75')
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srpf.2.75'),
+      rankEntries: rankFreestyleEntries('e.ijru.fs.sr.srpf.2.75'),
+      previewTable: freestylePreviewTableHeaders,
+      resultTable: freestyleResultTableHeaders
     },
     'e.ijru.fs.sr.srtf.4.75': {
       name: 'Single Rope Team Freestyle',
       judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srtf.4.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srtf.4.75')
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srtf.4.75'),
+      rankEntries: rankFreestyleEntries('e.ijru.fs.sr.srtf.4.75'),
+      previewTable: freestylePreviewTableHeaders,
+      resultTable: freestyleResultTableHeaders
     },
     'e.ijru.fs.dd.ddsf.3.75': {
       name: 'Double Dutch Single Freestyle',
       judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddsf.3.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddsf.3.75')
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddsf.3.75'),
+      rankEntries: rankFreestyleEntries('e.ijru.fs.dd.ddsf.3.75'),
+      previewTable: freestylePreviewTableHeaders,
+      resultTable: freestyleResultTableHeaders
     },
     'e.ijru.fs.dd.ddpf.4.75': {
       name: 'Double Dutch Pair Freestyle',
       judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddpf.4.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddpf.4.75')
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddpf.4.75'),
+      rankEntries: rankFreestyleEntries('e.ijru.fs.dd.ddpf.4.75'),
+      previewTable: freestylePreviewTableHeaders,
+      resultTable: freestyleResultTableHeaders
     },
     'e.ijru.fs.dd.ddtf.5.90': {
       name: 'Double Dutch Triad Freestyle',
       judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddtf.5.90')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddtf.5.90')
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddtf.5.90'),
+      rankEntries: rankFreestyleEntries('e.ijru.fs.dd.ddtf.5.90'),
+      previewTable: freestylePreviewTableHeaders,
+      resultTable: freestyleResultTableHeaders
     },
     'e.ijru.fs.wh.whpf.2.75': {
       name: 'Wheel Pair Freestyle',
       judges: freestyleJudges.map(j => j('e.ijru.fs.wh.whpf.2.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.wh.whpf.2.75')
+      calculateEntry: calculateFreestyleEntry('e.ijru.fs.wh.whpf.2.75'),
+      rankEntries: rankFreestyleEntries('e.ijru.fs.wh.whpf.2.75'),
+      previewTable: freestylePreviewTableHeaders,
+      resultTable: freestyleResultTableHeaders
     }
     // 'e.ijru.fs.ts.sctf.8.300': { name: 'Show Freestyle' }
+  },
+  overalls: {
+    'e.ijru.oa.sr.isro.1.0': {
+      name: 'Individual Single Rope Overall',
+      competitionEvents: [
+        ['e.ijru.sp.sr.srss.1.30', {}],
+        ['e.ijru.sp.sr.srse.1.180', {}],
+        ['e.ijru.fs.sr.srif.1.75', { rankMultiplier: 2 }]
+      ],
+      resultTable: overallTableFactory([
+        'e.ijru.sp.sr.srss.1.30',
+        'e.ijru.sp.sr.srse.1.180',
+        'e.ijru.fs.sr.srif.1.75'
+      ]),
+      rankOverall: rankOverall('e.ijru.oa.sr.isro.1.0')
+    },
+    'e.ijru.oa.sr.tsro.4.0': {
+      name: 'Team Single Rope Overall',
+      competitionEvents: [
+        ['e.ijru.sp.sr.srdr.2.2x30', {}],
+        ['e.ijru.sp.sr.srsr.4.4x30', {}],
+        ['e.ijru.fs.sr.srpf.2.75', {}],
+        ['e.ijru.fs.sr.srtf.4.75', {}]
+      ],
+      resultTable: overallTableFactory([
+        'e.ijru.sp.sr.srdr.2.2x30',
+        'e.ijru.sp.sr.srsr.4.4x30',
+        'e.ijru.fs.sr.srpf.2.75',
+        'e.ijru.fs.sr.srtf.4.75'
+      ]),
+      rankOverall: rankOverall('e.ijru.oa.sr.tsro.4.0')
+    },
+    'e.ijru.oa.dd.tddo.4.0': {
+      name: 'Team Double Dutch Overall',
+      competitionEvents: [
+        ['e.ijru.sp.dd.ddss.3.60', {}],
+        ['e.ijru.sp.dd.ddsr.4.4x30', {}],
+        ['e.ijru.fs.dd.ddsf.3.75', {}],
+        ['e.ijru.fs.dd.ddpf.4.75', {}]
+      ],
+      resultTable: overallTableFactory([
+        'e.ijru.sp.dd.ddss.3.60',
+        'e.ijru.sp.dd.ddsr.4.4x30',
+        'e.ijru.fs.dd.ddsf.3.75',
+        'e.ijru.fs.dd.ddpf.4.75'
+      ]),
+      rankOverall: rankOverall('e.ijru.oa.dd.tddo.4.0')
+    },
+    'e.ijru.oa.xd.tcaa.4.0': {
+      name: 'Team All-Around (Cross-Discipline)',
+      competitionEvents: [
+        ['e.ijru.sp.sr.srdr.2.2x30', {}],
+        ['e.ijru.sp.sr.srsr.4.4x30', {}],
+        ['e.ijru.fs.sr.srpf.2.75', {}],
+        ['e.ijru.fs.sr.srtf.4.75', {}],
+
+        ['e.ijru.sp.dd.ddss.3.60', {}],
+        ['e.ijru.sp.dd.ddsr.4.4x30', {}],
+        ['e.ijru.fs.dd.ddsf.3.75', {}],
+        ['e.ijru.fs.dd.ddpf.4.75', {}]
+      ],
+      resultTable: overallTableFactory([
+        'e.ijru.sp.sr.srdr.2.2x30',
+        'e.ijru.sp.sr.srsr.4.4x30',
+        'e.ijru.fs.sr.srpf.2.75',
+        'e.ijru.fs.sr.srtf.4.75',
+
+        'e.ijru.sp.dd.ddss.3.60',
+        'e.ijru.sp.dd.ddsr.4.4x30',
+        'e.ijru.fs.dd.ddsf.3.75',
+        'e.ijru.fs.dd.ddpf.4.75'
+      ]),
+      rankOverall: rankOverall('e.ijru.oa.xd.tcaa.4.0')
+    }
   }
 }
 

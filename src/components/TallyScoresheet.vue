@@ -53,7 +53,7 @@ const props = defineProps({
 const scoresheet = useScoresheet(props.scoresheetId)
 const judgeTypes = computed(() => Object.fromEntries(
   useRuleset(props.ruleset)
-    .ruleset.value?.competitionEvents[props.competitionEvent]?.judges
+    .value?.competitionEvents[props.competitionEvent]?.judges
     .map(j => [j.id, j] as const) ?? []
 ))
 
