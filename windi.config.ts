@@ -16,9 +16,13 @@ export default defineConfig({
           lineHeight: '1.75rem',
           fontWeight: '600'
         },
+        ol: {
+          listStyleType: 'decimal',
+          marginLeft: '1.5rem'
+        },
         ul: {
           listStyleType: 'disc',
-          marginLeft: '1rem'
+          marginLeft: '1.5rem'
         },
         'td, th': {
           borderWidth: '1px',

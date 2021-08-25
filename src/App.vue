@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-rows-[3.5rem,auto,2rem] grid-cols-[auto,1fr] min-h-[100vh] w-full">
-    <header class="col-span-2 bg-gray-100 flex justify-between items-center px-4 sticky top-0 z-1000">
+    <header class="noprint col-span-2 bg-gray-100 flex justify-between items-center px-4 sticky top-0 z-1000">
       <router-link to="/">
         <span class="text-2xl font-semibold">RopeScore</span>
         <span v-if="system.computerName" class="text-2xl font-light">&nbsp;&ndash; {{ system.computerName }}</span>
@@ -24,11 +24,12 @@
         </button-link>
       </nav>
     </header>
-    <aside />
+    <!-- TODO: sidebar -->
+    <aside class="noprint" />
     <main class="px-2 py-4">
       <router-view />
     </main>
-    <footer class="flex col-span-2 justify-between items-center bg-gray-100 px-4">
+    <footer class="noprint flex col-span-2 justify-between items-center bg-gray-100 px-4">
       <span>&copy; Swantzter 2017-2021</span>
       <span>{{ version }}</span>
     </footer>
@@ -48,33 +49,31 @@ const system = useSystem()
 </script>
 
 <style>
-table tr:nth-child(even) {
+table tbody tr:nth-child(even) {
   @apply bg-gray-100;
 }
 
 .page {
   width: 277mm !important;
   height: 190mm !important;
-  margin: auto;
-  overflow: hidden;
+
+  @apply overflow-hidden;
+  @apply mx-auto;
+  @apply border;
+  @apply border-gray-300;
+  @apply rounded;
 }
 
 @media print {
-  .v-application {
+  body {
     background: #fff !important;
   }
-  .v-main,
-  .container,
-  .v-card {
+  main {
     padding: 0 !important;
     margin-bottom: 0 !important;
   }
-  .v-card {
-    box-shadow: none !important;
-  }
-  .v-card:not(.page),
-  .v-app-bar,
-  .v-footer {
+  .container:not(.page),
+  .noprint {
     display: none !important;
   }
   @page {

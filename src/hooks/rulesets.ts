@@ -16,7 +16,5 @@ export function useRuleset (rulesetId: MaybeRef<RulesetId | undefined>) {
     })
   }
 
-  return {
-    ruleset
-  }
+  return ruleset
 }
