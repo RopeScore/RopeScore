@@ -7,6 +7,7 @@
       :value="modelValue"
       :list="dataList.length ? `${id}-list` : null"
       class="block border-0 border-b-2 w-full bg-transparent"
+      :disabled="disabled"
       :class="{
         'p-0': dense,
         'px-0.5': dense,
@@ -55,6 +56,10 @@ defineProps({
     type: Array as PropType<Readonly<Array<string | { value: string, text: string }>>>,
     required: false,
     default: () => []
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 

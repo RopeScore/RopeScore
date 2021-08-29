@@ -1,6 +1,6 @@
 <template>
   <button
-    class="px-2 mx-1 transition-colors rounded uppercase font-semibold disabled:text-gray-400 disabled:cursor-default whitespace-nowrap"
+    class="px-2 mx-1 transition-colors rounded uppercase font-semibold disabled:text-gray-400 disabled:cursor-default whitespace-nowrap relative"
     :class="{
       'py-1': !dense,
       'hover:bg-gray-200': !color,
@@ -18,15 +18,22 @@
       'hover:bg-orange-100': color === 'orange'
     }"
   >
-    <slot />
+    <icon-loading v-if="loading" class="animate-spin" />
+    <slot v-else />
   </button>
 </template>
 
 <script setup lang="ts">
 import type { PropType } from 'vue'
 
+import IconLoading from 'virtual:vite-icons/mdi/loading'
+
 defineProps({
   dense: {
+    type: Boolean,
+    default: false
+  },
+  loading: {
     type: Boolean,
     default: false
   },

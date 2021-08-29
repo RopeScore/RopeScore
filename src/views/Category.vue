@@ -10,7 +10,7 @@
     </div>
   </div>
 
-  <div class="overflow-x-auto max-w-[calc(100vw-1rem)] relative mt-4">
+  <div class="table-wrapper">
     <table class="text-xs min-w-full">
       <thead>
         <tr>

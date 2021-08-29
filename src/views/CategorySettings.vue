@@ -89,7 +89,7 @@
     Participants
   </h2>
 
-  <div class="max-w-[calc(100vw-1rem)] overflow-x-auto">
+  <div class="table-wrapper">
     <table class="min-w-full">
       <thead>
         <tr>
