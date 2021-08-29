@@ -64,6 +64,12 @@ table tbody tr:nth-child(even) {
   @apply rounded;
 }
 
+.table-wrapper {
+  @apply overflow-x-auto;
+  @apply max-w-[calc(100vw-1rem)];
+  @apply relative mt-4;
+}
+
 @media print {
   body {
     background: #fff !important;
@@ -91,7 +97,7 @@ table tbody tr:nth-child(even) {
     overflow-x: hidden !important;
     margin: auto;
   }
-  .table {
+  .table-wrapper {
     overflow-x: hidden !important;
   }
 }

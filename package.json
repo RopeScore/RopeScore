@@ -23,6 +23,7 @@
   "main": "electron/background.js",
   "dependencies": {
     "@apollo/client": "^3.4.8",
+    "@github/time-elements": "^3.1.2",
     "@sentry/tracing": "^6.11.0",
     "@sentry/vue": "^6.11.0",
     "@vue/apollo-composable": "^4.0.0-alpha.14",

@@ -13,7 +13,19 @@ export default defineConfig({
     port: 5050
   },
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: tag => [
+            // @github/time-elements
+            'relative-time',
+            'time-until',
+            'time-ago',
+            'local-time'
+          ].includes(tag)
+        }
+      }
+    }),
     WindiCSS(),
     Icons()
   ]

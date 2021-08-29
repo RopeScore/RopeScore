@@ -1,0 +1,10 @@
+fragment DeviceFragment on Device {
+  id
+  name
+  battery {
+    automatic
+    charging
+    batteryLevel
+    updatedAt
+  }
+}

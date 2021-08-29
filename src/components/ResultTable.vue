@@ -37,7 +37,7 @@
       </div>
     </header>
 
-    <main class="overflow-x-auto w-ful flex-grow">
+    <main class="overflow-x-auto w-full flex-grow">
       <table v-if="category && cEvt">
         <thead>
           <tr
