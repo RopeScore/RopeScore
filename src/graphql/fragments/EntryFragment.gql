@@ -1,0 +1,10 @@
+fragment EntryFragment on Entry {
+  id
+  categoryId
+  categoryName
+  participantId
+  participantName
+  competitionEventLookupCode
+  didNotSkipAt
+  heat
+}

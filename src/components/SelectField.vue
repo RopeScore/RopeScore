@@ -2,8 +2,9 @@
   <div class="relative">
     <select
       :id="id"
-      placeholder=" "
+      :placeholder="dense ? label : ' '"
       :value="modelValue"
+      :disabled="disabled"
       class="block border-0 border-b-2 w-full min-w-12 bg-transparent"
       :class="{
         'p-0': dense,
@@ -13,7 +14,9 @@
         'pt-4': !dense,
         'pb-1': !dense,
         'px-3': !dense,
-        'mt-2': !dense
+        'mt-2': !dense,
+
+        'bg-gray-200': disabled
       }"
       @change="input"
     >
@@ -22,6 +25,7 @@
       </option>
     </select>
     <label
+      v-if="!dense"
       :for="id"
       class="absolute top-4 left-3 transition-all text-base text-dark-100 cursor-text"
     >{{ label }}</label>
@@ -49,6 +53,10 @@ defineProps({
   dataList: {
     type: Array as PropType<Readonly<Array<string | { value: string, text: string }>>>,
     required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 

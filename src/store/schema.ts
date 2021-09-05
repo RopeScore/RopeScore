@@ -87,6 +87,8 @@ export interface Entry {
 
   didNotSkipAt?: number | null
   lockedAt?: number | null
+
+  heat: number
 }
 
 export interface Mark {
@@ -112,11 +114,9 @@ export interface ScoresheetBase {
 export interface MarkScoresheet extends ScoresheetBase {
   readonly deviceId: Device['id']
 
-  submittedAt: number
-  openedAt: number
+  openedAt: number[]
   completedAt: number
-
-  heat: number
+  submittedAt: number
 
   options?: { [prop: string]: any }
 
