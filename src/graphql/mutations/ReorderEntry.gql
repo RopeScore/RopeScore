@@ -1,0 +1,5 @@
+mutation ReorderEntry ($entryId: ID!, $heat: Int!) {
+  reorderEntry (entryId: $entryId, heat: $heat) {
+    ...EntryFragment
+  }
+}

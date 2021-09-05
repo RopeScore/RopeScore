@@ -1,4 +1,5 @@
 import { watch, ref } from 'vue'
+import { pausableWatch } from '@vueuse/core'
 import { emitters, db } from '../store/idbStore'
 
 import type { Ref } from 'vue'
@@ -11,17 +12,12 @@ interface UseDexieOptions<T, TRef = T> {
 
 export function useDexieArray<T extends TableTypes> ({ read, tableName }: UseDexieOptions<T, T[]>) {
   const result = ref<T[]>([]) as Ref<T[]>
-  const firstFetch = ref(false)
-  read(result).then(() => {
-    firstFetch.value = true
-  })
 
   const table = db[tableName]
   const primaryKey = table.schema.primKey.keyPath as keyof TableTypes
 
   watch(emitters[tableName], () => { read(result) })
-  watch(() => [...result.value], async (after, before) => {
-    if (!firstFetch.value) return
+  const { pause, resume } = pausableWatch(() => [...result.value], async (after, before) => {
     const idsBefore = new Map(before.map(ent => [ent[primaryKey], ent]))
     const idsAfter = new Map(after.map(ent => [ent[primaryKey], ent]))
 
@@ -48,12 +44,19 @@ export function useDexieArray<T extends TableTypes> ({ read, tableName }: UseDex
     }
   }, { deep: true })
 
-  return { read () { read(result) }, result }
+  async function wrappedRead (res: Ref<T[]>) {
+    pause()
+    await read(res)
+    resume()
+  }
+
+  wrappedRead(result)
+
+  return { read () { wrappedRead(result) }, result }
 }
 
 export function useDexie<T extends TableTypes> ({ read, tableName }: UseDexieOptions<T>) {
   const result = ref<T>()
-  read(result)
 
   const table = db[tableName]
   const primaryKey = table.schema.primKey.keyPath as keyof TableTypes
@@ -63,7 +66,7 @@ export function useDexie<T extends TableTypes> ({ read, tableName }: UseDexieOpt
 
     result.value = await table.get(id) as T
   })
-  watch(() => result.value ? JSON.parse(JSON.stringify(result.value)) : null, async (after, before) => {
+  const { pause, resume } = pausableWatch(() => result.value ? JSON.parse(JSON.stringify(result.value)) : null, async (after, before) => {
     if (!before) return
 
     if (!after) {
@@ -75,5 +78,13 @@ export function useDexie<T extends TableTypes> ({ read, tableName }: UseDexieOpt
     }
   }, { deep: true })
 
-  return { read () { read(result) }, result }
+  async function wrappedRead (res: Ref<T | undefined>) {
+    pause()
+    await read(res)
+    resume()
+  }
+
+  wrappedRead(result)
+
+  return { read () { wrappedRead(result) }, result }
 }

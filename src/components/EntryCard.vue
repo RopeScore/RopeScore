@@ -7,6 +7,7 @@
     }"
     class="p-2 rounded"
   >
+    <p>{{ entry.id }}</p>
     <p>{{ entry.categoryName }}</p>
     <p>{{ entry.competitionEventLookupCode }}</p>
     <p>{{ entry.participantId }} - {{ entry.participantName }}</p>

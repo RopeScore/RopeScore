@@ -203,3 +203,5 @@ export function filterParticipatingInAll (results: EntryResult[], competitionEve
     competitionEvents.includes(res.competitionEvent)
   )
 }
+
+export type DataListItem = string | number | { value: string | number, text: string }
