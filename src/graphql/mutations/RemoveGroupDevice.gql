@@ -1,0 +1,8 @@
+mutation RemoveGroupDevice ($groupId: ID!, $deviceId: ID!) {
+  removeGroupDevice (groupId: $groupId, deviceId: $deviceId) {
+    id
+    devices {
+      ...DeviceFragment
+    }
+  }
+}

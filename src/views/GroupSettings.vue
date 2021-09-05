@@ -87,6 +87,7 @@ onDone(async res => {
     const newId = res.data.createGroup.id
     await db.transaction('rw', [db.categories, db.devices, db.groups], async () => {
       await db.categories.where({ groupId: oldId }).modify({ groupId: newId })
+      await db.judges.where({ groupId: oldId }).modify({ groupId: newId })
       await db.devices.where({ groupId: oldId }).delete()
       await db.groups.where({ id: oldId }).modify({ id: newId, remote: true })
     })

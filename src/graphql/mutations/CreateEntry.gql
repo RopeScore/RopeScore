@@ -1,0 +1,5 @@
+mutation CreateEntry ($groupId: ID!, $entry: EntryInput!) {
+  createEntry (groupId: $groupId, entry: $entry) {
+    ...EntryFragment
+  }
+}

@@ -1,0 +1,16 @@
+fragment ScoresheetFragment on Scoresheet {
+  id
+  judgeId
+  judgeName
+  judgeType
+  device { id }
+
+  createdAt
+  updatedAt
+  openedAt
+  completedAt
+  submittedAt
+
+  options
+  marks
+}
