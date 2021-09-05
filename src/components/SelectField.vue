@@ -1,7 +1,8 @@
 <template>
-  <div class="relative">
+  <div class="relative" :class="{ 'mt-2': !dense }">
     <select
       :id="id"
+      :name="id"
       :placeholder="dense ? label : ' '"
       :value="modelValue"
       :disabled="disabled"
@@ -14,20 +15,23 @@
         'pt-4': !dense,
         'pb-1': !dense,
         'px-3': !dense,
-        'mt-2': !dense,
 
         'bg-gray-200': disabled
       }"
       @change="input"
     >
-      <option v-for="item of dataList" :key="value(item)">
+      <option v-for="item of dataList" :key="value(item)" :value="value(item)">
         {{ text(item) }}
       </option>
     </select>
     <label
       v-if="!dense"
       :for="id"
-      class="absolute top-4 left-3 transition-all text-base text-dark-100 cursor-text"
+      class="-z-1 absolute top-4 left-3 transition-all text-base text-dark-100 cursor-default"
+      :class="{
+        'text-xs': !!modelValue,
+        'top-0.5': !!modelValue
+      }"
     >{{ label }}</label>
   </div>
 </template>
@@ -36,6 +40,7 @@
 import { v4 as uuid } from 'uuid'
 
 import type { PropType } from 'vue'
+import type { DataListItem } from '../helpers'
 
 defineProps({
   dense: {
@@ -47,11 +52,11 @@ defineProps({
     required: true
   },
   modelValue: {
-    type: String,
+    type: [String, Number],
     default: ''
   },
   dataList: {
-    type: Array as PropType<Readonly<Array<string | { value: string, text: string }>>>,
+    type: Array as PropType<Readonly<Array<DataListItem>>>,
     required: true
   },
   disabled: {
@@ -68,19 +73,11 @@ function input (event: any) {
   emit('update:modelValue', (event.target as HTMLInputElement).value)
 }
 
-function value (item: string | { value: string, text: string }) {
+function value (item: DataListItem) {
   return (item as any).value ?? item
 }
 
-function text (item: string | { value: string, text: string }) {
+function text (item: DataListItem) {
   return (item as any).text ?? item
 }
 </script>
-
-<style>
-select:focus + label,
-select:not(:placeholder-shown) + label {
-  @apply top-0.5;
-  @apply text-xs;
-}
-</style>

@@ -1,13 +1,14 @@
 <template>
-  <div class="relative">
+  <div class="relative" :class="{ 'mt-2': !dense }">
     <input
       :id="id"
-      type="text"
+      :name="id"
+      :type="type"
       :placeholder="dense ? label : ' '"
       :value="modelValue"
       :list="dataList.length ? `${id}-list` : null"
-      class="block border-0 border-b-2 w-full bg-transparent"
       :disabled="disabled"
+      class="block border-0 border-b-gray-500 border-b-2 w-full bg-transparent"
       :class="{
         'p-0': dense,
         'px-0.5': dense,
@@ -15,8 +16,7 @@
 
         'pt-4': !dense,
         'pb-1': !dense,
-        'px-3': !dense,
-        'mt-2': !dense
+        'px-3': !dense
       }"
       @input="input"
     >
@@ -38,8 +38,9 @@
 import { v4 as uuid } from 'uuid'
 
 import type { PropType } from 'vue'
+import type { DataListItem } from '../helpers'
 
-defineProps({
+const props = defineProps({
   label: {
     type: String,
     required: true
@@ -48,12 +49,16 @@ defineProps({
     type: Boolean,
     default: false
   },
+  type: {
+    type: String as PropType<'text' | 'number' | 'date'>,
+    default: 'text'
+  },
   modelValue: {
-    type: String,
+    type: [String, Number],
     default: ''
   },
   dataList: {
-    type: Array as PropType<Readonly<Array<string | { value: string, text: string }>>>,
+    type: Array as PropType<Readonly<Array<DataListItem>>>,
     required: false,
     default: () => []
   },
@@ -68,14 +73,18 @@ const emit = defineEmits(['update:modelValue'])
 const id = uuid().replace(/^[^a-z]+/, '')
 
 function input (event: any) {
-  emit('update:modelValue', (event.target as HTMLInputElement).value)
+  if (props.type === 'number' || props.type === 'date') {
+    emit('update:modelValue', (event.target as HTMLInputElement).valueAsNumber)
+  } else {
+    emit('update:modelValue', (event.target as HTMLInputElement).value)
+  }
 }
 
-function value (item: string | { value: string, text: string }) {
+function value (item: DataListItem) {
   return (item as any).value ?? item
 }
 
-function text (item: string | { value: string, text: string }) {
+function text (item: DataListItem) {
   return (item as any).text ?? item
 }
 </script>

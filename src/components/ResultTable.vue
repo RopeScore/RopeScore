@@ -176,6 +176,7 @@ async function calculateResults () {
   if (!entries.value.length || !cEvt.value) return
   const res: EntryResult[] = []
   for (const entry of entries.value) {
+    if (entry.didNotSkipAt) continue
     const scoresheets = await db.scoresheets.where({ entryId: entry.id }).toArray()
 
     if (isOverallRulesDefinition(cEvt.value)) {
