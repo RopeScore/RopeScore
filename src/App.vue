@@ -13,6 +13,7 @@
         <button-link v-if="route.params.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}`">
           Category
         </button-link>
+        <!-- TODO: hide if group isn't remote -->
         <button-link v-if="route.params.groupId" :to="`/groups/${route.params.groupId}/devices`">
           Devices
         </button-link>

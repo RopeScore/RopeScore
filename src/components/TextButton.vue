@@ -1,5 +1,6 @@
 <template>
   <button
+    :type="type"
     class="px-2 mx-1 transition-colors rounded uppercase font-semibold disabled:text-gray-400 disabled:cursor-default whitespace-nowrap relative"
     :class="{
       'py-1': !dense,
@@ -36,6 +37,10 @@ defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  type: {
+    type: String as PropType<'button' | 'submit' | 'reset'>,
+    default: 'button'
   },
   color: {
     type: String as PropType<'blue' | 'green' | 'red' | 'orange'>,

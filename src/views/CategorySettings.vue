@@ -144,10 +144,7 @@
 
       <tfoot>
         <tr>
-          <!-- <td /> -->
-          <td>
-            <text-field v-model="newParticipant.id" type="number" label="ID" dense />
-          </td>
+          <td />
           <td><text-field v-model="newParticipant.name" label="Name" dense /></td>
           <td v-if="category?.type === 'team'">
             <text-field v-model="newParticipant.members" label="Members, comma separated" dense />
@@ -192,6 +189,7 @@
           <th v-for="cEvtDefCode of category.competitionEvents" :key="cEvtDefCode">
             {{ getAbbr(cEvtDefCode) }}
           </th>
+          <th v-if="!category.competitionEvents.length" />
         </tr>
       </thead>
 
@@ -262,7 +260,6 @@ const judgeAssignments = useJudgeAssignments(route.params.categoryId as string)
 const rulesetIds = Object.keys(rulesets)
 
 const newParticipant = reactive({
-  id: 4,
   name: '',
   members: '',
   ijruId: '',
@@ -314,7 +311,6 @@ const memberRegex = /^([^(]+)(?:\((.*)\))?$/
 function addParticipant () {
   if (!category.value) return
   const part: Partial<Participant> = {
-    id: newParticipant.id,
     name: newParticipant.name,
     club: newParticipant.club,
     country: newParticipant.country,

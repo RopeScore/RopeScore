@@ -7,15 +7,16 @@
     }"
     class="p-2 rounded"
   >
-    <p>{{ entry.id }}</p>
-    <p>{{ entry.categoryName }}</p>
-    <p>{{ entry.competitionEventLookupCode }}</p>
-    <p>{{ entry.participantId }} - {{ entry.participantName }}</p>
+    <p class="font-semibold">
+      {{ entry.categoryName }}
+    </p>
+    <p>{{ entry.participantId }}: <span class="font-semibold">{{ entry.participantName }}</span></p>
+    <p><span class="font-semibold">{{ entry.competitionEventLookupCode }}</span></p>
 
     <table class="w-full">
       <tbody>
         <tr v-for="assignment of judgeAssignments" :key="assignment.id">
-          <td>{{ assignment.judgeId }} &ndash; {{ findJudge(assignment.judgeId)?.name }} ({{ assignment.judgeType }})</td>
+          <td>{{ assignment.judgeId }} (<span class="font-semibold">{{ assignment.judgeType }}</span>): <span class="font-semibold">{{ findJudge(assignment.judgeId)?.name }}</span></td>
           <td>
             <select-field
               :model-value="scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.device.id"
@@ -23,7 +24,7 @@
               dense
               :data-list="filterUnassignedAndSelf(scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.device.id)"
               label="Device"
-              :disabled="loading"
+              :disabled="loading || !!localEntry?.lockedAt || !!localEntry?.didNotSkipAt || !!scoresheetsObj[assignment.judgeId]?.[assignment.judgeType].submittedAt"
               @update:model-value="assignScoresheet(assignment, $event)"
             />
           </td>
