@@ -1,35 +1,73 @@
 <template>
   <div class="container mx-auto">
-    <!-- TODO: dialog to name it -->
-    <text-button @click="addGroup">
-      Add Group
-    </text-button>
+    <dialog-button ref="dialogRef" label="Create Group">
+      <h1 class="mx-2">
+        New Group
+      </h1>
+      <form method="dialog" class="mt-4" @submit.prevent="addGroup">
+        <text-field v-model="newGroup.name" label="Group Name" />
+
+        <div v-if="!system.rsApiToken">
+          <note-card color="orange" class="mb-4">
+            You need to enable App Scoring in system settings if you want to
+            connect this group to app scoring.
+          </note-card>
+          <button-link to="/system">
+            System
+          </button-link>
+        </div>
+        <div v-else>
+          <checkbox-field v-model="newGroup.remote" label="App scoring" />
+        </div>
+
+        <text-button color="blue" class="mt-4" type="submit" :loading="loading">
+          Create Group
+        </text-button>
+      </form>
+    </dialog-button>
     <group-card v-for="group of groups" :key="group.id" :group-id="group.id" class="my-4" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { reactive, ref } from 'vue'
 import { v4 as uuid } from 'uuid'
 import { useGroups } from '../hooks/groups'
+import { useSystem } from '../hooks/system'
+import { useCreateGroupMutation } from '../graphql/generated'
 
 import GroupCard from '../components/GroupCard.vue'
+import TextField from '../components/TextField.vue'
+import DialogButton from '../components/DialogButton.vue'
 import TextButton from '../components/TextButton.vue'
+import CheckboxField from '../components/CheckboxField.vue'
+import ButtonLink from '../components/ButtonLink.vue'
+import NoteCard from '../components/NoteCard.vue'
 
-import type { Group } from '../store/schema'
-
+const system = useSystem()
 const groups = useGroups()
 
-function addGroup () {
+const dialogRef = ref<typeof DialogButton>()
+const newGroup = reactive({
+  name: '',
+  remote: false
+})
+
+const { mutate: createGroup, loading } = useCreateGroupMutation({})
+
+async function addGroup () {
+  let res
+  if (newGroup.remote) {
+    res = await createGroup({ name: newGroup.name })
+  }
+
   const id = uuid()
   groups.value.push({
-    id,
-    name: 'Test Group',
-    remote: false
+    id: res?.data?.createGroup.id ?? id,
+    name: newGroup.name,
+    remote: newGroup.remote
   })
-}
 
-function deleteGroup (id: Group['id']) {
-  const idx = groups.value?.findIndex(g => g.id === id)
-  groups.value.splice(idx, 1)
+  dialogRef.value?.close()
 }
 </script>

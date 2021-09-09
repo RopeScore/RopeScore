@@ -21,24 +21,48 @@
       <button-link :to="`/groups/${group?.id}/results`">
         Results
       </button-link>
+      <button-link v-if="!!group?.remote" :to="`/groups/${group?.id}/devices`">
+        Devices
+      </button-link>
       <button-link :to="`/groups/${group?.id}/settings`">
         Settings
       </button-link>
-      <!-- TODO: dialog to create category -->
-      <button @click="addCat">
-        Add Category
-      </button>
+      <dialog-button ref="dialogRef" label="Create Category">
+        <h1 class="mx-2">
+          New Category
+        </h1>
+        <span class="mx-2">Group: {{ group?.name }}</span>
+        <form method="dialog" class="mt-4" @submit.prevent="addCategory">
+          <text-field v-model="newCategory.name" label="Category Name" />
+          <select-field v-model="newCategory.ruleset" label="Ruleset" :data-list="rulesetIds" />
+          <select-field v-model="newCategory.type" label="Competition Type" :data-list="['individual', 'team']" />
+
+          <text-button
+            color="blue"
+            class="mt-4"
+            type="submit"
+            :disable="!newCategory.name || !newCategory.ruleset || !newCategory.type"
+          >
+            Create Category
+          </text-button>
+        </form>
+      </dialog-button>
     </menu>
   </details>
 </template>
 
 <script lang="ts" setup>
 import { v4 as uuid } from 'uuid'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useCategories } from '../hooks/categories'
 import { useGroup } from '../hooks/groups'
+import { rulesets } from '../rules'
 
 import ButtonLink from './ButtonLink.vue'
+import TextField from '../components/TextField.vue'
+import SelectField from '../components/SelectField.vue'
+import DialogButton from '../components/DialogButton.vue'
+import TextButton from '../components/TextButton.vue'
 
 const props = defineProps({
   groupId: {
@@ -49,17 +73,26 @@ const props = defineProps({
 
 const group = useGroup(props.groupId)
 const categories = useCategories(props.groupId)
+const dialogRef = ref<typeof DialogButton>()
 
-const idx = ref(1)
+const rulesetIds = Object.keys(rulesets)
 
-function addCat () {
+const newCategory = reactive({
+  name: '',
+  ruleset: undefined,
+  type: 'individual' as 'individual' | 'team'
+})
+
+function addCategory () {
+  if (!newCategory.ruleset) return
+
   categories.value.push({
     id: uuid(),
     groupId: props.groupId,
 
-    name: `Test Category ${idx.value++}`,
-    ruleset: 'ijru@2.0.0',
-    type: 'individual',
+    name: newCategory.name,
+    ruleset: newCategory.ruleset,
+    type: newCategory.type,
     competitionEvents: [],
 
     print: {
@@ -67,5 +100,7 @@ function addCat () {
       zoom: {}
     }
   })
+
+  dialogRef.value?.close()
 }
 </script>

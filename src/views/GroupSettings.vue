@@ -19,14 +19,18 @@
       <text-field v-model="group.name" label="Group Name" :disabled="group.remote" />
     </fieldset>
 
-    <h2 class="mt-4">App scoring</h2>
+    <h2 class="mt-4">
+      App scoring
+    </h2>
 
     <div v-if="!system.rsApiToken">
-      <note-card color="red" class="mb-4">
+      <note-card color="orange" class="mb-4">
         You need to enable App Scoring in system settings before you can
         connect a group to app scoring.
       </note-card>
-      <button-link to="/system">System</button-link>
+      <button-link to="/system">
+        System
+      </button-link>
     </div>
     <div v-else-if="!group?.remote">
       <note-card>

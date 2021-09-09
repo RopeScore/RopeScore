@@ -97,14 +97,19 @@
       freestyle panels side by side.
     </p>
 
-    <p class="container mx-auto mt-2">
+    <p class="container mx-auto mb-2">
+      If you try to create an entry that already exists it will be moved to the
+      heat you specified.
+    </p>
+
+    <p class="container mx-auto mb-2">
       <span class="font-semibold">
         Scoresheets will only be gathered from devices while this view is open.
       </span>
       New data is fetched every 60 seconds.
     </p>
 
-    <p v-if="entryFetchTime" class="container mx-auto mt-2">
+    <p v-if="entryFetchTime" class="container mx-auto mb-2">
       The latest change happened {{ formatDate(entryFetchTime) }}.
     </p>
 
