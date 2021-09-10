@@ -48,16 +48,11 @@ export default createRouter({
       path: '/groups/:groupId/categories/:categoryId/entries/:entryId',
       name: 'entry',
       component: async () => import('./views/Entry.vue')
+    },
+    {
+      path: '/groups/:groupId/categories/:categoryId/competition-events/:competitionEvent',
+      name: 'competition-event',
+      component: async () => import('./views/CompetitionEvent.vue')
     }
-    // {
-    //   path: '/new',
-    //   name: 'newcategory',
-    //   component: () => import(/* webpackChunkName: "newcategory" */ '@/components/NewCategory.vue')
-    // },
-    // {
-    //   path: '/category/:id/score/:event',
-    //   name: 'scoreevent',
-    //   component: () => import(/* webpackChunkName: "scoreevent" */ '@/views/ScoreEvent.vue')
-    // },
   ]
 })

@@ -1,4 +1,5 @@
 import IJRU_2_0_0 from './ijru@2.0.0'
+import SvGF_RH_20 from './svgf-rh@20'
 
 import type { CompetitionEvent, Scoresheet, Entry, Participant } from '../store/schema'
 
@@ -6,7 +7,8 @@ import type { CompetitionEvent, Scoresheet, Entry, Participant } from '../store/
 export type RulesetId = keyof typeof rulesets
 
 export const rulesets = {
-  'ijru@2.0.0': IJRU_2_0_0
+  'ijru@2.0.0': IJRU_2_0_0,
+  'svgf-rh@20': SvGF_RH_20
 }
 
 export interface Ruleset {
