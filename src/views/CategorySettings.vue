@@ -6,45 +6,36 @@
       </h1>
 
       <menu class="p-0 m-0">
+        <text-button color="red" :loading="deleting" @click="deleteCategory">
+          {{ deleteConfirm ? 'Confirm Delete' : 'Delete' }}
+        </text-button>
         <text-button @click="goBack">
           Back
         </text-button>
       </menu>
     </div>
 
-    <fieldset v-if="category">
+    <!-- <fieldset v-if="category">
       <text-field v-model="category.name" label="Category Name" />
-      <!-- TODO: remove stuff -->
-      <!-- TODO: confirm dialog -->
-      <select-field v-model="category.ruleset" label="Ruleset" :data-list="rulesetIds" />
-
-      <label class="block mt-2 px-3">
-        <input
-          :checked="category.type === 'individual'"
-          name="category-type"
-          value="individual"
-          type="radio"
-          class=""
-          @change="changeType"
-        >
-        Individual Competiton
-      </label>
-      <label class="block mt-2 px-3">
-        <input
-          :checked="category.type === 'team'"
-          name="category-type"
-          value="team"
-          type="radio"
-          class=""
-          @change="changeType"
-        >
-        Team Competiton
-      </label>
+      !-- TODO: remove stuff --
+      !-- TODO: confirm dialog --
+      <select-field
+        v-model="category.ruleset"
+        label="Ruleset"
+        :data-list="rulesetIds"
+        @update:model-value="clearValues"
+      />
+      <select-field
+        v-model="category.type"
+        label="Competition Type"
+        :data-list="['individual', 'team']"
+        @update:model-value="clearValues"
+      />
 
       <p class="mt-2">
         Note that changing the ruleset or competition type will clear all competition events, entries, scores and judge assignments
       </p>
-    </fieldset>
+    </fieldset> -->
   </div>
 
   <div class="container mx-auto">
@@ -229,17 +220,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCategory } from '../hooks/categories'
 import { useParticipants } from '../hooks/participants'
 import { useJudges } from '../hooks/judges'
 import { useJudgeAssignments } from '../hooks/judgeAssignments'
 import { useRuleset } from '../hooks/rulesets'
-import { rulesets } from '../rules'
 import { isTeam, isPerson } from '../store/schema'
 import { memberNames, getAbbr } from '../helpers'
 import { db } from '../store/idbStore'
+// import { rulesets } from '../rules'
+import { useSetEntryDidNotSkipMutation } from '../graphql/generated'
+import pLimit from 'p-limit'
 
 import countryData from '../data/countries.json'
 
@@ -257,7 +250,7 @@ const participants = useParticipants(route.params.categoryId as string)
 const judges = useJudges(route.params.groupId as string)
 const judgeAssignments = useJudgeAssignments(route.params.categoryId as string)
 
-const rulesetIds = Object.keys(rulesets)
+// const rulesetIds = Object.keys(rulesets)
 
 const newParticipant = reactive({
   name: '',
@@ -274,9 +267,38 @@ const newJudge = reactive({
 
 function goBack () { router.go(-1) }
 
-function changeType (event: any) {
+const { mutate: setDidNotSkip } = useSetEntryDidNotSkipMutation({})
+
+const deleteConfirm = ref(false)
+const deleting = ref(false)
+
+async function deleteCategory () {
   if (!category.value) return
-  category.value.type = event.target.value
+  if (!deleteConfirm.value) {
+    deleteConfirm.value = true
+    return
+  }
+  deleting.value = true
+  const categoryId = category.value.id
+
+  const group = await db.groups.get(category.value.groupId)
+  const entries = await db.entries.where({ categoryId }).toArray()
+
+  if (group?.remote) {
+    const limit = pLimit(30)
+    const dnsPromises = entries.map(entry => limit(() => setDidNotSkip({ entryId: entry.id, didNotSkip: true })))
+    await Promise.allSettled(dnsPromises)
+  }
+
+  await db.transaction('rw', [db.scoresheets, db.entries, db.participants, db.judgeAssignments, db.categories], async () => {
+    await db.scoresheets.where('entryId').anyOf(entries.map(en => en.id)).delete()
+    await db.entries.where('categoryId').equals(categoryId).delete()
+    await db.participants.where('categoryId').equals(categoryId).delete()
+    await db.judgeAssignments.where('categoryId').equals(categoryId).delete()
+    await db.categories.delete(categoryId)
+  })
+
+  router.replace('/')
 }
 
 const ruleset = computed(() => {

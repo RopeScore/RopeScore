@@ -1,6 +1,7 @@
 <template>
   <button
     :type="type"
+    :disabled="disabled || loading"
     class="px-2 mx-1 transition-colors rounded uppercase font-semibold disabled:text-gray-400 disabled:cursor-default whitespace-nowrap relative"
     :class="{
       'py-1': !dense,
@@ -35,6 +36,10 @@ defineProps({
     default: false
   },
   loading: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
     type: Boolean,
     default: false
   },

@@ -56,9 +56,6 @@
         Devices
       </button-link>
     </div>
-
-    <!-- TODO: devices -->
-    <!-- TODO: judges -->
   </div>
 </template>
 

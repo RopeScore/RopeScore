@@ -41,7 +41,7 @@
             color="blue"
             class="mt-4"
             type="submit"
-            :disable="!newCategory.name || !newCategory.ruleset || !newCategory.type"
+            :disabled="!newCategory.name || !newCategory.ruleset || !newCategory.type"
           >
             Create Category
           </text-button>

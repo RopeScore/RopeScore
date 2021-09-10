@@ -25,6 +25,15 @@
           :disabled="disabled || idx !== scoresheets.length - 1"
         />
 
+        <mark-scoresheet
+          v-if="isMarkScoresheet(scoresheet)"
+          :scoresheet-id="scoresheet.id"
+          :ruleset="category.ruleset"
+          :competition-event="competitionEvent"
+          :judge-type="assignment.judgeType"
+          :disabled="disabled || idx !== scoresheets.length - 1"
+        />
+
         <scoresheet-result
           :scoresheet-id="scoresheet.id"
           :ruleset="category.ruleset"
@@ -44,15 +53,21 @@
     <menu class="m-0 p-1 text-right">
       <text-button
         dense
-        :disabled="disabled"
+        :disabled="disabled || !scoresheets.length"
         :tabindex="scoresheets.length ? -1 : undefined"
-        @click="createTallyScoresheet"
+        @click="createTallyScoresheet(scoresheets[scoresheets.length - 1])"
       >
         Create Tally
       </text-button>
+      <text-button
+        dense
+        :disabled="disabled"
+        :tabindex="scoresheets.length ? -1 : undefined"
+        @click="createTallyScoresheet()"
+      >
+        Create Blank
+      </text-button>
     </menu>
-    <!-- TODO: Allow viewing MarkScoresheet -->
-    <!-- TODO: Allow converting MarkScoresheet into TallyScoresheet -->
   </div>
 </template>
 
@@ -62,15 +77,16 @@ import { useJudge } from '../hooks/judges'
 import { useScoresheets } from '../hooks/scoresheets'
 import { useCategory } from '../hooks/categories'
 import { useJudgeAssignment } from '../hooks/judgeAssignments'
-import { isTallyScoresheet } from '../store/schema'
-import { formatDate } from '../helpers'
+import { isTallyScoresheet, isMarkScoresheet } from '../store/schema'
+import { formatDate, calculateTally } from '../helpers'
 
 import TextButton from './TextButton.vue'
 import TallyScoresheet from './TallyScoresheet.vue'
+import MarkScoresheet from './MarkScoresheet.vue'
 import ScoresheetResult from './ScoresheetResult.vue'
 
 import type { PropType } from 'vue'
-import type { CompetitionEvent } from '../store/schema'
+import type { CompetitionEvent, Scoresheet } from '../store/schema'
 
 const props = defineProps({
   categoryId: {
@@ -100,8 +116,14 @@ const assignment = useJudgeAssignment(props.judgeId, props.categoryId, props.com
 const scoresheets = useScoresheets(props.entryId, props.judgeId)
 const category = useCategory(props.categoryId)
 
-function createTallyScoresheet () {
+function createTallyScoresheet (previousScoresheet?: Scoresheet) {
+  console.log(previousScoresheet)
   if (!assignment.value?.judgeType) return
+  let tally = {}
+
+  if (isMarkScoresheet(previousScoresheet)) tally = calculateTally(previousScoresheet)
+  else if (isTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally
+
   scoresheets.value.push({
     id: uuid(),
     judgeId: props.judgeId,
@@ -112,7 +134,7 @@ function createTallyScoresheet () {
     createdAt: Date.now(),
     updatedAt: Date.now(),
 
-    tally: {}
+    tally
   })
 }
 </script>
