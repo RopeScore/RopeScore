@@ -58,7 +58,7 @@
           >
             <button-link
               v-if="isSpeedEvent(cEvtDefCode)"
-              :to="`/groups/${route.params.groupId}/category/${$route.params.categoryId}/competition-events/${cEvtDefCode}`"
+              :to="`/groups/${route.params.groupId}/categories/${$route.params.categoryId}/competition-events/${cEvtDefCode}`"
               dense
             >
               All

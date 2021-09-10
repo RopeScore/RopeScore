@@ -162,17 +162,22 @@ describe('ijru@2.0.0', () => {
         tScsh({ step: 10, falseStart: 1 }, 'Shj', 'e.ijru.sp.sr.srss.1.30'),
         tScsh({ step: 12 }, 'S', 'e.ijru.sp.sr.srss.1.30')
       ]
-      assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')(scoresheets), {
+      const entry = {
+        id: scoresheets[0].entryId,
+        categoryId: 'test-category',
+        participantId: 5,
+        competitionEvent: 'e.ijru.sp.sr.srss.1.30' as CompetitionEvent
+      }
+      assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')(entry, scoresheets), {
         entryId: 'test-entry',
-        raw: {
+        competitionEvent: 'e.ijru.sp.sr.srss.1.30',
+        participantId: 5,
+        result: {
           a: 10,
           m: 10,
-          R: 0
-        },
-        formatted: {
-          a: '10',
-          m: '10',
-          R: '0'
+          R: 0,
+
+          withinThree: 1
         }
       })
     })
@@ -200,17 +205,21 @@ describe('ijru@2.0.0', () => {
           tally: { step: 5 }
         }
       ]
-      assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')(scoresheets), {
+      const entry = {
+        id: scoresheets[0].entryId,
+        categoryId: 'test-category',
+        participantId: 5,
+        competitionEvent: 'e.ijru.sp.sr.srss.1.30' as CompetitionEvent
+      }
+      assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')(entry, scoresheets), {
         entryId: 'a',
-        raw: {
+        competitionEvent: 'e.ijru.sp.sr.srss.1.30',
+        participantId: 5,
+        result: {
           a: 10,
           m: 0,
-          R: 10
-        },
-        formatted: {
-          a: '10',
-          m: '0',
-          R: '10'
+          R: 10,
+          withinThree: 0
         }
       })
     })

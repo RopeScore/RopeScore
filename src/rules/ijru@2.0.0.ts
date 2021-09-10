@@ -328,8 +328,7 @@ export const difficultyJudge: JudgeTypeFn = () => {
       name: `Level ${idx + 1}`,
       schema: `diffL${idx + 1}` as const,
       min: 0,
-      step: 1,
-      level: idx + 1
+      step: 1
     }))
   ] as const
   const levels: { [prop: string]: number } = Object.fromEntries(Array(8).fill(undefined).map((el, idx) => [`diffL${idx + 1}`, idx + 1] as const))
@@ -399,7 +398,6 @@ export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) 
 
   const results = scoresheets.map(scsh => judgeTypes[scsh.judgeType].calculateScoresheet(scsh))
   const raw: { [prop: string]: number } = {}
-  // const formatted: { [prop: string]: string } = {}
 
   for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'Q', 'U'] as const) {
     const scores = results.map(el => el[scoreType]).filter(el => typeof el === 'number')
