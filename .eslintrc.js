@@ -18,7 +18,7 @@ module.exports = {
     'standard-with-typescript'
   ],
   parserOptions: {
-    project: 'tsconfig.json',
+    project: ['tsconfig.json', 'tsconfig.electron.json'],
     extraFileExtensions: ['.vue']
   },
   rules: {

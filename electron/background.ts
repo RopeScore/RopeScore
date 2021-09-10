@@ -1,5 +1,5 @@
-import {  app, protocol, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
-import { autoUpdater } from "electron-updater"
+import { app, protocol, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import * as path from 'path'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -43,7 +43,7 @@ function createWindow () {
     win.delete(winId)
   })
 
-  const menu: (MenuItemConstructorOptions | MenuItem)[] = [
+  const menu: Array<MenuItemConstructorOptions | MenuItem> = [
     {
       role: 'editMenu',
       submenu: [
@@ -133,7 +133,7 @@ function createWindow () {
 
   if (process.platform === 'darwin') {
     const name: string = app.getName()
-    menu.unshift(<MenuItemConstructorOptions | MenuItem>{
+    menu.unshift({
       label: name,
       submenu: [
         { role: 'about' },
@@ -141,7 +141,7 @@ function createWindow () {
         { role: 'services', submenu: [] },
         { type: 'separator' },
         { role: 'hide' },
-        { role: 'hideothers' },
+        { role: 'hideothers' as 'hide' },
         { role: 'unhide' },
         { type: 'separator' },
         { role: 'quit' }
@@ -227,7 +227,8 @@ app.whenReady().then(async () => {
 
   protocol.registerFileProtocol('app', (request, callback) => {
     const url = request.url.substr(6)
-    callback({ path: path.normalize(`${__dirname}/../render/${url}`) })
+    // eslint-disable-next-line node/no-callback-literal
+    callback({ path: path.normalize(path.resolve(__dirname, '..', 'render', url)) })
   })
 
   createWindow()
