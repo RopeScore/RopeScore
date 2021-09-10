@@ -14,8 +14,8 @@
       <text-button @click="goBack">
         Back
       </text-button>
-      <text-button>Previous</text-button>
-      <text-button>Next</text-button>
+      <!-- <text-button>Previous</text-button> -->
+      <!-- <text-button>Next</text-button> -->
       <text-button :disabled="!!entry?.lockedAt" :color="!!entry?.didNotSkipAt ? undefined : 'red'" @click="toggleDNS">
         {{ entry?.didNotSkipAt ? 'Did Skip' : 'Did Not Skip' }}
       </text-button>

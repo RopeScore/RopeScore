@@ -64,7 +64,7 @@ interface TPBase {
 export interface Person extends TPBase {
   ijruId?: string
 }
-export function isPerson (x: any): x is Person { return !('members' in x) }
+export function isPerson (x: any): x is Person { return !!x && !('members' in x) }
 
 export interface TeamPerson {
   readonly id: number
@@ -75,7 +75,7 @@ export interface TeamPerson {
 export interface Team extends TPBase {
   members: TeamPerson[]
 }
-export function isTeam (x: any): x is Team { return 'members' in x }
+export function isTeam (x: any): x is Team { return !!x && 'members' in x }
 
 export type Participant = Team | Person
 
@@ -122,11 +122,11 @@ export interface MarkScoresheet extends ScoresheetBase {
 
   marks: Mark[]
 }
-export function isMarkScoresheet (x: any): x is MarkScoresheet { return 'deviceId' in x }
+export function isMarkScoresheet (x: any): x is MarkScoresheet { return !!x && 'deviceId' in x }
 
 export interface TallyScoresheet extends ScoresheetBase {
   tally: ScoreTally
 }
-export function isTallyScoresheet (x: any): x is TallyScoresheet { return !('deviceId' in x) }
+export function isTallyScoresheet (x: any): x is TallyScoresheet { return !!x && !('deviceId' in x) }
 
 export type Scoresheet = TallyScoresheet | MarkScoresheet
