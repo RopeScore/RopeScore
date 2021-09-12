@@ -22,7 +22,7 @@ export interface CompetitionEventRulesDefinition {
   name: string
   judges: JudgeType[]
   previewTable: TableHeader[]
-  resultTable: TableHeader[]
+  resultTable: TableDefinition
   calculateEntry: ReturnType<CalcEntryFn>
   rankEntries: ReturnType<RankEntriesFn>
 }
@@ -30,10 +30,7 @@ export interface CompetitionEventRulesDefinition {
 export interface OverallRulesDefinition {
   name: string
   competitionEvents: Array<[CompetitionEvent, { rankMultiplier?: number, resultMultiplier?: number }]>
-  resultTable: {
-    groups: TableHeaderGroup[][]
-    headers: TableHeader[]
-  }
+  resultTable: TableDefinition
   rankOverall: ReturnType<RankOverallFn>
 }
 
@@ -75,6 +72,7 @@ export interface OverallResult {
   result: { [prop: string]: number}
   componentResults: Record<CompetitionEvent, EntryResult>
 }
+export function isOverallResult (x: any): x is OverallResult { return !!x && 'componentResults' in x }
 
 export interface TableHeader {
   text: string
@@ -87,6 +85,12 @@ export interface TableHeader {
 export interface TableHeaderGroup {
   text: string
   key: string
+  color?: 'red' | 'green' | 'gray'
   rowspan?: number
   colspan?: number
+}
+
+export interface TableDefinition {
+  groups?: TableHeaderGroup[][]
+  headers: TableHeader[]
 }

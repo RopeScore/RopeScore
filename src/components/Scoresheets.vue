@@ -26,7 +26,7 @@
         />
 
         <mark-scoresheet
-          v-if="isMarkScoresheet(scoresheet)"
+          v-else-if="isMarkScoresheet(scoresheet)"
           :scoresheet-id="scoresheet.id"
           :ruleset="category.ruleset"
           :competition-event="competitionEvent"

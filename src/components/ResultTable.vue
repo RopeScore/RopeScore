@@ -72,7 +72,7 @@
             <th>ID</th>
 
             <th
-              v-for="header in cEvt.resultTable.headers ?? cEvt.resultTable"
+              v-for="header in cEvt.resultTable.headers"
               :key="header.key"
               :class="`text-${header.color}-500`"
             >
@@ -93,7 +93,7 @@
             </td>
 
             <td
-              v-for="header in cEvt.resultTable.headers ?? cEvt.resultTable"
+              v-for="header in cEvt.resultTable.headers"
               :key="header.key"
               class="text-right"
               :class="`text-${header.color}-500`"
@@ -114,7 +114,7 @@
 <script setup lang="ts">
 import { inject, computed, watch, ref, onUnmounted } from 'vue'
 import Excel from 'exceljs'
-import { isOverallRulesDefinition } from '../rules'
+import { isOverallRulesDefinition, isOverallResult } from '../rules'
 import { memberNames, isOverall, getAbbr } from '../helpers'
 import { useRuleset } from '../hooks/rulesets'
 import { useCategory } from '../hooks/categories'
@@ -207,7 +207,7 @@ function getParticipant (participantId: Participant['id']) {
 
 function getScore (header: TableHeader, result: EntryResult | OverallResult) {
   let score: number
-  if (header.component) score = result.componentResults[header.component].result[header.key]
+  if (header.component && isOverallResult(result)) score = result.componentResults[header.component].result[header.key]
   else score = result.result[header.key]
   return header.formatter?.(score) ?? score ?? ''
 }
@@ -285,7 +285,7 @@ function addGroupTableHeaders (worksheet: Excel.Worksheet, type: 'individual' | 
   if (!isOverallRulesDefinition(cEvt.value)) return
   const excelGroupedHeaderRows: any[][] = []
   const merges: [number, number, number, number][] = []
-  const groups = [...cEvt.value.resultTable.groups.map(gr => [...gr])]
+  const groups = [...(cEvt.value.resultTable.groups?.map(gr => [...gr]) ?? [])]
 
   groups[0].unshift({ text: '', key: 'parts', colspan: type === 'team' ? 4 : 3, rowspan: groups.length })
   // create array
@@ -411,7 +411,7 @@ function addTableHeaders (worksheet: Excel.Worksheet, type: 'individual' | 'team
     })
   }
 
-  for (const header of cEvt.value?.resultTable.headers ?? cEvt.value?.resultTable ?? []) {
+  for (const header of cEvt.value?.resultTable.headers ?? []) {
     row.push({
       richText: [{
         alignment: { horizontal: 'center', vertical: 'middle' },
@@ -460,7 +460,7 @@ function addParticipantRows (
         getParticipant(entryRes.participantId)?.id ?? ''
       )
     }
-    for (const header of cEvt.value?.resultTable.headers ?? cEvt.value?.resultTable ?? []) {
+    for (const header of cEvt.value?.resultTable.headers ?? []) {
       // row.push({
       //   richText: [
       //     {
@@ -480,7 +480,7 @@ function addParticipantRows (
     lastRow.eachCell((cell: any) => {
       cell.font = {
         color: {
-          argb: nameToARGB((cEvt.value?.resultTable.headers ?? cEvt.value?.resultTable)[cell.col - 1 - offset]?.color)
+          argb: nameToARGB(cEvt.value?.resultTable.headers[cell.col - 1 - offset]?.color)
         }
       }
       cell.alignment = {

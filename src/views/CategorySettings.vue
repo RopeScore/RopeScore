@@ -364,6 +364,7 @@ function addParticipant () {
 }
 
 function deleteParticipant (participant: Participant) {
+  // TODO: remove any entries they're part of, local and remote
   const participantIdx = participants.value.findIndex(p => p.id === participant.id)
   if (participantIdx < 0) return
   participants.value?.splice(participantIdx, 1)

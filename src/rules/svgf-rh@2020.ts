@@ -552,7 +552,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srss.1.30'),
       rankEntries: rankSpeedEntries('e.ijru.sp.sr.srss.1.30'),
       previewTable: speedPreviewTableHeaders,
-      resultTable: speedResultTableHeaders
+      resultTable: { headers: speedResultTableHeaders }
     },
     'e.ijru.sp.sr.srse.1.180': {
       name: 'Single Rope Speed Endurance',
@@ -560,7 +560,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srse.1.180'),
       rankEntries: rankSpeedEntries('e.ijru.sp.sr.srse.1.180'),
       previewTable: speedPreviewTableHeaders,
-      resultTable: speedResultTableHeaders
+      resultTable: { headers: speedResultTableHeaders }
     },
     'e.ijru.sp.sr.srtu.1.0': {
       name: 'Single Rope Triple Unders',
@@ -568,7 +568,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srtu.1.0'),
       rankEntries: rankSpeedEntries('e.ijru.sp.sr.srtu.1.0'),
       previewTable: speedPreviewTableHeaders,
-      resultTable: speedResultTableHeaders
+      resultTable: { headers: speedResultTableHeaders }
     },
     'e.ijru.fs.sr.srif.1.75': {
       name: 'Single Rope Individual Freestyle',
@@ -576,7 +576,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srif.1.75'),
       rankEntries: rankFreestyleEntries('e.ijru.fs.sr.srif.1.75'),
       previewTable: freestylePreviewTableHeaders,
-      resultTable: freestyleResultTableHeaders
+      resultTable: { headers: freestyleResultTableHeaders }
     },
 
     'e.ijru.sp.sr.srsr.4.4x30': {
@@ -585,7 +585,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srsr.4.4x30'),
       rankEntries: rankSpeedEntries('e.ijru.sp.sr.srsr.4.4x30'),
       previewTable: speedPreviewTableHeaders,
-      resultTable: speedResultTableHeaders
+      resultTable: { headers: speedResultTableHeaders }
     },
     'e.ijru.sp.sr.srdr.2.2x30': {
       name: 'Single Rope Double Unders Relay',
@@ -593,7 +593,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srdr.2.2x30'),
       rankEntries: rankSpeedEntries('e.ijru.sp.sr.srdr.2.2x30'),
       previewTable: speedPreviewTableHeaders,
-      resultTable: speedResultTableHeaders
+      resultTable: { headers: speedResultTableHeaders }
     },
     'e.svgf.sp.dd.ddsr.4.4x45': {
       name: 'Double Dutch Speed Relay',
@@ -601,7 +601,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateSpeedEntry('e.svgf.sp.dd.ddsr.4.4x45'),
       rankEntries: rankSpeedEntries('e.svgf.sp.dd.ddsr.4.4x45'),
       previewTable: speedPreviewTableHeaders,
-      resultTable: speedResultTableHeaders
+      resultTable: { headers: speedResultTableHeaders }
     },
     'e.ijru.sp.dd.ddss.3.60': {
       name: 'Double Dutch Speed Sprint',
@@ -609,7 +609,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateSpeedEntry('e.ijru.sp.dd.ddss.3.60'),
       rankEntries: rankSpeedEntries('e.ijru.sp.dd.ddss.3.60'),
       previewTable: speedPreviewTableHeaders,
-      resultTable: speedResultTableHeaders
+      resultTable: { headers: speedResultTableHeaders }
     },
 
     'e.ijru.fs.sr.srpf.2.75': {
@@ -618,7 +618,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srpf.2.75'),
       rankEntries: rankFreestyleEntries('e.ijru.fs.sr.srpf.2.75'),
       previewTable: freestylePreviewTableHeaders,
-      resultTable: freestyleResultTableHeaders
+      resultTable: { headers: freestyleResultTableHeaders }
     },
     'e.ijru.fs.sr.srtf.4.75': {
       name: 'Single Rope Team Freestyle',
@@ -626,7 +626,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srtf.4.75'),
       rankEntries: rankFreestyleEntries('e.ijru.fs.sr.srtf.4.75'),
       previewTable: freestylePreviewTableHeaders,
-      resultTable: freestyleResultTableHeaders
+      resultTable: { headers: freestyleResultTableHeaders }
     },
     'e.ijru.fs.dd.ddsf.3.75': {
       name: 'Double Dutch Single Freestyle',
@@ -634,7 +634,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddsf.3.75'),
       rankEntries: rankFreestyleEntries('e.ijru.fs.dd.ddsf.3.75'),
       previewTable: freestylePreviewTableHeaders,
-      resultTable: freestyleResultTableHeaders
+      resultTable: { headers: freestyleResultTableHeaders }
     },
     'e.ijru.fs.dd.ddpf.4.75': {
       name: 'Double Dutch Pair Freestyle',
@@ -642,7 +642,7 @@ const ruleset: Ruleset = {
       calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddpf.4.75'),
       rankEntries: rankFreestyleEntries('e.ijru.fs.dd.ddpf.4.75'),
       previewTable: freestylePreviewTableHeaders,
-      resultTable: freestyleResultTableHeaders
+      resultTable: { headers: freestyleResultTableHeaders }
     }
   },
   overalls: {

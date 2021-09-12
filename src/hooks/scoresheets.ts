@@ -12,7 +12,9 @@ export function useScoresheets (entryIdRef: MaybeRef<Entry['id']>, judgeIdRef: M
       const entryId = unref(entryIdRef)
       const judgeId = unref(judgeIdRef)
       if (!entryId) return
-      scoresheets.value = await db.scoresheets.where(!judgeId ? { entryId } : { entryId, judgeId }).sortBy('createdAt')
+      scoresheets.value = await db.scoresheets
+        .where(!judgeId ? { entryId } : { entryId, judgeId })
+        .sortBy('createdAt')
     }
   })
 

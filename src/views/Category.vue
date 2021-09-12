@@ -125,7 +125,6 @@ import { useCategory } from '../hooks/categories'
 import { useParticipants } from '../hooks/participants'
 import { useEntries } from '../hooks/entries'
 import { memberNames, getAbbr } from '../helpers'
-import { rulesets } from '../rules'
 import { v4 as uuid } from 'uuid'
 
 import ButtonLink from '../components/ButtonLink.vue'
@@ -141,11 +140,6 @@ const entries = useEntries(route.params.categoryId as string)
 function isSpeedEvent (cEvtDefCode: CompetitionEvent) {
   return cEvtDefCode.split('.')[2] === 'sp'
 }
-
-const ruleset = computed(() => {
-  if (!category.value) return null
-  return rulesets[category.value.ruleset]
-})
 
 const entryStatus = computed(() => {
   const res: Record<number, Record<string, undefined | 'created' | 'locked' | 'dns'>> = {}
