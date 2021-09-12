@@ -116,6 +116,11 @@
         }
       ],
       "icon": "src/assets/icon.ico"
+    },
+    "linux": {
+      "target": "dir",
+      "executableName": "ropescore",
+      "category": "Sports"
     }
   }
 }
