@@ -1,5 +1,5 @@
 <template>
-  <fieldset v-if="scoresheet && isTallyScoresheet(scoresheet)" class="mb-2">
+  <fieldset v-if="!table && isTallyScoresheet(scoresheet)" class="mb-2">
     <number-field
       v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
       :key="tField.schema"
@@ -12,6 +12,23 @@
       @update:model-value="setTally(tField.schema, $event)"
     />
   </fieldset>
+  <template v-else-if="table && isTallyScoresheet(scoresheet)">
+    <td
+      v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
+      :key="tField.schema"
+    >
+      <number-field
+        :model-value="scoresheet.tally[tField.schema]"
+        :label="tField.name"
+        :max="tField.max"
+        :min="tField.min"
+        :step="tField.step"
+        :disabled="disabled"
+        dense
+        @update:model-value="setTally(tField.schema, $event)"
+      />
+    </td>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -44,6 +61,10 @@ const props = defineProps({
     required: true
   },
   disabled: {
+    type: Boolean,
+    default: false
+  },
+  table: {
     type: Boolean,
     default: false
   }

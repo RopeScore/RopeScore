@@ -1,5 +1,5 @@
 <template>
-  <fieldset class="mb-2">
+  <fieldset v-if="!table" class="mb-2">
     <number-field
       v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
       :key="tField.schema"
@@ -8,6 +8,19 @@
       :disabled="true"
     />
   </fieldset>
+  <template v-else>
+    <td
+      v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
+      :key="tField.schema"
+    >
+      <number-field
+        :model-value="tally[tField.schema]"
+        :label="tField.name"
+        :disabled="true"
+        dense
+      />
+    </td>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -40,6 +53,10 @@ const props = defineProps({
     required: true
   },
   disabled: {
+    type: Boolean,
+    default: false
+  },
+  table: {
     type: Boolean,
     default: false
   }

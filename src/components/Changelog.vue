@@ -12,10 +12,10 @@
       The underlying data format has changed drastically, this may pave the
       way for remote sync in an upcoming version
     </li>
-    <li>App Scoring using https://ropescore.app</li>
-    <ul>
-      <li />
-    </ul>
+    <li>
+      App Scoring using
+      <a class="text-blue-700 hover:text-blue-900 underline">https://ropescore.app</a>
+    </li>
     <li>
       Marking groups as completed is back, this will show them at the end
       of the home screen list, defaulting to collapsed

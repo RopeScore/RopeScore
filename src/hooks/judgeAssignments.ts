@@ -5,13 +5,17 @@ import { useDexieArray, useDexie } from './dexie'
 import type { MaybeRef } from '@vueuse/shared'
 import type { JudgeAssignment, Category, Judge, CompetitionEvent } from '../store/schema'
 
-export function useJudgeAssignments (categoryId: MaybeRef<Category['id'] | undefined>) {
+export function useJudgeAssignments (categoryId: MaybeRef<Category['id'] | undefined>, competitionEventRef?: MaybeRef<CompetitionEvent | undefined>) {
   const { read, result } = useDexieArray<JudgeAssignment>({
     tableName: 'judgeAssignments',
     async read (assignments) {
-      const key = unref(categoryId)
-      if (!key) return
-      assignments.value = await db.judgeAssignments.where('categoryId').equals(key).sortBy('id')
+      const competitionId = unref(categoryId)
+      if (!competitionId) return
+      const competitionEvent = unref(competitionEventRef)
+      assignments.value = await db.judgeAssignments.where({
+        categoryId,
+        ...(competitionEvent ? { competitionEvent } : {})
+      }).sortBy('id')
     }
   })
 

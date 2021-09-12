@@ -16,7 +16,7 @@ export function useDexieArray<T extends TableTypes> ({ read, tableName }: UseDex
   const table = db[tableName]
   const primaryKey = table.schema.primKey.keyPath as keyof TableTypes
 
-  watch(emitters[tableName], () => { read(result) })
+  watch(emitters[tableName], () => { wrappedRead(result) })
   const { pause, resume } = pausableWatch(() => [...result.value], async (after, before) => {
     const idsBefore = new Map(before.map(ent => [ent[primaryKey], ent]))
     const idsAfter = new Map(after.map(ent => [ent[primaryKey], ent]))
@@ -64,7 +64,9 @@ export function useDexie<T extends TableTypes> ({ read, tableName }: UseDexieOpt
   watch(emitters[tableName], async ([_, id]) => {
     if (!id || id !== result.value?.[primaryKey]) return
 
-    result.value = await table.get(id) as T
+    console.log(tableName, id)
+
+    wrappedRead(result)
   })
   const { pause, resume } = pausableWatch(() => result.value ? JSON.parse(JSON.stringify(result.value)) : null, async (after, before) => {
     if (!before) return

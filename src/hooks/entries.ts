@@ -3,7 +3,7 @@ import { db } from '../store/idbStore'
 import { useDexieArray, useDexie } from './dexie'
 
 import type { MaybeRef } from '@vueuse/shared'
-import type { Category, Entry } from '../store/schema'
+import type { Category, Entry, Participant, CompetitionEvent } from '../store/schema'
 
 export function useEntries (categoryId: MaybeRef<Category['id'] | undefined>) {
   const { read, result } = useDexieArray<Entry>({
@@ -31,6 +31,33 @@ export function useEntry (entryId: MaybeRef<Entry['id'] | undefined>) {
   })
 
   if (isRef(entryId)) watch(entryId, () => read())
+
+  return result
+}
+
+export function useFindEntry (
+  categoryIdRef: MaybeRef<Category['id'] | undefined>,
+  participantIdRef: MaybeRef<Participant['id'] | undefined>,
+  competitionEventRef: MaybeRef<CompetitionEvent | undefined>
+) {
+  const { read, result } = useDexie<Entry>({
+    tableName: 'entries',
+    async read (entry) {
+      const categoryId = unref(categoryIdRef)
+      const participantId = unref(participantIdRef)
+      const competitionEvent = unref(competitionEventRef)
+      if (!categoryId || !participantId || !competitionEvent) return
+      entry.value = await db.entries.where({
+        categoryId,
+        participantId,
+        competitionEvent
+      }).first()
+    }
+  })
+
+  if (isRef(categoryIdRef)) watch(categoryIdRef, () => read())
+  if (isRef(participantIdRef)) watch(participantIdRef, () => read())
+  if (isRef(competitionEventRef)) watch(competitionEventRef, () => read())
 
   return result
 }

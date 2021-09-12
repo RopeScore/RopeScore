@@ -45,7 +45,7 @@
 
   <div class="mt-10" />
 
-  <div class="fixed bottom-0 right-0 left-0 h-18 bg-white  flex justify-center items-center border-t">
+  <div v-if="!entry.didNotSkipAt" class="fixed bottom-0 right-0 left-0 h-18 bg-white  flex justify-center items-center border-t">
     <div class="grid grid-rows-2 grid-cols-[repeat(auto-fill,1fr)] container">
       <template v-for="col of previewTable ?? []" :key="col.key">
         <span class="row-start-1 font-bold px-2 border-b">{{ col.text }}</span>
@@ -101,7 +101,10 @@ function goBack () {
 function toggleDNS () {
   if (!entry.value) return
   if (entry.value.didNotSkipAt) entry.value.didNotSkipAt = null
-  else entry.value.didNotSkipAt = Date.now()
+  else {
+    entry.value.didNotSkipAt = Date.now()
+    router.go(-1)
+  }
 }
 
 function toggleLock () {
