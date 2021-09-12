@@ -1,0 +1,37 @@
+on: [push, pull_request]
+
+name: Build and Release RopeScore
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    name: Build and Release ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm ci --prefer-offline
+      - run: npm run codegen
+      - name: Build project
+        run: npm run electron:build -- -p onTagOrDraft
+        env:
+          GH_TOKEN:  ${{ secrets.GH_TOKEN }}
+      # - name: Sentry Release
+      #   if: startsWith(matrix.os, 'ubuntu')
+      #   uses: getsentry/action-release@v1.0.0
+      #   with:
+      #     # Set the environment for this release. E.g. "production" or "staging".
+      #     environment: production
+      #     # Space-separated list of paths to JavaScript sourcemaps. Omit to skip uploading sourcemaps.
+      #     sourcemaps: dist_electron/bundled/js/*.js.map
