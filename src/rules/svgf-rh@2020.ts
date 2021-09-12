@@ -24,8 +24,9 @@ import type { ScoreTally, CompetitionEvent } from '../store/schema'
 // deduc
 const SpeedDed = 10
 
-export function L (x: number): number {
-  return x === 0.5 ? 0.5 : (0.5 * x) + 0.5
+export function L (l: number): number {
+  if (l === 0) return 0
+  return l === 0.5 ? 0.5 : (0.5 * l) + 0.5
 }
 
 // ======
@@ -542,7 +543,7 @@ const cEvtToName: Record<CompetitionEvent, string> = {
 }
 
 const ruleset: Ruleset = {
-  id: 'svgf-rh@20',
+  id: 'svgf-rh@2020',
   name: 'SvGF Rikshoppet 2020',
   competitionEvents: {
     'e.ijru.sp.sr.srss.1.30': {

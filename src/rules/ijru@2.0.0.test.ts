@@ -1,21 +1,9 @@
 /* eslint-env mocha */
 import * as mod from './ijru@2.0.0'
 import assert from 'assert'
+import { tScsh } from '../../test/helpets'
 
-import type { TallyScoresheet, ScoreTally, CompetitionEvent, Scoresheet } from '../store/schema'
-
-function tScsh (tally: ScoreTally, judgeType: string, competitionEvent: CompetitionEvent): TallyScoresheet {
-  return {
-    id: 'test-scoresheet',
-    judgeId: 1,
-    entryId: 'test-entry',
-    judgeType,
-    competitionEvent,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    tally
-  }
-}
+import type { CompetitionEvent, Scoresheet } from '../store/schema'
 
 describe('ijru@2.0.0', () => {
   describe('L', () => {
@@ -31,7 +19,7 @@ describe('ijru@2.0.0', () => {
       [7, 6.12],
       [8, 11.02]
     ]) {
-      it(`should calculate correct scores for L(${level})`, () => {
+      it(`should calculate correct score for L(${level})`, () => {
         assert.strictEqual(mod.L(level), points)
       })
     }
