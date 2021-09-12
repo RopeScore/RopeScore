@@ -93,6 +93,18 @@
     "publish": [
       "github"
     ],
+    "files": [
+      {
+        "from": "dist/electron",
+        "to": "electron"
+      },
+      {
+        "from": "dist/render",
+        "to": "render"
+      },
+      "package*json",
+      "LICENSE"
+    ],
     "mac": {
       "target": "dmg",
       "category": "public.app-category.sports",

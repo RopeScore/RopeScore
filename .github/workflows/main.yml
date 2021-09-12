@@ -1,8 +1,4 @@
-on:
-  push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+on: [push, pull_request]
 
 name: Build and Release RopeScore
 
@@ -14,16 +10,21 @@ jobs:
         os: [windows-latest, macos-latest]
     name: Build and Release ${{ matrix.os }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Setup Node.js for use with actions
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
         with:
-          version: 12.x
-      - name: Install dependencies
-        run: npm install
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm ci --prefer-offline
+      - run: npm run codegen
       - name: Build project
-        run: npm run electron:build -- -p always
+        run: npm run electron:build -- -p onTagOrDraft
         env:
           GH_TOKEN:  ${{ secrets.GH_TOKEN }}
       # - name: Sentry Release
