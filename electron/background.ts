@@ -30,7 +30,7 @@ function createWindow () {
   win.set(winId, newWin)
 
   if (isDevelopment) {
-    newWin.loadURL('app://index.html')
+    newWin.loadURL('http://localhost:5050')
     newWin.webContents.openDevTools()
   } else {
     // Load the index.html when not in development
@@ -70,7 +70,8 @@ function createWindow () {
         { role: 'zoomIn' },
         { role: 'zoomOut' },
         { type: 'separator' },
-        { role: 'togglefullscreen' }
+        { role: 'togglefullscreen' },
+        { role: 'toggleDevTools' }
       ]
     },
     {
@@ -116,15 +117,6 @@ function createWindow () {
     //   ]
     // }
   ]
-
-  if (isDevelopment) {
-    const viewMenu = menu.find(function (m) {
-      return m.role === 'viewMenu'
-    })
-    if (viewMenu && Array.isArray(viewMenu.submenu)) {
-      viewMenu.submenu.push({ role: 'toggleDevTools' })
-    }
-  }
 
   if (process.platform === 'darwin') {
     const name: string = app.getName()
