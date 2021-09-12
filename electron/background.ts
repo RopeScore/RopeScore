@@ -31,11 +31,9 @@ function createWindow () {
 
   if (isDevelopment) {
     newWin.loadURL('app://index.html')
-    // newWin.loadURL('http://localhost:5050')
     newWin.webContents.openDevTools()
   } else {
     // Load the index.html when not in development
-    // newWin.loadFile('render/index.html')
     newWin.loadURL('app://index.html')
     autoUpdater.checkForUpdatesAndNotify()
   }
@@ -222,10 +220,10 @@ app.whenReady().then(async () => {
     }
   }
 
-  const indexPath = path.normalize(path.resolve(__dirname, '..', 'dist', 'render', 'index.html'))
+  const indexPath = path.normalize(path.resolve(__dirname, '..', 'render', 'index.html'))
   protocol.registerFileProtocol('app', (request, callback) => {
     const url = request.url.substr(6).replace(/\/$/, '').replace(/^index\.html\/(.+)/, '$1')
-    const p = path.normalize(path.resolve(__dirname, '..', 'dist', 'render', url))
+    const p = path.normalize(path.resolve(__dirname, '..', 'render', url))
     try {
       accessSync(p, constants.R_OK)
       const mimeType = getType(p) ?? undefined
