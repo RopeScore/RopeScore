@@ -1,8 +1,10 @@
 import { app, protocol, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import * as path from 'path'
+import { accessSync, constants } from 'fs'
+import { getType } from 'mime/lite'
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
+const isDevelopment = process.env.NODE_ENV === 'development'
 
 app.disableHardwareAcceleration()
 
@@ -28,11 +30,13 @@ function createWindow () {
   win.set(winId, newWin)
 
   if (isDevelopment) {
-    newWin.loadURL('http://localhost:5050')
+    newWin.loadURL('app://index.html')
+    // newWin.loadURL('http://localhost:5050')
     newWin.webContents.openDevTools()
   } else {
     // Load the index.html when not in development
-    newWin.loadFile('dist/index.html')
+    // newWin.loadFile('render/index.html')
+    newWin.loadURL('app://index.html')
     autoUpdater.checkForUpdatesAndNotify()
   }
 
@@ -91,35 +95,28 @@ function createWindow () {
         { role: 'minimize' },
         { role: 'close' }
       ]
-    },
-    {
-      role: 'help',
-      submenu: [
-        {
-          label: 'Documentation',
-          accelerator: 'F1',
-          click: function (item: MenuItem, focusedWindow?: BrowserWindow) {
-            // if (focusedWindow) { focusedWindow.loadURL('http://localhost:3333/docs') }
-          }
-        },
-        {
-          label: 'Report Bugs',
-          click: function (item: MenuItem, focusedWindow?: BrowserWindow) {
-            if (focusedWindow) {
-              // focusedWindow.loadURL('http://localhost:3333/bugreport')
-            }
-          }
-        },
-        {
-          label: 'Licence',
-          click: function (item, focusedWindow) {
-            if (focusedWindow) {
-              // focusedWindow.loadURL('http://localhost:3333/licence')
-            }
-          }
-        }
-      ]
     }
+    // TODO
+    // {
+    //   role: 'help',
+    //   submenu: [
+    //     {
+    //       label: 'Documentation',
+    //       accelerator: 'F1',
+    //       click: function (item: MenuItem, focusedWindow?: BrowserWindow) {
+    //         // if (focusedWindow) { focusedWindow.loadURL('http://localhost:3333/docs') }
+    //       }
+    //     },
+    //     {
+    //       label: 'Report Bugs',
+    //       click: function (item: MenuItem, focusedWindow?: BrowserWindow) {
+    //         if (focusedWindow) {
+    //           // focusedWindow.loadURL('http://localhost:3333/bugreport')
+    //         }
+    //       }
+    //     }
+    //   ]
+    // }
   ]
 
   if (isDevelopment) {
@@ -189,7 +186,6 @@ function createWindow () {
       )
     }
   }
-  /* beautify preserve:end */
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu))
 }
@@ -215,20 +211,31 @@ app.on('activate', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
-  // if (isDevelopment) {
-  //   // Install Vue Devtools
-  //   const { default: installExtension, VUEJS_DEVTOOLS } = await import('electron-devtools-installer')
-  //   try {
-  //     await installExtension(VUEJS_DEVTOOLS)
-  //   } catch (e) {
-  //     console.error('Vue Devtools failed to install:', e.toString())
-  //   }
-  // }
+  if (isDevelopment) {
+    // Install Vue Devtools
+    const { default: installExtension, VUEJS3_DEVTOOLS, APOLLO_DEVELOPER_TOOLS } = await import('electron-devtools-installer')
+    try {
+      await installExtension(VUEJS3_DEVTOOLS)
+      await installExtension(APOLLO_DEVELOPER_TOOLS)
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e)
+    }
+  }
 
+  const indexPath = path.normalize(path.resolve(__dirname, '..', 'dist', 'render', 'index.html'))
   protocol.registerFileProtocol('app', (request, callback) => {
-    const url = request.url.substr(6)
-    // eslint-disable-next-line node/no-callback-literal
-    callback({ path: path.normalize(path.resolve(__dirname, '..', 'render', url)) })
+    const url = request.url.substr(6).replace(/\/$/, '').replace(/^index\.html\/(.+)/, '$1')
+    const p = path.normalize(path.resolve(__dirname, '..', 'dist', 'render', url))
+    try {
+      accessSync(p, constants.R_OK)
+      const mimeType = getType(p) ?? undefined
+      console.log(p, mimeType)
+      // eslint-disable-next-line node/no-callback-literal
+      callback({ path: p, mimeType })
+    } catch {
+      // eslint-disable-next-line node/no-callback-literal
+      callback({ path: indexPath })
+    }
   })
 
   createWindow()
