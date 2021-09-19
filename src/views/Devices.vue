@@ -139,9 +139,9 @@
 
     <div class="fixed bottom-0 right-0 left-0 h-18 bg-white px-2 flex justify-center items-center border-t">
       <div class="grid grid-cols-6 gap-4">
-        <div class="flex items-end justify-end py-1">
+        <div class="flex items-end justify-end py-1.5">
           <label>
-            <input v-model="autoIncrement" type="checkbox">
+            <input v-model="autoIncrement" type="checkbox" class="mb-1">
             Auto Increment
           </label>
         </div>
@@ -173,6 +173,7 @@
           :disabled="!formFilled || mutating"
           :loading="mutating"
           @click="findCreateEntry()"
+          class="mt-2"
         >
           Create Entry
         </text-button>
