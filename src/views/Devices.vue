@@ -172,8 +172,8 @@
           color="blue"
           :disabled="!formFilled || mutating"
           :loading="mutating"
-          @click="findCreateEntry()"
           class="mt-2"
+          @click="findCreateEntry()"
         >
           Create Entry
         </text-button>
