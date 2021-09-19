@@ -22,7 +22,7 @@ if (import.meta.env.PROD) {
     release: `${name}@${version}`,
     logErrors: true,
     integrations: [new Integrations.BrowserTracing({
-      tracingOrigins: ['localhost'],
+      tracingOrigins: ['localhost', 'core.ropescore.com'],
       routingInstrumentation: Sentry.vueRouterInstrumentation(router)
     })],
     tracesSampleRate: 1.0
