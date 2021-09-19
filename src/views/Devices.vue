@@ -125,7 +125,7 @@
             :group-id="String(route.params.groupId)"
             :entry="entry"
             :scoresheets="entry.scoresheets"
-            :device-ids="deviceIds"
+            :devices="devices"
           />
         </div>
       </template>
@@ -218,7 +218,6 @@ const devices = useResult(groupDevices.result, [], res => res?.group?.devices)
 groupDevices.onResult(() => {
   fetchTime.value = Date.now()
 })
-const deviceIds = useResult(groupDevices.result, [], res => res?.group?.devices.map(d => d.id) ?? [])
 const group = useResult(groupDevices.result, null, res => res?.group)
 
 const { mutate: addDevice, loading: addingDevice, onDone } = useAddGroupDeviceMutation({})

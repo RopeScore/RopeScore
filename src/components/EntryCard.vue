@@ -5,7 +5,7 @@
       'bg-green-100': localEntry?.lockedAt,
       'bg-gray-100': entry.didNotSkipAt
     }"
-    class="p-2 rounded"
+    class="p-2 rounded max-w-80"
   >
     <p class="font-semibold">
       {{ entry.categoryName }}
@@ -22,7 +22,7 @@
               :model-value="scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.device.id"
               class="min-w-24"
               dense
-              :data-list="filterUnassignedAndSelf(scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.device.id)"
+              :data-list="getDataList(scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.device)"
               label="Device"
               :disabled="loading || !!localEntry?.lockedAt || !!localEntry?.didNotSkipAt || !!scoresheetsObj[assignment.judgeId]?.[assignment.judgeType].submittedAt"
               @update:model-value="assignScoresheet(assignment, $event)"
@@ -55,13 +55,14 @@ import { useJudgeAssignments } from '../hooks/judgeAssignments'
 import { useJudges } from '../hooks/judges'
 import { useEntry } from '../hooks/entries'
 import { useCategory } from '../hooks/categories'
-import { useCreateScoresheetMutation, useReassignScoresheetMutation, ScoresheetFragmentFragmentDoc } from '../graphql/generated'
+import { useCreateScoresheetMutation, useReassignScoresheetMutation, ScoresheetFragmentFragmentDoc, Device } from '../graphql/generated'
 
 import SelectField from './SelectField.vue'
 
 import type { PropType } from 'vue'
 import type { Entry, Scoresheet } from '../graphql/generated'
 import type { JudgeAssignment } from '../store/schema'
+import type { DataListItem } from '../helpers'
 
 const props = defineProps({
   entry: {
@@ -76,8 +77,8 @@ const props = defineProps({
     type: String,
     required: true
   },
-  deviceIds: {
-    type: Array as PropType<Readonly<string[]>>,
+  devices: {
+    type: Array as PropType<Readonly<Array<Pick<Device, 'id' | 'name'>>>>,
     default: () => []
   }
 })
@@ -108,14 +109,15 @@ const scoresheetsObj = computed(() => {
   return result
 })
 
-function filterUnassignedAndSelf (selfId?: string) {
+function getDataList (self?: Pick<Device, 'id' | 'name'>): DataListItem[] {
   const assigned = props.scoresheets.map(scsh => scsh.device.id)
 
-  const arr = props.deviceIds.filter(dId => !assigned.includes(dId))
+  const arr = props.devices.filter(({ id }) =>
+    !assigned.includes(id) ||
+    id === self?.id
+  )
 
-  if (selfId) arr.unshift(selfId)
-
-  return arr
+  return arr.map(d => ({ value: d.id, text: d.name ? `${d.id} (${d.name})` : d.id }))
 }
 
 function scoresheetStatus (scoresheet: typeof props.scoresheets[number] | undefined) {
