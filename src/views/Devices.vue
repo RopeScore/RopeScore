@@ -111,6 +111,10 @@
 
     <p v-if="entryFetchTime" class="container mx-auto mb-2">
       The latest change happened {{ formatDate(entryFetchTime) }}.
+
+      <text-button :loading="groupEntries.loading.value" @click="groupEntries.refetch()">
+        Refresh
+      </text-button>
     </p>
 
     <div class="min-w-full overflow-x-auto grid grid-cols-[3rem,auto] gap-2">
