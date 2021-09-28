@@ -147,9 +147,9 @@ export function calculateTally (scoresheet: Scoresheet, tallyFields?: Readonly<F
       if (mark.schema === 'undo') {
         const target = scoresheet.marks[mark.target]
         if (!target || target.schema === 'undo') continue
-        tally[target.schema] = (tally[target.schema] ?? 0) - 1
+        tally[target.schema] = (tally[target.schema] ?? 0) - (target.value ?? 1)
       } else {
-        tally[mark.schema] = (tally[mark.schema] ?? 0) + 1
+        tally[mark.schema] = (tally[mark.schema] ?? 0) + (mark.value ?? 1)
       }
     }
   }

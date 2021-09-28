@@ -109,8 +109,8 @@
       New data is fetched every 60 seconds.
     </p>
 
-    <p v-if="entryFetchTime" class="container mx-auto mb-2">
-      The latest change happened {{ formatDate(entryFetchTime) }}.
+    <p class="container mx-auto mb-2">
+      The latest change happened {{ entryFetchTime ? formatDate(entryFetchTime) : 'never' }}.
 
       <text-button :loading="groupEntries.loading.value" @click="groupEntries.refetch()">
         Refresh

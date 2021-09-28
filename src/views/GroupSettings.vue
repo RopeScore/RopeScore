@@ -103,6 +103,8 @@ onError(() => {
 function toggleCompleted () {
   if (!group.value) return
 
+  // TODO: mark remote group completed
+
   if (group.value.completedAt) group.value.completedAt = null
   else group.value.completedAt = Date.now()
 }

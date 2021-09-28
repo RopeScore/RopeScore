@@ -147,7 +147,7 @@ export const presentationJudge: JudgeTypeFn = cEvtDef => {
         }]
       : [{
           schema: 'usingMusic',
-          name: 'Använder Musiken',
+          name: 'Använder musiken',
           min: 0,
           max: 10,
           step: 0.5

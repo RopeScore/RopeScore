@@ -68,6 +68,9 @@ async function addGroup () {
     remote: newGroup.remote
   })
 
+  newGroup.name = ''
+  newGroup.remote = false
+
   dialogRef.value?.close()
 }
 </script>

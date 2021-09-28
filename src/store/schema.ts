@@ -91,12 +91,22 @@ export interface Entry {
   heat?: number
 }
 
-export interface Mark {
+export interface GenericMark {
   timestamp: number
   sequence: number
   schema: string
+  value?: number
   [prop: string]: any
 }
+
+export interface UndoMark {
+  timestamp: number
+  sequence: number
+  schema: 'undo'
+  target: number
+}
+
+export type Mark = GenericMark | UndoMark
 
 export type ScoreTally<T extends string = string> = Record<T, number>
 

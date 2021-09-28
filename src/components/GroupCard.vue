@@ -101,6 +101,10 @@ function addCategory () {
     }
   })
 
+  newCategory.name = ''
+  newCategory.ruleset = undefined
+  newCategory.type = 'individual'
+
   dialogRef.value?.close()
 }
 </script>
