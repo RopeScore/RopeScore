@@ -1,4 +1,4 @@
-import { isTeam, isTallyScoresheet, isMarkScoresheet } from './store/schema'
+import { isTeam, isTallyScoresheet, isMarkScoresheet, isUndoMark } from './store/schema'
 
 import type { Participant, CompetitionEvent, ScoreTally, Scoresheet } from './store/schema'
 import type { FieldDefinition, EntryResult } from './rules'
@@ -144,9 +144,9 @@ export function calculateTally (scoresheet: Scoresheet, tallyFields?: Readonly<F
 
   if (isMarkScoresheet(scoresheet)) {
     for (const mark of scoresheet.marks) {
-      if (mark.schema === 'undo') {
+      if (isUndoMark(mark)) {
         const target = scoresheet.marks[mark.target]
-        if (!target || target.schema === 'undo') continue
+        if (!target || isUndoMark(target)) continue
         tally[target.schema] = (tally[target.schema] ?? 0) - (target.value ?? 1)
       } else {
         tally[mark.schema] = (tally[mark.schema] ?? 0) + (mark.value ?? 1)

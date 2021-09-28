@@ -105,6 +105,7 @@ export interface UndoMark {
   schema: 'undo'
   target: number
 }
+export function isUndoMark (x: any): x is UndoMark { return x && x.schema === 'undo' }
 
 export type Mark = GenericMark | UndoMark
 
