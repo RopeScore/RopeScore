@@ -101,6 +101,11 @@ function findJudge (judgeId: number) {
 const scoresheetsObj = computed(() => {
   const result: Record<string | number, Record<string, typeof props.scoresheets[number]>> = {}
 
+  // sort ascending by createdAt time so that the last one will be picked
+  // in the loop below
+  const scoresheets = [...props.scoresheets]
+  scoresheets.sort((a, b) => a.createdAt - b.createdAt)
+
   for (const scoresheet of props.scoresheets) {
     result[scoresheet.judgeId] ??= {}
     result[scoresheet.judgeId][scoresheet.judgeType] = scoresheet
