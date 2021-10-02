@@ -16,6 +16,7 @@
     <td
       v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
       :key="tField.schema"
+      class="min-w-16"
     >
       <number-field
         :model-value="scoresheet.tally[tField.schema]"
