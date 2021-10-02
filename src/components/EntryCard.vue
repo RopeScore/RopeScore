@@ -5,7 +5,7 @@
       'bg-green-100': localEntry?.lockedAt,
       'bg-gray-100': entry.didNotSkipAt
     }"
-    class="p-2 rounded max-w-80"
+    class="p-2 rounded"
   >
     <p class="font-semibold">
       {{ entry.categoryName }}
@@ -17,7 +17,7 @@
       <tbody>
         <tr v-for="assignment of judgeAssignments" :key="assignment.id">
           <td>{{ assignment.judgeId }} (<span class="font-semibold">{{ assignment.judgeType }}</span>): <span class="font-semibold">{{ findJudge(assignment.judgeId)?.name }}</span></td>
-          <td>
+          <td class="max-w-40">
             <select-field
               :model-value="scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.device.id"
               class="min-w-24"
