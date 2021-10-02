@@ -108,18 +108,45 @@
       </span>
       New data is fetched every 60 seconds.
     </p>
+  </section>
 
-    <p class="container mx-auto mb-2">
-      The latest change happened {{ entryFetchTime ? formatDate(entryFetchTime) : 'never' }}.
+  <section class="grid grid-rows-[min-content,minmax(0,1fr)] sticky top-[3.5rem] bg-white w-full z-1000">
+    <div class="flex flex-row container mx-auto justify-center">
+      <div
+        v-for="device of devices"
+        :key="`${device.id}-${fetchTime}`"
+        class="w-14 flex items-center justify-center"
+        :class="{
+          'bg-green-300': device.battery?.batteryLevel > 30,
+          'bg-orange-200': device.battery?.batteryLevel <= 30 && device.battery.batteryLevel > 15,
+          'bg-red-200': device.battery?.batteryLevel <= 15,
+          'bg-gray-200': !device.battery
+        }"
+      >
+        {{ device.battery?.batteryLevel ?? '-' }}
+      </div>
+    </div>
+    <div class="container mx-auto flex flex-row justify-between my-1">
+      <p>
+        The latest change happened {{ entryFetchTime ? formatDate(entryFetchTime) : 'never' }}.
 
-      <text-button :loading="groupEntries.loading.value" @click="groupEntries.refetch()">
-        Refresh
-      </text-button>
-    </p>
+        <text-button :loading="groupEntries.loading.value" @click="groupEntries.refetch()">
+          Refresh
+        </text-button>
+      </p>
 
+      <div>
+        <text-button @click="scrollToUnlocked()">
+          Scroll
+        </text-button>
+      </div>
+    </div>
+  </section>
+
+  <section>
     <div class="min-w-full overflow-x-auto grid grid-cols-[3rem,auto] gap-2">
       <template v-for="(ents, heat) of entries" :key="heat">
-        <div class="sticky right-2 flex items-center justify-end">
+        <div :id="`heat-${heat}`" class="sticky right-2 flex items-center justify-end">
           {{ heat }}
         </div>
         <div class="flex gap-2 overflow-x-auto">
@@ -235,7 +262,7 @@ const { mutate: removeDevice, loading: removingDevice } = useRemoveGroupDeviceMu
 const { mutate: setDidNotSkip } = useSetEntryDidNotSkipMutation({})
 const groupEntries = useGroupEntriesQuery(
   () => ({ groupId: route.params.groupId as string }),
-  { pollInterval: 60_000 }
+  { pollInterval: 5_000 }
 )
 const entries = useResult(groupEntries.result, {}, res => {
   const ents = [...(res?.group?.entries ?? [])]
@@ -450,6 +477,20 @@ async function findCreateEntry () {
   }
 
   newEntry.participantId.value = undefined
+}
+
+function scrollToUnlocked () {
+  const firstHeatWithUnlocked = Object.entries(entries.value)
+    .find(([heat, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.every(scsh => !scsh.submittedAt)))
+
+  if (!firstHeatWithUnlocked) return
+
+  const heat = firstHeatWithUnlocked[0]
+  const el = document.getElementById(`heat-${heat}`)
+
+  if (!el) return
+
+  el.scrollIntoView({ behavior: 'auto', block: 'center' })
 }
 
 function toISO (ts: number | Date) {
