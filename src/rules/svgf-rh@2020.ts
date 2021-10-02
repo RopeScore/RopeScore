@@ -409,8 +409,7 @@ export const freestyleResultTableHeaders: TableHeader[] = [
   { text: 'Diff', key: 'D', formatter: roundToCurry(2) },
   { text: 'Diff Rank', key: 'DRank', color: 'red' },
 
-  { text: 'Rank Sum', key: 'T', color: 'green' },
-  { text: 'Rank', key: 'S', color: 'red' }
+  { text: 'Rank Sum', key: 'T', color: 'green' }
 ]
 
 export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: TableHeaderGroup[][], headers: TableHeader[] } = cEvtDefs => {
