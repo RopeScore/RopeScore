@@ -37,7 +37,7 @@
 
   <section class="container mx-auto mt-8">
     <h1>Changelog</h1>
-    <changelog />
+    <rs-changelog />
   </section>
 </template>
 
@@ -45,7 +45,7 @@
 import { useSystem } from '../hooks/system'
 import { useRegisterUserMutation } from '../graphql/generated'
 
-import Changelog from '../components/Changelog.vue'
+import RsChangelog from '../components/RsChangelog.vue'
 import TextField from '../components/TextField.vue'
 import TextButton from '../components/TextButton.vue'
 import NoteCard from '../components/NoteCard.vue'
