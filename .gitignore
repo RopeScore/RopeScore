@@ -9,3 +9,4 @@ graphql.schema.json
 src/graphql/generated.ts
 
 coverage
+.vscode
