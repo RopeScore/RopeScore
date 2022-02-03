@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { v4 as uuid } from 'uuid'
 
-import IconCheck from 'virtual:vite-icons/mdi/check'
+import IconCheck from 'virtual:icons/mdi/check'
 
 defineProps({
   dense: {

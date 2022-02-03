@@ -233,7 +233,7 @@ import TextField from '../components/TextField.vue'
 import SelectField from '../components/SelectField.vue'
 import TextButton from '../components/TextButton.vue'
 import EntryCard from '../components/EntryCard.vue'
-import IconLoading from 'virtual:vite-icons/mdi/loading'
+import IconLoading from 'virtual:icons/mdi/loading'
 
 import type { CompetitionEvent, MarkScoresheet, Mark } from '../store/schema'
 

@@ -239,7 +239,7 @@ import countryData from '../data/countries.json'
 import TextButton from '../components/TextButton.vue'
 import TextField from '../components/TextField.vue'
 import SelectField from '../components/SelectField.vue'
-import IconCheck from 'virtual:vite-icons/mdi/check'
+import IconCheck from 'virtual:icons/mdi/check'
 
 import type { CompetitionEvent, Category, Participant, Person, Team, Judge, JudgeAssignment } from '../store/schema'
 

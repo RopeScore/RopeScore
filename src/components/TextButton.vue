@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
 
-import IconLoading from 'virtual:vite-icons/mdi/loading'
+import IconLoading from 'virtual:icons/mdi/loading'
 
 defineProps({
   dense: {

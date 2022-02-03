@@ -21,7 +21,7 @@
 import { ref } from 'vue'
 
 import TextButton from './TextButton.vue'
-import IconClose from 'virtual:vite-icons/mdi/close'
+import IconClose from 'virtual:icons/mdi/close'
 
 defineProps({
   label: {
