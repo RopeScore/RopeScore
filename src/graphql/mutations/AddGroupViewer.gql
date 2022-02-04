@@ -1,0 +1,8 @@
+mutation AddGroupViewer ($groupId: ID!, $userId: ID!) {
+  addGroupViewer (groupId: $groupId, userId: $userId) {
+    id
+    viewers {
+      id
+    }
+  }
+}

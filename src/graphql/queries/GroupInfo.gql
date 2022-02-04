@@ -1,0 +1,11 @@
+query GroupInfo ($groupId: ID!) {
+  group (groupId: $groupId) {
+    id
+    admin { id }
+    viewers { id }
+    devices {
+      id
+      name
+    }
+  }
+}

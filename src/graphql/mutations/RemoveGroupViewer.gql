@@ -1,0 +1,8 @@
+mutation RemoveGroupViewer ($groupId: ID!, $userId: ID!) {
+  removeGroupViewer (groupId: $groupId, userId: $userId) {
+    id
+    viewers {
+      id
+    }
+  }
+}

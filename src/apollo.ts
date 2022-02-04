@@ -3,7 +3,7 @@ import { setContext } from '@apollo/client/link/context'
 import { useSystem } from './hooks/system'
 
 const httpLink = createHttpLink({
-  uri: 'https://api.ropescore.app'
+  uri: 'https://api.ropescore.com'
 })
 
 const system = useSystem()

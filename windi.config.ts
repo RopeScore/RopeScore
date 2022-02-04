@@ -16,6 +16,11 @@ export default defineConfig({
           lineHeight: '1.75rem',
           fontWeight: '600'
         },
+        h3: {
+          fontSize: '1rem',
+          lineHeight: '1.125rem',
+          fontWeight: '600'
+        },
         ol: {
           listStyleType: 'decimal',
           marginLeft: '1.5rem'
