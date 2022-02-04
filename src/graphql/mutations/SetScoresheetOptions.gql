@@ -1,0 +1,6 @@
+mutation SetScoresheetOptions ($scoresheetId: ID!, $options: JSONObject!) {
+  setScoresheetOptions (scoresheetId: $scoresheetId, options: $options) {
+    id
+    options
+  }
+}

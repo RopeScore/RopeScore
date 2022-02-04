@@ -24,7 +24,7 @@
   "dependencies": {
     "@apollo/client": "^3.4.15",
     "@github/time-elements": "^3.1.2",
-    "@ropescore/components": "^1.0.4",
+    "@ropescore/components": "^1.1.1",
     "@sentry/tracing": "^6.13.2",
     "@sentry/vue": "^6.13.2",
     "@vue/apollo-composable": "^4.0.0-alpha.15",

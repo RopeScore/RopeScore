@@ -15,6 +15,14 @@
     <p><span class="font-semibold">{{ entry.competitionEventLookupCode }}</span></p>
 
     <table class="w-full">
+      <thead>
+        <tr>
+          <th>Judge</th>
+          <th>Device</th>
+          <th><abbr title="Status: (C)reated, (O)pened, (S)ubmitted">S</abbr></th>
+          <th><abbr title="Live display">L</abbr></th>
+        </tr>
+      </thead>
       <tbody>
         <tr v-for="assignment of judgeAssignments" :key="assignment.id">
           <td>{{ assignment.judgeId }} (<span class="font-semibold">{{ assignment.judgeType }}</span>): <span class="font-semibold">{{ findJudge(assignment.judgeId)?.name }}</span></td>
@@ -43,6 +51,15 @@
             <span v-else-if="scoresheetStatus(scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]) === 'opened'" title="Opened">O</span>
             <span v-else-if="scoresheetStatus(scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]) === 'submitted'" title="Submitted">S</span>
           </td>
+          <td>
+            <checkbox-field
+              dense
+              :loading="setScoresheetOptions.loading.value"
+              :disabled="!scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.device.id"
+              :model-value="scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.options?.live"
+              @change="setScoresheetLive(scoresheetsObj[assignment.judgeId]?.[assignment.judgeType])"
+            />
+          </td>
         </tr>
       </tbody>
     </table>
@@ -56,9 +73,9 @@ import { useJudgeAssignments } from '../hooks/judgeAssignments'
 import { useJudges } from '../hooks/judges'
 import { useEntry } from '../hooks/entries'
 import { useCategory } from '../hooks/categories'
-import { useCreateScoresheetMutation, useReassignScoresheetMutation, ScoresheetFragmentDoc, Device } from '../graphql/generated'
+import { useCreateScoresheetMutation, useReassignScoresheetMutation, ScoresheetFragmentDoc, Device, useSetScoresheetOptionsMutation } from '../graphql/generated'
 
-import { SelectField } from '@ropescore/components'
+import { SelectField, CheckboxField } from '@ropescore/components'
 
 import type { PropType } from 'vue'
 import type { EntryFragment, ScoresheetFragment } from '../graphql/generated'
@@ -107,7 +124,7 @@ const scoresheetsObj = computed(() => {
   const scoresheets = [...props.scoresheets]
   scoresheets.sort((a, b) => a.createdAt - b.createdAt)
 
-  for (const scoresheet of props.scoresheets) {
+  for (const scoresheet of scoresheets) {
     result[scoresheet.judgeId] ??= {}
     result[scoresheet.judgeId][scoresheet.judgeType] = scoresheet
   }
@@ -174,5 +191,29 @@ function assignScoresheet (assignment: JudgeAssignment, deviceId: string) {
       }
     })
   }
+}
+
+const setScoresheetOptions = useSetScoresheetOptionsMutation({})
+
+async function setScoresheetLive (scsh: ScoresheetFragment) {
+  const promises = []
+  for (const scoresheet of props.scoresheets) {
+    if (scoresheet.id === scsh.id) continue
+    if (scoresheet.completedAt) continue
+    if (!scoresheet.options?.live) continue
+
+    const { live, ...options } = scoresheet.options
+
+    promises.push(setScoresheetOptions.mutate({ scoresheetId: scoresheet.id, options }))
+  }
+
+  const options = {
+    ...(scsh.options ?? {}),
+    live: true
+  }
+
+  promises.push(setScoresheetOptions.mutate({ scoresheetId: scsh.id, options }))
+
+  await Promise.all(promises)
 }
 </script>
