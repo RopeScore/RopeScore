@@ -64,7 +64,7 @@ import { useRuleset } from '../hooks/rulesets'
 import { useCategory, useCategories } from '../hooks/categories'
 import { useGroup } from '../hooks/groups'
 
-import TextButton from '../components/TextButton.vue'
+import { TextButton } from '@ropescore/components'
 import ExcelWorkbook from '../components/ExcelWorkbook.vue'
 import ResultTable from '../components/ResultTable.vue'
 

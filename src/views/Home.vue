@@ -36,13 +36,9 @@ import { useGroups } from '../hooks/groups'
 import { useSystem } from '../hooks/system'
 import { useCreateGroupMutation } from '../graphql/generated'
 
+
+import { ButtonLink, TextField, DialogButton, TextButton, CheckboxField, NoteCard } from '@ropescore/components'
 import GroupCard from '../components/GroupCard.vue'
-import TextField from '../components/TextField.vue'
-import DialogButton from '../components/DialogButton.vue'
-import TextButton from '../components/TextButton.vue'
-import CheckboxField from '../components/CheckboxField.vue'
-import ButtonLink from '../components/ButtonLink.vue'
-import NoteCard from '../components/NoteCard.vue'
 
 const system = useSystem()
 const groups = useGroups()

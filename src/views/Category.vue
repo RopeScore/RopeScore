@@ -127,7 +127,7 @@ import { useEntries } from '../hooks/entries'
 import { memberNames, getAbbr } from '../helpers'
 import { v4 as uuid } from 'uuid'
 
-import ButtonLink from '../components/ButtonLink.vue'
+import { ButtonLink } from '@ropescore/components'
 
 import type { CompetitionEvent, Participant } from '../store/schema'
 

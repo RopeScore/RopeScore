@@ -33,7 +33,7 @@ import type { PropType } from 'vue'
 import type { CompetitionEvent } from '../store/schema'
 import type { RulesetId } from '../rules'
 
-import NumberField from './NumberField.vue'
+import { NumberField } from '@ropescore/components'
 
 const props = defineProps({
   scoresheetId: {

@@ -42,7 +42,7 @@ import { useRoute } from 'vue-router'
 import { version } from '../package.json'
 import { useSystem } from './hooks/system'
 
-import ButtonLink from './components/ButtonLink.vue'
+import { ButtonLink } from '@ropescore/components'
 
 const route = useRoute()
 

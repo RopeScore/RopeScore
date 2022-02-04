@@ -45,10 +45,8 @@
 import { useSystem } from '../hooks/system'
 import { useRegisterUserMutation } from '../graphql/generated'
 
+import { TextButton, TextField, NoteCard } from '@ropescore/components'
 import RsChangelog from '../components/RsChangelog.vue'
-import TextField from '../components/TextField.vue'
-import TextButton from '../components/TextButton.vue'
-import NoteCard from '../components/NoteCard.vue'
 
 const system = useSystem()
 

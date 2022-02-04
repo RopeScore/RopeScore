@@ -229,9 +229,7 @@ import { useEntries } from '../hooks/entries'
 import { db } from '../store/idbStore'
 import { formatDate } from '../helpers'
 
-import TextField from '../components/TextField.vue'
-import SelectField from '../components/SelectField.vue'
-import TextButton from '../components/TextButton.vue'
+import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
 

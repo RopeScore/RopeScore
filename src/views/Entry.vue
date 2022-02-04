@@ -65,7 +65,7 @@ import { useRuleset } from '../hooks/rulesets'
 import { useEntry } from '../hooks/entries'
 import { useScoresheets } from '../hooks/scoresheets'
 
-import TextButton from '../components/TextButton.vue'
+import { TextButton } from '@ropescore/components'
 import Scoresheets from '../components/Scoresheets.vue'
 
 import type { Entry, JudgeAssignment } from '../store/schema'

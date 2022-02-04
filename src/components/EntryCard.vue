@@ -57,7 +57,7 @@ import { useEntry } from '../hooks/entries'
 import { useCategory } from '../hooks/categories'
 import { useCreateScoresheetMutation, useReassignScoresheetMutation, ScoresheetFragmentFragmentDoc, Device } from '../graphql/generated'
 
-import SelectField from './SelectField.vue'
+import { SelectField } from '@ropescore/components'
 
 import type { PropType } from 'vue'
 import type { Entry, Scoresheet } from '../graphql/generated'

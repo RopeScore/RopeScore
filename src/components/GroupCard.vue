@@ -58,11 +58,7 @@ import { useCategories } from '../hooks/categories'
 import { useGroup } from '../hooks/groups'
 import { rulesets } from '../rules'
 
-import ButtonLink from './ButtonLink.vue'
-import TextField from '../components/TextField.vue'
-import SelectField from '../components/SelectField.vue'
-import DialogButton from '../components/DialogButton.vue'
-import TextButton from '../components/TextButton.vue'
+import { ButtonLink, TextField, SelectField, DialogButton, TextButton } from '@ropescore/components'
 
 const props = defineProps({
   groupId: {

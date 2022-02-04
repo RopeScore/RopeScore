@@ -124,7 +124,7 @@ import { useParticipants } from '../hooks/participants'
 import { version } from '../../package.json'
 import { db } from '../store/idbStore'
 
-import TextButton from './TextButton.vue'
+import { TextButton } from '@ropescore/components'
 
 import type { Ref, PropType } from 'vue'
 import type { CompetitionEvent, Participant } from '../store/schema'

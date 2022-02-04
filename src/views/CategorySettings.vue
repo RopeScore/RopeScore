@@ -230,15 +230,12 @@ import { useRuleset } from '../hooks/rulesets'
 import { isTeam, isPerson } from '../store/schema'
 import { memberNames, getAbbr } from '../helpers'
 import { db } from '../store/idbStore'
-// import { rulesets } from '../rules'
 import { useSetEntryDidNotSkipMutation } from '../graphql/generated'
 import pLimit from 'p-limit'
 
 import countryData from '../data/countries.json'
 
-import TextButton from '../components/TextButton.vue'
-import TextField from '../components/TextField.vue'
-import SelectField from '../components/SelectField.vue'
+import { TextButton, TextField, SelectField } from '@ropescore/components'
 import IconCheck from 'virtual:icons/mdi/check'
 
 import type { CompetitionEvent, Category, Participant, Person, Team, Judge, JudgeAssignment } from '../store/schema'

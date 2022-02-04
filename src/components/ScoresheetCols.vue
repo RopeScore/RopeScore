@@ -54,7 +54,7 @@ import { useJudgeAssignment } from '../hooks/judgeAssignments'
 import { isTallyScoresheet, isMarkScoresheet } from '../store/schema'
 import { calculateTally } from '../helpers'
 
-import TextButton from './TextButton.vue'
+import { TextButton } from '@ropescore/components'
 import TallyScoresheet from './TallyScoresheet.vue'
 import MarkScoresheet from './MarkScoresheet.vue'
 

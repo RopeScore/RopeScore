@@ -149,7 +149,7 @@ import { memberNames } from '../helpers'
 import { db } from '../store/idbStore'
 import { v4 as uuid } from 'uuid'
 
-import TextButton from '../components/TextButton.vue'
+import { TextButton } from '@ropescore/components'
 import ScoresheetCols from '../components/ScoresheetCols.vue'
 import ResultCols from '../components/ResultCols.vue'
 
