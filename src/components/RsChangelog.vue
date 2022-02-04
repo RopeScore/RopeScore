@@ -17,6 +17,12 @@
       <a class="text-blue-700 hover:text-blue-900 underline">https://ropescore.app</a>
     </li>
     <li>
+      Live speed display when clicking with
+      <a class="text-blue-700 hover:text-blue-900 underline">https://ropescore.app</a>
+      found on
+      <a class="text-blue-700 hover:text-blue-900 underline">https://ropescore.live</a>
+    </li>
+    <li>
       Marking groups as completed is back, this will show them at the end
       of the home screen list, defaulting to collapsed
     </li>
