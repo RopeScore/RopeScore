@@ -17,6 +17,7 @@ generates:
     config:
       exportFragmentSpreadSubTypes: true
       vueCompositionApiImportFrom: vue
+      dedupeOperationSuffix: true
     documents:
       - './src/**/*.{gql,graphql}'
       - './src/**/!(*.d).{ts,vue}'

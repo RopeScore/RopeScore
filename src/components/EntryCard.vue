@@ -10,6 +10,7 @@
     <p class="font-semibold">
       {{ entry.categoryName }}
     </p>
+    <p>Pool: {{ entry.pool ?? '-' }}</p>
     <p>{{ entry.participantId }}: <span class="font-semibold">{{ entry.participantName }}</span></p>
     <p><span class="font-semibold">{{ entry.competitionEventLookupCode }}</span></p>
 
@@ -55,22 +56,22 @@ import { useJudgeAssignments } from '../hooks/judgeAssignments'
 import { useJudges } from '../hooks/judges'
 import { useEntry } from '../hooks/entries'
 import { useCategory } from '../hooks/categories'
-import { useCreateScoresheetMutation, useReassignScoresheetMutation, ScoresheetFragmentFragmentDoc, Device } from '../graphql/generated'
+import { useCreateScoresheetMutation, useReassignScoresheetMutation, ScoresheetFragmentDoc, Device } from '../graphql/generated'
 
 import { SelectField } from '@ropescore/components'
 
 import type { PropType } from 'vue'
-import type { Entry, Scoresheet } from '../graphql/generated'
+import type { EntryFragment, ScoresheetFragment } from '../graphql/generated'
 import type { JudgeAssignment } from '../store/schema'
 import type { DataListItem } from '../helpers'
 
 const props = defineProps({
   entry: {
-    type: Object as PropType<Readonly<Entry>>,
+    type: Object as PropType<Readonly<EntryFragment>>,
     required: true
   },
   scoresheets: {
-    type: Array as PropType<Readonly<Scoresheet[]>>,
+    type: Array as PropType<Readonly<ScoresheetFragment[]>>,
     default: () => []
   },
   groupId: {
@@ -143,7 +144,7 @@ const createScoresheet = useCreateScoresheetMutation({
       fields: {
         scoresheets (existingScoresheetRefs = []) {
           const newScshRefs = data.createScoresheets.map(scsh => cache.writeFragment({
-            fragment: ScoresheetFragmentFragmentDoc,
+            fragment: ScoresheetFragmentDoc,
             data: scsh
           }))
           return [...existingScoresheetRefs, ...newScshRefs]

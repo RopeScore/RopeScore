@@ -92,7 +92,7 @@
     </h1>
 
     <p class="container mx-auto mb-2">
-      You'll most likely want mutiple entries per heat for speed events, and one
+      You'll most likely want multiple entries per heat for speed events, and one
       entry per heat for freestyle events, unless you are running multiple
       freestyle panels side by side.
     </p>
@@ -162,14 +162,14 @@
       </template>
     </div>
 
-    <div class="mt-10" />
+    <div class="mt-30 lg:mt-10" />
 
-    <div class="fixed bottom-0 right-0 left-0 h-18 bg-white px-2 flex justify-center items-center border-t">
-      <div class="grid grid-cols-6 gap-4">
+    <div class="fixed bottom-0 right-0 left-0 h-36 lg:h-18 bg-white px-2 flex justify-center items-center border-t z-1500">
+      <div class="grid grid-cols-4 lg:grid-cols-7 gap-4">
         <div class="flex items-end justify-end py-1.5">
           <label>
             <input v-model="autoIncrement" type="checkbox" class="mb-1">
-            Auto Increment
+            Auto Increment Heat
           </label>
         </div>
         <text-field
@@ -178,11 +178,17 @@
           label="Heat"
           :data-list="heats"
         />
+        <text-field
+          v-model="newEntry.pool.value"
+          type="number"
+          label="Pool"
+        />
         <select-field
           v-model="newEntry.categoryId.value"
           label="Category"
           :data-list="localCategories"
         />
+        <div class="lg:hidden" />
         <select-field
           v-model="newEntry.competitionEvent.value"
           label="Competition Event"
@@ -221,7 +227,7 @@ import {
   useCreateEntryMutation,
   useReorderEntryMutation,
   useSetEntryDidNotSkipMutation,
-  EntryFragmentFragmentDoc
+  EntryFragmentDoc
 } from '../graphql/generated'
 import { useCategories } from '../hooks/categories'
 import { useParticipants } from '../hooks/participants'
@@ -269,6 +275,14 @@ const entries = useResult(groupEntries.result, {}, res => {
   for (const ent of ents) {
     heats[ent.heat] ??= []
     heats[ent.heat].push(ent)
+  }
+  for (const heat in heats) {
+    heats[heat].sort((a, b) => {
+      if (typeof a.pool === 'number' && typeof b.pool === 'number') return a.pool - b.pool
+      else if (typeof a.pool === 'number') return -1
+      else if (typeof b.pool === 'number') return 1
+      else return a.id.localeCompare(b.id)
+    })
   }
 
   return heats
@@ -370,7 +384,7 @@ const { mutate: createEntry } = useCreateEntryMutation({
       fields: {
         entries (existingEntryRefs = [], { readField }) {
           const newEntryRef = cache.writeFragment({
-            fragment: EntryFragmentFragmentDoc,
+            fragment: EntryFragmentDoc,
             data: data.createEntry
           })
           if (existingEntryRefs.some((ref: any) => readField('id', ref) === readField('id', newEntryRef))) {
@@ -389,6 +403,7 @@ const mutating = useMutationLoading()
 
 const newEntry = {
   heat: ref<number>(),
+  pool: ref<number>(),
   categoryId: ref<string>(),
   participantId: ref<string>(),
   competitionEvent: ref<CompetitionEvent>()
@@ -399,6 +414,12 @@ const formFilled = computed(() => {
     newEntry.categoryId.value &&
     newEntry.participantId.value &&
     newEntry.competitionEvent.value
+})
+
+watch(newEntry.heat, (next, prev) => {
+  if (prev != null && newEntry.pool.value != null) {
+    newEntry.pool.value = 1
+  }
 })
 
 const cats = useCategories(route.params.groupId as string)
@@ -440,6 +461,7 @@ async function findCreateEntry () {
       participantId: `${newEntry.participantId.value}`,
       competitionEventLookupCode: newEntry.competitionEvent.value,
       heat: newEntry.heat.value,
+      pool: newEntry.pool.value,
 
       categoryName: cats.value.find(c => c.id === newEntry.categoryId.value)?.name ?? '',
       participantName: parts.value.find(p => p.id === Number(newEntry.participantId.value))?.name ?? ''
@@ -459,19 +481,26 @@ async function findCreateEntry () {
       categoryId: newEntry.categoryId.value,
       participantId: Number(newEntry.participantId.value),
       competitionEvent: newEntry.competitionEvent.value,
-      heat: newEntry.heat.value
+      heat: newEntry.heat.value,
+      pool: newEntry.pool.value
     })
   }
 
-  if (result.data?.createEntry.heat !== newEntry.heat.value) {
+  if (
+    result.data?.createEntry.heat !== newEntry.heat.value ||
+    result.data?.createEntry.pool !== newEntry.pool.value
+  ) {
     await reorderEntry({
       entryId: result.data.createEntry.id,
-      heat: newEntry.heat.value
+      heat: newEntry.heat.value,
+      pool: newEntry.pool.value
     })
   }
 
   if (autoIncrement.value && typeof newEntry.heat.value === 'number') {
     newEntry.heat.value++
+  } else if (!autoIncrement.value && typeof newEntry.pool.value === 'number') {
+    newEntry.pool.value++
   }
 
   newEntry.participantId.value = undefined

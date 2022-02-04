@@ -89,6 +89,7 @@ export interface Entry {
   lockedAt?: number | null
 
   heat?: number
+  pool?: number
 }
 
 export interface GenericMark {
