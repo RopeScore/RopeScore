@@ -362,7 +362,7 @@ groupEntries.onResult(async res => {
         updatedAt: scoresheet.updatedAt,
         openedAt: scoresheet.openedAt ?? undefined,
         completedAt: scoresheet.completedAt ?? undefined,
-        submittedAt: scoresheet.submittedAt ?? undefined,
+        submittedAt: scoresheet?.submittedAt ?? undefined,
 
         options: scoresheet.options ?? undefined,
         marks: scoresheet.marks as Mark[]
@@ -508,7 +508,7 @@ async function findCreateEntry () {
 
 function scrollToUnlocked () {
   const firstHeatWithUnlocked = Object.entries(entries.value)
-    .find(([heat, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.every(scsh => !scsh.submittedAt)))
+    .find(([heat, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.every(scsh => !scsh?.submittedAt)))
 
   if (!firstHeatWithUnlocked) return
 

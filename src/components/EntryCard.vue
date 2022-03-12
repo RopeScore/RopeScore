@@ -33,7 +33,7 @@
               dense
               :data-list="getDataList(scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.device)"
               label="Device"
-              :disabled="loading || !!localEntry?.lockedAt || !!localEntry?.didNotSkipAt || !!scoresheetsObj[assignment.judgeId]?.[assignment.judgeType].submittedAt"
+              :disabled="loading || !!localEntry?.lockedAt || !!localEntry?.didNotSkipAt || !!scoresheetsObj[assignment.judgeId]?.[assignment.judgeType]?.submittedAt"
               @update:model-value="assignScoresheet(assignment, $event)"
             />
           </td>
@@ -145,7 +145,7 @@ function getDataList (self?: Pick<Device, 'id' | 'name'>): DataListItem[] {
 
 function scoresheetStatus (scoresheet: typeof props.scoresheets[number] | undefined) {
   if (!scoresheet) return 'missing' as const
-  else if (scoresheet.submittedAt) return 'submitted' as const
+  else if (scoresheet?.submittedAt) return 'submitted' as const
   else if (!scoresheet.openedAt?.length) return 'created' as const
   else return 'opened' as const
 }
