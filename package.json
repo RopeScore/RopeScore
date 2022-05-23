@@ -29,7 +29,7 @@
     "@sentry/vue": "^6.13.2",
     "@vue/apollo-composable": "^4.0.0-alpha.15",
     "@vueuse/core": "^7.5.3",
-    "dexie": "^3.0.3",
+    "dexie": "^3.2.2",
     "electron-updater": "^4.3.9",
     "exceljs": "^4.3.0",
     "graphql": "^16.2.0",
