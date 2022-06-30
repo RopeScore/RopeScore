@@ -1,6 +1,6 @@
 {
   "name": "@ropescore/core",
-  "version": "4.0.0-beta.9",
+  "version": "4.0.0-beta.10",
   "private": true,
   "description": "A scoring system for Rope Skipping",
   "author": "Svante Bengtson <svante@swantzter.se>",
