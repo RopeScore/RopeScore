@@ -518,7 +518,12 @@ export const rankOverall: RankOverallFn = oEvtDef => res => {
         (overallObj.competitionEvents.find(([cEvt]) => cEvt === curr.competitionEvent)?.[1].rankMultiplier ?? 1)
       )
     , 0)
-    const B = cRes.reduce((acc, curr) => acc + curr.result.N, 0)
+    const B = cRes.reduce((acc, curr) =>
+      acc + (
+        (curr.result.N ?? 0) *
+        (overallObj.competitionEvents.find(([cEvt]) => cEvt === curr.competitionEvent)?.[1].normalisationMultiplier ?? 1)
+      )
+    , 0)
 
     return {
       participantId,
@@ -637,6 +642,10 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
   }
 
   headers.push({
+    text: 'Normalised Score',
+    key: 'N',
+    color: 'gray'
+  }, {
     text: 'Rank Sum',
     key: 'T',
     color: 'green'
@@ -806,7 +815,7 @@ const ruleset: Ruleset = {
       competitionEvents: [
         ['e.ijru.sp.sr.srss.1.30', {}],
         ['e.ijru.sp.sr.srse.1.180', {}],
-        ['e.ijru.fs.sr.srif.1.75', { rankMultiplier: 2 }]
+        ['e.ijru.fs.sr.srif.1.75', { rankMultiplier: 2, normalisationMultiplier: 2 }]
       ],
       resultTable: overallTableFactory([
         'e.ijru.sp.sr.srss.1.30',

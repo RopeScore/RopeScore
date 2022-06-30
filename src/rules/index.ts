@@ -29,7 +29,7 @@ export interface CompetitionEventRulesDefinition {
 
 export interface OverallRulesDefinition {
   name: string
-  competitionEvents: Array<[CompetitionEvent, { rankMultiplier?: number, resultMultiplier?: number }]>
+  competitionEvents: Array<[CompetitionEvent, { rankMultiplier?: number, resultMultiplier?: number, normalisationMultiplier?: number }]>
   resultTable: TableDefinition
   rankOverall: ReturnType<RankOverallFn>
 }
