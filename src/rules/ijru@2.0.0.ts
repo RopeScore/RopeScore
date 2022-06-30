@@ -608,7 +608,7 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
   disciplineGroup.push({
     text: 'Overall',
     key: 'oa',
-    colspan: 2,
+    colspan: 3,
     rowspan: 2
   })
 
@@ -643,7 +643,7 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
 
   headers.push({
     text: 'Normalised Score',
-    key: 'N',
+    key: 'B',
     color: 'gray'
   }, {
     text: 'Rank Sum',
