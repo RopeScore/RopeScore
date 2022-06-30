@@ -518,12 +518,12 @@ export const rankOverall: RankOverallFn = oEvtDef => res => {
         (overallObj.competitionEvents.find(([cEvt]) => cEvt === curr.competitionEvent)?.[1].rankMultiplier ?? 1)
       )
     , 0)
-    const B = cRes.reduce((acc, curr) =>
+    const B = roundTo(cRes.reduce((acc, curr) =>
       acc + (
         (curr.result.N ?? 0) *
         (overallObj.competitionEvents.find(([cEvt]) => cEvt === curr.competitionEvent)?.[1].normalisationMultiplier ?? 1)
       )
-    , 0)
+    , 0), 2)
 
     return {
       participantId,
@@ -644,7 +644,8 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
   headers.push({
     text: 'Normalised Score',
     key: 'B',
-    color: 'gray'
+    color: 'gray',
+    formatter: roundToCurry(2)
   }, {
     text: 'Rank Sum',
     key: 'T',
