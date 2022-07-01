@@ -1,6 +1,6 @@
 overwrite: true
 schema:
-  - https://api.ropescore.app
+  - https://api.ropescore.com
 config:
   scalars:
     JSONObject: "{ [prop: string]: any }"
