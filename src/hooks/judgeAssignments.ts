@@ -2,7 +2,7 @@ import { unref, isRef, watch } from 'vue'
 import { db } from '../store/idbStore'
 import { useDexieArray, useDexie } from './dexie'
 
-import type { MaybeRef } from '@vueuse/shared'
+import type { MaybeRef } from '@vueuse/core'
 import type { JudgeAssignment, Category, Judge, CompetitionEvent } from '../store/schema'
 
 export function useJudgeAssignments (categoryId: MaybeRef<Category['id'] | undefined>, competitionEventRef?: MaybeRef<CompetitionEvent | undefined>) {

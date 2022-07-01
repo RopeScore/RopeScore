@@ -1,7 +1,7 @@
 import { unref, watch, isRef, ref } from 'vue'
 import { rulesets } from '../rules'
 
-import type { MaybeRef } from '@vueuse/shared'
+import type { MaybeRef } from '@vueuse/core'
 import type { RulesetId, Ruleset } from '../rules'
 
 export function useRuleset (rulesetId: MaybeRef<RulesetId | undefined>) {

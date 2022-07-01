@@ -24,13 +24,13 @@ export function useDexieArray<T extends TableTypes> ({ read, tableName }: UseDex
     for (const [idAfter, ent] of idsAfter) {
       if (!idsBefore.has(idAfter)) {
         console.log('new', tableName)
-        await table.put(JSON.parse(JSON.stringify(ent)), idAfter) // TODO better type guard
+        await table.put(JSON.parse(JSON.stringify(ent)), idAfter as never) // TODO better type guard
         continue
       }
 
       if (JSON.stringify(ent) !== JSON.stringify(idsBefore.get(idAfter))) {
         console.log('updated', tableName, idAfter)
-        await table.update(idAfter, JSON.parse(JSON.stringify(ent)))
+        await table.update(idAfter as never, JSON.parse(JSON.stringify(ent))) // TODO: fix hack
         continue
       }
     }
@@ -38,7 +38,7 @@ export function useDexieArray<T extends TableTypes> ({ read, tableName }: UseDex
     for (const [idBefore] of idsBefore) {
       if (!idsAfter.has(idBefore) && idBefore != null) {
         console.log('deleted', tableName, idBefore)
-        await table.delete(idBefore)
+        await table.delete(idBefore as never) // TODO: fix hack
         continue
       }
     }
@@ -73,7 +73,7 @@ export function useDexie<T extends TableTypes> ({ read, tableName }: UseDexieOpt
 
     if (!after) {
       console.log('deleted', tableName, before[primaryKey])
-      await table.delete(before[primaryKey])
+      await table.delete(before[primaryKey] as never) // TODO: fix this hack
     } else if (JSON.stringify(before) !== JSON.stringify(after)) {
       console.log('updated', tableName, before[primaryKey])
       await table.update(after[primaryKey], JSON.parse(JSON.stringify(after)))

@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import WindiCSS from 'vite-plugin-windicss'
 import Icons from 'unplugin-icons/vite'
-import Inspect from 'vite-plugin-inspect'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,7 +13,6 @@ export default defineConfig({
     port: 5050
   },
   plugins: [
-    Inspect(),
     vue({
       template: {
         compilerOptions: {
