@@ -4,11 +4,17 @@
       <h1
         class="font-semibold text-2xl"
         :class="{ 'text-green-700': !!group?.completedAt }"
-      >{{ group?.name }}</h1>
+      >
+        {{ group?.name }}
+      </h1>
 
       <menu class="p-0 m-0">
-        <text-button @click="toggleCompleted">{{ group?.completedAt ? 'Uncomplete' : 'Complete' }}</text-button>
-        <text-button @click="goBack">Back</text-button>
+        <text-button @click="toggleCompleted">
+          {{ group?.completedAt ? 'Uncomplete' : 'Complete' }}
+        </text-button>
+        <text-button @click="goBack">
+          Back
+        </text-button>
       </menu>
     </div>
 
@@ -16,14 +22,18 @@
       <text-field v-model="group.name" label="Group Name" :disabled="group.remote" />
     </fieldset>
 
-    <h2 class="mt-4">App scoring</h2>
+    <h2 class="mt-4">
+      App scoring
+    </h2>
 
     <div v-if="!system.rsApiToken">
       <note-card color="orange" class="mb-4">
         You need to enable App Scoring in system settings before you can
         connect a group to app scoring.
       </note-card>
-      <button-link to="/system">System</button-link>
+      <button-link to="/system">
+        System
+      </button-link>
     </div>
     <div v-else-if="!group?.remote">
       <note-card>
@@ -36,10 +46,14 @@
         :loading="loading"
         :disabled="loading || called"
         @click="createGroup({ name: group?.name ?? '' })"
-      >Connect App Scoring</text-button>
+      >
+        Connect App Scoring
+      </text-button>
     </div>
     <div v-else>
-      <p class="mb-2">This group is set up to use app scoring</p>
+      <p class="mb-2">
+        This group is set up to use app scoring
+      </p>
 
       <h3 class="mt-4 container mx-auto">
         Group Viewers
@@ -65,7 +79,9 @@
                   dense
                   :loading="removeGroupViewer.loading.value"
                   @click="removeGroupViewer.mutate({ groupId, userId: viewer.id })"
-                >Remove Viewer</text-button>
+                >
+                  Remove Viewer
+                </text-button>
               </td>
             </tr>
           </tbody>
@@ -81,7 +97,9 @@
                   :disabled="!newViewerId"
                   :loading="addGroupViewer.loading.value"
                   @click="addGroupViewer.mutate({ groupId, userId: newViewerId! })"
-                >Add Viewer</text-button>
+                >
+                  Add Viewer
+                </text-button>
               </td>
             </tr>
           </tfoot>
@@ -147,7 +165,7 @@ const newViewerId = ref<string>()
 const addGroupViewer = useAddGroupViewerMutation({})
 const removeGroupViewer = useRemoveGroupViewerMutation({})
 
-function toggleCompleted() {
+function toggleCompleted () {
   if (!group.value) return
 
   // TODO: mark remote group completed
@@ -156,7 +174,7 @@ function toggleCompleted() {
   else group.value.completedAt = Date.now()
 }
 
-function goBack() {
+function goBack () {
   router.go(-1)
 }
 </script>
