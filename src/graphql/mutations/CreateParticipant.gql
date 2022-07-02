@@ -1,0 +1,11 @@
+mutation CreateAthlete ($categoryId: ID!, $data: CreateAthleteInput!) {
+  createAthlete (categoryId: $categoryId, data: $data) {
+    ...AthleteFragment
+  }
+}
+
+mutation CreateTeam ($categoryId: ID!, $data: CreateTeamInput!) {
+  createTeam (categoryId: $categoryId, data: $data) {
+    ...TeamFragment
+  }
+}

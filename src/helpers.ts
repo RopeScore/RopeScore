@@ -1,16 +1,44 @@
-import { isTeam, isTallyScoresheet, isMarkScoresheet, isUndoMark } from './store/schema'
-
-import type { Participant, CompetitionEvent, ScoreTally, Scoresheet } from './store/schema'
+import { Athlete, Judge, MarkScoresheet, Participant, Scoresheet, TallyScoresheet, Team } from './graphql/generated'
 import type { FieldDefinition, EntryResult } from './rules'
 
 const locales = ['en-SE', 'en-AU', 'en-GB']
 
+export type CompetitionEvent = `e.${string}.${'fs' | 'sp' | 'oa'}.${'sr' | 'dd' | 'wh' | 'ts' | 'xd'}.${string}.${number}.${`${number}x${number}` | number}`
+
+export interface GenericMark {
+  timestamp: number
+  sequence: number
+  schema: string
+  value?: number
+  [prop: string]: any
+}
+
+export interface UndoMark {
+  timestamp: number
+  sequence: number
+  schema: 'undo'
+  target: number
+}
+export function isUndoMark (x: any): x is UndoMark { return x && x.schema === 'undo' }
+
+export type Mark = GenericMark | UndoMark
+
+export type ScoreTally<T extends string = string> = Record<T, number>
+
+export function isTeam (participant: Pick<Participant, '__typename'>): participant is Team {
+  return participant.__typename === 'Team'
+}
+
+export function isAthlete (participant: Pick<Participant, '__typename'>): participant is Athlete {
+  return participant.__typename === 'Athlete'
+}
+
 /**
  * Generates a comma separated list of members of a team given a Participant
  */
-export function memberNames (participant?: Participant): string {
-  if (!isTeam(participant)) return ''
-  return participant.members?.map(psn => psn.name + (psn.ijruId ? ` (${psn.ijruId})` : '')).join(', ') ?? ''
+export function memberNames (participant?: Partial<Participant>): string {
+  if (participant?.__typename !== 'Team') return ''
+  return participant.members?.join(', ') ?? ''
 }
 
 /**
@@ -129,6 +157,14 @@ export function formatShortDate (value: number | Date): string {
   return shortDateFormatter.format(value)
 }
 
+export function isTallyScoresheet (scoresheet: any): scoresheet is TallyScoresheet {
+  return 'tally' in scoresheet
+}
+
+export function isMarkScoresheet (scoresheet: any): scoresheet is MarkScoresheet {
+  return 'marks' in scoresheet
+}
+
 /**
  * Takes a scoresheet and returns a tally
  *
@@ -138,8 +174,8 @@ export function formatShortDate (value: number | Date): string {
  * Each value of the tally will also be clamped to the specified max, min and
  * step size for that field schema.
  */
-export function calculateTally (scoresheet: Scoresheet, tallyFields?: Readonly<FieldDefinition[]>): ScoreTally {
-  const tally: ScoreTally = isTallyScoresheet(scoresheet) ? scoresheet.tally : {}
+export function calculateTally (scoresheet: Pick<TallyScoresheet, 'tally'> | Pick<MarkScoresheet, 'marks'>, tallyFields?: Readonly<FieldDefinition[]>): ScoreTally {
+  const tally: ScoreTally = isTallyScoresheet(scoresheet) ? scoresheet.tally ?? {} : {}
   const allowedSchemas = tallyFields?.map(f => f.schema)
 
   if (isMarkScoresheet(scoresheet)) {
@@ -179,12 +215,12 @@ export function calculateTally (scoresheet: Scoresheet, tallyFields?: Readonly<F
  * timestamp 1 and a TallyScoresheet at timestamp 5, only the TallyScoresheet
  * will be left
  */
-export function filterLatestScoresheets (scoresheets: Scoresheet[], cEvtDef: CompetitionEvent) {
+export function filterLatestScoresheets<T extends Pick<Scoresheet, 'createdAt' | 'competitionEventId' | 'judgeType'> & { judge: Pick<Judge, 'id'> }> (scoresheets: T[], cEvtDef: CompetitionEvent): T[] {
   return scoresheets
     .sort((a, b) => b.createdAt - a.createdAt)
     .filter((scsh, idx, arr) =>
-      scsh.competitionEvent === cEvtDef &&
-        idx === arr.findIndex(s => s.judgeId === scsh.judgeId && s.judgeType === scsh.judgeType)
+      scsh.competitionEventId === cEvtDef &&
+        idx === arr.findIndex(s => s.judge.id === scsh.judge.id && s.judgeType === scsh.judgeType)
     )
 }
 

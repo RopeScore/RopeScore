@@ -1,0 +1,5 @@
+mutation CreateJudgeAssignment ($categoryId: ID!, $judgeId: ID!, $data: CreateJudgeAssignmentInput!) {
+  createJudgeAssignment (categoryId: $categoryId, judgeId: $judgeId, data: $data) {
+    ...JudgeAssignmentFragment
+  }
+}

@@ -4,7 +4,9 @@ import {
   filterParticipatingInAll,
   roundTo,
   roundToCurry,
-  clampNumber
+  clampNumber,
+  ScoreTally,
+  CompetitionEvent
 } from '../helpers'
 import { ijruAverage } from './ijru@2.0.0'
 
@@ -19,7 +21,6 @@ import type {
   RankEntriesFn,
   RankOverallFn
 } from '.'
-import type { ScoreTally, CompetitionEvent } from '../store/schema'
 
 // deduc
 const SpeedDed = 10
@@ -201,7 +202,7 @@ export const presentationJudge: JudgeTypeFn = cEvtDef => {
 // =======
 // ENTRIES
 // =======
-export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
+export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
   const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
   // only take the newest scoresheet per judge
   const scoresheets = filterLatestScoresheets(rawScsh, cEvtDef)
@@ -227,8 +228,8 @@ export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
   const withinThree = minDiff <= 3 ? 1 : 0
 
   return {
-    entryId: entry.id,
-    participantId: entry.participantId,
+    entryId: meta.entryId,
+    participantId: meta.participantId,
     competitionEvent: cEvtDef,
     result: {
       a,
@@ -240,7 +241,7 @@ export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
   }
 }
 
-export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
+export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
   const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
   // only take the newest scoresheet per judge
   const scoresheets = filterLatestScoresheets(rawScsh, cEvtDef)
@@ -258,8 +259,8 @@ export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) 
   const R = clampNumber((D ?? 0) + (P ?? 0), { min: 0 })
 
   return {
-    entryId: entry.id,
-    participantId: entry.participantId,
+    entryId: meta.entryId,
+    participantId: meta.participantId,
     competitionEvent: cEvtDef,
     result: {
       P: roundTo(P, 2),

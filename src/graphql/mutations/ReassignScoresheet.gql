@@ -1,5 +1,0 @@
-mutation ReassignScoresheet ($scoresheetId: ID!, $deviceId: ID!) {
-  reassignScoresheet (scoresheetId: $scoresheetId, deviceId: $deviceId) {
-    ...ScoresheetFragment
-  }
-}

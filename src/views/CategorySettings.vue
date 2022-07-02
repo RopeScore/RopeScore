@@ -6,7 +6,7 @@
       </h1>
 
       <menu class="p-0 m-0">
-        <text-button color="red" :loading="deleting" @click="deleteCategory">
+        <text-button color="red" :loading="deleting" @click="deleteConfirm ? deleteCategoryMutation.mutate() : deleteConfirm = true">
           {{ deleteConfirm ? 'Confirm Delete' : 'Delete' }}
         </text-button>
         <text-button @click="goBack">
@@ -17,8 +17,6 @@
 
     <!-- <fieldset v-if="category">
       <text-field v-model="category.name" label="Category Name" />
-      !-- TODO: remove stuff --
-      !-- TODO: confirm dialog --
       <select-field
         v-model="category.ruleset"
         label="Ruleset"
@@ -62,8 +60,9 @@
               :class="{ 'bg-green-500': cEvtEnabled(cEvtDefCode, category), 'hover:bg-green-300': cEvtEnabled(cEvtDefCode, category) }"
             >
               <label class="px-0.5 flex justify-center items-center w-full h-full cursor-pointer">
-                <icon-check class="text-white" />
-                <input type="checkbox" class="hidden" :checked="cEvtEnabled(cEvtDefCode, category)" @click="toggleCEvt(cEvtDefCode)">
+                <icon-check v-if="!updateCategory.loading.value" class="text-white" />
+                <icon-loading v-else class="animate-spin text-white" />
+                <input type="checkbox" class="hidden" :checked="cEvtEnabled(cEvtDefCode, category)" :disabled="updateCategory.loading.value" @click="toggleCEvt(cEvtDefCode)">
               </label>
             </td>
             <td>{{ definition?.name }}</td>
@@ -87,7 +86,7 @@
           <th class="min-w-16">
             ID
           </th>
-          <template v-if="category?.type === 'team'">
+          <template v-if="category?.type === CategoryType.Team">
             <th>
               Team Name
             </th>
@@ -112,21 +111,27 @@
       </thead>
 
       <tbody>
+        <!-- TODO: update -->
         <tr v-for="participant of participants" :key="participant.id">
           <td class="text-right">
             {{ participant.id }}
           </td>
           <td>{{ participant.name }}</td>
-          <td v-if="category?.type === 'team'" class="text-xs">
+          <td v-if="category?.type === CategoryType.Team" class="text-xs">
             {{ memberNames(participant) }}
           </td>
-          <td v-else-if="isPerson(participant)">
+          <td v-else-if="isAthlete(participant)">
             {{ participant.ijruId }}
           </td>
           <td>{{ participant.club }}</td>
           <td>{{ participant.country }}</td>
           <td class="text-center">
-            <text-button dense color="red" @click="deleteParticipant(participant)">
+            <text-button
+              dense
+              color="red"
+              :loading="deleteParticipantMutation.loading.value"
+              @click="deleteParticipantMutation.mutate({ participantId: participant.id })"
+            >
               Delete
             </text-button>
           </td>
@@ -136,17 +141,23 @@
       <tfoot>
         <tr>
           <td />
-          <td><text-field v-model="newParticipant.name" label="Name" dense /></td>
-          <td v-if="category?.type === 'team'">
-            <text-field v-model="newParticipant.members" label="Members, comma separated" dense />
+          <td><text-field v-model="newParticipant.name" :disabled="createParticipantLoading" label="Name" dense /></td>
+          <td v-if="category?.type === CategoryType.Team">
+            <text-field v-model="newParticipant.members" :disabled="createParticipantLoading" label="Members, comma separated" dense />
           </td>
           <td v-else>
-            <text-field v-model="newParticipant.ijruId" label="IJRU ID" dense />
+            <text-field v-model="newParticipant.ijruId" :disabled="createParticipantLoading" label="IJRU ID" dense />
           </td>
-          <td><text-field v-model="newParticipant.club" label="Club" dense :data-list="clubNames" /></td>
-          <td><text-field v-model="newParticipant.country" label="Country" dense :data-list="countries" /></td>
+          <td><text-field v-model="newParticipant.club" :disabled="createParticipantLoading" label="Club" dense :data-list="clubNames" /></td>
+          <td><text-field v-model="newParticipant.country" :disabled="createParticipantLoading" label="Country" dense :data-list="countries" /></td>
           <td class="text-center">
-            <text-button dense color="blue" @click="addParticipant">
+            <text-button
+              dense
+              color="blue"
+              :disabled="!newParticipant.name || (category?.type === CategoryType.Team && !newParticipant.members)"
+              :loading="createParticipantLoading"
+              @click="addParticipant()"
+            >
               Create
             </text-button>
           </td>
@@ -161,10 +172,10 @@
   </h2>
 
   <div class="container mx-auto">
-    <p>
+    <!-- <p>
       Changing a judge assignemnt will clear all scores for that judge in this
       category.
-    </p>
+    </p> -->
     <p>
       Judges are shared across categories in a group.
     </p>
@@ -177,10 +188,10 @@
           <th>ID</th>
           <th>Name</th>
           <th>IJRU ID</th>
-          <th v-for="cEvtDefCode of category.competitionEvents" :key="cEvtDefCode">
+          <th v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode">
             {{ getAbbr(cEvtDefCode) }}
           </th>
-          <th v-if="!category.competitionEvents.length" />
+          <th v-if="!category.competitionEventIds.length" />
         </tr>
       </thead>
 
@@ -191,25 +202,33 @@
           </td>
           <td>{{ judge.name }}</td>
           <td>{{ judge.ijruId }}</td>
-          <td v-for="cEvtDefCode of category.competitionEvents" :key="cEvtDefCode">
+          <td v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode">
             <select-field
-              :model-value="getAssignment(judge.id, cEvtDefCode)?.judgeType"
+              :model-value="getAssignment(judge.assignments, cEvtDefCode)?.judgeType"
               label=" "
+              :disabled="judgeAssignmentLoading"
               dense
               :data-list="judgeTypes(cEvtDefCode)"
-              @update:model-value="updateAssignment(judge.id, cEvtDefCode, $event)"
+              @update:model-value="updateAssignment(judge, cEvtDefCode, $event)"
             />
           </td>
+          <!-- TODO: set live -->
         </tr>
       </tbody>
 
       <tfoot>
         <tr>
           <td />
-          <td><text-field v-model="newJudge.name" label="Name" dense /></td>
-          <td><text-field v-model="newJudge.ijruId" label="IJRU ID" dense /></td>
-          <td :colspan="category.competitionEvents.length">
-            <text-button dense color="blue" @click="addJudge">
+          <td><text-field v-model="newJudge.name" :disabled="createJudgeMutation.loading.value" label="Name" dense /></td>
+          <td><text-field v-model="(newJudge.ijruId as string)" :disabled="createJudgeMutation.loading.value" label="IJRU ID" dense /></td>
+          <td :colspan="category.competitionEventIds.length">
+            <text-button
+              dense
+              color="blue"
+              :loading="createJudgeMutation.loading.value"
+              :disabled="!newJudge.name"
+              @click="createJudgeMutation.mutate({ groupId: route.params.groupId as string, data: newJudge })"
+            >
               Create
             </text-button>
           </td>
@@ -222,32 +241,86 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useCategory } from '../hooks/categories'
-import { useParticipants } from '../hooks/participants'
-import { useJudges } from '../hooks/judges'
-import { useJudgeAssignments } from '../hooks/judgeAssignments'
 import { useRuleset } from '../hooks/rulesets'
-import { isTeam, isPerson } from '../store/schema'
-import { memberNames, getAbbr } from '../helpers'
-import { db } from '../store/idbStore'
-import { useSetEntryDidNotSkipMutation } from '../graphql/generated'
-import pLimit from 'p-limit'
+import { memberNames, getAbbr, CompetitionEvent, isTeam, isAthlete } from '../helpers'
+import { CategoryType, CreateAthleteInput, CreateJudgeInput, CreateTeamInput, Judge, JudgeAssignmentFragment, Participant } from '../graphql/generated'
 
 import countryData from '../data/countries.json'
 
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import IconCheck from 'virtual:icons/mdi/check'
-
-import type { CompetitionEvent, Category, Participant, Person, Team, Judge, JudgeAssignment } from '../store/schema'
+import IconLoading from 'virtual:icons/mdi/loading'
+import {
+  Category,
+  useCategorySettingsQuery,
+  useDeleteCategoryMutation,
+  useUpdateCategoryMutation,
+  useCreateJudgeMutation,
+  useCreateJudgeAssignmentMutation,
+  useUpdateJudgeAssignmentMutation,
+  useDeleteJudgeAssignmentMutation,
+  useCreateAthleteMutation,
+  useCreateTeamMutation,
+  useDeleteParticipantMutation
+} from '../graphql/generated'
 
 const route = useRoute()
 const router = useRouter()
-const category = useCategory(route.params.categoryId as string)
-const participants = useParticipants(route.params.categoryId as string)
-const judges = useJudges(route.params.groupId as string)
-const judgeAssignments = useJudgeAssignments(route.params.categoryId as string)
 
-// const rulesetIds = Object.keys(rulesets)
+const categorySettingsQuery = useCategorySettingsQuery({
+  groupId: route.params.groupId as string,
+  categoryId: route.params.categoryId as string
+}, { fetchPolicy: 'cache-and-network' })
+
+const category = computed(() => categorySettingsQuery.result.value?.group?.category)
+const participants = computed(() => categorySettingsQuery.result.value?.group?.category?.participants ?? [])
+const judges = computed(() => categorySettingsQuery.result.value?.group?.judges ?? [])
+
+function goBack () { router.go(-1) }
+
+const deleteConfirm = ref(false)
+const deleting = ref(false)
+
+const deleteCategoryMutation = useDeleteCategoryMutation({
+  variables: { categoryId: route.params.categoryId as string },
+  refetchQueries: ['Groups']
+})
+
+deleteCategoryMutation.onDone(() => {
+  router.replace({ name: 'home' })
+})
+
+const ruleset = computed(() => {
+  if (!category.value?.rulesId) return null
+  return useRuleset(category.value.rulesId).value
+})
+
+const clubNames = computed(() => {
+  if (!participants.value) return []
+  return [...new Set(participants.value.map(p => p.club).filter(c => typeof c === 'string'))] as string[]
+})
+
+const countries = Object.entries(countryData).map(([cc, name]) => ({ value: cc, text: name }))
+
+function cEvtEnabled (cEvtDef: CompetitionEvent, category: Pick<Category, 'competitionEventIds'> | undefined | null) {
+  if (!category) return false
+  return category.competitionEventIds.includes(cEvtDef)
+}
+
+const updateCategory = useUpdateCategoryMutation({})
+
+function toggleCEvt (cEvtDef: CompetitionEvent) {
+  if (!category.value) return
+  const competitionEventIds = [...category.value.competitionEventIds]
+  const existsIdx = competitionEventIds.indexOf(cEvtDef)
+
+  if (existsIdx > -1) competitionEventIds.splice(existsIdx, 1)
+  else competitionEventIds.push(cEvtDef)
+
+  updateCategory.mutate({ categoryId: category.value.id, data: { competitionEventIds } })
+
+  // TODO: sort?
+}
 
 const newParticipant = reactive({
   name: '',
@@ -257,131 +330,71 @@ const newParticipant = reactive({
   country: ''
 })
 
-const newJudge = reactive({
-  name: '',
-  ijruId: ''
+const createAthleteMutation = useCreateAthleteMutation({
+  refetchQueries: ['CategorySettings'],
+  awaitRefetchQueries: true
+})
+const createTeamMutation = useCreateTeamMutation({
+  refetchQueries: ['CategorySettings'],
+  awaitRefetchQueries: true
 })
 
-function goBack () { router.go(-1) }
-
-const { mutate: setDidNotSkip } = useSetEntryDidNotSkipMutation({})
-
-const deleteConfirm = ref(false)
-const deleting = ref(false)
-
-async function deleteCategory () {
-  if (!category.value) return
-  if (!deleteConfirm.value) {
-    deleteConfirm.value = true
-    return
-  }
-  deleting.value = true
-  const categoryId = category.value.id
-
-  const group = await db.groups.get(category.value.groupId)
-  const entries = await db.entries.where({ categoryId }).toArray()
-
-  if (group?.remote) {
-    const limit = pLimit(30)
-    const dnsPromises = entries.map(entry => limit(() => setDidNotSkip({ entryId: entry.id, didNotSkip: true })))
-    await Promise.allSettled(dnsPromises)
-  }
-
-  await db.transaction('rw', [db.scoresheets, db.entries, db.participants, db.judgeAssignments, db.categories], async () => {
-    await db.scoresheets.where('entryId').anyOf(entries.map(en => en.id)).delete()
-    await db.entries.where('categoryId').equals(categoryId).delete()
-    await db.participants.where('categoryId').equals(categoryId).delete()
-    await db.judgeAssignments.where('categoryId').equals(categoryId).delete()
-    await db.categories.delete(categoryId)
-  })
-
-  router.replace('/')
-}
-
-const ruleset = computed(() => {
-  if (!category.value) return null
-  return useRuleset(category.value.ruleset).value
+const deleteParticipantMutation = useDeleteParticipantMutation({
+  refetchQueries: ['CategorySettings'],
+  awaitRefetchQueries: true
 })
 
-const clubNames = computed(() => {
-  if (!participants.value) return []
-  return [...new Set(participants.value.map(p => p.club))]
-})
+const createParticipantLoading = computed(() => createAthleteMutation.loading.value || createTeamMutation.loading.value)
 
-const countries = Object.entries(countryData).map(([cc, name]) => ({ value: cc, text: name }))
-
-function cEvtEnabled (cEvtDef: CompetitionEvent, category: Category | undefined) {
-  if (!category) return false
-  return category.competitionEvents.includes(cEvtDef)
-}
-
-function toggleCEvt (cEvtDef: CompetitionEvent) {
-  if (!category.value) return
-  category.value.competitionEvents ??= []
-  const existsIdx = category.value.competitionEvents.indexOf(cEvtDef)
-  if (existsIdx > -1) category.value.competitionEvents.splice(existsIdx, 1)
-  else category.value.competitionEvents.push(cEvtDef)
-
-  // TODO: sort
-}
-
-const memberRegex = /^([^(]+)(?:\((.*)\))?$/
-
-function addParticipant () {
-  if (!category.value) return
-  const part: Partial<Participant> = {
-    name: newParticipant.name,
-    club: newParticipant.club,
-    country: newParticipant.country,
-    categoryId: category.value.id
-  }
-
-  if (category.value.type === 'team') {
-    ;(part as Team).members = []
-    if (!isTeam(part)) return
-    part.members = newParticipant.members.split(',')
-      .map((m, idx) => {
-        m = m.trim()
-        const res = memberRegex.exec(m)
-        return {
-          id: idx,
-          name: res?.[1].trim() ?? '',
-          ...(res && res?.[2] ? { ijruId: res[2] } : {})
-        }
-      })
-  } if (newParticipant.ijruId) {
-    ;(part as Person).ijruId = newParticipant.ijruId
-  }
-
-  participants.value.push(part as Participant)
-
+createAthleteMutation.onDone(() => {
   newParticipant.name = ''
   newParticipant.members = ''
   newParticipant.ijruId = ''
-}
+})
+createTeamMutation.onDone(() => {
+  newParticipant.name = ''
+  newParticipant.members = ''
+  newParticipant.ijruId = ''
+})
 
-function deleteParticipant (participant: Participant) {
-  // TODO: remove any entries they're part of, local and remote
-  const participantIdx = participants.value.findIndex(p => p.id === participant.id)
-  if (participantIdx < 0) return
-  participants.value?.splice(participantIdx, 1)
-  db.entries.where('participantId').equals(participant.id).delete()
-}
-
-function addJudge () {
-  if (!category.value) return
-
-  const judge: Omit<Judge, 'id'> = {
-    groupId: route.params.groupId as string,
-    name: newJudge.name,
-    ...(newJudge.ijruId ? { ijruId: newJudge.ijruId } : {})
+function addParticipant () {
+  const part: Partial<Participant> = {
+    name: newParticipant.name,
+    club: newParticipant.club,
+    country: newParticipant.country
   }
 
-  judges.value.push(judge as Judge)
+  if (category.value?.type === CategoryType.Team) {
+    const team = part as CreateTeamInput
+    team.members = newParticipant.members.split(',')
 
-  newJudge.name = ''
-  newJudge.ijruId = ''
+    createTeamMutation.mutate({
+      categoryId: route.params.categoryId as string,
+      data: team
+    })
+  } else {
+    const athlete = part as CreateAthleteInput
+    athlete.ijruId = newParticipant.ijruId
+
+    createAthleteMutation.mutate({
+      categoryId: route.params.categoryId as string,
+      data: athlete
+    })
+  }
 }
+
+const createJudgeMutation = useCreateJudgeMutation({
+  refetchQueries: ['CategorySettings']
+})
+const newJudge = reactive<CreateJudgeInput>({
+  name: '',
+  ijruId: undefined
+})
+
+createJudgeMutation.onDone(() => {
+  newJudge.name = ''
+  newJudge.ijruId = undefined
+})
 
 function judgeTypes (cEvtDef: CompetitionEvent) {
   if (!ruleset.value) return []
@@ -390,32 +403,35 @@ function judgeTypes (cEvtDef: CompetitionEvent) {
   return types
 }
 
-function getAssignment (judgeId: Judge['id'], cEvtDef: CompetitionEvent) {
-  if (!judgeAssignments.value) return
-  return judgeAssignments.value.find(ja => ja.judgeId === judgeId && ja.competitionEvent === cEvtDef)
+function getAssignment (assignments: JudgeAssignmentFragment[], cEvtDef: CompetitionEvent) {
+  return assignments.find(ja => ja.competitionEventId === cEvtDef)
 }
 
-function updateAssignment (judgeId: Judge['id'], cEvtDef: CompetitionEvent, judgeType: string) {
-  if (!judgeAssignments.value) return
-  const existingIdx = judgeAssignments.value.findIndex(ja => ja.judgeId === judgeId && ja.competitionEvent === cEvtDef)
+const createJudgeAssignment = useCreateJudgeAssignmentMutation({
+  refetchQueries: ['CategorySettings'],
+  awaitRefetchQueries: true
+})
+const updateJudgeAssignment = useUpdateJudgeAssignmentMutation({
+  refetchQueries: ['CategorySettings'],
+  awaitRefetchQueries: true
+})
+const deleteJudgeAssignment = useDeleteJudgeAssignmentMutation({
+  refetchQueries: ['CategorySettings'],
+  awaitRefetchQueries: true
+})
 
-  if (existingIdx > -1 && judgeType === 'none') {
-    judgeAssignments.value.splice(existingIdx, 1)
-  } else if (existingIdx > -1) {
-    judgeAssignments.value.splice(existingIdx, 1, {
-      id: judgeAssignments.value[existingIdx].id,
-      categoryId: route.params.categoryId as string,
-      judgeId,
-      judgeType,
-      competitionEvent: cEvtDef
-    })
+const judgeAssignmentLoading = computed(() => createJudgeAssignment.loading.value || deleteJudgeAssignment.loading.value)
+
+async function updateAssignment (judge: Pick<Judge, 'id'> & { assignments: JudgeAssignmentFragment[] }, cEvtDef: CompetitionEvent, judgeType: string) {
+  const existing = judge.assignments.find(ja => ja.competitionEventId === cEvtDef)
+
+  if (existing && judgeType === 'none') {
+    deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id })
+  } else if (existing) {
+    deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id })
+    createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
   } else if (judgeType !== 'none') {
-    judgeAssignments.value.push({
-      categoryId: route.params.categoryId as string,
-      judgeId,
-      judgeType,
-      competitionEvent: cEvtDef
-    } as JudgeAssignment)
+    createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
   }
 }
 </script>

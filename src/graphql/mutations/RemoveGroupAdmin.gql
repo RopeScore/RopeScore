@@ -1,0 +1,8 @@
+mutation RemoveGroupAdmin ($groupId: ID!, $userId: ID!) {
+  removeGroupAdmin (groupId: $groupId, userId: $userId) {
+    id
+    admins {
+      id
+    }
+  }
+}

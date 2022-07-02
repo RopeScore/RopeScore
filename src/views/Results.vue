@@ -61,14 +61,12 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
-import { useCategory, useCategories } from '../hooks/categories'
-import { useGroup } from '../hooks/groups'
 
 import { TextButton } from '@ropescore/components'
 import ExcelWorkbook from '../components/ExcelWorkbook.vue'
 import ResultTable from '../components/ResultTable.vue'
+import { CompetitionEvent } from '../helpers'
 
-import type { Category, CompetitionEvent } from '../store/schema'
 
 const route = useRoute()
 const group = useGroup(route.params.groupId as string)

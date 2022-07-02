@@ -14,7 +14,7 @@
     <table class="text-xs min-w-full">
       <thead>
         <tr>
-          <template v-if="category?.type === 'team'">
+          <template v-if="category?.type === CategoryType.Team">
             <th>
               Team Name
             </th>
@@ -33,7 +33,7 @@
           </th>
 
           <th
-            v-for="cEvtDefCode in category?.competitionEvents ?? []"
+            v-for="cEvtDefCode in category?.competitionEventIds ?? []"
             :key="`header-${cEvtDefCode}`"
             colspan="2"
           >
@@ -47,12 +47,12 @@
 
         <tr>
           <th
-            v-if="category?.type === 'team'"
+            v-if="category?.type === CategoryType.Team"
             colspan="4"
           />
           <th v-else colspan="3" />
           <th
-            v-for="cEvtDefCode in category?.competitionEvents ?? []"
+            v-for="cEvtDefCode in category?.competitionEventIds ?? []"
             :key="cEvtDefCode"
             colspan="2"
           >
@@ -73,7 +73,7 @@
         <tr v-for="participant of participants" :key="participant.id">
           <td>{{ participant.name }}</td>
           <td
-            v-if="category?.type === 'team'"
+            v-if="category?.type === CategoryType.Team"
             class="max-w-[20rem] truncate"
           >
             {{ memberNames(participant) }}
@@ -84,7 +84,7 @@
           </td>
 
           <template
-            v-for="cEvtDefCode in category?.competitionEvents ?? []"
+            v-for="cEvtDefCode in category?.competitionEventIds ?? []"
             :key="cEvtDefCode"
           >
             <td
@@ -103,9 +103,10 @@
                 'bg-gray-100': entryStatus[participant.id]?.[cEvtDefCode] === 'dns',
                 'hover:bg-gray-300': entryStatus[participant.id]?.[cEvtDefCode] === 'dns',
               }"
-              @click="openEntry(participant, cEvtDefCode)"
+              @click="openEntry(participant.id, cEvtDefCode)"
             >
-              Edit
+              <icon-loading v-if="createEntryMutation.loading.value" class="animate-spin"/>
+              <span v-else>Edit</span>
             </td>
             <!-- TODO: hash -->
             <!-- <td class="font-mono" /> -->
@@ -121,47 +122,55 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useCategory } from '../hooks/categories'
-import { useParticipants } from '../hooks/participants'
-import { useEntries } from '../hooks/entries'
-import { memberNames, getAbbr } from '../helpers'
-import { v4 as uuid } from 'uuid'
+import { memberNames, getAbbr, CompetitionEvent } from '../helpers'
 
 import { ButtonLink } from '@ropescore/components'
 
-import type { CompetitionEvent, Participant } from '../store/schema'
+import IconLoading from 'virtual:icons/mdi/loading'
+
+import { CategoryType, Participant, useCategoryGridQuery, useCreateEntryMutation } from '../graphql/generated'
 
 const route = useRoute()
 const router = useRouter()
-const category = useCategory(route.params.categoryId as string)
-const participants = useParticipants(route.params.categoryId as string)
-const entries = useEntries(route.params.categoryId as string)
+
+const categoryGridQuery = useCategoryGridQuery({
+  groupId: route.params.groupId as string,
+  categoryId: route.params.categoryId as string
+}, { fetchPolicy: 'cache-and-network' })
+
+const category = computed(() => categoryGridQuery.result.value?.group?.category)
+const participants = computed(() => categoryGridQuery.result.value?.group?.category?.participants ?? [])
+const entries = computed(() => categoryGridQuery.result.value?.group?.category?.entries ?? [])
 
 function isSpeedEvent (cEvtDefCode: CompetitionEvent) {
   return cEvtDefCode.split('.')[2] === 'sp'
 }
 
 const entryStatus = computed(() => {
-  const res: Record<number, Record<string, undefined | 'created' | 'locked' | 'dns'>> = {}
+  const res: Record<string, Record<string, undefined | 'created' | 'locked' | 'dns'>> = {}
   for (const entry of entries.value) {
-    res[entry.participantId] ??= {}
-    res[entry.participantId][entry.competitionEvent] ??= 'created'
-    if (entry.lockedAt) res[entry.participantId][entry.competitionEvent] = 'locked'
-    if (entry.didNotSkipAt) res[entry.participantId][entry.competitionEvent] = 'dns'
+    res[entry.participant.id] ??= {}
+    res[entry.participant.id][entry.competitionEventId] ??= 'created'
+    if (entry.lockedAt) res[entry.participant.id][entry.competitionEventId] = 'locked'
+    if (entry.didNotSkipAt) res[entry.participant.id][entry.competitionEventId] = 'dns'
   }
   return res
 })
 
-function openEntry (participant: Participant, cEvtDef: CompetitionEvent) {
-  let entry = entries.value.find(en => en.participantId === participant.id && en.competitionEvent === cEvtDef)
+const createEntryMutation = useCreateEntryMutation({})
+
+async function openEntry (participantId: Participant['id'], cEvtDef: CompetitionEvent) {
+  let entry = entries.value.find(en => en.participant.id === participantId && en.competitionEventId === cEvtDef)
   if (!entry) {
-    entry = {
-      id: uuid(),
+    const result = await createEntryMutation.mutate({
       categoryId: route.params.categoryId as string,
-      participantId: participant.id,
-      competitionEvent: cEvtDef
-    }
-    entries.value.push(entry)
+      participantId,
+      data: {
+        competitionEventId: cEvtDef
+      }
+    })
+    entry = result?.data?.createEntry
+    if (!entry) return
   }
   router.push(`/groups/${route.params.groupId}/categories/${route.params.categoryId}/entries/${entry.id}`)
 }

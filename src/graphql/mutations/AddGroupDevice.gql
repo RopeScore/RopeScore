@@ -1,8 +1,0 @@
-mutation AddGroupDevice ($groupId: ID!, $deviceId: ID!) {
-  addGroupDevice (groupId: $groupId, deviceId: $deviceId) {
-    id
-    devices {
-      ...DeviceFragment
-    }
-  }
-}

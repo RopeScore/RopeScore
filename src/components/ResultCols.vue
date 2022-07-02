@@ -9,10 +9,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useCategory } from '../hooks/categories'
 import { useRuleset } from '../hooks/rulesets'
-import { useEntry } from '../hooks/entries'
-import { useScoresheets } from '../hooks/scoresheets'
 
 import type { PropType } from 'vue'
 import type { TableHeader } from '../rules'

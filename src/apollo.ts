@@ -3,7 +3,8 @@ import { setContext } from '@apollo/client/link/context'
 import { useSystem } from './hooks/system'
 
 const httpLink = createHttpLink({
-  uri: 'https://api.ropescore.com'
+  // uri: 'https://api.ropescore.com'
+  uri: 'http://localhost:5000'
 })
 
 const system = useSystem()
@@ -23,6 +24,15 @@ export const cache = new InMemoryCache({
     Group: {
       fields: {
         entries: {
+          merge: false
+        },
+        admins: {
+          merge: false
+        },
+        viewers: {
+          merge: false
+        },
+        categories: {
           merge: false
         }
       }

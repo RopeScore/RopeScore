@@ -1,0 +1,5 @@
+mutation ToggleEntryLock ($entryId: ID!, $lock: Boolean!, $didNotSkip: Boolean!) {
+  toggleEntryLock (entryId: $entryId, lock: $lock, didNotSkip: $didNotSkip) {
+    ...EntryBaseFragment
+  }
+}

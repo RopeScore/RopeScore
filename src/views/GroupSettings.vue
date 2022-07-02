@@ -9,7 +9,10 @@
       </h1>
 
       <menu class="p-0 m-0">
-        <text-button @click="toggleCompleted">
+        <text-button
+          :loading="toggleGroupComplete.loading.value"
+          @click="toggleGroupComplete.mutate({ groupId: group?.id!, completed: !group?.completedAt })"
+        >
           {{ group?.completedAt ? 'Uncomplete' : 'Complete' }}
         </text-button>
         <text-button @click="goBack">
@@ -19,42 +22,73 @@
     </div>
 
     <fieldset v-if="group">
-      <text-field v-model="group.name" label="Group Name" :disabled="group.remote" />
+      <text-field :model-value="group.name" @update:model-value="updateData.name = $event" :disabled="!!group.completedAt" label="Group Name" />
+
+      <text-button
+        class="mt-2"
+        :disabled="!updateData.name"
+        :loading="updateGroup.loading.value"
+        @click="updateGroup.mutate({ groupId: group?.id!, data: updateData as UpdateGroupInput })"
+      >
+        Update
+      </text-button>
     </fieldset>
 
-    <h2 class="mt-4">
-      App scoring
-    </h2>
+    <div>
+      <h3 class="mt-4 container mx-auto">
+        Group Admins
+      </h3>
 
-    <div v-if="!system.rsApiToken">
-      <note-card color="orange" class="mb-4">
-        You need to enable App Scoring in system settings before you can
-        connect a group to app scoring.
-      </note-card>
-      <button-link to="/system">
-        System
-      </button-link>
+      <div class="table-wrapper">
+        <table class="min-w-full">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th class="w-40" />
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="admin of groupAdmins"
+              :key="admin.id"
+            >
+              <td><code>{{ admin.id }}</code></td>
+              <td>
+                <text-button
+                  color="red"
+                  dense
+                  :disabled="!!group?.completedAt"
+                  :loading="removeGroupAdmin.loading.value"
+                  @click="removeGroupAdmin.mutate({ groupId, userId: admin.id })"
+                >
+                  Remove Admin
+                </text-button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <text-field label="User ID" dense :model-value="newAdminId" @update:model-value="newAdminId = $event" />
+              </td>
+              <td>
+                <text-button
+                  color="blue"
+                  dense
+                  :disabled="!newAdminId || !!group?.completedAt"
+                  :loading="addGroupAdmin.loading.value"
+                  @click="addGroupAdmin.mutate({ groupId, userId: newViewerId! })"
+                >
+                  Add Admin
+                </text-button>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
-    <div v-else-if="!group?.remote">
-      <note-card>
-        Note that it's not currently possible to change the name of the group
-        after you have connected in to app scoring.
-      </note-card>
-      <text-button
-        color="blue"
-        class="mt-4 mb-2"
-        :loading="loading"
-        :disabled="loading || called"
-        @click="createGroup({ name: group?.name ?? '' })"
-      >
-        Connect App Scoring
-      </text-button>
-    </div>
-    <div v-else>
-      <p class="mb-2">
-        This group is set up to use app scoring
-      </p>
 
+    <div>
       <h3 class="mt-4 container mx-auto">
         Group Viewers
       </h3>
@@ -64,7 +98,7 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th />
+              <th class="w-40" />
             </tr>
           </thead>
           <tbody>
@@ -77,6 +111,7 @@
                 <text-button
                   color="red"
                   dense
+                  :disabled="!!group?.completedAt"
                   :loading="removeGroupViewer.loading.value"
                   @click="removeGroupViewer.mutate({ groupId, userId: viewer.id })"
                 >
@@ -94,7 +129,7 @@
                 <text-button
                   color="blue"
                   dense
-                  :disabled="!newViewerId"
+                  :disabled="!newViewerId || !!group?.completedAt"
                   :loading="addGroupViewer.loading.value"
                   @click="addGroupViewer.mutate({ groupId, userId: newViewerId! })"
                 >
@@ -105,74 +140,53 @@
           </tfoot>
         </table>
       </div>
-
-      <!-- <button-link :to="`/groups/${group.id}/devices`">Devices</button-link> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useGroup } from '../hooks/groups'
-import { useSystem } from '../hooks/system'
-import { useAddGroupViewerMutation, useCreateGroupMutation, useGroupInfoQuery, useRemoveGroupViewerMutation } from '../graphql/generated'
-import { db } from '../store/idbStore'
 
-import { NoteCard, TextButton, TextField, ButtonLink } from '@ropescore/components'
-import { useResult } from '@vue/apollo-composable'
+import { TextButton, TextField } from '@ropescore/components'
+import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, UpdateGroupInput } from '../graphql/generated'
 
 const route = useRoute()
 const router = useRouter()
 
 const groupId = ref<string>(route.params.groupId as string)
 watch(() => route.params.groupId, newId => { groupId.value = newId as string })
-const group = useGroup(groupId)
-const system = useSystem()
 
-const { mutate: createGroup, loading, onDone, onError, called } = useCreateGroupMutation({})
+const groupInfoQuery = useGroupInfoQuery({ groupId: groupId as unknown as string })
 
-onDone(async res => {
-  if (res.data?.createGroup) {
-    const oldId = group.value?.id
-    const newId = res.data.createGroup.id
-    await db.transaction('rw', [db.categories, db.devices, db.groups], async () => {
-      await db.categories.where({ groupId: oldId }).modify({ groupId: newId })
-      await db.judges.where({ groupId: oldId }).modify({ groupId: newId })
-      await db.devices.where({ groupId: oldId }).delete()
-      await db.groups.where({ id: oldId }).modify({ id: newId, remote: true })
-    })
-    router.replace(`/groups/${newId}/settings`)
-  }
-})
-
-onError(() => {
-  called.value = false
-})
-
-const isRemote = computed(() => {
-  return group.value?.remote
-})
-
-const groupInfoQuery = useGroupInfoQuery({ groupId: groupId as unknown as string }, { enabled: isRemote as unknown as boolean })
-
-const groupViewers = useResult(groupInfoQuery.result, [], res => {
-  return res.group.viewers
-})
-
-const newViewerId = ref<string>()
+const group = computed(() => groupInfoQuery.result.value?.group)
+const groupViewers = computed(() => groupInfoQuery.result?.value?.group?.viewers ?? [])
+const groupAdmins = computed(() => groupInfoQuery.result?.value?.group?.admins ?? [])
 
 const addGroupViewer = useAddGroupViewerMutation({})
 const removeGroupViewer = useRemoveGroupViewerMutation({})
+const newViewerId = ref<string>()
 
-function toggleCompleted () {
-  if (!group.value) return
+addGroupViewer.onDone(() => {
+  newViewerId.value = undefined
+})
 
-  // TODO: mark remote group completed
+const addGroupAdmin = useAddGroupAdminMutation({})
+const removeGroupAdmin = useRemoveGroupAdminMutation({})
+const newAdminId = ref<string>()
 
-  if (group.value.completedAt) group.value.completedAt = null
-  else group.value.completedAt = Date.now()
-}
+addGroupAdmin.onDone(() => {
+  newAdminId.value = undefined
+})
+
+const toggleGroupComplete = useToggleGroupCompleteMutation({})
+
+const updateGroup = useUpdateGroupMutation({})
+const updateData = reactive<Partial<UpdateGroupInput>>({})
+
+updateGroup.onDone(() => {
+  delete updateData.name
+})
 
 function goBack () {
   router.go(-1)

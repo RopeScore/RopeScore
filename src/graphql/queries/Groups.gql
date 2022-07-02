@@ -1,0 +1,9 @@
+query Groups {
+  groups {
+    ...GroupBaseFragment
+
+    categories {
+      ...CategoryBaseFragment
+    }
+  }
+}

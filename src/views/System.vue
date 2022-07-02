@@ -3,7 +3,7 @@
     <h1>System Settings</h1>
 
     <fieldset>
-      <text-field v-model="system.computerName" label="System Name" />
+      <text-field :model-value="me?.name ?? ''" @update:model-value="newName = $event" label="System Name" />
 
       <text-button
         v-if="!system.rsApiToken"
@@ -11,9 +11,19 @@
         color="blue"
         :loading="loading"
         :disabled="loading"
-        @click="register()"
+        @click="register({ name: newName })"
       >
-        Connect to App Scoring
+        Register
+      </text-button>
+      <text-button
+        v-else
+        class="mt-4 mb-2"
+        color="blue"
+        :loading="loading"
+        :disabled="loading"
+        @click="update({ name: newName })"
+      >
+        Update
       </text-button>
 
       <note-card>
@@ -43,14 +53,23 @@
 
 <script setup lang="ts">
 import { useSystem } from '../hooks/system'
-import { useRegisterUserMutation } from '../graphql/generated'
+import { useMeQuery, useRegisterUserMutation, useUpdateUserMutation } from '../graphql/generated'
 
 import { TextButton, TextField, NoteCard } from '@ropescore/components'
 import RsChangelog from '../components/RsChangelog.vue'
+import { computed, ref } from 'vue'
+import { useMutationLoading } from '@vue/apollo-composable'
 
 const system = useSystem()
 
-const { mutate: register, onDone, loading } = useRegisterUserMutation()
+const newName = ref<string>('')
+const { mutate: register, onDone } = useRegisterUserMutation()
+const { mutate: update } = useUpdateUserMutation()
+
+const loading = useMutationLoading()
+
+const meQuery = useMeQuery()
+const me = computed(() => meQuery.result.value?.me)
 
 onDone(res => {
   system.value.rsApiToken = res.data?.registerUser

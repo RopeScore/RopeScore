@@ -1,0 +1,6 @@
+fragment GroupBaseFragment on Group {
+  id
+  name
+  createdAt
+  completedAt
+}

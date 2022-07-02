@@ -1,5 +1,10 @@
-mutation CreateEntry ($groupId: ID!, $entry: EntryInput!) {
-  createEntry (groupId: $groupId, entry: $entry) {
-    ...EntryFragment
+mutation CreateEntry ($categoryId: ID!, $participantId: ID!, $data: CreateEntryInput!) {
+  createEntry (categoryId: $categoryId, participantId: $participantId, data: $data) {
+    ...EntryBaseFragment
+
+    participant {
+      ... on Team { id }
+      ... on Athlete { id }
+    }
   }
 }

@@ -4,15 +4,15 @@ import { rulesets } from '../rules'
 import type { MaybeRef } from '@vueuse/core'
 import type { RulesetId, Ruleset } from '../rules'
 
-export function useRuleset (rulesetId: MaybeRef<RulesetId | undefined>) {
+export function useRuleset (rulesetId: MaybeRef<string | undefined>) {
   const ruleset = ref<Ruleset>()
   const key = unref(rulesetId)
-  if (key) ruleset.value = rulesets[key]
+  if (key) ruleset.value = rulesets[key as RulesetId]
 
   if (isRef(rulesetId)) {
     watch(rulesetId, id => {
       if (!id) ruleset.value = undefined
-      else ruleset.value = rulesets[id]
+      else ruleset.value = rulesets[id as RulesetId]
     })
   }
 

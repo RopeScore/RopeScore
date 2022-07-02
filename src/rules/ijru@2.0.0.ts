@@ -4,9 +4,8 @@ import type {
 } from '.'
 import {
   calculateTally, filterLatestScoresheets, formatFactor, roundTo,
-  roundToCurry, filterParticipatingInAll
+  roundToCurry, filterParticipatingInAll, ScoreTally, CompetitionEvent
 } from '../helpers'
-import type { CompetitionEvent, ScoreTally } from '../store/schema'
 
 // pres
 const Fp = 0.6
@@ -350,7 +349,7 @@ export const difficultyJudge: JudgeTypeFn = () => {
 // =======
 // ENTRIES
 // =======
-export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
+export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
   const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
   // only take the newest scoresheet per judge
   const scoresheets = filterLatestScoresheets(rawScsh, cEvtDef)
@@ -376,8 +375,8 @@ export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
   const withinThree = minDiff <= 3 ? 1 : 0
 
   return {
-    entryId: entry.id,
-    participantId: entry.participantId,
+    entryId: meta.entryId,
+    participantId: meta.participantId,
     competitionEvent: cEvtDef,
     result: {
       a,
@@ -389,7 +388,7 @@ export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
   }
 }
 
-export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) => {
+export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
   const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
   // only take the newest scoresheet per judge
   const scoresheets = filterLatestScoresheets(rawScsh, cEvtDef)
@@ -416,8 +415,8 @@ export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (entry, rawScsh) 
   raw.R = raw.R < 0 ? 0 : raw.R
 
   return {
-    entryId: entry.id,
-    participantId: entry.participantId,
+    entryId: meta.entryId,
+    participantId: meta.participantId,
     competitionEvent: cEvtDef,
     result: raw
   }

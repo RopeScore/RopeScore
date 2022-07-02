@@ -73,12 +73,8 @@
 
 <script setup lang="ts">
 import { v4 as uuid } from 'uuid'
-import { useJudge } from '../hooks/judges'
-import { useScoresheets } from '../hooks/scoresheets'
-import { useCategory } from '../hooks/categories'
-import { useJudgeAssignment } from '../hooks/judgeAssignments'
 import { isTallyScoresheet, isMarkScoresheet } from '../store/schema'
-import { formatDate, calculateTally } from '../helpers'
+import { formatDate, calculateTally, CompetitionEvent } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import TallyScoresheet from './TallyScoresheet.vue'
@@ -86,7 +82,7 @@ import MarkScoresheet from './MarkScoresheet.vue'
 import ScoresheetResult from './ScoresheetResult.vue'
 
 import type { PropType } from 'vue'
-import type { CompetitionEvent, Scoresheet } from '../store/schema'
+import { Scoresheet } from '../graphql/generated'
 
 const props = defineProps({
   categoryId: {
@@ -98,7 +94,7 @@ const props = defineProps({
     required: true
   },
   judgeId: {
-    type: Number,
+    type: String,
     required: true
   },
   competitionEvent: {

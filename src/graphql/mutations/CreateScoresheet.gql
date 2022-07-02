@@ -1,5 +1,0 @@
-mutation CreateScoresheet ($entryId: ID!, $scoresheet: ScoresheetInput!) {
-  createScoresheets (entryId: $entryId, scoresheets: [$scoresheet]) {
-    ...ScoresheetFragment
-  }
-}

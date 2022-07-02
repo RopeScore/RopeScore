@@ -1,0 +1,5 @@
+mutation UpdateJudgeAssignment ($judgeAssignmentId: ID!, $data: UpdateJudgeAssignmentInput!) {
+  updateJudgeAssignment (judgeAssignmentId: $judgeAssignmentId, data: $data) {
+    ...JudgeAssignmentFragment
+  }
+}

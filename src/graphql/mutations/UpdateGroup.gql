@@ -1,0 +1,5 @@
+mutation UpdateGroup ($groupId: ID!, $data: UpdateGroupInput!) {
+  updateGroup(groupId: $groupId, data: $data) {
+    ...GroupBaseFragment
+  }
+}

@@ -1,8 +1,7 @@
 /* eslint-env mocha */
-import { calculateTally } from './helpers'
+import { calculateTally, Mark } from './helpers'
 import assert from 'assert'
-
-import type { TallyScoresheet, MarkScoresheet, Mark } from './store/schema'
+import { MarkScoresheet, TallyScoresheet } from './graphql/generated'
 
 describe('helpers', () => {
   describe('memberNames', () => {})

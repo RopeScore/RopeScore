@@ -3,7 +3,7 @@
     <header class="noprint col-span-2 bg-gray-100 flex justify-between items-center px-4 sticky top-0 z-1000">
       <router-link to="/">
         <span class="text-2xl font-semibold">RopeScore</span>
-        <span v-if="system.computerName" class="text-2xl font-light">&nbsp;&ndash; {{ system.computerName }}</span>
+        <span v-if="me?.name" class="text-2xl font-light">&nbsp;&ndash; {{ me?.name }}</span>
       </router-link>
 
       <nav>
@@ -31,22 +31,32 @@
       <router-view />
     </main>
     <footer class="noprint flex col-span-2 justify-between items-center bg-gray-100 px-4">
-      <span>&copy; Swantzter 2017-2021</span>
+      <span>&copy; Swantzter 2017-2022</span>
       <span>{{ version }}</span>
     </footer>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { version } from '../package.json'
 import { useSystem } from './hooks/system'
 
 import { ButtonLink } from '@ropescore/components'
+import { useMeQuery } from './graphql/generated'
+import { computed } from '@vue/reactivity'
 
 const route = useRoute()
+const router = useRouter()
 
 const system = useSystem()
+
+if (!system.value.rsApiToken && route.name !== 'system') {
+  router.push({ name: 'system' })
+}
+
+const meQuery = useMeQuery()
+const me = computed(() => meQuery.result.value?.me)
 </script>
 
 <style>

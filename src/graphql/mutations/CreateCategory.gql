@@ -1,0 +1,5 @@
+mutation CreateCategory ($groupId: ID!, $data: CreateCategoryInput!) {
+  createCategory (groupId: $groupId, data: $data) {
+    ...CategoryBaseFragment
+  }
+}

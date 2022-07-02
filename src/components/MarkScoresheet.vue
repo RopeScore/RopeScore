@@ -26,11 +26,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRuleset } from '../hooks/rulesets'
-import { useScoresheet } from '../hooks/scoresheets'
+// import { useScoresheet } from '../hooks/scoresheets'
 import { calculateTally } from '../helpers'
 
 import type { PropType } from 'vue'
-import type { CompetitionEvent } from '../store/schema'
+import type { CompetitionEvent } from '../helpers'
 import type { RulesetId } from '../rules'
 
 import { NumberField } from '@ropescore/components'
