@@ -3,7 +3,7 @@
     <number-field
       v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
       :key="tField.schema"
-      :model-value="scoresheet.tally[tField.schema]"
+      :model-value="scoresheet.tally?.[tField.schema]"
       :label="tField.name"
       :max="tField.max"
       :min="tField.min"
@@ -19,7 +19,7 @@
       class="min-w-16"
     >
       <number-field
-        :model-value="scoresheet.tally[tField.schema]"
+        :model-value="scoresheet.tally?.[tField.schema]"
         :label="tField.name"
         :max="tField.max"
         :min="tField.min"
@@ -35,11 +35,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRuleset } from '../hooks/rulesets'
-import { useScoresheet } from '../hooks/scoresheets'
-import { isTallyScoresheet } from '../store/schema'
+import { CompetitionEvent, isTallyScoresheet } from '../helpers'
 
 import type { PropType } from 'vue'
-import type { CompetitionEvent } from '../store/schema'
 import type { RulesetId } from '../rules'
 
 import { NumberField } from '@ropescore/components'

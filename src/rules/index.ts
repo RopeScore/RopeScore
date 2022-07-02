@@ -1,7 +1,7 @@
+import { Entry, Judge, MarkScoresheet, Participant, Scoresheet, TallyScoresheet } from '../graphql/generated'
+import { CompetitionEvent } from '../helpers'
 import IJRU_2_0_0 from './ijru@2.0.0'
 import SvGF_RH_20 from './svgf-rh@2020'
-
-import type { CompetitionEvent, Scoresheet, Entry, Participant } from '../store/schema'
 
 // export const rulesetIds = ['ijru@2.0.0', 'ijru@1.1.0', 'svgf-rh@2020', 'svgf-vh@2020', 'svgf-vh@2018', 'fisac@2017-2018'] as const
 export type RulesetId = keyof typeof rulesets
@@ -40,12 +40,12 @@ export interface JudgeType {
   id: string
   name: string
   tallyFields: Readonly<FieldDefinition[]>
-  calculateScoresheet: (scoresheet: Scoresheet) => { [prop: string]: number }
+  calculateScoresheet: (scoresheet: Pick<TallyScoresheet, 'tally'> | Pick<MarkScoresheet, 'marks'>) => { [prop: string]: number }
 }
 
 export type JudgeTypeFn = (cEvtDef: CompetitionEvent) => JudgeType
 
-export type CalcEntryFn = (cEvtDef: CompetitionEvent) => (entry: Entry, scoresheets: Scoresheet[]) => EntryResult | undefined
+export type CalcEntryFn = (cEvtDef: CompetitionEvent) => (metadata: { entryId: Entry['id'], participantId: Participant['id'] }, scoresheets: Array<(Pick<TallyScoresheet, 'tally'> | Pick<MarkScoresheet, 'marks'>) & Pick<Scoresheet, 'createdAt' | 'competitionEventId' | 'judgeType'> & { judge: Pick<Judge, 'id'> }>) => EntryResult | undefined
 
 export type RankEntriesFn = (cEvtDef: CompetitionEvent) => (results: EntryResult[]) => EntryResult[]
 

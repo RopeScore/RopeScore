@@ -1,0 +1,5 @@
+mutation CreateJudge ($groupId: ID!, $data: CreateJudgeInput!) {
+  createJudge (groupId: $groupId, data: $data) {
+    ...JudgeBaseFragment
+  }
+}

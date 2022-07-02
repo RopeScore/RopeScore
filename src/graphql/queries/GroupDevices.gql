@@ -1,8 +1,0 @@
-query GroupDevices ($groupId: ID!) {
-  group (groupId: $groupId) {
-    id
-    devices {
-      ...DeviceFragment
-    }
-  }
-}

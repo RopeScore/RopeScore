@@ -1,6 +1,6 @@
 {
   "name": "@ropescore/core",
-  "version": "4.0.0-beta.11",
+  "version": "5.0.0-alpha.1",
   "private": true,
   "description": "A scoring system for Rope Skipping",
   "author": "Svante Bengtson <svante@swantzter.se>",
@@ -29,7 +29,6 @@
     "@sentry/vue": "^7.4.1",
     "@vue/apollo-composable": "^4.0.0-alpha.15",
     "@vueuse/core": "^8.7.5",
-    "dexie": "^3.0.3",
     "electron-updater": "^5.0.5",
     "exceljs": "^4.3.0",
     "graphql": "^16.2.0",
@@ -86,7 +85,7 @@
   "repository": "RopeScore/RopeScore",
   "build": {
     "appId": "com.ropescore.app",
-    "copyright": "Copyright © 2017-2021 Swantzter",
+    "copyright": "Copyright © 2017-2022 Swantzter",
     "productName": "RopeScore",
     "publish": [
       "github"

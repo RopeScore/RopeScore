@@ -140,13 +140,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useCategory } from '../hooks/categories'
+// import { useCategory } from '../hooks/categories'
 import { useRuleset } from '../hooks/rulesets'
-import { useJudgeAssignments } from '../hooks/judgeAssignments'
-import { useParticipants } from '../hooks/participants'
-import { useEntries } from '../hooks/entries'
+// import { useJudgeAssignments } from '../hooks/judgeAssignments'
+// import { useParticipants } from '../hooks/participants'
+// import { useEntries } from '../hooks/entries'
 import { memberNames } from '../helpers'
-import { db } from '../store/idbStore'
+// import { db } from '../store/idbStore'
 import { v4 as uuid } from 'uuid'
 
 import { TextButton } from '@ropescore/components'

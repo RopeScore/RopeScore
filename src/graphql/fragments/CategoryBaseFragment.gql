@@ -1,0 +1,6 @@
+fragment CategoryBaseFragment on Category {
+  id
+  name
+  rulesId
+  type
+}

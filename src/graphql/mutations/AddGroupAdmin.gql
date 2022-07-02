@@ -1,0 +1,8 @@
+mutation AddGroupAdmin ($groupId: ID!, $userId: ID!) {
+  addGroupAdmin (groupId: $groupId, userId: $userId) {
+    id
+    admins {
+      id
+    }
+  }
+}

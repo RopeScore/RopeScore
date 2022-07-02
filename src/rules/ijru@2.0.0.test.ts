@@ -2,8 +2,8 @@
 import * as mod from './ijru@2.0.0'
 import assert from 'assert'
 import { tScsh } from '../../test/helpets'
-
-import type { CompetitionEvent, Scoresheet } from '../store/schema'
+import { CompetitionEvent } from '../helpers'
+import { MarkScoresheet, Scoresheet, ScoresheetBaseFragment, TallyScoresheet } from '../graphql/generated'
 
 describe('ijru@2.0.0', () => {
   describe('L', () => {
@@ -150,13 +150,7 @@ describe('ijru@2.0.0', () => {
         tScsh({ step: 10, falseStart: 1 }, 'Shj', 'e.ijru.sp.sr.srss.1.30'),
         tScsh({ step: 12 }, 'S', 'e.ijru.sp.sr.srss.1.30')
       ]
-      const entry = {
-        id: scoresheets[0].entryId,
-        categoryId: 'test-category',
-        participantId: 5,
-        competitionEvent: 'e.ijru.sp.sr.srss.1.30' as CompetitionEvent
-      }
-      assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')(entry, scoresheets), {
+      assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')({ entryId: 'asd', participantId: 'fgh' }, scoresheets), {
         entryId: 'test-entry',
         competitionEvent: 'e.ijru.sp.sr.srss.1.30',
         participantId: 5,
@@ -171,35 +165,29 @@ describe('ijru@2.0.0', () => {
     })
 
     it('Should pick the latest scoresheet for a judge', () => {
-      const scoresheets: Scoresheet[] = [
+      const scoresheets: Array<ScoresheetBaseFragment & (TallyScoresheet | MarkScoresheet)> = [
         {
           id: 'aaa',
-          judgeId: 1,
-          entryId: 'a',
           judgeType: 'S',
-          competitionEvent: 'e.ijru.sp.sr.srss.1.30',
+          rulesId: 'ijru@2.0.0',
+          judge: { id: 'asd' },
+          competitionEventId: 'e.ijru.sp.sr.srss.1.30',
           createdAt: 10,
           updatedAt: 20,
           tally: { step: 10 }
         },
         {
           id: 'bbb',
-          judgeId: 1,
-          entryId: 'a',
           judgeType: 'S',
-          competitionEvent: 'e.ijru.sp.sr.srss.1.30',
+          rulesId: 'ijru@2.0.0',
+          judge: { id: 'asd' },
+          competitionEventId: 'e.ijru.sp.sr.srss.1.30',
           createdAt: 5,
           updatedAt: 30,
           tally: { step: 5 }
         }
       ]
-      const entry = {
-        id: scoresheets[0].entryId,
-        categoryId: 'test-category',
-        participantId: 5,
-        competitionEvent: 'e.ijru.sp.sr.srss.1.30' as CompetitionEvent
-      }
-      assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')(entry, scoresheets), {
+      assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')({ entryId: 'asdawe', participantId: 'äasdwq' }, scoresheets), {
         entryId: 'a',
         competitionEvent: 'e.ijru.sp.sr.srss.1.30',
         participantId: 5,

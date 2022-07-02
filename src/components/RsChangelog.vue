@@ -1,4 +1,12 @@
 <template>
+  <h2>v5.0.0</h2>
+  <p>
+    This update finishes what v4.0.0 started and enables all RopeScore data to
+    be stored in the cloud. This, unfortunately, so far means that the option
+    to run RopeScore fully offline has been removed for now. However, we hope
+    to bring it back eventually as it's an important piece in our work to
+    preserve rope skipping history.
+  </p>
   <h2>v4.0.0</h2>
   <p>
     This update brings RopeScore into the future, with effortless app-scoring

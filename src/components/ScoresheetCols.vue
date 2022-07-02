@@ -47,19 +47,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { v4 as uuid } from 'uuid'
-import { useJudge } from '../hooks/judges'
-import { useScoresheets } from '../hooks/scoresheets'
-import { useCategory } from '../hooks/categories'
-import { useJudgeAssignment } from '../hooks/judgeAssignments'
-import { isTallyScoresheet, isMarkScoresheet } from '../store/schema'
-import { calculateTally } from '../helpers'
+import { calculateTally, CompetitionEvent, isMarkScoresheet, isTallyScoresheet, ScoreTally } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import TallyScoresheet from './TallyScoresheet.vue'
 import MarkScoresheet from './MarkScoresheet.vue'
 
 import type { PropType } from 'vue'
-import type { CompetitionEvent, Scoresheet } from '../store/schema'
+import { Scoresheet } from '../graphql/generated'
 
 const props = defineProps({
   categoryId: {
@@ -92,7 +87,6 @@ const props = defineProps({
   }
 })
 
-const judge = useJudge(props.judgeId)
 const assignment = useJudgeAssignment(props.judgeId, props.categoryId, props.competitionEvent)
 const scoresheets = useScoresheets(props.entryId, props.judgeId)
 const category = useCategory(props.categoryId)
@@ -101,10 +95,10 @@ const scoresheet = computed(() => scoresheets.value[scoresheets.value.length - 1
 
 function createTallyScoresheet (previousScoresheet?: Scoresheet) {
   if (!assignment.value?.judgeType) return
-  let tally = {}
+  let tally: ScoreTally = {}
 
   if (isMarkScoresheet(previousScoresheet)) tally = calculateTally(previousScoresheet)
-  else if (isTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally
+  else if (isTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally ?? {}
 
   scoresheets.value.push({
     id: uuid(),

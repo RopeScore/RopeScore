@@ -1,0 +1,7 @@
+mutation UpdateCategory ($categoryId: ID!, $data: UpdateCategoryInput!) {
+  updateCategory (categoryId: $categoryId, data: $data) {
+    ...CategoryBaseFragment
+
+    competitionEventIds
+  }
+}

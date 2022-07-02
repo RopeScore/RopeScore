@@ -1,0 +1,28 @@
+query CategoryGrid ($groupId: ID!, $categoryId: ID!) {
+  group (groupId: $groupId) {
+    id
+
+    category (categoryId: $categoryId) {
+      ...CategoryBaseFragment
+
+      competitionEventIds
+
+      participants {
+        ...AthleteFragment
+        ...TeamFragment
+      }
+
+      entries {
+        id
+        competitionEventId
+        lockedAt
+        didNotSkipAt
+
+        participant {
+          ... on Athlete { id }
+          ... on Team { id }
+        }
+      }
+    }
+  }
+}

@@ -69,16 +69,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useMutationLoading } from '@vue/apollo-composable'
-import { useJudgeAssignments } from '../hooks/judgeAssignments'
-import { useJudges } from '../hooks/judges'
-import { useEntry } from '../hooks/entries'
-import { useCategory } from '../hooks/categories'
-import { useCreateScoresheetMutation, useReassignScoresheetMutation, ScoresheetFragmentDoc, Device, useSetScoresheetOptionsMutation } from '../graphql/generated'
 
 import { SelectField, CheckboxField } from '@ropescore/components'
 
 import type { PropType } from 'vue'
-import type { EntryFragment, ScoresheetFragment } from '../graphql/generated'
 import type { JudgeAssignment } from '../store/schema'
 import type { DataListItem } from '../helpers'
 

@@ -1,0 +1,8 @@
+fragment EntryBaseFragment on Entry {
+  id
+  competitionEventId
+  didNotSkipAt
+  lockedAt
+  heat
+  pool
+}

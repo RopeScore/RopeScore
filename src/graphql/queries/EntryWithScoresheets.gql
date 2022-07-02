@@ -1,0 +1,31 @@
+query EntryWithScoresheet ($groupId: ID!, $categoryId: ID!, $entryId: ID!) {
+  group (groupId: $groupId) {
+    id
+
+    category (categoryId: $categoryId) {
+      ...CategoryBaseFragment
+
+      judgeAssignments {
+        ...JudgeAssignmentFragment
+        judge {
+          ...JudgeBaseFragment
+        }
+      }
+    }
+
+    entry (entryId: $entryId) {
+      ...EntryBaseFragment
+
+      participant {
+        ...AthleteFragment
+        ...TeamFragment
+      }
+
+      scoresheets {
+        ...ScoresheetBaseFragment
+        ...MarkScoresheetFragment
+        ...TallyScoresheetFragment
+      }
+    }
+  }
+}

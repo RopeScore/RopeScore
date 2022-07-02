@@ -1,5 +1,0 @@
-mutation SetEntryDidNotSkip ($entryId: ID!, $didNotSkip: Boolean!) {
-  setEntryDidNotSkip (entryId: $entryId, didNotSkip: $didNotSkip) {
-    ...EntryFragment
-  }
-}

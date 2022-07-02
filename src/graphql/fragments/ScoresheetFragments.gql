@@ -1,0 +1,30 @@
+fragment ScoresheetBaseFragment on Scoresheet {
+  id
+  judge { id }
+
+  rulesId
+  judgeType
+  competitionEventId
+
+  createdAt
+  updatedAt
+  deletedAt
+
+  options
+}
+
+fragment MarkScoresheetFragment on MarkScoresheet {
+  device {
+    id
+    name
+  }
+
+  completedAt
+  submittedAt
+
+  marks
+}
+
+fragment TallyScoresheetFragment on TallyScoresheet {
+  tally
+}

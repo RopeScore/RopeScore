@@ -1,0 +1,5 @@
+fragment JudgeBaseFragment on Judge {
+  id
+  name
+  ijruId
+}

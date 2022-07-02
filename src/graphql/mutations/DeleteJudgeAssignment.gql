@@ -1,0 +1,5 @@
+mutation DeleteJudgeAssignment ($judgeAssignmentId: ID!) {
+  deleteJudgeAssignment (judgeAssignmentId: $judgeAssignmentId) {
+    id
+  }
+}

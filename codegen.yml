@@ -1,6 +1,7 @@
 overwrite: true
 schema:
-  - https://api.ropescore.com
+  # - https://api.ropescore.com
+  - http://host.docker.internal:5000
 config:
   scalars:
     JSONObject: "{ [prop: string]: any }"

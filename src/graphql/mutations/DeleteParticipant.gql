@@ -1,0 +1,6 @@
+mutation DeleteParticipant ($participantId: ID!) {
+  deleteParticipant (participantId: $participantId) {
+    ... on Team { id }
+    ... on Athlete { id }
+  }
+}

@@ -9,11 +9,11 @@
       <router-link
         v-for="category of categories"
         :key="category.id"
-        :to="`/groups/${props.groupId}/categories/${category.id}`"
+        :to="`/groups/${group.id}/categories/${category.id}`"
         class="bg-gray-100 hover:bg-gray-300 rounded px-2 py-1"
       >
         <span class="font-semibold">{{ category.name }}</span>
-        <br>{{ category.ruleset }}
+        <br>{{ category.rulesId }} &ndash; {{ category.type }}
       </router-link>
     </div>
 
@@ -21,8 +21,8 @@
       <button-link :to="`/groups/${group?.id}/results`">
         Results
       </button-link>
-      <button-link v-if="!!group?.remote" :to="`/groups/${group?.id}/devices`">
-        Devices
+      <button-link :to="`/groups/${group?.id}/devices`">
+        Heats
       </button-link>
       <button-link :to="`/groups/${group?.id}/settings`">
         Settings
@@ -32,16 +32,17 @@
           New Category
         </h1>
         <span class="mx-2">Group: {{ group?.name }}</span>
-        <form method="dialog" class="mt-4" @submit.prevent="addCategory">
+        <form method="dialog" class="mt-4" @submit.prevent="createCategory({ groupId: group.id, data: newCategory as CreateCategoryInput })">
           <text-field v-model="newCategory.name" label="Category Name" />
-          <select-field v-model="newCategory.ruleset" label="Ruleset" :data-list="rulesetIds" />
-          <select-field v-model="newCategory.type" label="Competition Type" :data-list="['individual', 'team']" />
+          <select-field v-model="newCategory.rulesId" label="Ruleset" :data-list="rulesetIds" />
+          <select-field v-model="newCategory.type" label="Competition Type" :data-list="[CategoryType.Individual, CategoryType.Team]" />
 
           <text-button
             color="blue"
             class="mt-4"
             type="submit"
-            :disabled="!newCategory.name || !newCategory.ruleset || !newCategory.type"
+            :disabled="!newCategory.name || !newCategory.rulesId || !newCategory.type"
+            :loading="loading"
           >
             Create Category
           </text-button>
@@ -52,55 +53,42 @@
 </template>
 
 <script lang="ts" setup>
-import { v4 as uuid } from 'uuid'
-import { reactive, ref } from 'vue'
-import { useCategories } from '../hooks/categories'
-import { useGroup } from '../hooks/groups'
+import { PropType, reactive, ref } from 'vue'
 import { rulesets } from '../rules'
 
 import { ButtonLink, TextField, SelectField, DialogButton, TextButton } from '@ropescore/components'
+import { GroupBaseFragment, CategoryBaseFragment, CategoryType, useCreateCategoryMutation, CreateCategoryInput } from '../graphql/generated'
 
-const props = defineProps({
-  groupId: {
-    type: String,
+defineProps({
+  group: {
+    type: Object as PropType<GroupBaseFragment>,
+    required: true
+  },
+  categories: {
+    type: Array as PropType<CategoryBaseFragment[]>,
     required: true
   }
 })
 
-const group = useGroup(props.groupId)
-const categories = useCategories(props.groupId)
 const dialogRef = ref<typeof DialogButton>()
 
 const rulesetIds = Object.keys(rulesets)
 
-const newCategory = reactive({
-  name: '',
-  ruleset: undefined,
-  type: 'individual' as 'individual' | 'team'
+const newCategory = reactive<Partial<CreateCategoryInput>>({
+  name: undefined,
+  rulesId: undefined,
+  type: CategoryType.Individual
 })
 
-function addCategory () {
-  if (!newCategory.ruleset) return
+const { mutate: createCategory, onDone, loading } = useCreateCategoryMutation({
+  refetchQueries: ['Groups']
+})
 
-  categories.value.push({
-    id: uuid(),
-    groupId: props.groupId,
-
-    name: newCategory.name,
-    ruleset: newCategory.ruleset,
-    type: newCategory.type,
-    competitionEvents: [],
-
-    print: {
-      exclude: [],
-      zoom: {}
-    }
-  })
-
-  newCategory.name = ''
-  newCategory.ruleset = undefined
-  newCategory.type = 'individual'
+onDone(() => {
+  newCategory.name = undefined
+  newCategory.rulesId = undefined
+  newCategory.type = CategoryType.Individual
 
   dialogRef.value?.close()
-}
+})
 </script>

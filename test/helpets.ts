@@ -1,12 +1,13 @@
-import type { TallyScoresheet, ScoreTally, CompetitionEvent } from '../src/store/schema'
+import { ScoresheetBaseFragment, TallyScoresheetFragment } from '../src/graphql/generated'
+import { CompetitionEvent, ScoreTally } from '../src/helpers'
 
-export function tScsh (tally: ScoreTally, judgeType: string, competitionEvent: CompetitionEvent): TallyScoresheet {
+export function tScsh (tally: ScoreTally, judgeType: string, competitionEvent: CompetitionEvent): TallyScoresheetFragment & ScoresheetBaseFragment {
   return {
     id: 'test-scoresheet',
-    judgeId: 1,
-    entryId: 'test-entry',
+    judge: { id: 'asd' },
     judgeType,
-    competitionEvent,
+    rulesId: 'ijru@2.0.0',
+    competitionEventId: competitionEvent,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     tally

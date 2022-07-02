@@ -1,0 +1,5 @@
+mutation ToggleGroupComplete ($groupId: ID!, $completed: Boolean!) {
+  toggleGroupComplete (groupId: $groupId, completed: $completed) {
+    ...GroupBaseFragment
+  }
+}

@@ -115,20 +115,15 @@
 import { inject, computed, watch, ref, onUnmounted } from 'vue'
 import Excel from 'exceljs'
 import { isOverallRulesDefinition, isOverallResult } from '../rules'
-import { memberNames, isOverall, getAbbr } from '../helpers'
+import { memberNames, isOverall, getAbbr, CompetitionEvent } from '../helpers'
 import { useRuleset } from '../hooks/rulesets'
-import { useCategory } from '../hooks/categories'
-import { useGroup } from '../hooks/groups'
-import { useEntries } from '../hooks/entries'
-import { useParticipants } from '../hooks/participants'
 import { version } from '../../package.json'
-import { db } from '../store/idbStore'
 
 import { TextButton } from '@ropescore/components'
 
 import type { Ref, PropType } from 'vue'
-import type { CompetitionEvent, Participant } from '../store/schema'
 import type { EntryResult, OverallResult, TableHeader } from '../rules'
+import { Participant } from '../graphql/generated'
 
 const workbook = inject<Ref<Excel.Workbook>>('workbook')
 

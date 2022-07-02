@@ -1,0 +1,6 @@
+fragment JudgeAssignmentFragment on JudgeAssignment {
+  id
+  competitionEventId
+  judgeType
+  options
+}

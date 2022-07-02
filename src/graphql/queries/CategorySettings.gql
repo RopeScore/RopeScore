@@ -1,0 +1,24 @@
+query CategorySettings ($groupId: ID!, $categoryId: ID!) {
+  group (groupId: $groupId) {
+    id
+
+    judges {
+      ...JudgeBaseFragment
+
+      assignments (categoryId: $categoryId) {
+        ...JudgeAssignmentFragment
+      }
+    }
+
+    category (categoryId: $categoryId) {
+      ...CategoryBaseFragment
+
+      competitionEventIds
+
+      participants {
+        ...AthleteFragment
+        ...TeamFragment
+      }
+    }
+  }
+}

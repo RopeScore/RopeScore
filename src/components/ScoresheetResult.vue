@@ -14,11 +14,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRuleset } from '../hooks/rulesets'
-import { useScoresheet } from '../hooks/scoresheets'
 
 import type { PropType } from 'vue'
-import type { CompetitionEvent } from '../store/schema'
 import type { RulesetId } from '../rules'
+import { CompetitionEvent } from '../helpers'
 
 const props = defineProps({
   scoresheetId: {

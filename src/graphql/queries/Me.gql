@@ -2,6 +2,7 @@ query Me {
   me {
     ... on Device {
       id
+      name
       battery {
         batteryLevel
         updatedAt
@@ -9,6 +10,7 @@ query Me {
     }
     ... on User {
       id
+      name
     }
   }
 }

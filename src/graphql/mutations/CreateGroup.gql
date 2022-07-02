@@ -1,6 +1,5 @@
-mutation CreateGroup ($name: String!) {
-  createGroup (name: $name) {
-    id
-    name
+mutation CreateGroup ($data: CreateGroupInput!) {
+  createGroup (data: $data) {
+    ...GroupBaseFragment
   }
 }
