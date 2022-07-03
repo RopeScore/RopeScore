@@ -50,7 +50,7 @@ export default createRouter({
       component: async () => import('./views/Entry.vue')
     },
     {
-      path: '/groups/:groupId/categories/:categoryId/competition-events/:competitionEvent',
+      path: '/groups/:groupId/categories/:categoryId/competition-events/:competitionEventId',
       name: 'competition-event',
       component: async () => import('./views/CompetitionEvent.vue')
     }

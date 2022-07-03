@@ -1,0 +1,6 @@
+mutation FillTallyScoresheet ($scoresheetId: ID!, $tally: JSONObject!) {
+  fillTallyScoresheet(scoresheetId: $scoresheetId, tally: $tally) {
+    ...ScoresheetBaseFragment
+    ...TallyScoresheetFragment
+  }
+}

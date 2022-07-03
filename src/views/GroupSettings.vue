@@ -9,6 +9,7 @@
       </h1>
 
       <menu class="p-0 m-0">
+        <text-button @click="groupInfoQuery.refetch()" :loading="groupInfoQuery.loading.value">Refresh</text-button>
         <text-button
           :loading="toggleGroupComplete.loading.value"
           @click="toggleGroupComplete.mutate({ groupId: group?.id!, completed: !group?.completedAt })"
@@ -147,9 +148,10 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, UpdateGroupInput } from '../graphql/generated'
 
 import { TextButton, TextField } from '@ropescore/components'
-import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, UpdateGroupInput } from '../graphql/generated'
+import IconLoading from 'virtual:icons/mdi/loading'
 
 const route = useRoute()
 const router = useRouter()
@@ -157,7 +159,7 @@ const router = useRouter()
 const groupId = ref<string>(route.params.groupId as string)
 watch(() => route.params.groupId, newId => { groupId.value = newId as string })
 
-const groupInfoQuery = useGroupInfoQuery({ groupId: groupId as unknown as string })
+const groupInfoQuery = useGroupInfoQuery({ groupId: groupId as unknown as string }, { fetchPolicy: 'cache-and-network' })
 
 const group = computed(() => groupInfoQuery.result.value?.group)
 const groupViewers = computed(() => groupInfoQuery.result?.value?.group?.viewers ?? [])

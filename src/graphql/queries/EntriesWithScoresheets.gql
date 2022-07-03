@@ -1,0 +1,36 @@
+query EntriesWithScoresheets ($groupId: ID!, $categoryId: ID!, $competitionEventId: CompetitionEventLookupCode!) {
+  group (groupId: $groupId) {
+    id
+
+    category (categoryId: $categoryId) {
+      ...CategoryBaseFragment
+
+      judgeAssignments {
+        ...JudgeAssignmentFragment
+        judge {
+          ...JudgeBaseFragment
+        }
+      }
+
+      participants {
+        ...AthleteFragment
+        ...TeamFragment
+      }
+
+      entries (competitionEventId: $competitionEventId) {
+        ...EntryBaseFragment
+
+        participant {
+          ... on Athlete { id }
+          ... on Team { id }
+        }
+
+        scoresheets {
+          ...ScoresheetBaseFragment
+          ...MarkScoresheetFragment
+          ...TallyScoresheetFragment
+        }
+      }
+    }
+  }
+}

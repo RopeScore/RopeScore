@@ -18,13 +18,14 @@ import { useRuleset } from '../hooks/rulesets'
 import type { PropType } from 'vue'
 import type { RulesetId } from '../rules'
 import { CompetitionEvent } from '../helpers'
+import { MarkScoresheetFragment, TallyScoresheetFragment, ScoresheetBaseFragment } from '../graphql/generated'
 
 const props = defineProps({
-  scoresheetId: {
-    type: String,
+  scoresheet: {
+    type: Object as PropType<ScoresheetBaseFragment & (TallyScoresheetFragment | MarkScoresheetFragment)>,
     required: true
   },
-  ruleset: {
+  rulesId: {
     type: String as PropType<RulesetId>,
     required: true
   },
@@ -38,15 +39,13 @@ const props = defineProps({
   }
 })
 
-const scoresheet = useScoresheet(props.scoresheetId)
 const judgeType = computed(() =>
-  useRuleset(props.ruleset)
+  useRuleset(props.rulesId)
     .value?.competitionEvents[props.competitionEvent]?.judges
     .find(j => j.id === props.judgeType)
 )
 
 const result = computed(() => {
-  if (!scoresheet.value) return
-  return judgeType.value?.calculateScoresheet(scoresheet.value)
+  return judgeType.value?.calculateScoresheet(props.scoresheet)
 })
 </script>

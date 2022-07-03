@@ -6,6 +6,7 @@
       </h1>
 
       <menu class="p-0 m-0">
+        <text-button @click="categorySettingsQuery.refetch()" :loading="categorySettingsQuery.loading.value">Refresh</text-button>
         <text-button color="red" :loading="deleting" @click="deleteConfirm ? deleteCategoryMutation.mutate() : deleteConfirm = true">
           {{ deleteConfirm ? 'Confirm Delete' : 'Delete' }}
         </text-button>

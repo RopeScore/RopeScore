@@ -1,0 +1,6 @@
+mutation CreateTallyScoresheet ($entryId: ID!, $judgeId: ID!, $data: CreateTallyScoresheetInput!) {
+  createTallyScoresheet(entryId: $entryId, judgeId: $judgeId, data: $data) {
+    ...ScoresheetBaseFragment
+    ...TallyScoresheetFragment
+  }
+}

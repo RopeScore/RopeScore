@@ -1,7 +1,7 @@
 <template>
   <div class="border rounded w-full h-full flex flex-col">
     <h3 class="text-lg mt-1 px-2 border-b">
-      <span class="font-semibold">{{ judgeId }}</span>
+      <span class="font-semibold">{{ judge.id }}</span>
       <span v-if="judge?.name" class="font-thin">&ndash;{{ judge.name }}</span>
     </h3>
 
@@ -12,36 +12,34 @@
       class="px-2 border-b"
     >
       <summary tabindex="-1" class="cursor-pointer" :class="{ 'text-gray-400': idx !== scoresheets.length - 1 }">
-        {{ isTallyScoresheet(scoresheet) ? 'Tally' : 'Mark' }} at {{ formatDate(scoresheet.createdAt) }}
+        {{ isTallyScoresheet(scoresheet) ? 'Tally' : 'Mark' }} at {{ formatDate(scoresheet.createdAt) }} <span class="text-gray-700 text-[0.5rem]">({{ scoresheet.id }})</span>
       </summary>
 
-      <template v-if="category && assignment">
-        <tally-scoresheet
-          v-if="isTallyScoresheet(scoresheet)"
-          :scoresheet-id="scoresheet.id"
-          :ruleset="category.ruleset"
-          :competition-event="competitionEvent"
-          :judge-type="assignment.judgeType"
-          :disabled="disabled || idx !== scoresheets.length - 1"
-        />
+      <tally-scoresheet
+        v-if="isTallyScoresheet(scoresheet)"
+        :scoresheet="scoresheet"
+        :rules-id="rulesId"
+        :competition-event="competitionEvent"
+        :judge-type="judgeType"
+        :disabled="disabled || idx !== scoresheets.length - 1"
+      />
 
-        <mark-scoresheet
-          v-else-if="isMarkScoresheet(scoresheet)"
-          :scoresheet-id="scoresheet.id"
-          :ruleset="category.ruleset"
-          :competition-event="competitionEvent"
-          :judge-type="assignment.judgeType"
-          :disabled="disabled || idx !== scoresheets.length - 1"
-        />
+      <mark-scoresheet
+        v-else-if="isMarkScoresheet(scoresheet)"
+        :scoresheet="scoresheet"
+        :rules-id="rulesId"
+        :competition-event="competitionEvent"
+        :judge-type="judgeType"
+        :disabled="disabled || idx !== scoresheets.length - 1"
+      />
 
-        <scoresheet-result
-          :scoresheet-id="scoresheet.id"
-          :ruleset="category.ruleset"
-          :competition-event="competitionEvent"
-          :judge-type="assignment.judgeType"
-          class="mb-2 w-full"
-        />
-      </template>
+      <scoresheet-result
+        :scoresheet="scoresheet"
+        :rulesId="rulesId"
+        :competition-event="competitionEvent"
+        :judge-type="judgeType"
+        class="mb-2 w-full"
+      />
     </details>
 
     <div v-if="!scoresheets.length" class="w-full px-1">
@@ -55,6 +53,7 @@
         dense
         :disabled="disabled || !scoresheets.length"
         :tabindex="scoresheets.length ? -1 : undefined"
+        :loading="createTallyScoresheetMutation.loading.value"
         @click="createTallyScoresheet(scoresheets[scoresheets.length - 1])"
       >
         Create Tally
@@ -63,6 +62,7 @@
         dense
         :disabled="disabled"
         :tabindex="scoresheets.length ? -1 : undefined"
+        :loading="createTallyScoresheetMutation.loading.value"
         @click="createTallyScoresheet()"
       >
         Create Blank
@@ -72,9 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { v4 as uuid } from 'uuid'
-import { isTallyScoresheet, isMarkScoresheet } from '../store/schema'
-import { formatDate, calculateTally, CompetitionEvent } from '../helpers'
+import { formatDate, calculateTally, CompetitionEvent, isTallyScoresheet, isMarkScoresheet } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import TallyScoresheet from './TallyScoresheet.vue'
@@ -82,23 +80,32 @@ import MarkScoresheet from './MarkScoresheet.vue'
 import ScoresheetResult from './ScoresheetResult.vue'
 
 import type { PropType } from 'vue'
-import { Scoresheet } from '../graphql/generated'
+import { Judge, MarkScoresheetFragment, ScoresheetBaseFragment, TallyScoresheetFragment, useCreateTallyScoresheetMutation } from '../graphql/generated'
+import { RulesetId } from '../rules'
 
 const props = defineProps({
-  categoryId: {
-    type: String,
-    required: true
-  },
   entryId: {
     type: String,
     required: true
   },
-  judgeId: {
-    type: String,
+  scoresheets: {
+    type: Array as PropType<Array<ScoresheetBaseFragment & (MarkScoresheetFragment | TallyScoresheetFragment)>>,
+    required: true
+  },
+  judge: {
+    type: Object as PropType<Pick<Judge, 'id' | 'name'>>,
     required: true
   },
   competitionEvent: {
     type: String as PropType<CompetitionEvent>,
+    required: true
+  },
+  judgeType: {
+    type: String,
+    required: true
+  },
+  rulesId: {
+    type: String as PropType<RulesetId>,
     required: true
   },
   disabled: {
@@ -107,30 +114,25 @@ const props = defineProps({
   }
 })
 
-const judge = useJudge(props.judgeId)
-const assignment = useJudgeAssignment(props.judgeId, props.categoryId, props.competitionEvent)
-const scoresheets = useScoresheets(props.entryId, props.judgeId)
-const category = useCategory(props.categoryId)
+const createTallyScoresheetMutation = useCreateTallyScoresheetMutation({
+  refetchQueries: ['EntryWithScoresheets'],
+  awaitRefetchQueries: true
+})
 
-function createTallyScoresheet (previousScoresheet?: Scoresheet) {
+function createTallyScoresheet (previousScoresheet?: ScoresheetBaseFragment) {
   console.log(previousScoresheet)
-  if (!assignment.value?.judgeType) return
+  if (!props.judgeType) return
   let tally = {}
 
   if (isMarkScoresheet(previousScoresheet)) tally = calculateTally(previousScoresheet)
-  else if (isTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally
+  else if (isTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally ?? {}
 
-  scoresheets.value.push({
-    id: uuid(),
-    judgeId: props.judgeId,
+  createTallyScoresheetMutation.mutate({
     entryId: props.entryId,
-    competitionEvent: props.competitionEvent,
-    judgeType: assignment.value.judgeType,
-
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-
-    tally
+    judgeId: props.judge.id,
+    data: {
+      tally
+    }
   })
 }
 </script>

@@ -3,6 +3,7 @@
     <div class="flex justify-between">
       <h1>{{ category?.name }}</h1>
       <menu class="m-0 p-0">
+        <text-button @click="categoryGridQuery.refetch()" :loading="categoryGridQuery.loading.value">Refresh</text-button>
         <button-link :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}/settings`">
           Settings
         </button-link>
@@ -124,7 +125,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { memberNames, getAbbr, CompetitionEvent } from '../helpers'
 
-import { ButtonLink } from '@ropescore/components'
+import { ButtonLink, TextButton } from '@ropescore/components'
 
 import IconLoading from 'virtual:icons/mdi/loading'
 

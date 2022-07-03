@@ -321,7 +321,7 @@ export const rankFreestyleEntries: RankEntriesFn = cEvtDef => res => {
   /* sort ascending on rank but descending on score if ranksums are equal */
   results.sort((a, b) => {
     if (a.result.T === b.result.T) {
-      return a.participantId - b.participantId
+      return a.participantId.localeCompare(b.participantId)
     } else {
       return (a.result.T ?? 0) - (b.result.T ?? 0)
     }

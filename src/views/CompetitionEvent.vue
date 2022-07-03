@@ -8,6 +8,7 @@
     </div>
 
     <div class="flex items-stretch">
+      <text-button @click="entriesWithScoresheetQuery.refetch()" :loading="entriesWithScoresheetQuery.loading.value">Refresh</text-button>
       <text-button @click="goBack">
         Back
       </text-button>
@@ -18,7 +19,7 @@
     <table class="min-w-full">
       <thead>
         <tr>
-          <template v-if="category?.type === 'team'">
+          <template v-if="category?.type === CategoryType.Team">
             <th rowspan="2">
               Team Name
             </th>
@@ -44,7 +45,7 @@
             class="border-r-4"
             :colspan="judgeCols(assignment.judgeType).length + 1"
           >
-            {{ assignment.judgeId }} ({{ assignment.judgeType }})
+            {{ assignment.judge.id }} ({{ assignment.judge.name }})
           </th>
 
           <th
@@ -78,7 +79,7 @@
             {{ participant.name }}
           </td>
           <td
-            v-if="category?.type === 'team'"
+            v-if="category?.type === CategoryType.Team"
             class="max-w-[20rem] truncate text-xs"
           >
             {{ memberNames(participant) }}
@@ -91,18 +92,35 @@
           </td>
 
           <td v-if="!entries[participant.id]" class="text-center border-r-4">
-            <text-button dense color="blue" @click="createEntry(participant)">
+            <text-button
+              dense
+              color="blue"
+              :loading="createEntryMutation.loading.value"
+              @click="createEntryMutation.mutate({ categoryId: route.params.categoryId as string, participantId: participant.id, data: { competitionEventId: route.params.competitionEventId as string } })"
+            >
               Score
             </text-button>
           </td>
           <td v-else class="text-center border-r-4">
             <div class="grid grid-cols-2 min-w-max">
               <!-- TODO: unsetting DNS breaks -->
-              <text-button :color="entries[participant.id].didNotSkipAt ? undefined : 'red'" dense :disabled="!!entries[participant.id].lockedAt || !!entries[participant.id].didNotSkipAt" @click="toggleDNS(entries[participant.id])">
+              <text-button
+                :color="entries[participant.id].didNotSkipAt ? undefined : 'red'"
+                dense
+                :disabled="!!entries[participant.id].lockedAt && !entries[participant.id].didNotSkipAt"
+                :loading="toggleLock.loading.value"
+                @click="toggleLock.mutate({ entryId: entries[participant.id].id, lock: !entries[participant.id]?.lockedAt, didNotSkip: true })"
+              >
                 {{ entries[participant.id].didNotSkipAt ? 'DS' : 'DNS' }}
               </text-button>
 
-              <text-button :color="entries[participant.id].lockedAt ? undefined : 'green'" dense :disabled="!!entries[participant.id].didNotSkipAt" @click="toggleLock(entries[participant.id])">
+              <text-button
+                :color="entries[participant.id].lockedAt ? undefined : 'green'"
+                dense
+                :disabled="!!entries[participant.id].didNotSkipAt"
+                :loading="toggleLock.loading.value"
+                @click="toggleLock.mutate({ entryId: entries[participant.id].id, lock: !entries[participant.id]?.lockedAt, didNotSkip: false })"
+              >
                 {{ entries[participant.id].lockedAt ? 'ULK' : 'LCK' }}
               </text-button>
             </div>
@@ -114,10 +132,12 @@
           >
             <scoresheet-cols
               v-if="entries[participant.id]"
-              :category-id="String(route.params.categoryId)"
-              :entry-id="entries[participant.id]?.id"
-              :judge-id="assignment.judgeId"
-              :competition-event="entries[participant.id]?.competitionEvent"
+              :entry-id="entries[participant.id].id"
+              :scoresheets="filterScoresheets(entries[participant.id].scoresheets, assignment.judge.id, assignment.judgeType)"
+              :judge="assignment.judge"
+              :competition-event="entries[participant.id].competitionEventId"
+              :judge-type="assignment.judgeType"
+              :rules-id="(category?.rulesId! as RulesetId)"
               :disabled="!!entries[participant.id]?.lockedAt"
               :did-not-skip="!!entries[participant.id]?.didNotSkipAt"
               :colspan="judgeCols(assignment.judgeType).length + 1"
@@ -126,10 +146,15 @@
           </template>
 
           <result-cols
-            v-if="competitionEvent?.previewTable && entries[participant.id]"
-            :category-id="String(route.params.categoryId)"
-            :entry-id="entries[participant.id].id"
+            v-if="category && competitionEvent?.previewTable && entries[participant.id]"
+            :rules-id="category.rulesId"
+            :participant-id="participant.id"
+            :entry="entries[participant.id]"
             :columns="competitionEvent?.previewTable"
+          />
+          <td
+            v-else
+            :colspan="competitionEvent?.previewTable.length ?? 1"
           />
         </tr>
       </tbody>
@@ -138,47 +163,52 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, UnwrapRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-// import { useCategory } from '../hooks/categories'
 import { useRuleset } from '../hooks/rulesets'
-// import { useJudgeAssignments } from '../hooks/judgeAssignments'
-// import { useParticipants } from '../hooks/participants'
-// import { useEntries } from '../hooks/entries'
-import { memberNames } from '../helpers'
-// import { db } from '../store/idbStore'
-import { v4 as uuid } from 'uuid'
+import { CompetitionEvent, memberNames, } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import ScoresheetCols from '../components/ScoresheetCols.vue'
 import ResultCols from '../components/ResultCols.vue'
-
-import type { CompetitionEvent, Participant, Entry } from '../store/schema'
+import { useCreateEntryMutation, useToggleEntryLockMutation, useEntriesWithScoresheetsQuery, CategoryType, Participant, Judge, JudgeAssignment, ScoresheetBaseFragment } from '../graphql/generated'
+import { RulesetId } from '../rules'
 
 const route = useRoute()
 const router = useRouter()
-const category = useCategory(route.params.categoryId as string)
-const ruleset = computed(() => useRuleset(category.value?.ruleset).value)
+
+const entriesWithScoresheetQuery = useEntriesWithScoresheetsQuery({
+  groupId: route.params.groupId as string,
+  categoryId: route.params.categoryId as string,
+  competitionEventId: route.params.competitionEventId as string
+}, { fetchPolicy: 'cache-and-network' })
+
+const category = computed(() => entriesWithScoresheetQuery.result.value?.group?.category)
+const judgeAssignments = computed(() => entriesWithScoresheetQuery.result.value?.group?.category?.judgeAssignments ?? [])
+const ents = computed(() => entriesWithScoresheetQuery.result.value?.group?.category?.entries ?? [])
+const participants = computed(() => entriesWithScoresheetQuery.result.value?.group?.category?.participants ?? [])
+
+const ruleset = computed(() => useRuleset(category.value?.rulesId).value)
 const competitionEvent = computed(() => {
-  if (!route.params.competitionEvent) return
-  return ruleset.value?.competitionEvents[route.params.competitionEvent as CompetitionEvent]
+  if (!route.params.competitionEventId) return
+  return ruleset.value?.competitionEvents[route.params.competitionEventId as CompetitionEvent]
 })
-const jA = useJudgeAssignments(route.params.categoryId as string, route.params.competitionEvent as CompetitionEvent)
+
 const assignments = computed(() => {
-  return [...(jA.value ?? [])].sort((a, b) => {
-    if (a.judgeType === b.judgeType) return a.judgeId - b.judgeId
-    return a.judgeType.localeCompare(b.judgeType)
-  })
+  return [...(judgeAssignments.value ?? [])]
+    .filter(ja => ja.competitionEventId === route.params.competitionEventId)
+    .sort((a, b) => {
+      if (a.judgeType === b.judgeType) return a.judge.id.localeCompare(b.judge.id)
+      return a.judgeType.localeCompare(b.judgeType)
+    })
 })
-const participants = useParticipants(route.params.categoryId as string)
-const ents = useEntries(route.params.categoryId as string)
 
 const entries = computed(() => {
   if (!ents.value) return {}
-  const map: Record<Participant['id'], Entry> = {}
+  const map: Record<Participant['id'], UnwrapRef<typeof ents>[number]> = {}
   for (const entry of ents.value) {
-    if (entry.competitionEvent !== route.params.competitionEvent) continue
-    map[entry.participantId] = entry
+    if (entry.competitionEventId !== route.params.competitionEventId) continue
+    map[entry.participant.id] = entry
   }
   return map
 })
@@ -191,24 +221,14 @@ function judgeCols (judgeType: string) {
   return competitionEvent.value?.judges.find(j => j.id === judgeType)?.tallyFields ?? []
 }
 
-function createEntry (participant: Participant) {
-  ents.value.push({
-    id: uuid(),
-    categoryId: route.params.categoryId as string,
-    participantId: participant.id,
-    competitionEvent: route.params.competitionEvent as CompetitionEvent
-  })
-}
+const createEntryMutation = useCreateEntryMutation({
+  refetchQueries: ['EntriesWithScoresheets'],
+  awaitRefetchQueries: true
+})
+const toggleLock = useToggleEntryLockMutation({})
 
-function toggleDNS (entry: Entry) {
-  db.entries.update(entry.id, {
-    didNotSkipAt: entry.didNotSkipAt ? null : Date.now()
-  })
-}
-
-function toggleLock (entry: Entry) {
-  db.entries.update(entry.id, {
-    lockedAt: entry.lockedAt ? null : Date.now()
-  })
+function filterScoresheets<T extends ScoresheetBaseFragment> (scoresheets: T[], judgeId: Judge['id'], judgeType: JudgeAssignment['judgeType']): T[] {
+  console.log(scoresheets, judgeId , judgeType)
+  return scoresheets.filter(scsh => scsh?.judge?.id === judgeId && scsh.judgeType === judgeType)
 }
 </script>

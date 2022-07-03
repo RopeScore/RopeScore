@@ -8,34 +8,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, toRef } from 'vue'
 import { useRuleset } from '../hooks/rulesets'
 
 import type { PropType } from 'vue'
 import type { TableHeader } from '../rules'
+import { EntryBaseFragment, MarkScoresheetFragment, ScoresheetBaseFragment, TallyScoresheetFragment } from '../graphql/generated'
 
 const props = defineProps({
-  categoryId: {
-    type: String,
-    required: true
-  },
-  entryId: {
+  rulesId: {
     type: String,
     required: true
   },
   columns: {
     type: Object as PropType<TableHeader[]>,
     required: true
+  },
+  participantId: {
+    type: String,
+    required: true
+  },
+  entry: {
+    type: Object as PropType<EntryBaseFragment & { scoresheets: Array<ScoresheetBaseFragment & (TallyScoresheetFragment | MarkScoresheetFragment)> }>,
+    required: true
   }
 })
 
-const category = useCategory(props.categoryId)
-const ruleset = computed(() => useRuleset(category.value?.ruleset).value)
-const entry = useEntry(props.entryId)
-const scoresheets = useScoresheets(props.entryId as string, undefined)
+const ruleset = computed(() => useRuleset(props.rulesId).value)
+const entry = toRef(props, 'entry')
 
 const result = computed(() => {
   if (!entry.value) return
-  return ruleset.value?.competitionEvents[entry.value.competitionEvent]?.calculateEntry(entry.value, scoresheets.value)
+  return ruleset.value?.competitionEvents[entry.value.competitionEventId]?.calculateEntry({ entryId: entry.value.id, participantId: props.participantId }, entry.value.scoresheets)
 })
 </script>
