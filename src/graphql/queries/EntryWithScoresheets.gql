@@ -1,4 +1,4 @@
-query EntryWithScoresheet ($groupId: ID!, $categoryId: ID!, $entryId: ID!) {
+query EntryWithScoresheets ($groupId: ID!, $categoryId: ID!, $entryId: ID!) {
   group (groupId: $groupId) {
     id
 

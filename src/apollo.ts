@@ -20,6 +20,9 @@ const authLink = setContext(async (_, { headers }) => {
 })
 
 export const cache = new InMemoryCache({
+  possibleTypes: {
+    Scoresheet: ['TallyScoresheet', 'MarkScoresheet']
+  },
   typePolicies: {
     Group: {
       fields: {

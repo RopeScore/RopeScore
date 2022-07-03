@@ -1,5 +1,5 @@
 <template>
-  <fieldset v-if="!table && isTallyScoresheet(scoresheet)" class="mb-2">
+  <fieldset v-if="!table" class="mb-2">
     <number-field
       v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
       :key="tField.schema"
@@ -12,7 +12,7 @@
       @update:model-value="setTally(tField.schema, $event)"
     />
   </fieldset>
-  <template v-else-if="table && isTallyScoresheet(scoresheet)">
+  <template v-else-if="table">
     <td
       v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
       :key="tField.schema"
@@ -33,21 +33,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, toRef, watch } from 'vue'
 import { useRuleset } from '../hooks/rulesets'
-import { CompetitionEvent, isTallyScoresheet } from '../helpers'
+import { CompetitionEvent, ScoreTally } from '../helpers'
 
 import type { PropType } from 'vue'
 import type { RulesetId } from '../rules'
 
 import { NumberField } from '@ropescore/components'
+import { ScoresheetBaseFragment, TallyScoresheetFragment, useFillTallyScoresheetMutation } from '../graphql/generated'
+import { useDebounceFn } from '@vueuse/core'
+import { onBeforeRouteLeave } from 'vue-router'
 
 const props = defineProps({
-  scoresheetId: {
-    type: String,
+  scoresheet: {
+    type: Object as PropType<ScoresheetBaseFragment & TallyScoresheetFragment>,
     required: true
   },
-  ruleset: {
+  rulesId: {
     type: String as PropType<RulesetId>,
     required: true
   },
@@ -69,16 +72,49 @@ const props = defineProps({
   }
 })
 
-const scoresheet = useScoresheet(props.scoresheetId)
+const emit = defineEmits(['update:tally', 'dirty'])
+
 const judgeTypes = computed(() => Object.fromEntries(
-  useRuleset(props.ruleset)
+  useRuleset(props.rulesId)
     .value?.competitionEvents[props.competitionEvent]?.judges
     .map(j => [j.id, j] as const) ?? []
 ))
 
-// TODO: debounce/queue changes
+const tally = ref<ScoreTally>({})
+const dirty = ref<boolean>(false)
+
+const scsh = toRef(props, 'scoresheet')
+watch(() => scsh.value.tally, () => {
+  tally.value = { ...(scsh.value.tally ?? {}) }
+})
+
 const setTally = (schema: string, value: number) => {
-  if (!isTallyScoresheet(scoresheet.value)) return
-  scoresheet.value.tally[schema] = value
+  tally.value[schema] = value
+  dirty.value = true
+  emit('update:tally', tally.value)
+  saveTally()
 }
+
+const fillTallyScoresheetMutation = useFillTallyScoresheetMutation({})
+
+const saveTally = useDebounceFn(() => {
+  fillTallyScoresheetMutation.mutate({
+    scoresheetId: props.scoresheet.id,
+    tally: tally.value
+  })
+}, 2000)
+
+fillTallyScoresheetMutation.onDone(() => {
+  dirty.value = false
+})
+
+onBeforeRouteLeave(async (to, from, next) => {
+  if (dirty.value) {
+    await fillTallyScoresheetMutation.mutate({
+      scoresheetId: props.scoresheet.id,
+      tally: tally.value
+    })
+  }
+  next()
+})
 </script>

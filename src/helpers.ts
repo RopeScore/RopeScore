@@ -1,4 +1,4 @@
-import { Athlete, Judge, MarkScoresheet, Participant, Scoresheet, TallyScoresheet, Team } from './graphql/generated'
+import { Athlete, Judge, MarkScoresheet, Participant, Scoresheet, ScoresheetBaseFragment, TallyScoresheet, Team } from './graphql/generated'
 import type { FieldDefinition, EntryResult } from './rules'
 
 const locales = ['en-SE', 'en-AU', 'en-GB']
@@ -158,11 +158,11 @@ export function formatShortDate (value: number | Date): string {
 }
 
 export function isTallyScoresheet (scoresheet: any): scoresheet is TallyScoresheet {
-  return 'tally' in scoresheet
+  return typeof scoresheet === 'object' && 'tally' in scoresheet
 }
 
 export function isMarkScoresheet (scoresheet: any): scoresheet is MarkScoresheet {
-  return 'marks' in scoresheet
+  return typeof scoresheet === 'object' && 'marks' in scoresheet
 }
 
 /**
@@ -175,7 +175,7 @@ export function isMarkScoresheet (scoresheet: any): scoresheet is MarkScoresheet
  * step size for that field schema.
  */
 export function calculateTally (scoresheet: Pick<TallyScoresheet, 'tally'> | Pick<MarkScoresheet, 'marks'>, tallyFields?: Readonly<FieldDefinition[]>): ScoreTally {
-  const tally: ScoreTally = isTallyScoresheet(scoresheet) ? scoresheet.tally ?? {} : {}
+  const tally: ScoreTally = isTallyScoresheet(scoresheet) ? { ...(scoresheet.tally ?? {}) } : {}
   const allowedSchemas = tallyFields?.map(f => f.schema)
 
   if (isMarkScoresheet(scoresheet)) {
@@ -215,8 +215,8 @@ export function calculateTally (scoresheet: Pick<TallyScoresheet, 'tally'> | Pic
  * timestamp 1 and a TallyScoresheet at timestamp 5, only the TallyScoresheet
  * will be left
  */
-export function filterLatestScoresheets<T extends Pick<Scoresheet, 'createdAt' | 'competitionEventId' | 'judgeType'> & { judge: Pick<Judge, 'id'> }> (scoresheets: T[], cEvtDef: CompetitionEvent): T[] {
-  return scoresheets
+export function filterLatestScoresheets<T extends Pick<ScoresheetBaseFragment, 'createdAt' | 'competitionEventId' | 'judgeType'> & { judge: Pick<Judge, 'id'> }> (scoresheets: T[], cEvtDef: CompetitionEvent): T[] {
+  return [...scoresheets]
     .sort((a, b) => b.createdAt - a.createdAt)
     .filter((scsh, idx, arr) =>
       scsh.competitionEventId === cEvtDef &&

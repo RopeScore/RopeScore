@@ -24,9 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, toRef } from 'vue'
 import { useRuleset } from '../hooks/rulesets'
-// import { useScoresheet } from '../hooks/scoresheets'
 import { calculateTally } from '../helpers'
 
 import type { PropType } from 'vue'
@@ -34,13 +33,14 @@ import type { CompetitionEvent } from '../helpers'
 import type { RulesetId } from '../rules'
 
 import { NumberField } from '@ropescore/components'
+import { MarkScoresheetFragment, ScoresheetBaseFragment } from '../graphql/generated'
 
 const props = defineProps({
-  scoresheetId: {
-    type: String,
+  scoresheet: {
+    type: Object as PropType<ScoresheetBaseFragment & MarkScoresheetFragment>,
     required: true
   },
-  ruleset: {
+  rulesId: {
     type: String as PropType<RulesetId>,
     required: true
   },
@@ -62,9 +62,10 @@ const props = defineProps({
   }
 })
 
-const scoresheet = useScoresheet(props.scoresheetId)
+const scoresheet = toRef(props, 'scoresheet')
+
 const judgeTypes = computed(() => Object.fromEntries(
-  useRuleset(props.ruleset)
+  useRuleset(props.rulesId)
     .value?.competitionEvents[props.competitionEvent]?.judges
     .map(j => [j.id, j] as const) ?? []
 ))

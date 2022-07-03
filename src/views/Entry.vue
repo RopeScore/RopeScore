@@ -11,15 +11,25 @@
     </div>
 
     <div class="flex items-stretch">
+      <text-button @click="entryWithScoresheetQuery.refetch()" :loading="entryWithScoresheetQuery.loading.value">Refresh</text-button>
       <text-button @click="goBack">
         Back
       </text-button>
       <!-- <text-button>Previous</text-button> -->
       <!-- <text-button>Next</text-button> -->
-      <text-button :disabled="!!entry?.lockedAt && !entry.didNotSkipAt" :loading="toggleLock.loading.value" :color="!!entry?.didNotSkipAt ? undefined : 'red'" @click="toggleLock.mutate({ entryId: route.params.entryId as string, lock: !entry?.lockedAt, didNotSkip: true })">
+      <text-button
+        :disabled="!!entry?.lockedAt && !entry.didNotSkipAt"
+        :loading="toggleLock.loading.value"
+        :color="!!entry?.didNotSkipAt ? undefined : 'red'"
+        @click="toggleLock.mutate({ entryId: route.params.entryId as string, lock: !entry?.lockedAt, didNotSkip: true })"
+      >
         {{ entry?.didNotSkipAt ? 'Did Skip' : 'Did Not Skip' }}
       </text-button>
-      <text-button :disabled="!!entry?.didNotSkipAt" :loading="toggleLock.loading.value" @click="toggleLock.mutate({ entryId: route.params.entryId as string, lock: !entry?.lockedAt, didNotSkip: false })">
+      <text-button
+        :disabled="!!entry?.didNotSkipAt"
+        :loading="toggleLock.loading.value"
+        @click="toggleLock.mutate({ entryId: route.params.entryId as string, lock: !entry?.lockedAt, didNotSkip: false })"
+      >
         {{ entry?.lockedAt ? 'Unlock' : 'Lock' }}
       </text-button>
     </div>
@@ -32,11 +42,13 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
         <scoresheets
           v-for="assignment of filterAssignments(judgeAssignments, judgeType.id, entry)"
-          :key="assignment.judge.id"
-          :entry-id="entry?.id"
-          :judge-id="assignment.judge.id"
-          :category-id="category?.id ?? ''"
+          :key="assignment.id"
+          :entry-id="entry.id"
+          :scoresheets="filterScoresheets(scoresheets, assignment.judge.id, assignment.judgeType)"
+          :judge="assignment.judge"
           :competition-event="entry.competitionEventId"
+          :judge-type="assignment.judgeType"
+          :rules-id="(category?.rulesId! as RulesetId)"
           :disabled="!!entry.lockedAt"
         />
       </div>
@@ -63,19 +75,21 @@ import { useRuleset } from '../hooks/rulesets'
 import { TextButton } from '@ropescore/components'
 import Scoresheets from '../components/Scoresheets.vue'
 
-import { EntryBaseFragment, JudgeAssignmentFragment, useEntryWithScoresheetQuery, useToggleEntryLockMutation } from '../graphql/generated'
+import { EntryBaseFragment, Judge, JudgeAssignment, ScoresheetBaseFragment, useEntryWithScoresheetsQuery, useToggleEntryLockMutation } from '../graphql/generated'
+import { RulesetId } from '../rules'
 
 const route = useRoute()
 const router = useRouter()
 
-const entryWithScoresheetQuery = useEntryWithScoresheetQuery({
+const entryWithScoresheetQuery = useEntryWithScoresheetsQuery({
   groupId: route.params.groupId as string,
   categoryId: route.params.categoryId as string,
   entryId: route.params.entryId as string
-})
+}, { fetchPolicy: 'cache-and-network' })
 
 const category = computed(() => entryWithScoresheetQuery.result.value?.group?.category)
 const entry = computed(() => entryWithScoresheetQuery.result.value?.group?.entry)
+const scoresheets = computed(() => entryWithScoresheetQuery.result.value?.group?.entry?.scoresheets ?? [])
 const judgeAssignments = computed(() =>  entryWithScoresheetQuery.result.value?.group?.category?.judgeAssignments)
 
 const ruleset = computed(() => useRuleset(category.value?.rulesId).value)
@@ -101,11 +115,17 @@ function goBack () {
 
 const toggleLock = useToggleEntryLockMutation({})
 
-toggleLock.onDone(() => {
-  router.go(-1)
+toggleLock.onDone(res => {
+  if (res.data?.toggleEntryLock.lockedAt) {
+    router.go(-1)
+  }
 })
 
 function filterAssignments (assignments: UnwrapRef<typeof judgeAssignments>, judgeType: string, entry: EntryBaseFragment | undefined) {
   return assignments?.filter(ja => ja.judgeType === judgeType && ja.competitionEventId === entry?.competitionEventId) ?? []
+}
+
+function filterScoresheets<T extends ScoresheetBaseFragment> (scoresheets: T[], judgeId: Judge['id'], judgeType: JudgeAssignment['judgeType']): T[] {
+  return scoresheets.filter(scsh => scsh?.judge?.id === judgeId && scsh.judgeType === judgeType)
 }
 </script>
