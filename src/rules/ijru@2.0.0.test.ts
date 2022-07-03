@@ -3,7 +3,7 @@ import * as mod from './ijru@2.0.0'
 import assert from 'assert'
 import { tScsh } from '../../test/helpets'
 import { CompetitionEvent } from '../helpers'
-import { MarkScoresheet, Scoresheet, ScoresheetBaseFragment, TallyScoresheet } from '../graphql/generated'
+import { Judge, MarkScoresheet, MarkScoresheetFragment, Scoresheet, ScoresheetBaseFragment, TallyScoresheet, TallyScoresheetFragment } from '../graphql/generated'
 
 describe('ijru@2.0.0', () => {
   describe('L', () => {
@@ -151,9 +151,9 @@ describe('ijru@2.0.0', () => {
         tScsh({ step: 12 }, 'S', 'e.ijru.sp.sr.srss.1.30')
       ]
       assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')({ entryId: 'asd', participantId: 'fgh' }, scoresheets), {
-        entryId: 'test-entry',
         competitionEvent: 'e.ijru.sp.sr.srss.1.30',
-        participantId: 5,
+        entryId: 'asd',
+        participantId: 'fgh',
         result: {
           a: 10,
           m: 10,
@@ -165,7 +165,7 @@ describe('ijru@2.0.0', () => {
     })
 
     it('Should pick the latest scoresheet for a judge', () => {
-      const scoresheets: Array<ScoresheetBaseFragment & (TallyScoresheet | MarkScoresheet)> = [
+      const scoresheets: Array<ScoresheetBaseFragment & (TallyScoresheetFragment | MarkScoresheetFragment)> = [
         {
           id: 'aaa',
           judgeType: 'S',
@@ -188,9 +188,9 @@ describe('ijru@2.0.0', () => {
         }
       ]
       assert.deepStrictEqual(mod.calculateSpeedEntry('e.ijru.sp.sr.srss.1.30')({ entryId: 'asdawe', participantId: 'äasdwq' }, scoresheets), {
-        entryId: 'a',
         competitionEvent: 'e.ijru.sp.sr.srss.1.30',
-        participantId: 5,
+        entryId: 'asdawe',
+        participantId: 'äasdwq',
         result: {
           a: 10,
           m: 0,

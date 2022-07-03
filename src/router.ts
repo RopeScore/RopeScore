@@ -20,9 +20,9 @@ export default createRouter({
       component: async () => import('./views/GroupSettings.vue')
     },
     {
-      path: '/groups/:groupId/devices',
+      path: '/groups/:groupId/heats',
       name: 'group-devices',
-      component: async () => import('./views/Devices.vue')
+      component: async () => import('./views/Heats.vue')
     },
     {
       path: '/groups/:groupId/results',

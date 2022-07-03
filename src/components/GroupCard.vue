@@ -21,7 +21,7 @@
       <button-link :to="`/groups/${group?.id}/results`">
         Results
       </button-link>
-      <button-link :to="`/groups/${group?.id}/devices`">
+      <button-link :to="`/groups/${group?.id}/heats`">
         Heats
       </button-link>
       <button-link :to="`/groups/${group?.id}/settings`">

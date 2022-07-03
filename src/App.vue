@@ -10,12 +10,12 @@
         <button-link v-if="route.params.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}/results`">
           Results
         </button-link>
-        <button-link v-if="route.params.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}`">
+        <!-- TODO: keep showing if you came from a category -->
+        <button-link v-if="route.params.categoryId ?? route.query.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId ?? route.query.categoryId}`">
           Category
         </button-link>
-        <!-- TODO: hide if group isn't remote -->
-        <button-link v-if="route.params.groupId" :to="`/groups/${route.params.groupId}/devices`">
-          Devices
+        <button-link v-if="route.params.groupId" :to="`/groups/${route.params.groupId}/heats`">
+          Heats
         </button-link>
         <button-link to="/system">
           System
