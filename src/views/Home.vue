@@ -15,7 +15,9 @@
       </dialog-button>
 
       <div class="pt-2 px-2">
-        <text-button @click="groupsQuery.refetch()" :loading="groupsQuery.loading.value">Refresh</text-button>
+        <text-button :loading="groupsQuery.loading.value" @click="groupsQuery.refetch()">
+          Refresh
+        </text-button>
       </div>
     </div>
 

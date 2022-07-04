@@ -6,7 +6,9 @@
       </h1>
 
       <menu class="p-0 m-0">
-        <text-button @click="categorySettingsQuery.refetch()" :loading="categorySettingsQuery.loading.value">Refresh</text-button>
+        <text-button :loading="categorySettingsQuery.loading.value" @click="categorySettingsQuery.refetch()">
+          Refresh
+        </text-button>
         <text-button color="red" :loading="deleting" @click="deleteConfirm ? deleteCategoryMutation.mutate() : deleteConfirm = true">
           {{ deleteConfirm ? 'Confirm Delete' : 'Delete' }}
         </text-button>
@@ -221,7 +223,7 @@
         <tr>
           <td />
           <td><text-field v-model="newJudge.name" :disabled="createJudgeMutation.loading.value" label="Name" dense /></td>
-          <td><text-field v-model="(newJudge.ijruId as string)" :disabled="createJudgeMutation.loading.value" label="IJRU ID" dense /></td>
+          <td><text-field :model-value="newJudge.ijruId ?? ''" :disabled="createJudgeMutation.loading.value" label="IJRU ID" dense @update:model-value="newJudge.ijruId = $event" /></td>
           <td :colspan="category.competitionEventIds.length">
             <text-button
               dense
@@ -244,14 +246,8 @@ import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
 import { memberNames, getAbbr, CompetitionEvent, isTeam, isAthlete } from '../helpers'
-import { CategoryType, CreateAthleteInput, CreateJudgeInput, CreateTeamInput, Judge, JudgeAssignmentFragment, Participant } from '../graphql/generated'
-
-import countryData from '../data/countries.json'
-
-import { TextButton, TextField, SelectField } from '@ropescore/components'
-import IconCheck from 'virtual:icons/mdi/check'
-import IconLoading from 'virtual:icons/mdi/loading'
 import {
+  CategoryType, CreateAthleteInput, CreateJudgeInput, CreateTeamInput, Judge, JudgeAssignmentFragment, Participant,
   Category,
   useCategorySettingsQuery,
   useDeleteCategoryMutation,
@@ -264,6 +260,12 @@ import {
   useCreateTeamMutation,
   useDeleteParticipantMutation
 } from '../graphql/generated'
+
+import countryData from '../data/countries.json'
+
+import { TextButton, TextField, SelectField } from '@ropescore/components'
+import IconCheck from 'virtual:icons/mdi/check'
+import IconLoading from 'virtual:icons/mdi/loading'
 
 const route = useRoute()
 const router = useRouter()

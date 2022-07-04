@@ -9,7 +9,9 @@
       </h1>
 
       <menu class="p-0 m-0">
-        <text-button @click="groupInfoQuery.refetch()" :loading="groupInfoQuery.loading.value">Refresh</text-button>
+        <text-button :loading="groupInfoQuery.loading.value" @click="groupInfoQuery.refetch()">
+          Refresh
+        </text-button>
         <text-button
           :loading="toggleGroupComplete.loading.value"
           @click="toggleGroupComplete.mutate({ groupId: group?.id!, completed: !group?.completedAt })"
@@ -23,7 +25,12 @@
     </div>
 
     <fieldset v-if="group">
-      <text-field :model-value="group.name" @update:model-value="updateData.name = $event" :disabled="!!group.completedAt" label="Group Name" />
+      <text-field
+        :model-value="group.name"
+        :disabled="!!group.completedAt"
+        label="Group Name"
+        @update:model-value="updateData.name = $event"
+      />
 
       <text-button
         class="mt-2"

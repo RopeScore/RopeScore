@@ -81,7 +81,7 @@ const group = computed(() => resultsQuery.result.value?.group)
 
 const categories = computed(() => {
   if (resultsQuery.result.value?.group?.category) {
-    return [resultsQuery.result.value?.group?.category ]
+    return [resultsQuery.result.value?.group?.category]
   } else if (resultsQuery.result.value?.group?.categories) {
     return resultsQuery.result.value?.group?.categories
   } else return []

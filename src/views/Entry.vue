@@ -11,7 +11,9 @@
     </div>
 
     <div class="flex items-stretch">
-      <text-button @click="entryWithScoresheetQuery.refetch()" :loading="entryWithScoresheetQuery.loading.value">Refresh</text-button>
+      <text-button :loading="entryWithScoresheetQuery.loading.value" @click="entryWithScoresheetQuery.refetch()">
+        Refresh
+      </text-button>
       <text-button @click="goBack">
         Back
       </text-button>
@@ -90,7 +92,7 @@ const entryWithScoresheetQuery = useEntryWithScoresheetsQuery({
 const category = computed(() => entryWithScoresheetQuery.result.value?.group?.category)
 const entry = computed(() => entryWithScoresheetQuery.result.value?.group?.entry)
 const scoresheets = computed(() => entryWithScoresheetQuery.result.value?.group?.entry?.scoresheets ?? [])
-const judgeAssignments = computed(() =>  entryWithScoresheetQuery.result.value?.group?.category?.judgeAssignments)
+const judgeAssignments = computed(() => entryWithScoresheetQuery.result.value?.group?.category?.judgeAssignments)
 
 const ruleset = computed(() => useRuleset(category.value?.rulesId).value)
 

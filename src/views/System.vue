@@ -3,7 +3,11 @@
     <h1>System Settings</h1>
 
     <fieldset>
-      <text-field :model-value="me?.name ?? ''" @update:model-value="newName = $event" label="System Name" />
+      <text-field
+        :model-value="me?.name ?? ''"
+        label="System Name"
+        @update:model-value="newName = $event"
+      />
 
       <text-button
         v-if="!system.rsApiToken"

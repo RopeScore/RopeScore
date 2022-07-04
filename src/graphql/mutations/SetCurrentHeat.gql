@@ -1,0 +1,6 @@
+mutation SetCurrentHeat ($groupId: ID!, $heat: Int!) {
+  setCurrentHeat(groupId: $groupId, heat: $heat) {
+    id
+    currentHeat
+  }
+}

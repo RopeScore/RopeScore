@@ -3,7 +3,9 @@
     <div class="flex justify-between">
       <h1>{{ category?.name }}</h1>
       <menu class="m-0 p-0">
-        <text-button @click="categoryGridQuery.refetch()" :loading="categoryGridQuery.loading.value">Refresh</text-button>
+        <text-button :loading="categoryGridQuery.loading.value" @click="categoryGridQuery.refetch()">
+          Refresh
+        </text-button>
         <button-link :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}/settings`">
           Settings
         </button-link>
@@ -106,7 +108,7 @@
               }"
               @click="openEntry(participant.id, cEvtDefCode)"
             >
-              <icon-loading v-if="createEntryMutation.loading.value" class="animate-spin"/>
+              <icon-loading v-if="createEntryMutation.loading.value" class="animate-spin" />
               <span v-else>Edit</span>
             </td>
             <!-- TODO: hash -->
