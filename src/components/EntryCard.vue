@@ -73,7 +73,6 @@ import { useMutationLoading } from '@vue/apollo-composable'
 import { SelectField, CheckboxField } from '@ropescore/components'
 
 import type { PropType } from 'vue'
-import type { JudgeAssignment } from '../store/schema'
 import type { DataListItem } from '../helpers'
 
 const props = defineProps({

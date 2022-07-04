@@ -218,28 +218,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useMutationLoading, useResult } from '@vue/apollo-composable'
-// import {
-//   useGroupDevicesQuery,
-//   useGroupEntriesQuery,
-//   useAddGroupDeviceMutation,
-//   useRemoveGroupDeviceMutation,
-//   useCreateEntryMutation,
-//   useReorderEntryMutation,
-//   useSetEntryDidNotSkipMutation,
-//   EntryFragmentDoc
-// } from '../graphql/generated'
-// import { useCategories } from '../hooks/categories'
-// import { useParticipants } from '../hooks/participants'
-// import { useEntries } from '../hooks/entries'
-// import { db } from '../store/idbStore'
+import { useMutationLoading } from '@vue/apollo-composable'
 import { formatDate } from '../helpers'
 
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
 
-import type { CompetitionEvent, MarkScoresheet, Mark } from '../store/schema'
 
 const route = useRoute()
 const newDevice = ref<string>('')

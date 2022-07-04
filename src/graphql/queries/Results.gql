@@ -1,0 +1,17 @@
+query Results ($groupId: ID!, $categoryId: ID!, $singleCategory: Boolean!) {
+  group (groupId: $groupId) {
+    ...GroupBaseFragment
+
+    category (categoryId: $categoryId) @include(if: $singleCategory) {
+      ...CategoryBaseFragment
+      ...CategoryPrintFragment
+      ...CategoryResultsFragment
+    }
+
+    categories @skip(if: $singleCategory) {
+      ...CategoryBaseFragment
+      ...CategoryPrintFragment
+      ...CategoryResultsFragment
+    }
+  }
+}

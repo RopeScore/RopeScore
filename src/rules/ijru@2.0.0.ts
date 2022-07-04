@@ -641,7 +641,7 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
   }
 
   headers.push({
-    text: 'Normalised Score',
+    text: 'Normalised',
     key: 'B',
     color: 'gray',
     formatter: roundToCurry(2)
