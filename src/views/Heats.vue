@@ -57,7 +57,7 @@
                 never
               </td>
             </template>
-            <td v-else colspan="4"/>
+            <td v-else colspan="4" />
 
             <td class="max-w-[10ch]">
               <text-field v-model="newDevices[judge.id]" dense label="Device ID" />
@@ -138,8 +138,25 @@
         </text-button>
       </p>
 
-      <div>
-        <text-button @click="scrollToUnlocked()">
+      <div class="flex">
+        <div class="w-16">
+          <text-field
+            :model-value="`${currentHeat}`"
+            type="number"
+            dense
+            label="Heat"
+            @update:model-value="newCurrentHeat = $event"
+          />
+        </div>
+
+        <text-button
+          :disabled="typeof newCurrentHeat !== 'number' || newCurrentHeat === currentHeat"
+          :loading="setCurrentHeat.loading.value"
+          @click="setCurrentHeat.mutate({ groupId: route.params.groupId as string, heat: newCurrentHeat! })"
+        >
+          Set Heat
+        </text-button>
+        <text-button @click="scrollToCurrentHeat()">
           Scroll
         </text-button>
       </div>
@@ -153,15 +170,15 @@
           {{ heat }}
         </div>
         <div class="flex gap-2 overflow-x-auto">
-          <!-- <entry-card
+          <entry-card
             v-for="entry of ents"
             :key="entry.id"
-            :category-name="'TODO'"
+            :category-name="findCategory(entry.category.id)?.name ?? ''"
             :entry="entry"
-            :participant=""
-            :judge-assignments=""
+            :participant="entry.participant"
+            :judge-assignments="findCategory(entry.category.id)?.judgeAssignments ?? []"
             :scoresheets="entry.scoresheets"
-          /> -->
+          />
         </div>
       </template>
     </div>
@@ -227,12 +244,15 @@ import { CompetitionEvent, formatDate, isMarkScoresheet } from '../helpers'
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
-import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation } from '../graphql/generated'
+import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation } from '../graphql/generated'
 
 const route = useRoute()
 const fetchTime = ref(0)
 const entryFetchTime = ref(0)
 const newDevices = reactive<Record<string, string>>({})
+const newCurrentHeat = ref<number>()
+
+const setCurrentHeat = useSetCurrentHeatMutation({})
 
 const setJudgeDevice = useSetJudgeDeviceMutation({
   refetchQueries: ['JudgeStatuses'],
@@ -257,11 +277,15 @@ const judgeStatusesQuery = useJudgeStatusesQuery(
   { pollInterval: 60_000, fetchPolicy: 'cache-and-network' }
 )
 
+const currentHeat = computed(() => heatsQuery.result.value?.group?.currentHeat)
 const judges = computed(() => judgeStatusesQuery.result.value?.group?.judges ?? [])
-
 heatsQuery.onResult(() => {
   fetchTime.value = Date.now()
 })
+
+function findCategory (categoryId: string) {
+  return heatsQuery.result.value?.group?.categories.find(c => c.id === categoryId)
+}
 
 const entries = computed(() => {
   const ents = [...(heatsQuery.result.value?.group?.entries ?? [])].filter(e => typeof e.heat === 'number')
@@ -377,13 +401,9 @@ async function findCreateEntry () {
   }
 }
 
-function scrollToUnlocked () {
-  const firstHeatWithUnlocked = Object.entries(entries.value)
-    .find(([heat, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.filter(scsh => isMarkScoresheet(scsh)).every(scsh => !(scsh as MarkScoresheet)?.submittedAt)))
-
-  if (!firstHeatWithUnlocked) return
-
-  const heat = firstHeatWithUnlocked[0]
+function scrollToCurrentHeat () {
+  const heat = currentHeat.value ?? Object.entries(entries.value)
+    .find(([heat, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.filter(scsh => isMarkScoresheet(scsh)).every(scsh => !(scsh as MarkScoresheet)?.submittedAt)))?.[0]
   const el = document.getElementById(`heat-${heat}`)
 
   if (!el) return

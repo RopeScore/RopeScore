@@ -5,7 +5,6 @@
 <script setup lang="ts">
 import { provide, ref, watch } from 'vue'
 import Excel from 'exceljs'
-import { useSystem } from '../hooks/system'
 import { nameCleaner, formatShortDate } from '../helpers'
 import { version } from '../../package.json'
 
@@ -16,13 +15,12 @@ const props = defineProps({
   }
 })
 
-const system = useSystem()
 const workbook = ref<Excel.Workbook>()
 
 watch(workbook, () => {
   if (!workbook.value) return
   workbook.value.title = props.name
-  workbook.value.creator = system.value.computerName || `RopeScore v${version}`
+  workbook.value.creator = `RopeScore v${version}`
   workbook.value.created = new Date()
   workbook.value.views = [
     {

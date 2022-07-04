@@ -3,4 +3,5 @@ fragment GroupBaseFragment on Group {
   name
   createdAt
   completedAt
+  currentHeat
 }

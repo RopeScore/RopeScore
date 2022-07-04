@@ -1,4 +1,4 @@
-import { Athlete, Judge, MarkScoresheet, Participant, Scoresheet, ScoresheetBaseFragment, TallyScoresheet, Team } from './graphql/generated'
+import { Athlete, Judge, MarkScoresheet, Participant, ScoresheetBaseFragment, TallyScoresheet, Team } from './graphql/generated'
 import type { FieldDefinition, EntryResult } from './rules'
 
 const locales = ['en-SE', 'en-AU', 'en-GB']
@@ -12,6 +12,7 @@ export interface GenericMark {
   value?: number
   [prop: string]: any
 }
+export function isGenericMark (x: any): x is GenericMark { return x && typeof x.schema === 'string' && typeof x.sequence === 'number' }
 
 export interface UndoMark {
   timestamp: number
@@ -184,7 +185,7 @@ export function calculateTally (scoresheet: Pick<TallyScoresheet, 'tally'> | Pic
         const target = scoresheet.marks[mark.target]
         if (!target || isUndoMark(target)) continue
         tally[target.schema] = (tally[target.schema] ?? 0) - (target.value ?? 1)
-      } else {
+      } else if (isGenericMark(mark)) {
         tally[mark.schema] = (tally[mark.schema] ?? 0) + (mark.value ?? 1)
       }
     }

@@ -58,6 +58,7 @@
 import { computed, toRef } from 'vue'
 
 import type { PropType } from 'vue'
+import { CheckboxField } from '@ropescore/components'
 import { isMarkScoresheet } from '../helpers'
 import { AthleteFragment, EntryBaseFragment, JudgeAssignmentFragment, JudgeBaseFragment, MarkScoresheetFragment, MarkScoresheetStatusFragment, ScoresheetBaseFragment, TeamFragment, useSetScoresheetOptionsMutation } from '../graphql/generated'
 

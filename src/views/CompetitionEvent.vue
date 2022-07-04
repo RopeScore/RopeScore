@@ -8,7 +8,9 @@
     </div>
 
     <div class="flex items-stretch">
-      <text-button @click="entriesWithScoresheetQuery.refetch()" :loading="entriesWithScoresheetQuery.loading.value">Refresh</text-button>
+      <text-button :loading="entriesWithScoresheetQuery.loading.value" @click="entriesWithScoresheetQuery.refetch()">
+        Refresh
+      </text-button>
       <text-button @click="goBack">
         Back
       </text-button>
@@ -166,7 +168,7 @@
 import { computed, UnwrapRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
-import { CompetitionEvent, memberNames, } from '../helpers'
+import { CompetitionEvent, memberNames } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import ScoresheetCols from '../components/ScoresheetCols.vue'
@@ -228,7 +230,7 @@ const createEntryMutation = useCreateEntryMutation({
 const toggleLock = useToggleEntryLockMutation({})
 
 function filterScoresheets<T extends ScoresheetBaseFragment> (scoresheets: T[], judgeId: Judge['id'], judgeType: JudgeAssignment['judgeType']): T[] {
-  console.log(scoresheets, judgeId , judgeType)
+  console.log(scoresheets, judgeId, judgeType)
   return scoresheets.filter(scsh => scsh?.judge?.id === judgeId && scsh.judgeType === judgeType)
 }
 </script>

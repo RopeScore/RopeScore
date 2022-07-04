@@ -16,6 +16,15 @@ query Heats ($groupId: ID!) {
     entries {
       ...EntryBaseFragment
 
+      category {
+        id
+      }
+
+      participant {
+        ...AthleteFragment
+        ...TeamFragment
+      }
+
       scoresheets {
         ...ScoresheetBaseFragment
         ...MarkScoresheetStatusFragment

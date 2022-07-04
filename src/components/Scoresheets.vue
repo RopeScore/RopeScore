@@ -35,7 +35,7 @@
 
       <scoresheet-result
         :scoresheet="scoresheet"
-        :rulesId="rulesId"
+        :rules-id="rulesId"
         :competition-event="competitionEvent"
         :judge-type="judgeType"
         class="mb-2 w-full"
