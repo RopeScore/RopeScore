@@ -1,0 +1,13 @@
+query JudgeStatuses ($groupId: ID!) {
+  group (groupId: $groupId) {
+    id
+
+    judges {
+      ...JudgeBaseFragment
+
+      device {
+        ...DeviceBaseFragment
+      }
+    }
+  }
+}

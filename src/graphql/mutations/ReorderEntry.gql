@@ -1,0 +1,7 @@
+mutation ReorderEntry ($entryId: ID!, $heat: Int, $pool: Int) {
+  reorderEntry(entryId: $entryId, heat: $heat, pool: $pool) {
+    id
+    heat
+    pool
+  }
+}

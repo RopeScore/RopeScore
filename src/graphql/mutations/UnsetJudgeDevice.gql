@@ -1,0 +1,9 @@
+mutation UnsetJudgeDevice ($judgeId: ID!) {
+  unsetJudgeDevice (judgeId: $judgeId) {
+    id
+
+    device {
+      ...DeviceBaseFragment
+    }
+  }
+}

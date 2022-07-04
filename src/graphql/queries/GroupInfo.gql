@@ -2,7 +2,13 @@ query GroupInfo ($groupId: ID!) {
   group (groupId: $groupId) {
     ...GroupBaseFragment
 
-    admins { id }
-    viewers { id }
+    admins {
+      id
+      name
+    }
+    viewers {
+      id
+      name
+    }
   }
 }

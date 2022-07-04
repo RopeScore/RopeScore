@@ -1,0 +1,9 @@
+mutation SetJudgeDevice ($judgeId: ID!, $deviceId: ID!) {
+  setJudgeDevice (judgeId: $judgeId, deviceId: $deviceId) {
+    id
+
+    device {
+      ...DeviceBaseFragment
+    }
+  }
+}

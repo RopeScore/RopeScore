@@ -13,10 +13,7 @@ query CategoryGrid ($groupId: ID!, $categoryId: ID!) {
       }
 
       entries {
-        id
-        competitionEventId
-        lockedAt
-        didNotSkipAt
+        ...EntryBaseFragment
 
         participant {
           ... on Athlete { id }

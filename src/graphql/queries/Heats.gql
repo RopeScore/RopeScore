@@ -1,0 +1,25 @@
+query Heats ($groupId: ID!) {
+  group (groupId: $groupId) {
+    ...GroupBaseFragment
+
+    categories {
+      ...CategoryBaseFragment
+
+      judgeAssignments {
+        ...JudgeAssignmentFragment
+        judge {
+          ...JudgeBaseFragment
+        }
+      }
+    }
+
+    entries {
+      ...EntryBaseFragment
+
+      scoresheets {
+        ...ScoresheetBaseFragment
+        ...MarkScoresheetStatusFragment
+      }
+    }
+  }
+}

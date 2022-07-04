@@ -45,6 +45,7 @@
           <thead>
             <tr>
               <th>ID</th>
+              <th>Name</th>
               <th class="w-40" />
             </tr>
           </thead>
@@ -54,8 +55,10 @@
               :key="admin.id"
             >
               <td><code>{{ admin.id }}</code></td>
+              <td>{{ admin.name }}</td>
               <td>
                 <text-button
+                  v-if="admin.id !== me?.id"
                   color="red"
                   dense
                   :disabled="!!group?.completedAt"
@@ -72,7 +75,7 @@
               <td>
                 <text-field label="User ID" dense :model-value="newAdminId" @update:model-value="newAdminId = $event" />
               </td>
-              <td>
+              <td colspan="2">
                 <text-button
                   color="blue"
                   dense
@@ -99,6 +102,7 @@
           <thead>
             <tr>
               <th>ID</th>
+              <th>Name</th>
               <th class="w-40" />
             </tr>
           </thead>
@@ -108,6 +112,7 @@
               :key="viewer.id"
             >
               <td><code>{{ viewer.id }}</code></td>
+              <td>{{ viewer.name }}</td>
               <td>
                 <text-button
                   color="red"
@@ -126,7 +131,7 @@
               <td>
                 <text-field label="User ID" dense :model-value="newViewerId" @update:model-value="newViewerId = $event" />
               </td>
-              <td>
+              <td colspan="2">
                 <text-button
                   color="blue"
                   dense
@@ -148,7 +153,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, UpdateGroupInput } from '../graphql/generated'
+import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, UpdateGroupInput, useMeQuery } from '../graphql/generated'
 
 import { TextButton, TextField } from '@ropescore/components'
 import IconLoading from 'virtual:icons/mdi/loading'
@@ -159,8 +164,10 @@ const router = useRouter()
 const groupId = ref<string>(route.params.groupId as string)
 watch(() => route.params.groupId, newId => { groupId.value = newId as string })
 
+const meQuery = useMeQuery()
 const groupInfoQuery = useGroupInfoQuery({ groupId: groupId as unknown as string }, { fetchPolicy: 'cache-and-network' })
 
+const me = computed(() => meQuery.result.value?.me)
 const group = computed(() => groupInfoQuery.result.value?.group)
 const groupViewers = computed(() => groupInfoQuery.result?.value?.group?.viewers ?? [])
 const groupAdmins = computed(() => groupInfoQuery.result?.value?.group?.admins ?? [])

@@ -1,87 +1,88 @@
 <template>
   <section class="container mx-auto">
     <h1 class="mb-2">
-      Devices
+      Judges & Devices
     </h1>
 
     <div>
       <table class="w-full">
         <thead>
           <tr>
+            <th>Judge ID</th>
+            <th>Judge Name</th>
             <th>Device ID</th>
             <th>Device Name</th>
             <th>Battery</th>
             <th class="relative">
               Last Battery Status
-              <span v-if="groupDevices.loading.value" class="absolute right-1 top-1">
+              <span v-if="judgeStatusesQuery.loading.value" class="absolute right-1 top-1">
                 <icon-loading class="animate-spin" />
               </span>
             </th>
-            <th />
+            <th colspan="2" />
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="device of devices"
-            :key="`${device.id}-${fetchTime}`"
+            v-for="judge of judges"
+            :key="judge.id"
           >
-            <td>{{ device.id }}</td>
-            <td>{{ device.name }}</td>
+            <td>{{ judge.id }}</td>
+            <td>{{ judge.name }}</td>
 
-            <td
-              v-if="device.battery"
-              class="min-w-[10ch] text-right"
-              :class="{
-                'bg-green-300': device.battery.batteryLevel > 30,
-                'bg-orange-200': device.battery.batteryLevel <= 30 && device.battery.batteryLevel > 15,
-                'bg-red-200': device.battery.batteryLevel <= 15,
-              }"
-            >
-              {{ device.battery.batteryLevel }} %
-            </td>
-            <td v-else class="bg-gray-200" />
+            <template v-if="judge.device">
+              <td>{{ judge.device?.id }}</td>
+              <td>{{ judge.device?.name }}</td>
 
-            <td v-if="device.battery" :class="{ 'bg-orange-200': tooLongAgo(device.battery.updatedAt) }">
-              <relative-time :datetime="toISO(device.battery.updatedAt)">
-                {{ toISO(device.battery.updatedAt) }}
-              </relative-time>
-              <span v-if="!device.battery.automatic"> (manual)</span>
-            </td>
-            <td v-else class="bg-gray-200">
-              never
-            </td>
+              <td
+                v-if="judge.device.battery"
+                class="min-w-[10ch] text-right"
+                :class="{
+                  'bg-green-300': judge.device.battery.batteryLevel > 30,
+                  'bg-orange-200': judge.device.battery.batteryLevel <= 30 && judge.device.battery.batteryLevel > 15,
+                  'bg-red-200': judge.device.battery.batteryLevel <= 15,
+                }"
+              >
+                {{ judge.device.battery.batteryLevel }} %
+              </td>
+              <td v-else class="bg-gray-200" />
 
+              <td v-if="judge.device.battery" :class="{ 'bg-orange-200': tooLongAgo(judge.device.battery.updatedAt) }">
+                <relative-time :datetime="toISO(judge.device.battery.updatedAt)">
+                  {{ toISO(judge.device.battery.updatedAt) }}
+                </relative-time>
+                <span v-if="!judge.device.battery.automatic"> (manual)</span>
+              </td>
+              <td v-else class="bg-gray-200">
+                never
+              </td>
+            </template>
+            <td v-else colspan="4"/>
+
+            <td class="max-w-[10ch]">
+              <text-field v-model="newDevices[judge.id]" dense label="Device ID" />
+            </td>
             <td>
+              <text-button
+                dense
+                :loading="setJudgeDevice.loading.value"
+                :disabled="!newDevices[judge.id]"
+                @click="setJudgeDevice.mutate({ judgeId: judge.id, deviceId: newDevices[judge.id] })"
+              >
+                Set
+              </text-button>
               <text-button
                 color="red"
                 dense
-                :disabled="removingDevice"
-                :loading="removingDevice"
-                @click="removeDevice({ groupId: String(route.params.groupId), deviceId: device.id })"
+                :disabled="!judge.device"
+                :loading="unsetJudgeDevice.loading.value"
+                @click="unsetJudgeDevice.mutate({ judgeId: judge.id })"
               >
-                Remove
+                Unset
               </text-button>
             </td>
           </tr>
         </tbody>
-        <tfoot>
-          <tr>
-            <td class="max-w-[10ch]">
-              <text-field v-model="newDevice" dense :disabled="addingDevice" label="Device ID" />
-            </td>
-            <td colspan="4">
-              <text-button
-                color="blue"
-                dense
-                :disabled="addingDevice"
-                :loading="addingDevice"
-                @click="addDevice({ groupId: String(route.params.groupId), deviceId: newDevice })"
-              >
-                Add
-              </text-button>
-            </td>
-          </tr>
-        </tfoot>
       </table>
     </div>
   </section>
@@ -103,34 +104,36 @@
     </p>
 
     <p class="container mx-auto mb-2">
-      <span class="font-semibold">
-        Scoresheets will only be gathered from devices while this view is open.
-      </span>
       New data is fetched every 60 seconds.
+      <!-- TODO: subscription for entry and scoresheet status? -->
     </p>
   </section>
 
   <section class="grid grid-rows-[min-content,minmax(0,1fr)] sticky top-[3.5rem] bg-white w-full z-1000">
     <div class="flex flex-row container mx-auto justify-center">
-      <div
-        v-for="device of devices"
-        :key="`${device.id}-${fetchTime}`"
-        class="w-14 flex items-center justify-center"
-        :class="{
-          'bg-green-300': device.battery?.batteryLevel > 30,
-          'bg-orange-200': device.battery?.batteryLevel <= 30 && device.battery.batteryLevel > 15,
-          'bg-red-200': device.battery?.batteryLevel <= 15,
-          'bg-gray-200': !device.battery
-        }"
+      <template
+        v-for="judge of judges"
+        :key="`${judge.id}-${fetchTime}`"
       >
-        {{ device.battery?.batteryLevel ?? '-' }}
-      </div>
+        <div
+          v-if="judge.device"
+          class="w-14 flex items-center justify-center"
+          :class="{
+            'bg-green-300': typeof judge.device.battery?.batteryLevel === 'number' && judge.device.battery?.batteryLevel > 30,
+            'bg-orange-200': typeof judge.device.battery?.batteryLevel === 'number' && judge.device.battery?.batteryLevel <= 30 && judge.device.battery?.batteryLevel > 15,
+            'bg-red-200': typeof judge.device.battery?.batteryLevel === 'number' && judge.device.battery?.batteryLevel <= 15,
+            'bg-gray-200': !judge.device.battery
+          }"
+        >
+          {{ judge.device.battery?.batteryLevel ?? '-' }}
+        </div>
+      </template>
     </div>
     <div class="container mx-auto flex flex-row justify-between my-1">
       <p>
         The latest change happened {{ entryFetchTime ? formatDate(entryFetchTime) : 'never' }}.
 
-        <text-button :loading="groupEntries.loading.value" @click="groupEntries.refetch()">
+        <text-button :loading="heatsQuery.loading.value" @click="heatsQuery.refetch()">
           Refresh
         </text-button>
       </p>
@@ -150,14 +153,15 @@
           {{ heat }}
         </div>
         <div class="flex gap-2 overflow-x-auto">
-          <entry-card
+          <!-- <entry-card
             v-for="entry of ents"
             :key="entry.id"
-            :group-id="String(route.params.groupId)"
+            :category-name="'TODO'"
             :entry="entry"
+            :participant=""
+            :judge-assignments=""
             :scoresheets="entry.scoresheets"
-            :devices="devices"
-          />
+          /> -->
         </div>
       </template>
     </div>
@@ -186,25 +190,25 @@
         <select-field
           v-model="newEntry.categoryId.value"
           label="Category"
-          :data-list="localCategories"
+          :data-list="categories"
         />
         <div class="lg:hidden" />
         <select-field
-          v-model="newEntry.competitionEvent.value"
+          v-model="newEntry.competitionEventId.value"
           label="Competition Event"
-          :data-list="localCompetitionEvents"
-          :disabled="!newEntry.categoryId.value"
+          :data-list="categoryCompetitionEvents"
+          :disabled="!newEntry.categoryId.value || categoryGridQuery.loading.value"
         />
         <select-field
           v-model="newEntry.participantId.value"
           label="Participant"
-          :data-list="localParticipants"
-          :disabled="!newEntry.categoryId.value"
+          :data-list="categoryParticipants"
+          :disabled="!newEntry.categoryId.value || categoryGridQuery.loading.value"
         />
         <text-button
           color="blue"
-          :disabled="!formFilled || mutating"
-          :loading="mutating"
+          :disabled="!formFilled"
+          :loading="heatingEntry"
           class="mt-2"
           @click="findCreateEntry()"
         >
@@ -216,50 +220,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import { useMutationLoading } from '@vue/apollo-composable'
-import { formatDate } from '../helpers'
+import { CompetitionEvent, formatDate, isMarkScoresheet } from '../helpers'
 
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
-
+import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation } from '../graphql/generated'
 
 const route = useRoute()
-const newDevice = ref<string>('')
 const fetchTime = ref(0)
 const entryFetchTime = ref(0)
+const newDevices = reactive<Record<string, string>>({})
 
-const groupDevices = useGroupDevicesQuery(
+const setJudgeDevice = useSetJudgeDeviceMutation({
+  refetchQueries: ['JudgeStatuses'],
+  awaitRefetchQueries: true
+})
+const unsetJudgeDevice = useUnsetJudgeDeviceMutation({
+  refetchQueries: ['JudgeStatuses'],
+  awaitRefetchQueries: true
+})
+
+setJudgeDevice.onDone(res => {
+  if (!res.data?.setJudgeDevice.id) return
+  newDevices[res.data.setJudgeDevice.id] = ''
+})
+
+const heatsQuery = useHeatsQuery(
   () => ({ groupId: route.params.groupId as string }),
-  { pollInterval: 60_000 }
+  { pollInterval: 60_000, fetchPolicy: 'cache-and-network' }
 )
-const devices = useResult(groupDevices.result, [], res => res?.group?.devices)
-groupDevices.onResult(() => {
+const judgeStatusesQuery = useJudgeStatusesQuery(
+  () => ({ groupId: route.params.groupId as string }),
+  { pollInterval: 60_000, fetchPolicy: 'cache-and-network' }
+)
+
+const judges = computed(() => judgeStatusesQuery.result.value?.group?.judges ?? [])
+
+heatsQuery.onResult(() => {
   fetchTime.value = Date.now()
 })
-const group = useResult(groupDevices.result, null, res => res?.group)
 
-const { mutate: addDevice, loading: addingDevice, onDone } = useAddGroupDeviceMutation({})
-onDone(() => {
-  newDevice.value = ''
-})
-
-const { mutate: removeDevice, loading: removingDevice } = useRemoveGroupDeviceMutation({})
-
-const { mutate: setDidNotSkip } = useSetEntryDidNotSkipMutation({})
-const groupEntries = useGroupEntriesQuery(
-  () => ({ groupId: route.params.groupId as string }),
-  { pollInterval: 5_000 }
-)
-const entries = useResult(groupEntries.result, {}, res => {
-  const ents = [...(res?.group?.entries ?? [])]
-  ents.sort((a, b) => a.heat - b.heat)
+const entries = computed(() => {
+  const ents = [...(heatsQuery.result.value?.group?.entries ?? [])].filter(e => typeof e.heat === 'number')
+  ents.sort((a, b) => a.heat! - b.heat!)
   const heats: Record<number, typeof ents> = {}
   for (const ent of ents) {
-    heats[ent.heat] ??= []
-    heats[ent.heat].push(ent)
+    heats[ent.heat!] ??= []
+    heats[ent.heat!].push(ent)
   }
   for (const heat in heats) {
     heats[heat].sort((a, b) => {
@@ -272,134 +282,41 @@ const entries = useResult(groupEntries.result, {}, res => {
 
   return heats
 })
-const heats = useResult(groupEntries.result, [], res => {
-  const existing = [...new Set((res?.group?.entries ?? []).map(ent => ent.heat))]
+const heats = computed(() => {
+  const existing = [...new Set([...(heatsQuery.result.value?.group?.entries ?? [])].filter(e => typeof e.heat === 'number').map(e => e.heat)) as Set<number>]
   const next = Math.max(...existing, 0) + 1
   existing.push(next)
   existing.sort((a, b) => a - b)
   return existing
 })
 
-const maxLastUpdated = ref<number>(-Infinity)
-groupEntries.onResult(async res => {
-  if (!res.data.group?.entries) return
-  entryFetchTime.value = Date.now()
-  // This is where we take remote scoresheets and plop them into idb
-  const scoresheets: MarkScoresheet[] = []
-  let newLastUpdated = -Infinity
-
-  const localCats = await db.categories.where({ groupId: route.params.groupId as string }).toArray()
-  const localEntries = await db.entries.where('categoryId').anyOf(localCats.map(c => c.id)).toArray()
-
-  for (const entry of res.data.group.entries) {
-    const localEntry = localEntries.find(ent =>
-      ent.categoryId === entry.categoryId &&
-      ent.participantId === Number(entry.participantId) &&
-      ent.competitionEvent === entry.competitionEventLookupCode
-    )
-
-    if (localEntry && !!entry.didNotSkipAt !== !!localEntry.didNotSkipAt) {
-      // if we've changed did not skip locally we need to update the entry in
-      // remotely
-      setDidNotSkip({
-        entryId: entry.id,
-        didNotSkip: !!localEntry.didNotSkipAt
-      })
-    }
-
-    if (localEntry && localEntry.id !== entry.id) {
-      await db.transaction('rw', [db.entries, db.scoresheets], async () => {
-        await db.entries.where({ id: localEntry.id }).modify({ id: entry.id })
-        await db.scoresheets.where({ entryId: localEntry.id }).modify({ entryId: entry.id })
-      })
-    }
-
-    if (!localEntry) {
-      await db.entries.put({
-        id: entry.id,
-        categoryId: entry.categoryId,
-        participantId: Number(entry.participantId),
-        competitionEvent: entry.competitionEventLookupCode as CompetitionEvent
-      })
-    }
-
-    // if the local instance of the entry has been locked we need to prevent
-    // writes to it(s scoresheets) to avoid messing witht the results.
-    // similarly an entry with didNotSkip set shouldn't get any scores
-    if (localEntry?.lockedAt || localEntry?.didNotSkipAt) continue
-
-    for (const scoresheet of entry.scoresheets) {
-      // we still want to make sure we find the max updatedAt across all scoresheets
-      // except for locked entries in case that measn we skup some
-      if (scoresheet.updatedAt > newLastUpdated) newLastUpdated = scoresheet.updatedAt
-      // this scoresheet hasn't changed since we last retrieved data
-      if (scoresheet.updatedAt < maxLastUpdated.value) continue
-      scoresheets.push({
-        id: scoresheet.id,
-        judgeId: parseInt(scoresheet.judgeId, 10),
-        judgeType: scoresheet.judgeType,
-        deviceId: scoresheet.device.id,
-
-        entryId: entry.id,
-        competitionEvent: entry.competitionEventLookupCode as CompetitionEvent,
-
-        createdAt: scoresheet.createdAt,
-        updatedAt: scoresheet.updatedAt,
-        openedAt: scoresheet.openedAt ?? undefined,
-        completedAt: scoresheet.completedAt ?? undefined,
-        submittedAt: scoresheet?.submittedAt ?? undefined,
-
-        options: scoresheet.options ?? undefined,
-        marks: scoresheet.marks as Mark[]
-      })
-    }
-  }
-
-  maxLastUpdated.value = newLastUpdated
-
-  await db.scoresheets.bulkPut(scoresheets)
-})
-
-const { mutate: createEntry } = useCreateEntryMutation({
-  update (cache, { data }) {
-    if (!data?.createEntry || !group.value) return
-
-    cache.modify({
-      id: cache.identify(group.value),
-      fields: {
-        entries (existingEntryRefs = [], { readField }) {
-          const newEntryRef = cache.writeFragment({
-            fragment: EntryFragmentDoc,
-            data: data.createEntry
-          })
-          if (existingEntryRefs.some((ref: any) => readField('id', ref) === readField('id', newEntryRef))) {
-            return existingEntryRefs
-          }
-          return [...existingEntryRefs, newEntryRef]
-        }
-      }
-    })
-  }
-})
-
-const { mutate: reorderEntry } = useReorderEntryMutation({})
-
-const mutating = useMutationLoading()
-
 const newEntry = {
   heat: ref<number>(),
   pool: ref<number>(),
   categoryId: ref<string>(),
   participantId: ref<string>(),
-  competitionEvent: ref<CompetitionEvent>()
+  competitionEventId: ref<CompetitionEvent>()
 }
 const autoIncrement = ref(true)
 const formFilled = computed(() => {
   return newEntry.heat.value &&
     newEntry.categoryId.value &&
     newEntry.participantId.value &&
-    newEntry.competitionEvent.value
+    newEntry.competitionEventId.value
 })
+
+const catGridVars = computed(() => ({
+  groupId: route.params.groupId as string,
+  categoryId: newEntry.categoryId.value as string
+}))
+
+const categoryGridQuery = useCategoryGridQuery(catGridVars, {
+  enabled: computed(() => !!newEntry.categoryId.value) as unknown as boolean
+})
+
+const categories = computed(() => (heatsQuery.result.value?.group?.categories ?? []).map(c => ({ text: c.name, value: c.id })))
+const categoryCompetitionEvents = computed(() => categoryGridQuery.result.value?.group?.category?.competitionEventIds ?? [])
+const categoryParticipants = computed(() => (categoryGridQuery.result.value?.group?.category?.participants ?? []).map(p => ({ text: `${p.name} - ${p.club} (${p.id})`, value: p.id })))
 
 watch(newEntry.heat, (next, prev) => {
   if (prev != null && newEntry.pool.value != null) {
@@ -407,81 +324,19 @@ watch(newEntry.heat, (next, prev) => {
   }
 })
 
-const cats = useCategories(route.params.groupId as string)
-const localCategories = computed(() => cats.value.map(c => ({ text: c.name, value: c.id })))
-const localCompetitionEvents = computed(() =>
-  cats.value.find(c => c.id === newEntry.categoryId.value)?.competitionEvents ?? []
-)
-
 watch(newEntry.categoryId, () => {
   newEntry.participantId.value = undefined
-  newEntry.competitionEvent.value = undefined
+  newEntry.competitionEventId.value = undefined
 })
 
-const parts = useParticipants(newEntry.categoryId)
-const localParticipants = computed(() => parts.value.map(c => ({
-  text: `${c.name} - ${c.club} (${c.id})`,
-  value: c.id
-})))
+const createEntryMutation = useCreateEntryMutation({
+  refetchQueries: ['Heats', 'CategoryGrid'],
+  awaitRefetchQueries: true
+})
+const reorderEntryMutation = useReorderEntryMutation({})
+const heatingEntry = computed(() => createEntryMutation.loading.value || reorderEntryMutation.loading.value)
 
-const _ents = useEntries(newEntry.categoryId)
-
-async function findCreateEntry () {
-  if (
-    !newEntry.heat.value ||
-    !newEntry.categoryId.value ||
-    !newEntry.participantId.value ||
-    !newEntry.competitionEvent.value
-  ) return
-
-  const exists = _ents.value.find(ent =>
-    ent.participantId === Number(newEntry.participantId.value) &&
-    ent.competitionEvent === newEntry.competitionEvent.value
-  )
-
-  const result = await createEntry({
-    groupId: route.params.groupId as string,
-    entry: {
-      categoryId: newEntry.categoryId.value,
-      participantId: `${newEntry.participantId.value}`,
-      competitionEventLookupCode: newEntry.competitionEvent.value,
-      heat: newEntry.heat.value,
-      pool: newEntry.pool.value,
-
-      categoryName: cats.value.find(c => c.id === newEntry.categoryId.value)?.name ?? '',
-      participantName: parts.value.find(p => p.id === Number(newEntry.participantId.value))?.name ?? ''
-    }
-  })
-
-  if (!result?.data) return
-
-  if (exists && exists.id !== result.data?.createEntry.id) {
-    await db.transaction('rw', [db.entries, db.scoresheets], async () => {
-      await db.entries.where({ id: exists.id }).modify({ id: result.data?.createEntry.id })
-      await db.scoresheets.where({ entryId: exists.id }).modify({ entryId: result.data?.createEntry.id })
-    })
-  } else if (!exists) {
-    _ents.value.push({
-      id: result.data?.createEntry.id,
-      categoryId: newEntry.categoryId.value,
-      participantId: Number(newEntry.participantId.value),
-      competitionEvent: newEntry.competitionEvent.value,
-      heat: newEntry.heat.value,
-      pool: newEntry.pool.value
-    })
-  }
-
-  if (
-    result.data?.createEntry.heat !== newEntry.heat.value ||
-    result.data?.createEntry.pool !== newEntry.pool.value
-  ) {
-    await reorderEntry({
-      entryId: result.data.createEntry.id,
-      heat: newEntry.heat.value,
-      pool: newEntry.pool.value
-    })
-  }
-
+function onEntryHeated () {
   if (autoIncrement.value && typeof newEntry.heat.value === 'number') {
     newEntry.heat.value++
   } else if (!autoIncrement.value && typeof newEntry.pool.value === 'number') {
@@ -491,9 +346,40 @@ async function findCreateEntry () {
   newEntry.participantId.value = undefined
 }
 
+createEntryMutation.onDone(onEntryHeated)
+reorderEntryMutation.onDone(onEntryHeated)
+
+async function findCreateEntry () {
+  if (
+    !newEntry.heat.value ||
+    !newEntry.categoryId.value ||
+    !newEntry.participantId.value ||
+    !newEntry.competitionEventId.value
+  ) return
+
+  const exists = (categoryGridQuery.result.value?.group?.category?.entries ?? []).find(ent =>
+    ent.participant.id === newEntry.participantId.value &&
+    ent.competitionEventId === newEntry.competitionEventId.value
+  )
+
+  if (exists) {
+    await reorderEntryMutation.mutate({ entryId: exists.id, heat: newEntry.heat.value, pool: newEntry.pool.value })
+  } else {
+    await createEntryMutation.mutate({
+      categoryId: newEntry.categoryId.value,
+      participantId: newEntry.participantId.value,
+      data: {
+        competitionEventId: newEntry.competitionEventId.value,
+        heat: newEntry.heat.value,
+        pool: newEntry.pool.value
+      }
+    })
+  }
+}
+
 function scrollToUnlocked () {
   const firstHeatWithUnlocked = Object.entries(entries.value)
-    .find(([heat, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.every(scsh => !scsh?.submittedAt)))
+    .find(([heat, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.filter(scsh => isMarkScoresheet(scsh)).every(scsh => !(scsh as MarkScoresheet)?.submittedAt)))
 
   if (!firstHeatWithUnlocked) return
 

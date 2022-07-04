@@ -13,7 +13,7 @@ fragment ScoresheetBaseFragment on Scoresheet {
   options
 }
 
-fragment MarkScoresheetFragment on MarkScoresheet {
+fragment MarkScoresheetStatusFragment on MarkScoresheet {
   device {
     id
     name
@@ -21,6 +21,11 @@ fragment MarkScoresheetFragment on MarkScoresheet {
 
   completedAt
   submittedAt
+  openedAt
+}
+
+fragment MarkScoresheetFragment on MarkScoresheet {
+  ...MarkScoresheetStatusFragment
 
   marks
 }
