@@ -6,7 +6,7 @@
     <header class="flex justify-between flex-grow-0 mb-4">
       <div class="flex-grow">
         <h1 class="text-xl">
-          {{ category?.name }} <span v-if="group"> &ndash; {{ group.name }}</span>
+          {{ category?.name }} <span v-if="groupName"> &ndash; {{ groupName }}</span>
         </h1>
         <h2 class="text-xl text-gray-500">
           {{ cEvt?.name }}
@@ -14,27 +14,28 @@
       </div>
 
       <div class="noprint nozoom">
-        <text-button class="nozoom" @click="changeZoom(-0.03)">
+        <text-button class="nozoom" :loading="setPagePrintConfigMutation.loading.value" @click="setPagePrintConfigMutation.mutate({ categoryId: category.id, competitionEventId, data: { zoom: zoom - 0.03 } })">
           Zoom -
         </text-button>
-        <text-button class="nozoom" @click="changeZoom()">
+        <text-button class="nozoom" :loading="setPagePrintConfigMutation.loading.value" @click="setPagePrintConfigMutation.mutate({ categoryId: category.id, competitionEventId, data: { zoom: 1 } })">
           Reset
         </text-button>
-        <text-button class="nozoom" @click="changeZoom(0.03)">
+        <text-button class="nozoom" :loading="setPagePrintConfigMutation.loading.value" @click="setPagePrintConfigMutation.mutate({ categoryId: category.id, competitionEventId, data: { zoom: zoom + 0.03 } })">
           Zoom +
         </text-button>
         <text-button
           class="nozoom"
           :color="excluded ? 'red' : undefined"
-          @click="togglePrint"
+          :loading="setPagePrintConfigMutation.loading.value"
+          @click="setPagePrintConfigMutation.mutate({ categoryId: category.id, competitionEventId, data: { exclude: !excluded } })"
         >
           {{ excluded ? 'Include' : 'Exclude' }}
         </text-button>
       </div>
 
-      <div class="min-w-[20mm]">
-        <img v-if="category?.print.logo" :src="category.print.logo" class="h-[20mm]">
-      </div>
+      <!-- TODO: logo <div class="min-w-[20mm]">
+        <img v-if="category?.logo" :src="category.logo" class="h-[20mm]">
+      </div> -->
     </header>
 
     <main class="overflow-x-auto w-full flex-grow">
@@ -46,7 +47,7 @@
           >
             <th
               v-if="idx === 0"
-              :colspan="category.type === 'team' ? 4 : 3"
+              :colspan="category.type === CategoryType.Team ? 4 : 3"
               :rowspan="(cEvt.resultTable.groups ?? []).length"
             />
 
@@ -61,7 +62,7 @@
           </tr>
 
           <tr>
-            <template v-if="category.type === 'team'">
+            <template v-if="category.type === CategoryType.Team">
               <th>Team Name</th>
               <th>Team Members</th>
             </template>
@@ -84,7 +85,7 @@
         <tbody>
           <tr v-for="entryRes of results" :key="entryRes.participantId">
             <td>{{ getParticipant(entryRes.participantId)?.name }}</td>
-            <td v-if="category.type === 'team'" class="text-xs">
+            <td v-if="category.type === CategoryType.Team" class="text-xs">
               {{ memberNames(getParticipant(entryRes.participantId)) }}
             </td>
             <td>{{ getParticipant(entryRes.participantId)?.club }}</td>
@@ -112,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, computed, watch, ref, onUnmounted } from 'vue'
+import { inject, computed, watch, ref, onUnmounted, toRef } from 'vue'
 import Excel from 'exceljs'
 import { isOverallRulesDefinition, isOverallResult } from '../rules'
 import { memberNames, isOverall, getAbbr, CompetitionEvent } from '../helpers'
@@ -123,46 +124,51 @@ import { TextButton } from '@ropescore/components'
 
 import type { Ref, PropType } from 'vue'
 import type { EntryResult, OverallResult, TableHeader } from '../rules'
-import { Participant } from '../graphql/generated'
+import { CategoryBaseFragment, CategoryPrintFragment, CategoryResultsFragment, Participant, CategoryType, useSetPagePrintConfigMutation } from '../graphql/generated'
 
 const workbook = inject<Ref<Excel.Workbook>>('workbook')
 
 const props = defineProps({
-  categoryId: {
-    type: String,
+  category: {
+    type: Object as PropType<CategoryBaseFragment & CategoryPrintFragment & CategoryResultsFragment>,
     required: true
   },
-  groupId: {
+  groupName: {
     type: String,
     default: undefined
   },
-  competitionEvent: {
+  competitionEventId: {
     type: String as PropType<CompetitionEvent>,
     required: true
   }
 })
 
-const category = useCategory(props.categoryId)
-const group = useGroup(props.groupId)
-const entries = useEntries(props.categoryId)
-const participants = useParticipants(props.categoryId)
+const category = toRef(props, 'category')
 
-const ruleset = computed(() => useRuleset(category.value?.ruleset).value)
+const participants = computed(() => category.value.participants ?? [])
+const entries = computed(() => category.value.entries ?? [])
+const ruleset = computed(() => useRuleset(category.value?.rulesId).value)
 
 const cEvt = computed(() => {
-  if (isOverall(props.competitionEvent)) {
-    return ruleset.value?.overalls[props.competitionEvent]
+  if (isOverall(props.competitionEventId)) {
+    return ruleset.value?.overalls[props.competitionEventId]
   } else {
-    return ruleset.value?.competitionEvents[props.competitionEvent]
+    return ruleset.value?.competitionEvents[props.competitionEventId]
   }
 })
 
 const zoom = computed(() => {
-  return `${Math.round((category.value?.print.zoom[props.competitionEvent] ?? 1) * 100)}%`
+  const conf = category.value.pagePrintConfig.find(ppc => ppc.competitionEventId === props.competitionEventId)
+  return conf?.zoom ?? 1
+})
+
+const zoomPercentage = computed(() => {
+  return `${Math.round(zoom.value * 100)}%`
 })
 
 const excluded = computed(() => {
-  return category.value?.print.exclude.includes(props.competitionEvent)
+  const conf = category.value.pagePrintConfig.find(ppc => ppc.competitionEventId === props.competitionEventId)
+  return !!conf?.exclude
 })
 
 const results = ref<EntryResult[] | OverallResult[]>([])
@@ -172,14 +178,13 @@ async function calculateResults () {
   const res: EntryResult[] = []
   for (const entry of entries.value) {
     if (entry.didNotSkipAt) continue
-    const scoresheets = await db.scoresheets.where({ entryId: entry.id }).toArray()
 
     if (isOverallRulesDefinition(cEvt.value)) {
-      const score = ruleset.value?.competitionEvents[entry.competitionEvent]?.calculateEntry(entry, scoresheets)
+      const score = ruleset.value?.competitionEvents[entry.competitionEventId]?.calculateEntry({ entryId: entry.id, participantId: entry.participant.id }, entry.scoresheets)
       if (score) res.push(score)
     } else {
-      if (entry.competitionEvent !== props.competitionEvent) continue
-      const score = cEvt.value.calculateEntry(entry, scoresheets)
+      if (entry.competitionEventId !== props.competitionEventId) continue
+      const score = cEvt.value.calculateEntry({ entryId: entry.id, participantId: entry.participant.id }, entry.scoresheets)
       if (score) res.push(score)
     }
   }
@@ -193,8 +198,8 @@ async function calculateResults () {
   }
 }
 
-watch(ruleset, calculateResults)
-watch(entries, calculateResults, { deep: true })
+watch(ruleset, calculateResults, { immediate: true })
+watch(category, calculateResults, { deep: true, immediate: true })
 
 function getParticipant (participantId: Participant['id']) {
   return participants.value.find(p => p.id === participantId)
@@ -207,30 +212,11 @@ function getScore (header: TableHeader, result: EntryResult | OverallResult) {
   return header.formatter?.(score) ?? score ?? ''
 }
 
-function changeZoom (change?: number) {
-  if (!category.value) return
-  if (!change) category.value.print.zoom[props.competitionEvent] = 1
-  else {
-    category.value.print.zoom[props.competitionEvent] =
-      (category.value.print.zoom[props.competitionEvent] ?? 1) + change
-  }
-}
-
-function togglePrint () {
-  if (!category.value) return
-  const exclIdx = category.value.print.exclude.indexOf(props.competitionEvent)
-
-  if (exclIdx === -1) {
-    category.value.print.exclude ??= []
-    category.value.print.exclude.push(props.competitionEvent)
-  } else {
-    category.value.print.exclude.splice(exclIdx, 1)
-  }
-}
+const setPagePrintConfigMutation = useSetPagePrintConfigMutation({})
 
 // spreadsheet stuff
 
-const sheetId = computed(() => `${getAbbr(props.competitionEvent)} - ${category.value?.name ?? ''}`)
+const sheetId = computed(() => `${getAbbr(props.competitionEventId)} - ${category.value?.name ?? ''}`)
 
 function removeWorksheet () {
   if (!category.value) return
@@ -251,10 +237,10 @@ function createWorksheet () {
 
   worksheet.headerFooter.oddFooter = `&LScores from RopeScore v${version} - ropescore.com&RPage &P of &N`
   worksheet.headerFooter.oddHeader = `&L${
-    ruleset.value?.competitionEvents[props.competitionEvent]?.name ??
-    ruleset.value?.overalls[props.competitionEvent]?.name ??
-    getAbbr(props.competitionEvent)
-  } - ${category.value?.name}&R${group.value?.name ?? ''}` // worksheet name, add &R&G to add the logo?
+    ruleset.value?.competitionEvents[props.competitionEventId]?.name ??
+    ruleset.value?.overalls[props.competitionEventId]?.name ??
+    getAbbr(props.competitionEventId)
+  } - ${category.value?.name}&R${props.groupName ?? ''}` // worksheet name, add &R&G to add the logo?
 
   return worksheet
 }
@@ -276,13 +262,13 @@ onUnmounted(() => {
   removeWorksheet()
 })
 
-function addGroupTableHeaders (worksheet: Excel.Worksheet, type: 'individual' | 'team') {
+function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
   if (!isOverallRulesDefinition(cEvt.value)) return
   const excelGroupedHeaderRows: any[][] = []
   const merges: [number, number, number, number][] = []
   const groups = [...(cEvt.value.resultTable.groups?.map(gr => [...gr]) ?? [])]
 
-  groups[0].unshift({ text: '', key: 'parts', colspan: type === 'team' ? 4 : 3, rowspan: groups.length })
+  groups[0].unshift({ text: '', key: 'parts', colspan: type === CategoryType.Team ? 4 : 3, rowspan: groups.length })
   // create array
   /*
     let rows = [
@@ -391,10 +377,10 @@ function addGroupTableHeaders (worksheet: Excel.Worksheet, type: 'individual' | 
   )
 }
 
-function addTableHeaders (worksheet: Excel.Worksheet, type: 'individual' | 'team') {
+function addTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
   const row = new Array(1)
 
-  const baseHeaders = type === 'team' ? ['Team Name', 'Team Members', 'Club', 'ID'] : ['Name', 'Club', 'ID']
+  const baseHeaders = type === CategoryType.Team ? ['Team Name', 'Team Members', 'Club', 'ID'] : ['Name', 'Club', 'ID']
 
   for (const headerText of baseHeaders) {
     row.push({
@@ -437,11 +423,11 @@ function addTableHeaders (worksheet: Excel.Worksheet, type: 'individual' | 'team
 
 function addParticipantRows (
   worksheet: Excel.Worksheet,
-  type: 'team' | 'individual'
+  type: CategoryType
 ) {
   for (const entryRes of results.value) {
     const row: Array<string | number> = new Array(1)
-    if (type === 'team') {
+    if (type === CategoryType.Team) {
       row.push(
         getParticipant(entryRes.participantId)?.name ?? '',
         memberNames(getParticipant(entryRes.participantId)),
@@ -469,7 +455,7 @@ function addParticipantRows (
 
     worksheet.addRow(row)
 
-    const offset = type === 'team' ? 4 : 3
+    const offset = type === CategoryType.Team ? 4 : 3
 
     const lastRow: any = worksheet.lastRow
     lastRow.eachCell((cell: any) => {
@@ -514,6 +500,6 @@ td, th {
 .page header *:not(.nozoom),
 .page main,
 .page footer {
-  zoom: v-bind(zoom);
+  zoom: v-bind(zoomPercentage);
 }
 </style>

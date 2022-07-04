@@ -1,0 +1,7 @@
+fragment CategoryPrintFragment on Category {
+  pagePrintConfig {
+    competitionEventId
+    zoom
+    exclude
+  }
+}

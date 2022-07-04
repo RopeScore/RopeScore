@@ -35,6 +35,7 @@
       <span>{{ version }}</span>
     </footer>
   </div>
+  <error-cards />
 </template>
 
 <script lang="ts" setup>
@@ -43,8 +44,9 @@ import { version } from '../package.json'
 import { useSystem } from './hooks/system'
 
 import { ButtonLink } from '@ropescore/components'
+import ErrorCards from './components/ErrorCards.vue'
 import { useMeQuery } from './graphql/generated'
-import { computed } from '@vue/reactivity'
+import { computed } from 'vue'
 
 const route = useRoute()
 const router = useRouter()

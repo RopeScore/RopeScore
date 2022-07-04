@@ -2,8 +2,7 @@
 import * as mod from './ijru@2.0.0'
 import assert from 'assert'
 import { tScsh } from '../../test/helpets'
-import { CompetitionEvent } from '../helpers'
-import { Judge, MarkScoresheet, MarkScoresheetFragment, Scoresheet, ScoresheetBaseFragment, TallyScoresheet, TallyScoresheetFragment } from '../graphql/generated'
+import { MarkScoresheetFragment, ScoresheetBaseFragment, TallyScoresheetFragment } from '../graphql/generated'
 
 describe('ijru@2.0.0', () => {
   describe('L', () => {

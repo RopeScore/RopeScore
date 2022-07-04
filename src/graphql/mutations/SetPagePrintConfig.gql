@@ -1,0 +1,7 @@
+mutation SetPagePrintConfig ($categoryId: ID!, $competitionEventId: CompetitionEventLookupCode!, $data: SetPagePrintConfigInput!) {
+  setPagePrintConfig (categoryId: $categoryId, competitionEventId: $competitionEventId, data: $data) {
+    id
+
+    ...CategoryPrintFragment
+  }
+}

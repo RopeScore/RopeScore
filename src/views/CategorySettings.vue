@@ -385,7 +385,8 @@ function addParticipant () {
 }
 
 const createJudgeMutation = useCreateJudgeMutation({
-  refetchQueries: ['CategorySettings']
+  refetchQueries: ['CategorySettings'],
+  awaitRefetchQueries: true
 })
 const newJudge = reactive<CreateJudgeInput>({
   name: '',

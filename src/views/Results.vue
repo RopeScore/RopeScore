@@ -28,12 +28,12 @@
     <text-button @click="workbook?.print">
       Export to Excel
     </text-button>
-    <text-button @click="setLogos">
+    <!-- <text-button @click="setLogos">
       Set Logo
     </text-button>
     <text-button v-if="hasLogo" color="red" @click="removeLogos">
       Remove Logo
-    </text-button>
+    </text-button> -->
   </div>
 
   <excel-workbook ref="workbook" :name="group?.name">
@@ -41,17 +41,17 @@
       <result-table
         v-for="oEvt of getOveralls(category)"
         :key="`${category.id}${oEvt}`"
-        :category-id="category.id"
-        :group-id="group?.id"
-        :competition-event="oEvt"
+        :category="category"
+        :group-name="categories.length > 1 ? group?.name : undefined"
+        :competition-event-id="oEvt"
       />
 
       <result-table
-        v-for="cEvtDef of category.competitionEvents"
+        v-for="cEvtDef of category.competitionEventIds"
         :key="`${category.id}${cEvtDef}`"
-        :category-id="category.id"
-        :group-id="group?.id"
-        :competition-event="cEvtDef"
+        :category="category"
+        :group-name="categories.length > 1 ? group?.name : undefined"
+        :competition-event-id="cEvtDef"
       />
     </template>
   </excel-workbook>
@@ -66,35 +66,40 @@ import { TextButton } from '@ropescore/components'
 import ExcelWorkbook from '../components/ExcelWorkbook.vue'
 import ResultTable from '../components/ResultTable.vue'
 import { CompetitionEvent } from '../helpers'
-
+import { CategoryBaseFragment, useResultsQuery } from '../graphql/generated'
 
 const route = useRoute()
-const group = useGroup(route.params.groupId as string)
 const workbook = ref<typeof ExcelWorkbook>()
 
-const _cat = useCategory(route.params.categoryId as string)
-const _cats = useCategories(route.params.groupId as string)
+const resultsQuery = useResultsQuery({
+  groupId: route.params.groupId as string,
+  categoryId: route.params.categoryId as string ?? '',
+  singleCategory: !!route.params.categoryId
+})
+
+const group = computed(() => resultsQuery.result.value?.group)
 
 const categories = computed(() => {
-  if (route.params.categoryId) {
-    return _cat.value ? [_cat.value] : []
-  } else if (route.params.groupId) {
-    return _cats.value
+  if (resultsQuery.result.value?.group?.category) {
+    return [resultsQuery.result.value?.group?.category ]
+  } else if (resultsQuery.result.value?.group?.categories) {
+    return resultsQuery.result.value?.group?.categories
   } else return []
 })
 
 const hasLogo = computed(() => {
-  return categories.value.map(c => c.print.logo).some(l => !!l)
+  // TODO return categories.value.map(c => c.print.logo).some(l => !!l)
+  return false
 })
 
-function getOveralls (category: Category) {
-  const ruleset = useRuleset(category.ruleset).value
+function getOveralls (category: CategoryBaseFragment & { competitionEventIds: CompetitionEvent[] }) {
+  const ruleset = useRuleset(category.rulesId).value
 
   if (!ruleset) return []
 
   return Object.entries(ruleset.overalls)
     .map(([oEvt, def]) => [oEvt, def?.competitionEvents.map(([cEvt]) => cEvt)])
-    .filter(([oEvt, defs]) => (defs as CompetitionEvent[])?.every(cEvt => category.competitionEvents.includes(cEvt)))
+    .filter(([oEvt, defs]) => (defs as CompetitionEvent[])?.every(cEvt => category.competitionEventIds.includes(cEvt)))
     .map(([oEvt]) => oEvt) as CompetitionEvent[]
 }
 
@@ -102,32 +107,33 @@ function print () {
   window.print()
 }
 
-function setLogos () {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = 'image/*'
+// TODO
+// function setLogos () {
+//   const input = document.createElement('input')
+//   input.type = 'file'
+//   input.accept = 'image/*'
 
-  input.onchange = e => {
-    const file = (e.target as HTMLInputElement & EventTarget)?.files?.[0]
-    if (!file?.type.match('image.*')) return
+//   input.onchange = e => {
+//     const file = (e.target as HTMLInputElement & EventTarget)?.files?.[0]
+//     if (!file?.type.match('image.*')) return
 
-    const reader = new FileReader()
-    reader.onload = readerEvent => {
-      const data = readerEvent.target?.result as string
+//     const reader = new FileReader()
+//     reader.onload = readerEvent => {
+//       const data = readerEvent.target?.result as string
 
-      for (const cat of categories.value) {
-        cat.print.logo = data
-      }
-    }
-    reader.readAsDataURL(file)
-  }
+//       for (const cat of categories.value) {
+//         cat.print.logo = data
+//       }
+//     }
+//     reader.readAsDataURL(file)
+//   }
 
-  input.click()
-}
+//   input.click()
+// }
 
-function removeLogos () {
-  for (const cat of categories.value) {
-    cat.print.logo = undefined
-  }
-}
+// function removeLogos () {
+//   for (const cat of categories.value) {
+//     cat.print.logo = undefined
+//   }
+// }
 </script>
