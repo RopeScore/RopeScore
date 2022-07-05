@@ -1,0 +1,11 @@
+mutation UpdateAthlete ($participantId: ID!, $data: UpdateAthleteInput!) {
+  updateAthlete (participantId: $participantId, data: $data) {
+    ...AthleteFragment
+  }
+}
+
+mutation UpdateTeam ($participantId: ID!, $data: UpdateTeamInput!) {
+  updateTeam (participantId: $participantId, data: $data) {
+    ...TeamFragment
+  }
+}

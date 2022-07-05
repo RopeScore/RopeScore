@@ -114,9 +114,8 @@
       </thead>
 
       <tbody>
-        <!-- TODO: update -->
         <tr v-for="participant of participants" :key="participant.id">
-          <td class="text-right">
+          <td class="text-right text-xs">
             {{ participant.id }}
           </td>
           <td>{{ participant.name }}</td>
@@ -129,6 +128,11 @@
           <td>{{ participant.club }}</td>
           <td>{{ participant.country }}</td>
           <td class="text-center">
+            <edit-participant
+              :participant="participant"
+              :type="category?.type!"
+              :club-names="clubNames"
+            />
             <text-button
               dense
               color="red"
@@ -191,7 +195,7 @@
           <th>ID</th>
           <th>Name</th>
           <th>IJRU ID</th>
-          <th v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode">
+          <th v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode" colspan="2">
             {{ getAbbr(cEvtDefCode) }}
           </th>
           <th v-if="!category.competitionEventIds.length" />
@@ -200,22 +204,35 @@
 
       <tbody>
         <tr v-for="judge of judges" :key="judge.id">
-          <td class="text-right">
+          <td class="text-right text-xs">
             {{ judge.id }}
           </td>
           <td>{{ judge.name }}</td>
           <td>{{ judge.ijruId }}</td>
-          <td v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode">
-            <select-field
-              :model-value="getAssignment(judge.assignments, cEvtDefCode)?.judgeType"
-              label=" "
-              :disabled="judgeAssignmentLoading"
-              dense
-              :data-list="judgeTypes(cEvtDefCode)"
-              @update:model-value="updateAssignment(judge, cEvtDefCode, $event)"
-            />
-          </td>
-          <!-- TODO: set live -->
+          <template v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode">
+            <td>
+              <select-field
+                :model-value="getAssignment(judge.assignments, cEvtDefCode)?.judgeType"
+                label=" "
+                :disabled="judgeAssignmentLoading"
+                dense
+                :data-list="judgeTypes(cEvtDefCode)"
+                @update:model-value="updateAssignment(judge, cEvtDefCode, $event)"
+              />
+            </td>
+            <td>
+              <label class="flex gap-1">
+                <checkbox-field
+                  :model-value="getAssignment(judge.assignments, cEvtDefCode)?.options?.live"
+                  dense
+                  :loading="updateJudgeAssignment.loading.value"
+                  :disabled="!getAssignment(judge.assignments, cEvtDefCode)"
+                  @change="toggleAssignmentLive(getAssignment(judge.assignments, cEvtDefCode)!)"
+                />
+                <abbr title="Live display">L</abbr>
+              </label>
+            </td>
+          </template>
         </tr>
       </tbody>
 
@@ -224,7 +241,7 @@
           <td />
           <td><text-field v-model="newJudge.name" :disabled="createJudgeMutation.loading.value" label="Name" dense /></td>
           <td><text-field :model-value="newJudge.ijruId ?? ''" :disabled="createJudgeMutation.loading.value" label="IJRU ID" dense @update:model-value="newJudge.ijruId = $event" /></td>
-          <td :colspan="category.competitionEventIds.length">
+          <td :colspan="category.competitionEventIds.length * 2">
             <text-button
               dense
               color="blue"
@@ -245,7 +262,7 @@
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
-import { memberNames, getAbbr, CompetitionEvent, isTeam, isAthlete } from '../helpers'
+import { memberNames, getAbbr, CompetitionEvent, isAthlete } from '../helpers'
 import {
   CategoryType, CreateAthleteInput, CreateJudgeInput, CreateTeamInput, Judge, JudgeAssignmentFragment, Participant,
   Category,
@@ -263,7 +280,8 @@ import {
 
 import countryData from '../data/countries.json'
 
-import { TextButton, TextField, SelectField } from '@ropescore/components'
+import { TextButton, TextField, SelectField, CheckboxField } from '@ropescore/components'
+import EditParticipant from '../components/EditParticipant.vue'
 import IconCheck from 'virtual:icons/mdi/check'
 import IconLoading from 'virtual:icons/mdi/loading'
 
@@ -320,9 +338,10 @@ function toggleCEvt (cEvtDef: CompetitionEvent) {
   if (existsIdx > -1) competitionEventIds.splice(existsIdx, 1)
   else competitionEventIds.push(cEvtDef)
 
-  updateCategory.mutate({ categoryId: category.value.id, data: { competitionEventIds } })
+  const template = Object.keys(ruleset.value?.competitionEvents ?? {})
+  competitionEventIds.sort((a, b) => template.indexOf(a) - template.indexOf(b))
 
-  // TODO: sort?
+  updateCategory.mutate({ categoryId: category.value.id, data: { competitionEventIds } })
 }
 
 const newParticipant = reactive({
@@ -437,5 +456,15 @@ async function updateAssignment (judge: Pick<Judge, 'id'> & { assignments: Judge
   } else if (judgeType !== 'none') {
     createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
   }
+}
+
+async function toggleAssignmentLive (jA: JudgeAssignmentFragment) {
+  if (!jA) return
+  const options = {
+    ...(jA.options ?? {}),
+    live: !jA.options?.live
+  }
+
+  updateJudgeAssignment.mutate({ judgeAssignmentId: jA.id, data: { options } })
 }
 </script>

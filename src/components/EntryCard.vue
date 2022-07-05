@@ -8,11 +8,16 @@
     class="p-2 rounded"
   >
     <p class="font-semibold">
-      {{ categoryName }}
+      {{ category.name }}
     </p>
     <p>Pool: {{ entry.pool ?? '-' }}</p>
     <p>{{ participant.id }}: <span class="font-semibold">{{ participant.name }}</span></p>
     <p><span class="font-semibold">{{ entry.competitionEventId }}</span></p>
+
+    <div class="py-2">
+      <button-link :to="`/groups/${groupId}/categories/${category.id}/entries/${entry.id}`">Edit</button-link>
+      <text-button color="red" :loading="reorderEntryMutation.loading.value" @click="reorderEntryMutation.mutate({ entryId: entry.id })">Unheat</text-button>
+    </div>
 
     <table class="w-full">
       <thead>
@@ -45,7 +50,7 @@
               :loading="setScoresheetOptions.loading.value"
               :disabled="!scoresheetsObj[assignment.judge.id]?.[assignment.judgeType]?.device.id"
               :model-value="scoresheetsObj[assignment.judge.id]?.[assignment.judgeType]?.options?.live"
-              @change="setScoresheetLive(scoresheetsObj[assignment.judge.id]?.[assignment.judgeType])"
+              @change="toggleScoresheetLive(scoresheetsObj[assignment.judge.id]?.[assignment.judgeType])"
             />
           </td>
         </tr>
@@ -58,13 +63,17 @@
 import { computed, toRef } from 'vue'
 
 import type { PropType } from 'vue'
-import { CheckboxField } from '@ropescore/components'
+import { CheckboxField, ButtonLink, TextButton } from '@ropescore/components'
 import { isMarkScoresheet } from '../helpers'
-import { AthleteFragment, EntryBaseFragment, JudgeAssignmentFragment, JudgeBaseFragment, MarkScoresheetFragment, MarkScoresheetStatusFragment, ScoresheetBaseFragment, TeamFragment, useSetScoresheetOptionsMutation } from '../graphql/generated'
+import { AthleteFragment, EntryBaseFragment, CategoryBaseFragment, JudgeAssignmentFragment, JudgeBaseFragment, MarkScoresheetFragment, MarkScoresheetStatusFragment, ScoresheetBaseFragment, TeamFragment, useSetScoresheetOptionsMutation, useHeatsQuery, useReorderEntryMutation } from '../graphql/generated'
 
 const props = defineProps({
-  categoryName: {
+  groupId: {
     type: String,
+    required: true
+  },
+  category: {
+    type: Object as PropType<Pick<CategoryBaseFragment, 'id' | 'name'>>,
     required: true
   },
   entry: {
@@ -86,6 +95,8 @@ const props = defineProps({
 })
 
 const jAs = toRef(props, 'judgeAssignments')
+
+const reorderEntryMutation = useReorderEntryMutation({})
 
 const judgeAssignments = computed(() => {
   if (!jAs.value) return []
@@ -117,10 +128,10 @@ function scoresheetStatus (scoresheet: MarkScoresheetFragment | undefined) {
 
 const setScoresheetOptions = useSetScoresheetOptionsMutation({})
 
-async function setScoresheetLive (scsh: ScoresheetBaseFragment) {
+async function toggleScoresheetLive (scsh: ScoresheetBaseFragment) {
   const options = {
     ...(scsh.options ?? {}),
-    live: !!scsh.options?.live
+    live: !scsh.options?.live
   }
 
   setScoresheetOptions.mutate({ scoresheetId: scsh.id, options })

@@ -1,8 +1,8 @@
 <template>
   <div class="border rounded w-full h-full flex flex-col">
     <h3 class="text-lg mt-1 px-2 border-b">
-      <span class="font-semibold">{{ judge.id }}</span>
-      <span v-if="judge?.name" class="font-thin">&ndash;{{ judge.name }}</span>
+      <span>{{ judge.name }}</span>
+      <span class="text-xs font-normal">&nbsp;({{ judge.id }})</span>
     </h3>
 
     <details
