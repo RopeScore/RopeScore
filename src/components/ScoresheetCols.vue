@@ -23,7 +23,6 @@
 
   <td class="border-r-4">
     <div class="grid grid-cols-1 min-w-max">
-      <!-- TODO: adding a new scoresheet doesn't trigger an update -->
       <!-- <text-button
         dense
         :disabled="disabled || !scoresheet"

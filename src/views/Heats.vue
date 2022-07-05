@@ -27,7 +27,7 @@
             v-for="judge of judges"
             :key="judge.id"
           >
-            <td>{{ judge.id }}</td>
+            <td class="text-xs">{{ judge.id }}</td>
             <td>{{ judge.name }}</td>
 
             <template v-if="judge.device">
@@ -173,7 +173,8 @@
           <entry-card
             v-for="entry of ents"
             :key="entry.id"
-            :category-name="findCategory(entry.category.id)?.name ?? ''"
+            :group-id="route.params.groupId as string"
+            :category="findCategory(entry.category.id)!"
             :entry="entry"
             :participant="entry.participant"
             :judge-assignments="findCategory(entry.category.id)?.judgeAssignments ?? []"

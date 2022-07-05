@@ -6,7 +6,7 @@
         <span class="font-bold">{{ competitionEvent?.name }}</span> entry for
         <span class="font-bold">{{ entry?.participant.name }}</span> from
         <span class="font-bold">{{ entry?.participant.club }}</span>
-        ({{ entry?.participant.id }})
+        <span class="text-xs">&nbsp;({{ entry?.participant.id }})</span>
       </div>
     </div>
 

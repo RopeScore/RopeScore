@@ -47,7 +47,8 @@
             class="border-r-4"
             :colspan="judgeCols(assignment.judgeType).length + 1"
           >
-            {{ assignment.judge.id }} ({{ assignment.judge.name }})
+            {{ assignment.judge.name }}
+            <span class="text-xs font-normal">({{ assignment.judge.id }})</span>
           </th>
 
           <th
@@ -105,7 +106,6 @@
           </td>
           <td v-else class="text-center border-r-4">
             <div class="grid grid-cols-2 min-w-max">
-              <!-- TODO: unsetting DNS breaks -->
               <text-button
                 :color="entries[participant.id].didNotSkipAt ? undefined : 'red'"
                 dense
