@@ -2,7 +2,7 @@
   <div
     :class="{
       'bg-blue-100': !entry.didNotSkipAt && !entry?.lockedAt,
-      'bg-green-100': entry?.lockedAt,
+      'bg-green-100': entry?.lockedAt && !entry.didNotSkipAt,
       'bg-gray-100': entry.didNotSkipAt
     }"
     class="p-2 rounded"
@@ -11,27 +11,35 @@
       {{ category.name }}
     </p>
     <p>Pool: {{ entry.pool ?? '-' }}</p>
-    <p>{{ participant.id }}: <span class="font-semibold">{{ participant.name }}</span></p>
+    <p><span class="font-semibold">{{ participant.name }}</span></p>
     <p><span class="font-semibold">{{ entry.competitionEventId }}</span></p>
 
     <div class="py-2">
       <button-link :to="`/groups/${groupId}/categories/${category.id}/entries/${entry.id}`">Edit</button-link>
       <text-button color="red" :loading="reorderEntryMutation.loading.value" @click="reorderEntryMutation.mutate({ entryId: entry.id })">Unheat</text-button>
+      <text-button
+        :disabled="!!entry?.lockedAt && !entry.didNotSkipAt"
+        :loading="toggleLock.loading.value"
+        :color="!!entry?.didNotSkipAt ? undefined : 'red'"
+        @click="toggleLock.mutate({ entryId: entry.id, lock: !entry?.lockedAt, didNotSkip: true })"
+      >
+        {{ entry?.didNotSkipAt ? 'DS' : 'DNS' }}
+      </text-button>
     </div>
 
     <table class="w-full">
       <thead>
         <tr>
           <th>Judge</th>
-          <th><abbr title="Status: (C)reated, (O)pened, (S)ubmitted">S</abbr></th>
-          <th><abbr title="Live display">L</abbr></th>
+          <th class="w-4"><abbr title="Status: (C)reated, (O)pened, (S)ubmitted">S</abbr></th>
+          <th class="w-4"><abbr title="Live display">L</abbr></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="assignment of judgeAssignments" :key="assignment.id">
-          <td>{{ assignment.judge.id }} (<span class="font-semibold">{{ assignment.judgeType }}</span>): <span class="font-semibold">{{ assignment.judge.name }}</span></td>
+          <td><span class="font-semibold">{{ assignment.judgeType }}</span>: {{ assignment.judge.name }}</td>
           <td
-            class="text-center w-6"
+            class="text-center w-6 font-mono"
             :class="{
               'bg-gray-500': scoresheetStatus(scoresheetsObj[assignment.judge.id]?.[assignment.judgeType]) === 'missing',
               'bg-blue-500': scoresheetStatus(scoresheetsObj[assignment.judge.id]?.[assignment.judgeType]) === 'created',
@@ -65,7 +73,7 @@ import { computed, toRef } from 'vue'
 import type { PropType } from 'vue'
 import { CheckboxField, ButtonLink, TextButton } from '@ropescore/components'
 import { isMarkScoresheet } from '../helpers'
-import { AthleteFragment, EntryBaseFragment, CategoryBaseFragment, JudgeAssignmentFragment, JudgeBaseFragment, MarkScoresheetFragment, MarkScoresheetStatusFragment, ScoresheetBaseFragment, TeamFragment, useSetScoresheetOptionsMutation, useHeatsQuery, useReorderEntryMutation } from '../graphql/generated'
+import { AthleteFragment, EntryBaseFragment, CategoryBaseFragment, JudgeAssignmentFragment, JudgeBaseFragment, MarkScoresheetFragment, MarkScoresheetStatusFragment, ScoresheetBaseFragment, TeamFragment, useSetScoresheetOptionsMutation, useHeatsQuery, useReorderEntryMutation, useToggleEntryLockMutation } from '../graphql/generated'
 
 const props = defineProps({
   groupId: {
@@ -108,7 +116,7 @@ const scoresheetsObj = computed(() => {
 
   // sort ascending by createdAt time so that the last one will be picked
   // in the loop below
-  const scoresheets = [...props.scoresheets].filter(scsh => isMarkScoresheet(scsh)) as Array<ScoresheetBaseFragment & MarkScoresheetFragment>
+  const scoresheets = [...props.scoresheets].filter(scsh => scsh.__typename === 'MarkScoresheet') as Array<ScoresheetBaseFragment & MarkScoresheetFragment>
   scoresheets.sort((a, b) => a.createdAt - b.createdAt)
 
   for (const scoresheet of scoresheets) {
@@ -136,4 +144,6 @@ async function toggleScoresheetLive (scsh: ScoresheetBaseFragment) {
 
   setScoresheetOptions.mutate({ scoresheetId: scsh.id, options })
 }
+
+const toggleLock = useToggleEntryLockMutation({})
 </script>

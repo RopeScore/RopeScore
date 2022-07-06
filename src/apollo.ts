@@ -6,8 +6,8 @@ import { useSystem } from './hooks/system'
 import { v4 as uuid } from 'uuid'
 
 const httpLink = createHttpLink({
-  // uri: 'https://api.ropescore.com'
-  uri: 'http://localhost:5000'
+  // uri: 'https://api.ropescore.com/graphql'
+  uri: 'http://localhost:5000/graphql'
 })
 
 const system = useSystem()
@@ -95,6 +95,5 @@ export const cache = new InMemoryCache({
 
 export const apolloClient = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
-  // link: from([authLink, httpLink]),
   cache
 })

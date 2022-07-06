@@ -328,7 +328,10 @@ function cEvtEnabled (cEvtDef: CompetitionEvent, category: Pick<Category, 'compe
   return category.competitionEventIds.includes(cEvtDef)
 }
 
-const updateCategory = useUpdateCategoryMutation({})
+const updateCategory = useUpdateCategoryMutation({
+  refetchQueries: ['CategorySettings'],
+  awaitRefetchQueries: true
+})
 
 function toggleCEvt (cEvtDef: CompetitionEvent) {
   if (!category.value) return

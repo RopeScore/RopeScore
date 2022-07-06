@@ -341,7 +341,7 @@ const categoryGridQuery = useCategoryGridQuery(catGridVars, {
 
 const categories = computed(() => (heatsQuery.result.value?.group?.categories ?? []).map(c => ({ text: c.name, value: c.id })))
 const categoryCompetitionEvents = computed(() => categoryGridQuery.result.value?.group?.category?.competitionEventIds ?? [])
-const categoryParticipants = computed(() => (categoryGridQuery.result.value?.group?.category?.participants ?? []).map(p => ({ text: `${p.name} - ${p.club} (${p.id})`, value: p.id })))
+const categoryParticipants = computed(() => (categoryGridQuery.result.value?.group?.category?.participants ?? []).map(p => ({ text: `${p.name} - ${p.club}`, value: p.id })))
 
 watch(newEntry.heat, (next, prev) => {
   if (prev != null && newEntry.pool.value != null) {
