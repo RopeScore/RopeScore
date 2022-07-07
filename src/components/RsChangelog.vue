@@ -7,6 +7,61 @@
     to bring it back eventually as it's an important piece in our work to
     preserve rope skipping history.
   </p>
+  <p>
+    Apart from most things changing how they work behind the scenes, there are
+    some improvements and changes that will be more noticeable
+  </p>
+  <ul>
+    <li>
+      You now assign a device to a judge, rather than to a scoresheet. This
+      should make it a lot easier to swap a device for a judge.
+    </li>
+    <li>
+      You now configure options like "this should show up as live speed scores"
+      on a judge assignment level, rather than a scoresheet level. You can
+      still configure it on a scoresheet level if you want to override it.
+    </li>
+    <li>
+      If you add competition events to a category they'll now be stored in the
+      same order as they're listed, rather than the order they were added in,
+      making sure there's a consistent order.
+    </li>
+    <li>
+      You can now set the current heat via the heats panel, this is used to
+      automatically update the screens in the judging app, and the live
+      displays (live speed clicks, currently on stage, and next up on stage are
+      available now, more to come)
+    </li>
+    <li>
+      You can now unheat an entry if you placed it in the wrong place.
+      You can still update the heat order by assigning it again without
+      removing it first.
+    </li>
+    <li>
+      There are now shortcuts for Did Not Skip and editing the entry
+      scoresheets on the heats view.
+    </li>
+    <li>
+      It's once again possible to edit participants.
+    </li>
+    <li>
+      Scoresheets are now auto-saved after 3 seconds of no data entry in that
+      scoresheet.
+    </li>
+    <li>
+      You can now have multiple admins of a group, meaning you can do all the
+      work on more than one computer.
+    </li>
+    <li>
+      Unfortunately, you can't set a logo on the printed result pages yet in
+      this version.
+    </li>
+    <li>
+      Unfortunately, data from v4 won't be migrated over to v5 at this time,
+      the data will still be stored on your computer, but hidden, so it should
+      be possible to migrate this at a later point.
+    </li>
+  </ul>
   <h2>v4.0.0</h2>
   <p>
     This update brings RopeScore into the future, with effortless app-scoring
