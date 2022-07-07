@@ -47,7 +47,7 @@
           >
             <th
               v-if="idx === 0"
-              :colspan="category.type === CategoryType.Team ? 4 : 3"
+              :colspan="category.type === CategoryType.Team ? 3 : 2"
               :rowspan="(cEvt.resultTable.groups ?? []).length"
             />
 
@@ -70,7 +70,6 @@
               Name
             </th>
             <th>Club</th>
-            <th>ID</th>
 
             <th
               v-for="header in cEvt.resultTable.headers"
@@ -89,9 +88,6 @@
               {{ memberNames(getParticipant(entryRes.participantId)) }}
             </td>
             <td>{{ getParticipant(entryRes.participantId)?.club }}</td>
-            <td class="text-right">
-              {{ getParticipant(entryRes.participantId)?.id }}
-            </td>
 
             <td
               v-for="header in cEvt.resultTable.headers"
@@ -256,7 +252,7 @@ watch(results, () => {
   addGroupTableHeaders(sheet, category.value.type)
   addTableHeaders(sheet, category.value.type)
   addParticipantRows(sheet, category.value.type)
-})
+}, { immediate: true })
 
 onUnmounted(() => {
   removeWorksheet()
@@ -268,12 +264,12 @@ function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
   const merges: [number, number, number, number][] = []
   const groups = [...(cEvt.value.resultTable.groups?.map(gr => [...gr]) ?? [])]
 
-  groups[0].unshift({ text: '', key: 'parts', colspan: type === CategoryType.Team ? 4 : 3, rowspan: groups.length })
+  groups[0].unshift({ text: '', key: 'parts', colspan: type === CategoryType.Team ? 3 : 2, rowspan: groups.length })
   // create array
   /*
     let rows = [
-      ['',    empty, empty, empty, 'Single Rope', empty, empty,         empty, empty,              empty],
-      [empty, empty, empty, empty, 'Speed Sprint, empty, 'Speed Relay', empty, 'Single Freestyle', empty]
+      ['',    empty, empty, 'Single Rope', empty, empty,         empty, empty,              empty],
+      [empty, empty, empty, 'Speed Sprint, empty, 'Speed Relay', empty, 'Single Freestyle', empty]
     ]
   */
   for (let groupRow = 0; groupRow < groups.length; groupRow++) {
@@ -380,7 +376,7 @@ function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
 function addTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
   const row = new Array(1)
 
-  const baseHeaders = type === CategoryType.Team ? ['Team Name', 'Team Members', 'Club', 'ID'] : ['Name', 'Club', 'ID']
+  const baseHeaders = type === CategoryType.Team ? ['Team Name', 'Team Members', 'Club'] : ['Name', 'Club']
 
   for (const headerText of baseHeaders) {
     row.push({
@@ -431,14 +427,12 @@ function addParticipantRows (
       row.push(
         getParticipant(entryRes.participantId)?.name ?? '',
         memberNames(getParticipant(entryRes.participantId)),
-        getParticipant(entryRes.participantId)?.club ?? '',
-        getParticipant(entryRes.participantId)?.id ?? ''
+        getParticipant(entryRes.participantId)?.club ?? ''
       )
     } else {
       row.push(
         getParticipant(entryRes.participantId)?.name ?? '',
-        getParticipant(entryRes.participantId)?.club ?? '',
-        getParticipant(entryRes.participantId)?.id ?? ''
+        getParticipant(entryRes.participantId)?.club ?? ''
       )
     }
     for (const header of cEvt.value?.resultTable.headers ?? []) {
@@ -455,7 +449,7 @@ function addParticipantRows (
 
     worksheet.addRow(row)
 
-    const offset = type === CategoryType.Team ? 4 : 3
+    const offset = type === CategoryType.Team ? 3 : 2
 
     const lastRow: any = worksheet.lastRow
     lastRow.eachCell((cell: any) => {
