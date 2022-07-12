@@ -86,7 +86,7 @@ const dirty = ref<boolean>(false)
 const scsh = toRef(props, 'scoresheet')
 watch(() => scsh.value.tally, () => {
   tally.value = { ...(scsh.value.tally ?? {}) }
-})
+}, { immediate: true })
 
 const setTally = (schema: string, value: number) => {
   tally.value[schema] = value

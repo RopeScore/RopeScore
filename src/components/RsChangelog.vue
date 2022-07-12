@@ -1,4 +1,11 @@
 <template>
+  <h2>v5.0.1</h2>
+  <ul>
+    <li>
+      Fixed a bug where updating a tally scoresheet would remove untouched
+      values.
+    </li>
+  </ul>
   <h2>v5.0.0</h2>
   <p>
     This update finishes what v4.0.0 started and enables all RopeScore data to
