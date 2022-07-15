@@ -13,6 +13,7 @@ export interface GenericMark {
   [prop: string]: any
 }
 export function isGenericMark (x: any): x is GenericMark { return x && typeof x.schema === 'string' && typeof x.sequence === 'number' }
+export function isClearMark (x: any): x is GenericMark { return x && typeof x.schema === 'string' && x.schema === 'clear' }
 
 export interface UndoMark {
   timestamp: number
@@ -176,7 +177,7 @@ export function isMarkScoresheet (scoresheet: any): scoresheet is MarkScoresheet
  * step size for that field schema.
  */
 export function calculateTally (scoresheet: Pick<TallyScoresheet, 'tally'> | Pick<MarkScoresheet, 'marks'>, tallyFields?: Readonly<FieldDefinition[]>): ScoreTally {
-  const tally: ScoreTally = isTallyScoresheet(scoresheet) ? { ...(scoresheet.tally ?? {}) } : {}
+  let tally: ScoreTally = isTallyScoresheet(scoresheet) ? { ...(scoresheet.tally ?? {}) } : {}
   const allowedSchemas = tallyFields?.map(f => f.schema)
 
   if (isMarkScoresheet(scoresheet)) {
@@ -185,6 +186,8 @@ export function calculateTally (scoresheet: Pick<TallyScoresheet, 'tally'> | Pic
         const target = scoresheet.marks[mark.target]
         if (!target || isUndoMark(target)) continue
         tally[target.schema] = (tally[target.schema] ?? 0) - (target.value ?? 1)
+      } else if (isClearMark(mark)) {
+        tally = {}
       } else if (isGenericMark(mark)) {
         tally[mark.schema] = (tally[mark.schema] ?? 0) + (mark.value ?? 1)
       }

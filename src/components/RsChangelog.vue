@@ -1,4 +1,11 @@
 <template>
+  <h2>v5.1.0</h2>
+  <ul>
+    <li>
+      Support for new way of clearing a scoresheet in the judging app, making
+      sure history is kept if it needs to be retrieved.
+    </li>
+  </ul>
   <h2>v5.0.1</h2>
   <ul>
     <li>
