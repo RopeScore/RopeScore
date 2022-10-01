@@ -1,22 +1,22 @@
 /* eslint-env mocha */
-import * as mod from './ijru@2.0.0'
+import * as mod from './ijru@3.0.0'
 import assert from 'node:assert'
 import { tScsh } from '../../test/helpets'
 import { MarkScoresheetFragment, ScoresheetBaseFragment, TallyScoresheetFragment } from '../graphql/generated'
 
-describe('ijru@2.0.0', () => {
+describe('ijru@3.0.0', () => {
   describe('L', () => {
     for (const [level, points] of [
       [0, 0],
-      [0.5, 0.13],
-      [1, 0.18],
-      [2, 0.32],
-      [3, 0.58],
-      [4, 1.05],
-      [5, 1.89],
-      [6, 3.40],
-      [7, 6.12],
-      [8, 11.02]
+      [0.5, 0.12],
+      [1, 0.15],
+      [2, 0.23],
+      [3, 0.34],
+      [4, 0.51],
+      [5, 0.76],
+      [6, 1.14],
+      [7, 1.71],
+      [8, 2.56]
     ]) {
       it(`should calculate correct score for L(${level})`, () => {
         assert.strictEqual(mod.L(level), points)
@@ -114,8 +114,8 @@ describe('ijru@2.0.0', () => {
     it('Should return a score', () => {
       const tally = { entertainmentPlus: 10, entertainmentCheck: 5, musicalityPlus: 1 }
       assert.deepStrictEqual(
-        mod.routinePresentationJudge('e.ijru.fs.sr.srif.1.75').calculateScoresheet(tScsh(tally, 'Shj', 'e.ijru.fs.sr.srif.1.75')),
-        { aE: 0.1, aM: 0.15 }
+        mod.routinePresentationJudge('e.ijru.fs.sr.srif.1.75').calculateScoresheet(tScsh(tally, 'Pr', 'e.ijru.fs.sr.srif.1.75')),
+        { aE: 0.3, aM: 0.45 }
       )
     })
   })
@@ -124,8 +124,8 @@ describe('ijru@2.0.0', () => {
     it('Should return a score', () => {
       const tally = { formExecutionMinus: 5, miss: 1 }
       assert.deepStrictEqual(
-        mod.athletePresentationJudge('e.ijru.fs.sr.srif.1.75').calculateScoresheet(tScsh(tally, 'Shj', 'e.ijru.fs.sr.srif.1.75')),
-        { aF: -0.3, m: 0.975 }
+        mod.athletePresentationJudge('e.ijru.fs.sr.srif.1.75').calculateScoresheet(tScsh(tally, 'Pa', 'e.ijru.fs.sr.srif.1.75')),
+        { aF: -0.9, m: 0.975 }
       )
     })
   })
@@ -137,7 +137,7 @@ describe('ijru@2.0.0', () => {
       const tally = { 'diffL0.5': 9, diffL1: 8, diffL2: 7, diffL3: 6, diffL4: 5, diffL5: 4, diffL6: 3, diffL7: 2, diffL8: 1 }
       assert.deepStrictEqual(
         mod.difficultyJudge('e.ijru.fs.sr.srif.1.75').calculateScoresheet(tScsh(tally, 'D', 'e.ijru.fs.sr.srif.1.75')),
-        { D: 54.60 }
+        { D: 20.92 }
       )
     })
   })
