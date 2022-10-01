@@ -588,17 +588,17 @@ const ruleset: Ruleset = {
 
     'e.svgf.sp.sr.srps.2.2x30': {
       name: 'Single Rope Pair Speed',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srps.2.2x30')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srps.2.2x30'),
-      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srps.2.2x30'),
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srps.2.2x30')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srps.2.2x30'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srps.2.2x30'),
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
     'e.svgf.sp.sr.srpe.2.2x90': {
       name: 'Single Rope Pair Speed Endurance',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srpe.2.2x90')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srpe.2.2x90'),
-      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srpe.2.2x90'),
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srpe.2.2x90')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srpe.2.2x90'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srpe.2.2x90'),
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
