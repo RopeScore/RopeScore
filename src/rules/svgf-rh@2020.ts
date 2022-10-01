@@ -545,8 +545,8 @@ const cEvtToName: Record<CompetitionEvent, string> = {
   'e.ijru.fs.sr.srtf.4.75': 'Single Rope Team Freestyle',
   'e.ijru.fs.dd.ddsf.3.75': 'Double Dutch Single Freestyle',
   'e.ijru.fs.dd.ddpf.4.75': 'Double Dutch Pair Freestyle',
-  'e.ijru.sp.sr.srps.2.2x30': 'Single Rope Pair Speed',
-  'e.ijru.sp.sr.srpe.2.2x90': 'Single Rope Pair Speed Endurance'
+  'e.svgf.sp.sr.srps.2.2x30': 'Single Rope Pair Speed',
+  'e.svgf.sp.sr.srpe.2.2x90': 'Single Rope Pair Speed Endurance'
 }
 
 const ruleset: Ruleset = {
@@ -586,7 +586,7 @@ const ruleset: Ruleset = {
       resultTable: { headers: freestyleResultTableHeaders }
     },
 
-    'e.ijru.sp.sr.srps.2.2x30': {
+    'e.svgf.sp.sr.srps.2.2x30': {
       name: 'Single Rope Pair Speed',
       judges: speedJudges.map(j => j('e.ijru.sp.sr.srps.2.2x30')),
       calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srps.2.2x30'),
@@ -594,7 +594,7 @@ const ruleset: Ruleset = {
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
-    'e.ijru.sp.sr.srpe.2.2x90': {
+    'e.svgf.sp.sr.srpe.2.2x90': {
       name: 'Single Rope Pair Speed Endurance',
       judges: speedJudges.map(j => j('e.ijru.sp.sr.srpe.2.2x90')),
       calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srpe.2.2x90'),
@@ -735,15 +735,15 @@ const ruleset: Ruleset = {
     'e.svgf.oa.sr.rpaa.2.0': {
       name: 'Rikshoppet Par Overall',
       competitionEvents: [
-        ['e.ijru.sp.sr.srps.2.2x30', {}],
-        ['e.ijru.sp.sr.srpe.2.2x90', {}],
+        ['e.svgf.sp.sr.srps.2.2x30', {}],
+        ['e.svgf.sp.sr.srpe.2.2x90', {}],
         ['e.ijru.sp.sr.srdr.2.2x30', {}],
 
         ['e.ijru.fs.sr.srpf.2.75', { rankMultiplier: 2 }]
       ],
       resultTable: overallTableFactory([
-        'e.ijru.sp.sr.srps.2.2x30',
-        'e.ijru.sp.sr.srpe.2.2x90',
+        'e.svgf.sp.sr.srps.2.2x30',
+        'e.svgf.sp.sr.srpe.2.2x90',
         'e.ijru.sp.sr.srdr.2.2x30',
 
         'e.ijru.fs.sr.srpf.2.75'

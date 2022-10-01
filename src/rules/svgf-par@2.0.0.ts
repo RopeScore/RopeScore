@@ -668,8 +668,8 @@ const speedJudges = [speedJudge, speedHeadJudge]
 const freestyleJudges = [routinePresentationJudge, athletePresentationJudge, requiredElementsJudge, difficultyJudge]
 
 const cEvtToName: Record<CompetitionEvent, string> = {
-  'e.ijru.sp.sr.srps.2.2x30': 'Single Rope Pair Speed',
-  'e.ijru.sp.sr.srpe.2.2x90': 'Single Rope Pair Speed Endurance',
+  'e.svgf.sp.sr.srps.2.2x30': 'Single Rope Pair Speed',
+  'e.svgf.sp.sr.srpe.2.2x90': 'Single Rope Pair Speed Endurance',
   'e.ijru.sp.sr.srdr.2.2x30': 'Single Rope Double Unders Relay',
   'e.ijru.fs.sr.srpf.2.75': 'Single Rope Pair Freestyle',
   'e.ijru.fs.wh.whpf.2.75': 'Wheel Pair Freestyle',
@@ -681,19 +681,19 @@ const ruleset: Ruleset = {
   id: 'svgf-par@2.0.0',
   name: 'SvGF Pair (IJRU-based) v2.0.0',
   competitionEvents: {
-    'e.ijru.sp.sr.srps.2.2x30': {
+    'e.svgf.sp.sr.srps.2.2x30': {
       name: 'Single Rope Pair Speed',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srps.2.2x30')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srps.2.2x30'),
-      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srps.2.2x30'),
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srps.2.2x30')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srps.2.2x30'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srps.2.2x30'),
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
-    'e.ijru.sp.sr.srpe.2.2x90': {
+    'e.svgf.sp.sr.srpe.2.2x90': {
       name: 'Single Rope Pair Speed Endurance',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srpe.2.2x90')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srpe.2.2x90'),
-      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srpe.2.2x90'),
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srpe.2.2x90')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srpe.2.2x90'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srpe.2.2x90'),
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
@@ -727,15 +727,15 @@ const ruleset: Ruleset = {
     'e.svgf.oa.xd.tpaa.2.0': {
       name: 'Team Pair Overall',
       competitionEvents: [
-        ['e.ijru.sp.sr.srps.2.2x30', {}],
-        ['e.ijru.sp.sr.srpe.2.2x90', {}],
+        ['e.svgf.sp.sr.srps.2.2x30', {}],
+        ['e.svgf.sp.sr.srpe.2.2x90', {}],
         ['e.ijru.sp.sr.srdr.2.2x30', {}],
         ['e.ijru.fs.sr.srpf.2.75', { rankMultiplier: 2, normalisationMultiplier: 2 }],
         ['e.ijru.fs.wh.whpf.2.75', {}]
       ],
       resultTable: overallTableFactory([
-        'e.ijru.sp.sr.srps.2.2x30',
-        'e.ijru.sp.sr.srpe.2.2x90',
+        'e.svgf.sp.sr.srps.2.2x30',
+        'e.svgf.sp.sr.srpe.2.2x90',
         'e.ijru.sp.sr.srdr.2.2x30',
         'e.ijru.fs.sr.srpf.2.75',
         'e.ijru.fs.wh.whpf.2.75'
