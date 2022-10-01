@@ -69,9 +69,6 @@
     "vite-plugin-windicss": "^1.4.8",
     "vue-tsc": "^0.40.13"
   },
-  "overrides": {
-    "undici": "5.5.1"
-  },
   "bugs": {
     "email": "contact@ropescore.com"
   },
