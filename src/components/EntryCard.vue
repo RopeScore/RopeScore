@@ -15,8 +15,12 @@
     <p><span class="font-semibold">{{ entry.competitionEventId }}</span></p>
 
     <div class="py-2">
-      <button-link :to="`/groups/${groupId}/categories/${category.id}/entries/${entry.id}`">Edit</button-link>
-      <text-button color="red" :loading="reorderEntryMutation.loading.value" @click="reorderEntryMutation.mutate({ entryId: entry.id })">Unheat</text-button>
+      <button-link :to="`/groups/${groupId}/categories/${category.id}/entries/${entry.id}`">
+        Edit
+      </button-link>
+      <text-button color="red" :loading="reorderEntryMutation.loading.value" @click="reorderEntryMutation.mutate({ entryId: entry.id })">
+        Unheat
+      </text-button>
       <text-button
         :disabled="!!entry?.lockedAt && !entry.didNotSkipAt"
         :loading="toggleLock.loading.value"
@@ -31,8 +35,12 @@
       <thead>
         <tr>
           <th>Judge</th>
-          <th class="w-4"><abbr title="Status: (C)reated, (O)pened, (S)ubmitted">S</abbr></th>
-          <th class="w-4"><abbr title="Live display">L</abbr></th>
+          <th class="w-4">
+            <abbr title="Status: (C)reated, (O)pened, (S)ubmitted">S</abbr>
+          </th>
+          <th class="w-4">
+            <abbr title="Live display">L</abbr>
+          </th>
         </tr>
       </thead>
       <tbody>

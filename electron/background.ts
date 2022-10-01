@@ -221,10 +221,10 @@ app.whenReady().then(async () => {
       accessSync(p, constants.R_OK)
       const mimeType = getType(p) ?? undefined
       console.log(p, mimeType)
-      // eslint-disable-next-line node/no-callback-literal
+      // eslint-disable-next-line n/no-callback-literal
       callback({ path: p, mimeType })
     } catch {
-      // eslint-disable-next-line node/no-callback-literal
+      // eslint-disable-next-line n/no-callback-literal
       callback({ path: indexPath })
     }
   })

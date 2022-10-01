@@ -27,7 +27,9 @@
             v-for="judge of judges"
             :key="judge.id"
           >
-            <td class="text-xs">{{ judge.id }}</td>
+            <td class="text-xs">
+              {{ judge.id }}
+            </td>
             <td>{{ judge.name }}</td>
 
             <template v-if="judge.device">

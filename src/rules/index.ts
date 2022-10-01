@@ -63,13 +63,13 @@ export interface EntryResult {
   entryId: Entry['id']
   participantId: Participant['id']
   competitionEvent: CompetitionEvent
-  result: { [prop: string]: number}
+  result: { [prop: string]: number }
 }
 
 export interface OverallResult {
   participantId: Participant['id']
   competitionEvent: CompetitionEvent
-  result: { [prop: string]: number}
+  result: { [prop: string]: number }
   componentResults: Record<CompetitionEvent, EntryResult>
 }
 export function isOverallResult (x: any): x is OverallResult { return !!x && 'componentResults' in x }
