@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 import * as mod from './svgf-rh@2020'
-import assert from 'assert'
+import assert from 'node:assert'
 import { tScsh } from '../../test/helpets'
 
 describe('svgf-rh@2020', () => {
