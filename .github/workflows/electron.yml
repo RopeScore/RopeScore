@@ -18,6 +18,8 @@ jobs:
           node-version: 16
           cache: npm
       - run: npm ci --prefer-offline
+      - run: npm i dmg-license
+        if: matrix.os == 'macos-latest'
       - run: npm run codegen
       - name: Build project
         run: npm run electron:build -- -p onTagOrDraft
