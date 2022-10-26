@@ -88,7 +88,7 @@
                   dense
                   :disabled="!newAdminId || !!group?.completedAt"
                   :loading="addGroupAdmin.loading.value"
-                  @click="addGroupAdmin.mutate({ groupId, userId: newViewerId! })"
+                  @click="addGroupAdmin.mutate({ groupId, userId: newAdminId! })"
                 >
                   Add Admin
                 </text-button>
