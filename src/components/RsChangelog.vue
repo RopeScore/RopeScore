@@ -1,4 +1,22 @@
 <template>
+  <h2>v5.3.0</h2>
+  <ul>
+    <li>
+      Keep the "category" option in the navigation menu when switching to
+      "heats" from a category, for easy navigation back
+    </li>
+    <li>
+      Add a side-menu for quick deep-links into groups and categories
+    </li>
+  </ul>
+  <h2>v5.2.1</h2>
+  <ul>
+    <li>Fix a bug where it wasn't possible to add admins to a group</li>
+  </ul>
+  <h2>v5.2.0</h2>
+  <ul>
+    <li>Add SvGF Parhopp (based on ijru@2.0.0)</li>
+  </ul>
   <h2>v5.1.0</h2>
   <ul>
     <li>
