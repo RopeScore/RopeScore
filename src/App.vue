@@ -1,10 +1,15 @@
 <template>
-  <div class="grid grid-rows-[3.5rem,auto,2rem] grid-cols-[auto,1fr] min-h-[100vh] w-full">
+  <div class="grid grid-rows-[3.5rem,auto,2rem] grid-cols-1 min-h-[100vh] w-full">
     <header class="noprint col-span-2 bg-gray-100 flex justify-between items-center px-4 sticky top-0 z-1000">
-      <router-link to="/">
-        <span class="text-2xl font-semibold">RopeScore</span>
-        <span v-if="me?.name" class="text-2xl font-light">&nbsp;&ndash; {{ me?.name }}</span>
-      </router-link>
+      <div>
+        <text-button @click="sidebarOpen = !sidebarOpen">
+          <icon-menu class="transform origin-center" :class="{ 'rotate-90': sidebarOpen, '-mb-[2px]': !sidebarOpen, '-mb-[3px]': sidebarOpen }" />
+        </text-button>
+        <router-link to="/">
+          <span class="text-2xl font-semibold">RopeScore</span>
+          <span v-if="me?.name" class="text-2xl font-light">&nbsp;&ndash; {{ me?.name }}</span>
+        </router-link>
+      </div>
 
       <nav>
         <button-link v-if="route.params.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}/results`">
@@ -24,8 +29,14 @@
         </button-link>
       </nav>
     </header>
-    <!-- TODO: sidebar -->
-    <aside class="noprint" />
+    <aside :class="{ 'hidden': !sidebarOpen }" class="noprint bg-white border-r border-r-gray-200 fixed z-2000 top-[3.5rem] bottom-0 overflow-y-auto w-[33%]">
+      <nav class="px-4 pt-4">
+        <template v-for="group, idx of groups" :key="group.id">
+          <group-sidebar-item :group="group" :categories="group.categories" />
+          <hr v-if="idx !== (groups?.length ?? 0) - 1" class="border-t-0 border-b border-gray-300 my-2">
+        </template>
+      </nav>
+    </aside>
     <main class="px-2 py-4">
       <router-view />
     </main>
@@ -42,15 +53,19 @@ import { useRoute, useRouter } from 'vue-router'
 import { version } from '../package.json'
 import { useSystem } from './hooks/system'
 
-import { ButtonLink } from '@ropescore/components'
+import IconMenu from 'virtual:icons/mdi/menu'
+import { ButtonLink, TextButton } from '@ropescore/components'
 import ErrorCards from './components/ErrorCards.vue'
-import { useMeQuery } from './graphql/generated'
-import { computed } from 'vue'
+import GroupSidebarItem from './components/GroupSidebarItem.vue'
+import { useGroupsQuery, useMeQuery } from './graphql/generated'
+import { computed, ref } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
 
 const system = useSystem()
+
+const sidebarOpen = ref(false)
 
 if (!system.value.rsApiToken && route.name !== 'system') {
   router.push({ name: 'system' })
@@ -59,11 +74,20 @@ if (!system.value.rsApiToken && route.name !== 'system') {
 const meQuery = useMeQuery()
 const me = computed(() => meQuery.result.value?.me)
 
+const groupsQuery = useGroupsQuery({
+  fetchPolicy: 'cache-and-network'
+})
+const groups = computed(() => groupsQuery.result.value?.groups)
+
 router.beforeEach((to, from) => {
   if (from.params.categoryId && !to.query.categoryId && to.meta.prevCategory === true) {
     to.query.categoryId = from.params.categoryId
     return to
   }
+})
+
+router.afterEach(() => {
+  sidebarOpen.value = false
 })
 </script>
 
