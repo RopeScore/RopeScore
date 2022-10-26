@@ -180,7 +180,7 @@
             :entry="entry"
             :participant="entry.participant"
             :judge-assignments="findCategory(entry.category.id)?.judgeAssignments ?? []"
-            :scoresheets="entry.scoresheets"
+            :scoresheets="(entry.scoresheets as Array<ScoresheetBaseFragment & MarkScoresheetStatusFragment>)"
           />
         </div>
       </template>
@@ -247,7 +247,7 @@ import { CompetitionEvent, formatDate, isMarkScoresheet } from '../helpers'
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
-import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation } from '../graphql/generated'
+import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, ScoresheetBaseFragment, MarkScoresheetStatusFragment } from '../graphql/generated'
 
 const route = useRoute()
 const fetchTime = ref(0)
