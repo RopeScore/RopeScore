@@ -10,7 +10,6 @@
         <button-link v-if="route.params.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}/results`">
           Results
         </button-link>
-        <!-- TODO: keep showing if you came from a category -->
         <button-link v-if="route.params.categoryId ?? route.query.categoryId" :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId ?? route.query.categoryId}`">
           Category
         </button-link>
@@ -59,6 +58,13 @@ if (!system.value.rsApiToken && route.name !== 'system') {
 
 const meQuery = useMeQuery()
 const me = computed(() => meQuery.result.value?.me)
+
+router.beforeEach((to, from) => {
+  if (from.params.categoryId && !to.query.categoryId && to.meta.prevCategory === true) {
+    to.query.categoryId = from.params.categoryId
+    return to
+  }
+})
 </script>
 
 <style>
