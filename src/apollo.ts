@@ -33,6 +33,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
         type: 'server'
       })
       ids.push(id)
+      console.warn(err)
     }
     setTimeout(() => {
       for (const id of ids) {
@@ -52,6 +53,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
       const errIdx = errors.value.findIndex(e => e.id === id)
       if (errIdx > -1) errors.value.splice(errIdx, 1)
     }, 5000)
+    console.error(networkError)
   }
 })
 
