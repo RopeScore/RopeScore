@@ -80,7 +80,6 @@ import { computed, toRef } from 'vue'
 
 import type { PropType } from 'vue'
 import { CheckboxField, ButtonLink, TextButton } from '@ropescore/components'
-import { isMarkScoresheet } from '../helpers'
 import { AthleteFragment, EntryBaseFragment, CategoryBaseFragment, JudgeAssignmentFragment, JudgeBaseFragment, MarkScoresheetFragment, MarkScoresheetStatusFragment, ScoresheetBaseFragment, TeamFragment, useSetScoresheetOptionsMutation, useHeatsQuery, useReorderEntryMutation, useToggleEntryLockMutation } from '../graphql/generated'
 
 const props = defineProps({
@@ -116,7 +115,7 @@ const reorderEntryMutation = useReorderEntryMutation({})
 
 const judgeAssignments = computed(() => {
   if (!jAs.value) return []
-  return jAs.value.filter(jA => jA.competitionEventId === props.entry.competitionEventId)
+  return jAs.value.filter(jA => jA.competitionEventId === props.entry.competitionEventId && (jA.pool != null ? jA.pool === props.entry.pool : true))
 })
 
 const scoresheetsObj = computed(() => {

@@ -2,5 +2,6 @@ fragment JudgeAssignmentFragment on JudgeAssignment {
   id
   competitionEventId
   judgeType
+  pool
   options
 }

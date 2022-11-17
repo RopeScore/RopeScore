@@ -124,7 +124,7 @@ toggleLock.onDone(res => {
 })
 
 function filterAssignments (assignments: UnwrapRef<typeof judgeAssignments>, judgeType: string, entry: EntryBaseFragment | undefined) {
-  return assignments?.filter(ja => ja.judgeType === judgeType && ja.competitionEventId === entry?.competitionEventId) ?? []
+  return assignments?.filter(ja => ja.judgeType === judgeType && ja.competitionEventId === entry?.competitionEventId && (ja.pool != null ? ja.pool === entry?.pool : true)) ?? []
 }
 
 function filterScoresheets<T extends ScoresheetBaseFragment> (scoresheets: T[], judgeId: Judge['id'], judgeType: JudgeAssignment['judgeType']): T[] {

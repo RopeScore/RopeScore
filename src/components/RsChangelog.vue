@@ -1,4 +1,12 @@
 <template>
+  <h2>v5.4.0</h2>
+  <ul>
+    <li>
+      You can now scope a judge assignment to a specific pool, particularly
+      useful for speed events where you want the judges on pool 1 to only be
+      able to judge the entries passing through pool 1.
+    </li>
+  </ul>
   <h2>v5.3.0</h2>
   <ul>
     <li>
