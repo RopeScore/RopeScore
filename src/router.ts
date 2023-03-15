@@ -22,12 +22,14 @@ export default createRouter({
     {
       path: '/groups/:groupId/heats',
       name: 'group-devices',
-      component: async () => import('./views/Heats.vue')
+      component: async () => import('./views/Heats.vue'),
+      meta: { prevCategory: true }
     },
     {
       path: '/groups/:groupId/results',
       name: 'group-results',
-      component: async () => import('./views/Results.vue')
+      component: async () => import('./views/Results.vue'),
+      meta: { prevCategory: true }
     },
     {
       path: '/groups/:groupId/categories/:categoryId',

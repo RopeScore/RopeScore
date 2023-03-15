@@ -38,6 +38,9 @@
           <th class="min-w-8" rowspan="2">
             ID
           </th>
+          <th class="min-w-8" rowspan="2">
+            Pool
+          </th>
 
           <th class="border-r-4" rowspan="2" />
 
@@ -48,7 +51,7 @@
             :colspan="judgeCols(assignment.judgeType).length + 1"
           >
             {{ assignment.judge.name }}
-            <span class="text-xs font-normal">({{ assignment.judge.id }})</span>
+            <span v-if="assignment.pool" class="text-xs font-normal">(Pool {{ assignment.pool }})</span>
           </th>
 
           <th
@@ -93,6 +96,9 @@
           <td class="text-right text-xs">
             {{ participant.id }}
           </td>
+          <td class="text-right text-xs">
+            {{ entries[participant.id]?.pool ?? '' }}
+          </td>
 
           <td v-if="!entries[participant.id]" class="text-center border-r-4">
             <text-button
@@ -133,7 +139,7 @@
             :key="assignment.judgeId"
           >
             <scoresheet-cols
-              v-if="entries[participant.id]"
+              v-if="entries[participant.id] && (assignment.pool != null ? assignment.pool === entries[participant.id].pool : true)"
               :entry-id="entries[participant.id].id"
               :scoresheets="filterScoresheets(entries[participant.id].scoresheets, assignment.judge.id, assignment.judgeType)"
               :judge="assignment.judge"

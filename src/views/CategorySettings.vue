@@ -179,10 +179,10 @@
   </h2>
 
   <div class="container mx-auto">
-    <!-- <p>
-      Changing a judge assignemnt will clear all scores for that judge in this
-      category.
-    </p> -->
+    <p>
+      Changing a judge assignments judge type or pool will clear all scores for
+      that judge in this category.
+    </p>
     <p>
       Judges are shared across categories in a group.
     </p>
@@ -195,7 +195,7 @@
           <th>ID</th>
           <th>Name</th>
           <th>IJRU ID</th>
-          <th v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode" colspan="2">
+          <th v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode" colspan="3">
             {{ getAbbr(cEvtDefCode) }}
           </th>
           <th v-if="!category.competitionEventIds.length" />
@@ -221,6 +221,17 @@
               />
             </td>
             <td>
+              <number-field
+                :model-value="getAssignment(judge.assignments, cEvtDefCode)?.pool ?? undefined"
+                label="Pool"
+                class="max-w-20"
+                :disabled="judgeAssignmentLoading || !getAssignment(judge.assignments, cEvtDefCode)?.judgeType"
+                dense
+                :step="1"
+                @update:model-value="updateAssignmentPool(judge, cEvtDefCode, $event)"
+              />
+            </td>
+            <td>
               <label class="flex gap-1">
                 <checkbox-field
                   :model-value="getAssignment(judge.assignments, cEvtDefCode)?.options?.live"
@@ -241,7 +252,7 @@
           <td />
           <td><text-field v-model="newJudge.name" :disabled="createJudgeMutation.loading.value" label="Name" dense /></td>
           <td><text-field :model-value="newJudge.ijruId ?? ''" :disabled="createJudgeMutation.loading.value" label="IJRU ID" dense @update:model-value="newJudge.ijruId = $event" /></td>
-          <td :colspan="category.competitionEventIds.length * 2">
+          <td :colspan="category.competitionEventIds.length * 3">
             <text-button
               dense
               color="blue"
@@ -280,7 +291,7 @@ import {
 
 import countryData from '../data/countries.json'
 
-import { TextButton, TextField, SelectField, CheckboxField } from '@ropescore/components'
+import { TextButton, TextField, SelectField, CheckboxField, NumberField } from '@ropescore/components'
 import EditParticipant from '../components/EditParticipant.vue'
 import IconCheck from 'virtual:icons/mdi/check'
 import IconLoading from 'virtual:icons/mdi/loading'
@@ -452,12 +463,21 @@ async function updateAssignment (judge: Pick<Judge, 'id'> & { assignments: Judge
   const existing = judge.assignments.find(ja => ja.competitionEventId === cEvtDef)
 
   if (existing && judgeType === 'none') {
-    deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id })
+    await deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id })
   } else if (existing) {
-    deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id })
-    createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
+    await deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id }, { awaitRefetchQueries: false, refetchQueries: [] })
+    await createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
   } else if (judgeType !== 'none') {
-    createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
+    await createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
+  }
+}
+
+async function updateAssignmentPool (judge: Pick<Judge, 'id'> & { assignments: JudgeAssignmentFragment[] }, cEvtDef: CompetitionEvent, pool: number) {
+  const existing = judge.assignments.find(ja => ja.competitionEventId === cEvtDef)
+
+  if (existing) {
+    await deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id }, { awaitRefetchQueries: false, refetchQueries: [] })
+    await createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType: existing.judgeType, pool, options: existing.options } })
   }
 }
 

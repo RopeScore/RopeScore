@@ -360,7 +360,12 @@ export const rankOverall: RankOverallFn = oEvtDef => res => {
       .filter(r => !!r) as EntryResult[]
 
     const R = roundTo(cRes.reduce((acc, curr) => acc + (curr.result.R ?? 0), 0), 4)
-    const T = cRes.reduce((acc, curr) => acc + (curr.result.T ?? curr.result.S ?? 0), 0)
+    const T = cRes.reduce((acc, curr) =>
+      acc + (
+        (curr.result.T ?? curr.result.S ?? 0) *
+        (overallObj.competitionEvents.find(([cEvt]) => cEvt === curr.competitionEvent)?.[1].rankMultiplier ?? 1)
+      )
+    , 0)
 
     return {
       participantId,
@@ -539,7 +544,9 @@ const cEvtToName: Record<CompetitionEvent, string> = {
   'e.ijru.fs.sr.srpf.2.75': 'Single Rope Pair Freestyle',
   'e.ijru.fs.sr.srtf.4.75': 'Single Rope Team Freestyle',
   'e.ijru.fs.dd.ddsf.3.75': 'Double Dutch Single Freestyle',
-  'e.ijru.fs.dd.ddpf.4.75': 'Double Dutch Pair Freestyle'
+  'e.ijru.fs.dd.ddpf.4.75': 'Double Dutch Pair Freestyle',
+  'e.svgf.sp.sr.srps.2.2x30': 'Single Rope Pair Speed',
+  'e.svgf.sp.sr.srpe.2.2x90': 'Single Rope Pair Speed Endurance'
 }
 
 const ruleset: Ruleset = {
@@ -577,6 +584,23 @@ const ruleset: Ruleset = {
       rankEntries: rankFreestyleEntries('e.ijru.fs.sr.srif.1.75'),
       previewTable: freestylePreviewTableHeaders,
       resultTable: { headers: freestyleResultTableHeaders }
+    },
+
+    'e.svgf.sp.sr.srps.2.2x30': {
+      name: 'Single Rope Pair Speed',
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srps.2.2x30')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srps.2.2x30'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srps.2.2x30'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: { headers: speedResultTableHeaders }
+    },
+    'e.svgf.sp.sr.srpe.2.2x90': {
+      name: 'Single Rope Pair Speed Endurance',
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srpe.2.2x90')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srpe.2.2x90'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srpe.2.2x90'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: { headers: speedResultTableHeaders }
     },
 
     'e.ijru.sp.sr.srsr.4.4x30': {
@@ -707,6 +731,24 @@ const ruleset: Ruleset = {
         'e.ijru.fs.dd.ddpf.4.75'
       ]),
       rankOverall: rankOverall('e.svgf.oa.xd.reaa.4.0')
+    },
+    'e.svgf.oa.sr.rpaa.2.0': {
+      name: 'Rikshoppet Par Overall',
+      competitionEvents: [
+        ['e.svgf.sp.sr.srps.2.2x30', {}],
+        ['e.svgf.sp.sr.srpe.2.2x90', {}],
+        ['e.ijru.sp.sr.srdr.2.2x30', {}],
+
+        ['e.ijru.fs.sr.srpf.2.75', { rankMultiplier: 2 }]
+      ],
+      resultTable: overallTableFactory([
+        'e.svgf.sp.sr.srps.2.2x30',
+        'e.svgf.sp.sr.srpe.2.2x90',
+        'e.ijru.sp.sr.srdr.2.2x30',
+
+        'e.ijru.fs.sr.srpf.2.75'
+      ]),
+      rankOverall: rankOverall('e.svgf.oa.sr.rpaa.2.0')
     }
   }
 }
