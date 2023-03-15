@@ -5,8 +5,8 @@ import {
   roundTo,
   roundToCurry,
   clampNumber,
-  ScoreTally,
-  CompetitionEvent,
+  type ScoreTally,
+  type CompetitionEvent,
   formatFactor
 } from '../helpers'
 
@@ -90,7 +90,7 @@ export const difficultyJudge: JudgeTypeFn = () => {
       step: 1
     }))
   ] as const
-  const levels: { [prop: string]: number } = Object.fromEntries(Array(8).fill(undefined).map((el, idx) => [`diffL${idx + 1}`, idx + 1] as const))
+  const levels: Record<string, number> = Object.fromEntries(Array(8).fill(undefined).map((el, idx) => [`diffL${idx + 1}`, idx + 1] as const))
   levels['diffL0.5'] = 0.5
   return {
     id: 'D',

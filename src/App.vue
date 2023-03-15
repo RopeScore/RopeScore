@@ -41,7 +41,7 @@
       <router-view />
     </main>
     <footer class="noprint flex col-span-2 justify-between items-center bg-gray-100 px-4">
-      <span>&copy; Swantzter 2017-2022</span>
+      <span>&copy; Swantzter 2017-2023</span>
       <span>{{ version }}</span>
     </footer>
   </div>

@@ -7,6 +7,10 @@
       Fix a bug in IJRU riles where the same normalisation score would yield
       different rank.
     </li>
+    <li>
+      Fix a bug on MacOS where clicking the icon in the dock when there were no
+      open windows wouldn't open a new window.
+    </li>
   </ul>
   <h2>v5.4.0</h2>
   <ul>

@@ -2,7 +2,7 @@
 import * as mod from './ijru@2.0.0'
 import assert from 'node:assert'
 import { tScsh } from '../../test/helpets'
-import { MarkScoresheetFragment, ScoresheetBaseFragment, TallyScoresheetFragment } from '../graphql/generated'
+import { type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment } from '../graphql/generated'
 
 describe('ijru@2.0.0', () => {
   describe('L', () => {

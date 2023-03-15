@@ -1,4 +1,4 @@
-import { Athlete, Judge, MarkScoresheet, Participant, ScoresheetBaseFragment, TallyScoresheet, Team } from './graphql/generated'
+import { type Athlete, type Judge, type MarkScoresheet, type Participant, type ScoresheetBaseFragment, type TallyScoresheet, type Team } from './graphql/generated'
 import type { FieldDefinition, EntryResult } from './rules'
 
 const locales = ['en-SE', 'en-AU', 'en-GB']

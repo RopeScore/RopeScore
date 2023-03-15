@@ -1,4 +1,4 @@
-import { app, protocol, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
+import { app, protocol, BrowserWindow, Menu, type MenuItem, type MenuItemConstructorOptions } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import * as path from 'path'
 import { accessSync, constants } from 'fs'
@@ -193,7 +193,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (win === null) {
+  if (win.size === 0) {
     createWindow()
   }
 })
@@ -204,9 +204,9 @@ app.on('activate', () => {
 app.whenReady().then(async () => {
   if (isDevelopment) {
     // Install Vue Devtools
-    const { default: installExtension, VUEJS3_DEVTOOLS, APOLLO_DEVELOPER_TOOLS } = await import('electron-devtools-installer')
+    const { default: installExtension, VUEJS_DEVTOOLS, APOLLO_DEVELOPER_TOOLS } = await import('electron-devtools-installer')
     try {
-      await installExtension(VUEJS3_DEVTOOLS)
+      await installExtension(VUEJS_DEVTOOLS)
       await installExtension(APOLLO_DEVELOPER_TOOLS)
     } catch (e) {
       console.error('Vue Devtools failed to install:', e)

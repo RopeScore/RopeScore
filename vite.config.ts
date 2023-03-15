@@ -17,11 +17,8 @@ export default defineConfig({
       template: {
         compilerOptions: {
           isCustomElement: tag => [
-            // @github/time-elements
-            'relative-time',
-            'time-until',
-            'time-ago',
-            'local-time'
+            // @github/relative-time-element
+            'relative-time'
           ].includes(tag)
         }
       }

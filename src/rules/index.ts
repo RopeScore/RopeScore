@@ -1,5 +1,5 @@
-import { Entry, Judge, MarkScoresheet, Participant, Scoresheet, TallyScoresheet } from '../graphql/generated'
-import { CompetitionEvent } from '../helpers'
+import { type Entry, type Judge, type MarkScoresheet, type Participant, type Scoresheet, type TallyScoresheet } from '../graphql/generated'
+import { type CompetitionEvent } from '../helpers'
 import IJRU_2_0_0 from './ijru@2.0.0'
 import IJRU_3_0_0 from './ijru@3.0.0'
 import SvGF_RH_20 from './svgf-rh@2020'
@@ -46,7 +46,7 @@ export interface JudgeType {
   id: string
   name: string
   tallyFields: Readonly<FieldDefinition[]>
-  calculateScoresheet: (scoresheet: Pick<TallyScoresheet, 'tally'> | Pick<MarkScoresheet, 'marks'>) => { [prop: string]: number }
+  calculateScoresheet: (scoresheet: Pick<TallyScoresheet, 'tally'> | Pick<MarkScoresheet, 'marks'>) => Record<string, number>
 }
 
 export type JudgeTypeFn = (cEvtDef: CompetitionEvent) => JudgeType
@@ -69,13 +69,13 @@ export interface EntryResult {
   entryId: Entry['id']
   participantId: Participant['id']
   competitionEvent: CompetitionEvent
-  result: { [prop: string]: number }
+  result: Record<string, number>
 }
 
 export interface OverallResult {
   participantId: Participant['id']
   competitionEvent: CompetitionEvent
-  result: { [prop: string]: number }
+  result: Record<string, number>
   componentResults: Record<CompetitionEvent, EntryResult>
 }
 export function isOverallResult (x: any): x is OverallResult { return !!x && 'componentResults' in x }

@@ -4,7 +4,7 @@ import type {
 } from '.'
 import {
   calculateTally, filterLatestScoresheets, formatFactor, roundTo,
-  roundToCurry, filterParticipatingInAll, ScoreTally, CompetitionEvent
+  roundToCurry, filterParticipatingInAll, type ScoreTally, type CompetitionEvent
 } from '../helpers'
 
 // pres
@@ -328,7 +328,7 @@ export const difficultyJudge: JudgeTypeFn = () => {
       step: 1
     }
   ] as const
-  const levels: { [prop: string]: number } = Object.fromEntries(Array(8).fill(undefined).map((el, idx) => [`diffL${idx + 1}`, idx + 1] as const))
+  const levels: Record<string, number> = Object.fromEntries(Array(8).fill(undefined).map((el, idx) => [`diffL${idx + 1}`, idx + 1] as const))
   levels['diffL0.5'] = 0.5
   return {
     id: 'D',
@@ -394,7 +394,7 @@ export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) =
   if (!scoresheets.length) return
 
   const results = scoresheets.map(scsh => judgeTypes[scsh.judgeType].calculateScoresheet(scsh))
-  const raw: { [prop: string]: number } = {}
+  const raw: Record<string, number> = {}
 
   for (const scoreType of ['D', 'aF', 'aE', 'aM', 'm', 'v', 'Q'] as const) {
     const scores = results.map(el => el[scoreType]).filter(el => typeof el === 'number')
