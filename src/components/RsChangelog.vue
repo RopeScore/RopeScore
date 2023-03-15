@@ -1,4 +1,13 @@
 <template>
+  <h2>v5.5.0</h2>
+  <ul>
+    <li>Add SvGF Vikingahoppet</li>
+    <li>Add IJRU v3.0.0</li>
+    <li>
+      Fix a bug in IJRU riles where the same normalisation score would yield
+      different rank.
+    </li>
+  </ul>
   <h2>v5.4.0</h2>
   <ul>
     <li>

@@ -538,7 +538,7 @@ export const rankOverall: RankOverallFn = oEvtDef => res => {
   })
 
   for (let idx = 0; idx < ranked.length; idx++) {
-    ranked[idx].result.S = idx + 1
+    ranked[idx].result.S = ranked.findIndex(obj => obj.result.B === ranked[idx].result.B) + 1
   }
 
   return ranked
