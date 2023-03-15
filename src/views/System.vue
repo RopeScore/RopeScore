@@ -30,6 +30,10 @@
         Update
       </text-button>
 
+      <p>
+        System ID: <code class="bg-gray-100 px-2 rounded">{{ me?.id ?? '-' }}</code>
+      </p>
+
       <note-card>
         Note that app scoring will send and store data in the cloud,
         Swantzter is the data controller for this and can be reached on
