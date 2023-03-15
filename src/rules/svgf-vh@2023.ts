@@ -6,9 +6,9 @@ import {
   roundToCurry,
   clampNumber,
   ScoreTally,
-  CompetitionEvent
+  CompetitionEvent,
+  formatFactor
 } from '../helpers'
-import { ijruAverage } from './ijru@2.0.0'
 
 import type {
   Ruleset,
@@ -22,12 +22,14 @@ import type {
   RankOverallFn
 } from '.'
 
-// deduc
-const SpeedDed = 10
-
 export function L (l: number): number {
   if (l === 0) return 0
   return l === 0.5 ? 0.5 : (0.5 * l) + 0.5
+}
+
+export function average (scores: number[]): number {
+  if (scores.length === 0) return 0
+  return scores.reduce((a, b) => a + b) / scores.length
 }
 
 // ======
@@ -53,45 +55,21 @@ export const speedJudge: JudgeTypeFn = () => {
   }
 }
 
-const falseSwitches: Record<CompetitionEvent, number> = {
-  'e.ijru.sp.sr.srsr.4.4x30': 3,
-  'e.ijru.sp.sr.srdr.2.2x30': 1,
-  'e.svgf.sp.dd.ddsr.4.4x45': 3
-}
-export const speedHeadJudge: JudgeTypeFn = cEvtDef => {
-  const tallyFields = [
-    {
-      schema: 'step',
-      name: 'Score',
-      min: 0,
-      step: 1
-    },
-    {
-      schema: 'falseStart',
-      name: 'False Start',
-      min: 0,
-      max: 1,
-      step: 1
-    },
-    ...(cEvtDef in falseSwitches
-      ? [{
-          schema: 'falseSwitch',
-          name: 'False Switches',
-          min: 0,
-          max: falseSwitches[cEvtDef],
-          step: 1
-        }]
-      : [])
-  ] as const
+export const timingJudge: JudgeTypeFn = () => {
+  const tallyFields: Readonly<FieldDefinition[]> = [{
+    schema: 'seconds',
+    name: 'Seconds',
+    min: 0,
+    step: 1
+  }] as const
   return {
-    id: 'Shj',
-    name: 'Speed Head Judge',
+    id: 'T',
+    name: 'Timing',
     tallyFields,
     calculateScoresheet: scsh => {
       const tally: ScoreTally<(typeof tallyFields)[number]['schema']> = calculateTally(scsh, tallyFields)
       return {
-        a: tally.step ?? 0,
-        m: ((tally.falseStart ?? 0) + (tally.falseSwitch ?? 0)) * SpeedDed
+        t: tally.seconds
       }
     }
   }
@@ -129,58 +107,34 @@ export const difficultyJudge: JudgeTypeFn = () => {
 }
 
 export const presentationJudge: JudgeTypeFn = cEvtDef => {
-  const isDD = cEvtDef.split('.')[3] === 'dd'
   const tallyFields = [
     {
       schema: 'musicOnBeat',
-      name: 'Hoppar i takt till musiken',
-      min: 0,
-      max: 10,
-      step: 0.5
-    },
-    ...(isDD
-      ? [{
-          schema: 'interactions',
-          name: 'Interaktioner',
-          min: 0,
-          max: 10,
-          step: 0.5
-        }]
-      : [{
-          schema: 'usingMusic',
-          name: 'Använder musiken',
-          min: 0,
-          max: 10,
-          step: 0.5
-        }]
-    ),
-    {
-      schema: 'movement',
-      name: 'Rörelse',
-      min: 0,
-      max: 10,
-      step: 0.5
+      name: 'Takt',
+      min: 1,
+      max: 3,
+      step: 1
     },
     {
       schema: 'formExecution',
-      name: 'Utförande, teknik',
-      min: 0,
-      max: 10,
-      step: 0.5
+      name: 'Teknik',
+      min: 1,
+      max: 3,
+      step: 1
     },
     {
       schema: 'impression',
-      name: 'Helhetsintryck',
-      min: 0,
-      max: 10,
-      step: 0.5
+      name: 'Presentation',
+      min: 1,
+      max: 3,
+      step: 1
     },
     {
       schema: 'miss',
       name: 'Missar',
-      min: 0,
-      max: 10,
-      step: 0.5
+      min: 1,
+      max: 3,
+      step: 1
     }
   ]
   return {
@@ -194,6 +148,107 @@ export const presentationJudge: JudgeTypeFn = cEvtDef => {
 
       return {
         P: roundTo(score, 2)
+      }
+    }
+  }
+}
+
+export const requiredElementsJudge: JudgeTypeFn = cEvtDef => {
+  const isDD = cEvtDef.split('.')[3] === 'dd'
+  let tallyFields: FieldDefinition[]
+
+  if (isDD) {
+    tallyFields = [
+      {
+        schema: 'rqHighKnee',
+        name: '4 höga knä',
+        min: 0,
+        max: 1,
+        step: 1
+      },
+      {
+        schema: 'rqSki',
+        name: '4 skidhopp',
+        min: 0,
+        max: 1,
+        step: 1
+      },
+      {
+        schema: 'rqTurn',
+        name: 'Snurra runt',
+        min: 0,
+        max: 1,
+        step: 1
+      },
+      {
+        schema: 'rqPair',
+        name: 'Parövning',
+        min: 0,
+        max: 1,
+        step: 1
+      },
+      {
+        schema: 'rqTool',
+        name: 'Handredskap',
+        min: 0,
+        max: 1,
+        step: 1
+      }
+    ]
+  } else {
+    tallyFields = [
+      {
+        schema: 'rqHighKnee',
+        name: '4 höga knä',
+        min: 0,
+        max: 1,
+        step: 1
+      },
+      {
+        schema: 'rqBack',
+        name: '4 baklänges hopp',
+        min: 0,
+        max: 1,
+        step: 1
+      },
+      {
+        schema: 'rqCross',
+        name: '4 korshopp',
+        min: 0,
+        max: 1,
+        step: 1
+      },
+      {
+        schema: 'rqSideJump',
+        name: '4 sidsväng-hopp',
+        min: 0,
+        max: 1,
+        step: 1
+      },
+      {
+        schema: 'rqOutTogether',
+        name: '4 ut-ihop med benen',
+        min: 0,
+        max: 1,
+        step: 1
+      }
+    ]
+  }
+  return {
+    id: 'O',
+    name: 'Obligatoriska',
+    tallyFields,
+    calculateScoresheet: scsh => {
+      const tally: ScoreTally<(typeof tallyFields)[number]['schema']> = calculateTally(scsh, tallyFields)
+
+      const completed = tallyFields
+        .map<number>(f => (tally[f.schema] ?? 0) >= 1 ? 1 : 0)
+        .reduce((a, b) => a + b)
+
+      const score = 1 - ((5 - completed) * 0.1)
+
+      return {
+        O: roundTo(score, 1)
       }
     }
   }
@@ -213,19 +268,7 @@ export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
 
   // Calc a
   const as = results.map(res => res.a).filter(a => typeof a === 'number')
-  const a = ijruAverage(as) ?? 0
-
-  // Calc m
-  const ms = results.map(res => res.m).filter(m => typeof m === 'number')
-  const m = ijruAverage(ms) ?? 0
-
-  // calc withinThree
-  const minDiff = Math.min(...results
-    .map(res => res.a)
-    .sort((a, b) => a - b)
-    .flatMap((res, idx, arr) => arr[idx + 1] - res)
-    .filter(n => !Number.isNaN(n)))
-  const withinThree = minDiff <= 3 ? 1 : 0
+  const a = average(as) ?? 0
 
   return {
     entryId: meta.entryId,
@@ -233,10 +276,31 @@ export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
     competitionEvent: cEvtDef,
     result: {
       a,
-      m,
-      R: roundTo(a - m, 2),
+      R: roundTo(a, 2)
+    }
+  }
+}
 
-      withinThree
+export const calculateTimingEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
+  const judgeTypes = Object.fromEntries(ruleset.competitionEvents[cEvtDef]?.judges.map(j => [j.id, j]) ?? [])
+  // only take the newest scoresheet per judge
+  const scoresheets = filterLatestScoresheets(rawScsh, cEvtDef)
+
+  if (!scoresheets.length) return
+
+  const results = scoresheets.map(scsh => judgeTypes[scsh.judgeType].calculateScoresheet(scsh))
+
+  // Calc t
+  const ts = results.map(res => res.t).filter(t => typeof t === 'number')
+  const t = average(ts) ?? 0
+
+  return {
+    entryId: meta.entryId,
+    participantId: meta.participantId,
+    competitionEvent: cEvtDef,
+    result: {
+      t,
+      R: roundTo(t, 2)
     }
   }
 }
@@ -251,12 +315,15 @@ export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) =
   const results = scoresheets.map(scsh => judgeTypes[scsh.judgeType].calculateScoresheet(scsh))
 
   const Ps = results.map(res => res.P).filter(P => typeof P === 'number')
-  const P = ijruAverage(Ps) ?? 0
+  const P = average(Ps) ?? 0
 
   const Ds = results.map(res => res.D).filter(D => typeof D === 'number')
-  const D = ijruAverage(Ds) ?? 0
+  const D = average(Ds) ?? 0
 
-  const R = clampNumber((D ?? 0) + (P ?? 0), { min: 0 })
+  const Os = results.map(res => res.O).filter(O => typeof O === 'number')
+  const O = average(Os) ?? 0
+
+  const Rdo = clampNumber((D ?? 0) * (O ?? 1), { min: 0 })
 
   return {
     entryId: meta.entryId,
@@ -265,7 +332,9 @@ export const calculateFreestyleEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) =
     result: {
       P: roundTo(P, 2),
       D: roundTo(D, 2),
-      R: roundTo(R, 2)
+      O: roundTo(O, 2),
+      Rdo: roundTo(Rdo, 2),
+      Rp: roundTo(P, 2)
     }
   }
 }
@@ -290,10 +359,27 @@ export const rankSpeedEntries: RankEntriesFn = cEvtDef => res => {
   return results
 }
 
+export const rankTimingEntries: RankEntriesFn = cEvtDef => res => {
+  let results = [...res]
+  results.sort(function (a, b) {
+    return (a.result.R ?? 0) - (b.result.R ?? 0) // sort ascending
+  })
+
+  results = results.map((el, _, arr) => ({
+    ...el,
+    result: {
+      ...el.result,
+      S: arr.findIndex(obj => obj.result.R === el.result.R) + 1
+    }
+  }))
+
+  return results
+}
+
 export const rankFreestyleEntries: RankEntriesFn = cEvtDef => res => {
   let results = [...res]
-  const CScores = results.map(el => el.result.P ?? -Infinity)
-  const DScores = results.map(el => el.result.D ?? -Infinity)
+  const CScores = results.map(el => el.result.Rp ?? -Infinity)
+  const DScores = results.map(el => el.result.Rdo ?? -Infinity)
 
   /* sort descending */
   CScores.sort(function (a, b) {
@@ -304,8 +390,8 @@ export const rankFreestyleEntries: RankEntriesFn = cEvtDef => res => {
   })
 
   results = results.map((el, idx, arr) => {
-    const CRank = CScores.findIndex(score => score === el.result.P) + 1
-    const DRank = DScores.findIndex(score => score === el.result.D) + 1
+    const CRank = CScores.findIndex(score => score === el.result.Rp) + 1
+    const DRank = DScores.findIndex(score => score === el.result.Rdo) + 1
 
     return {
       ...el,
@@ -318,7 +404,7 @@ export const rankFreestyleEntries: RankEntriesFn = cEvtDef => res => {
     }
   })
 
-  /* sort ascending on rank but descending on score if ranksums are equal */
+  /* sort ascending on rank but alphabetically on id if ranksums are equal */
   results.sort((a, b) => {
     if (a.result.T === b.result.T) {
       return a.participantId.localeCompare(b.participantId)
@@ -362,18 +448,12 @@ export const rankOverall: RankOverallFn = oEvtDef => res => {
       .map(([cEvt]) => components[cEvt]?.find(r => r.participantId === participantId))
       .filter(r => !!r) as EntryResult[]
 
-    const R = roundTo(cRes.reduce((acc, curr) => acc + (curr.result.R ?? 0), 0), 4)
-    const T = cRes.reduce((acc, curr) =>
-      acc + (
-        (curr.result.T ?? curr.result.S ?? 0) *
-        (overallObj.competitionEvents.find(([cEvt]) => cEvt === curr.competitionEvent)?.[1].rankMultiplier ?? 1)
-      )
-    , 0)
+    const T = cRes.reduce((acc, curr) => acc + (curr.result.S ?? 0), 0)
 
     return {
       participantId,
       competitionEvent: oEvtDef,
-      result: { R, T, S: 0 },
+      result: { T, S: 0 },
       componentResults: Object.fromEntries(cRes.map(r => [r.competitionEvent, r]))
     }
   })
@@ -394,31 +474,40 @@ export const rankOverall: RankOverallFn = oEvtDef => res => {
 // ======
 export const speedPreviewTableHeaders: TableHeader[] = [
   { text: 'Steps (a)', key: 'a' },
-  { text: 'Deduc (m)', key: 'm' },
-  { text: 'Result (R)', key: 'R' },
+  { text: 'Result (R)', key: 'R' }
+]
 
-  { text: 'Reskip Allowed', key: 'withinThree', formatter: (n) => n === 1 ? 'No' : 'Yes' }
+export const timingPreviewTableHeaders: TableHeader[] = [
+  { text: 'Seconds (t)', key: 't' },
+  { text: 'Result (R)', key: 'R' }
 ]
 
 export const freestylePreviewTableHeaders: TableHeader[] = [
   { text: 'Pres (P)', key: 'P', formatter: roundToCurry(2) },
   { text: 'Diff (D)', key: 'D', formatter: roundToCurry(2) },
-  { text: 'Result (R)', key: 'R', formatter: roundToCurry(2) }
+  { text: 'Obliga (O)', key: 'O', formatter: formatFactor },
+  { text: 'Diff - Obliga (Rdo)', key: 'Rdo', formatter: roundToCurry(2) }
 ]
 
 export const speedResultTableHeaders: TableHeader[] = [
-  { text: 'Score', key: 'R' },
+  { text: 'Steps', key: 'R' },
+  { text: 'Rank', key: 'S', color: 'red' }
+]
+
+export const timingResultTableHeaders: TableHeader[] = [
+  { text: 'Seconds', key: 'R' },
   { text: 'Rank', key: 'S', color: 'red' }
 ]
 
 export const freestyleResultTableHeaders: TableHeader[] = [
-  { text: 'Pres', key: 'P', formatter: roundToCurry(2) },
+  { text: 'Pres', key: 'Rp', formatter: roundToCurry(2) },
   { text: 'Crea Rank', key: 'CRank', color: 'red' },
 
-  { text: 'Diff', key: 'D', formatter: roundToCurry(2) },
+  { text: 'Diff - Obliga', key: 'Rdo', formatter: roundToCurry(2) },
   { text: 'Diff Rank', key: 'DRank', color: 'red' },
 
-  { text: 'Rank Sum', key: 'T', color: 'green' }
+  { text: 'Rank Sum', key: 'T', color: 'green' },
+  { text: 'Rank', key: 'S', color: 'red' }
 ]
 
 export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: TableHeaderGroup[][], headers: TableHeader[] } = cEvtDefs => {
@@ -426,14 +515,10 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
 
   const srEvts = cEvtDefs
     .filter(cEvt => cEvt.split('.')[3] === 'sr')
-  const srEvtCols = srEvts
-    .map(cEvt => cEvt.split('.')[2] === 'sp' ? 2 : 4)
-    .reduce((acc, curr) => acc + curr, 0)
+  const srEvtCols = srEvts.length * 2
   const ddEvts = cEvtDefs
     .filter(cEvt => cEvt.split('.')[3] === 'dd')
-  const ddEvtCols = ddEvts
-    .map(cEvt => cEvt.split('.')[2] === 'sp' ? 2 : 4)
-    .reduce((acc, curr) => acc + curr, 0)
+  const ddEvtCols = ddEvts.length * 2
 
   const disciplineGroup: TableHeaderGroup[] = []
 
@@ -465,11 +550,10 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
   const evtGroup: TableHeaderGroup[] = []
 
   for (const cEvt of [...srEvts, ...ddEvts]) {
-    const isSp = cEvt.split('.')[2] === 'sp'
     evtGroup.push({
       text: cEvtToName[cEvt].replace(/^(Double Dutch|Single Rope) /, ''),
       key: cEvt,
-      colspan: isSp ? 2 : 4
+      colspan: 2
     })
   }
 
@@ -492,21 +576,12 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
       })
     } else {
       headers.push({
-        text: 'Pres',
-        key: 'P',
+        text: 'Rank Sum',
+        key: 'T',
         component: cEvt
       }, {
         text: 'Rank',
-        key: 'CRank',
-        component: cEvt,
-        color: 'red'
-      }, {
-        text: 'Diff',
-        key: 'D',
-        component: cEvt
-      }, {
-        text: 'Rank',
-        key: 'DRank',
+        key: 'S',
         component: cEvt,
         color: 'red'
       })
@@ -532,29 +607,26 @@ export const overallTableFactory: (cEvtDefs: CompetitionEvent[]) => { groups: Ta
 // ==========
 // DEFINITION
 // ==========
-const speedJudges = [speedJudge, speedHeadJudge]
-const freestyleJudges = [presentationJudge, difficultyJudge]
+const speedJudges = [speedJudge]
+const timingJudges = [timingJudge]
+const freestyleJudges = [presentationJudge, difficultyJudge, requiredElementsJudge]
 
 const cEvtToName: Record<CompetitionEvent, string> = {
   'e.ijru.sp.sr.srss.1.30': 'Single Rope Speed Sprint',
-  'e.ijru.sp.sr.srse.1.180': 'Single Rope Speed Endurance',
-  'e.ijru.sp.sr.srtu.1.0': 'Single Rope Triple Unders',
+  'e.svgf.sp.sr.srdu.1.30': 'Single Rope Double Unders',
+  'e.svgf.sp.sr.srse.1.120': 'Single Rope Speed Endurance',
   'e.ijru.fs.sr.srif.1.75': 'Single Rope Individual Freestyle',
   'e.ijru.sp.sr.srsr.4.4x30': 'Single Rope Speed Relay',
-  'e.ijru.sp.sr.srdr.2.2x30': 'Single Rope Double Unders Relay',
-  'e.svgf.sp.dd.ddsr.4.4x45': 'Double Dutch Speed Relay',
-  'e.ijru.sp.dd.ddss.3.60': 'Double Dutch Speed Sprint',
-  'e.ijru.fs.sr.srpf.2.75': 'Single Rope Pair Freestyle',
+  'e.svgf.sp.sr.srdr.4.4x30': 'Single Rope Double Unders Relay',
   'e.ijru.fs.sr.srtf.4.75': 'Single Rope Team Freestyle',
-  'e.ijru.fs.dd.ddsf.3.75': 'Double Dutch Single Freestyle',
-  'e.ijru.fs.dd.ddpf.4.75': 'Double Dutch Pair Freestyle',
-  'e.svgf.sp.sr.srps.2.2x30': 'Single Rope Pair Speed',
-  'e.svgf.sp.sr.srpe.2.2x90': 'Single Rope Pair Speed Endurance'
+  'e.svgf.sp.dd.ddsr.4.2x45': 'Double Dutch Speed Relay',
+  'e.svgf.sp.dd.ddut.4.0': 'Double Dutch Utmaningen',
+  'e.svgf.fs.dd.ddpf.4.120': 'Double Dutch Pair Freestyle'
 }
 
 const ruleset: Ruleset = {
-  id: 'svgf-rh@2020',
-  name: 'SvGF Rikshoppet 2020',
+  id: 'svgf-vh@2023',
+  name: 'SvGF Vikingahoppet 2023',
   competitionEvents: {
     'e.ijru.sp.sr.srss.1.30': {
       name: 'Single Rope Speed Sprint',
@@ -564,19 +636,19 @@ const ruleset: Ruleset = {
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
-    'e.ijru.sp.sr.srse.1.180': {
-      name: 'Single Rope Speed Endurance',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srse.1.180')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srse.1.180'),
-      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srse.1.180'),
+    'e.svgf.sp.sr.srdu.1.30': {
+      name: 'Single Rope Double Unders',
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srdu.1.30')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srdu.1.30'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srdu.1.30'),
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
-    'e.ijru.sp.sr.srtu.1.0': {
-      name: 'Single Rope Triple Unders',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srtu.1.0')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srtu.1.0'),
-      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srtu.1.0'),
+    'e.svgf.sp.sr.srse.1.120': {
+      name: 'Single Rope Speed Endurance',
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srse.1.120')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srse.1.120'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srse.1.120'),
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
@@ -589,23 +661,6 @@ const ruleset: Ruleset = {
       resultTable: { headers: freestyleResultTableHeaders }
     },
 
-    'e.svgf.sp.sr.srps.2.2x30': {
-      name: 'Single Rope Pair Speed',
-      judges: speedJudges.map(j => j('e.svgf.sp.sr.srps.2.2x30')),
-      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srps.2.2x30'),
-      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srps.2.2x30'),
-      previewTable: speedPreviewTableHeaders,
-      resultTable: { headers: speedResultTableHeaders }
-    },
-    'e.svgf.sp.sr.srpe.2.2x90': {
-      name: 'Single Rope Pair Speed Endurance',
-      judges: speedJudges.map(j => j('e.svgf.sp.sr.srpe.2.2x90')),
-      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srpe.2.2x90'),
-      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srpe.2.2x90'),
-      previewTable: speedPreviewTableHeaders,
-      resultTable: { headers: speedResultTableHeaders }
-    },
-
     'e.ijru.sp.sr.srsr.4.4x30': {
       name: 'Single Rope Speed Relay',
       judges: speedJudges.map(j => j('e.ijru.sp.sr.srsr.4.4x30')),
@@ -614,38 +669,13 @@ const ruleset: Ruleset = {
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
     },
-    'e.ijru.sp.sr.srdr.2.2x30': {
+    'e.svgf.sp.sr.srdr.4.4x30': {
       name: 'Single Rope Double Unders Relay',
-      judges: speedJudges.map(j => j('e.ijru.sp.sr.srdr.2.2x30')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.sr.srdr.2.2x30'),
-      rankEntries: rankSpeedEntries('e.ijru.sp.sr.srdr.2.2x30'),
+      judges: speedJudges.map(j => j('e.svgf.sp.sr.srdr.4.4x30')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.sr.srdr.4.4x30'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.sr.srdr.4.4x30'),
       previewTable: speedPreviewTableHeaders,
       resultTable: { headers: speedResultTableHeaders }
-    },
-    'e.svgf.sp.dd.ddsr.4.4x45': {
-      name: 'Double Dutch Speed Relay',
-      judges: speedJudges.map(j => j('e.svgf.sp.dd.ddsr.4.4x45')),
-      calculateEntry: calculateSpeedEntry('e.svgf.sp.dd.ddsr.4.4x45'),
-      rankEntries: rankSpeedEntries('e.svgf.sp.dd.ddsr.4.4x45'),
-      previewTable: speedPreviewTableHeaders,
-      resultTable: { headers: speedResultTableHeaders }
-    },
-    'e.ijru.sp.dd.ddss.3.60': {
-      name: 'Double Dutch Speed Sprint',
-      judges: speedJudges.map(j => j('e.ijru.sp.dd.ddss.3.60')),
-      calculateEntry: calculateSpeedEntry('e.ijru.sp.dd.ddss.3.60'),
-      rankEntries: rankSpeedEntries('e.ijru.sp.dd.ddss.3.60'),
-      previewTable: speedPreviewTableHeaders,
-      resultTable: { headers: speedResultTableHeaders }
-    },
-
-    'e.ijru.fs.sr.srpf.2.75': {
-      name: 'Single Rope Pair Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.sr.srpf.2.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.sr.srpf.2.75'),
-      rankEntries: rankFreestyleEntries('e.ijru.fs.sr.srpf.2.75'),
-      previewTable: freestylePreviewTableHeaders,
-      resultTable: { headers: freestyleResultTableHeaders }
     },
     'e.ijru.fs.sr.srtf.4.75': {
       name: 'Single Rope Team Freestyle',
@@ -655,103 +685,76 @@ const ruleset: Ruleset = {
       previewTable: freestylePreviewTableHeaders,
       resultTable: { headers: freestyleResultTableHeaders }
     },
-    'e.ijru.fs.dd.ddsf.3.75': {
-      name: 'Double Dutch Single Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddsf.3.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddsf.3.75'),
-      rankEntries: rankFreestyleEntries('e.ijru.fs.dd.ddsf.3.75'),
-      previewTable: freestylePreviewTableHeaders,
-      resultTable: { headers: freestyleResultTableHeaders }
+
+    'e.svgf.sp.dd.ddsr.4.2x45': {
+      name: 'Double Dutch Speed Relay',
+      judges: speedJudges.map(j => j('e.svgf.sp.dd.ddsr.4.2x45')),
+      calculateEntry: calculateSpeedEntry('e.svgf.sp.dd.ddsr.4.2x45'),
+      rankEntries: rankSpeedEntries('e.svgf.sp.dd.ddsr.4.2x45'),
+      previewTable: speedPreviewTableHeaders,
+      resultTable: { headers: speedResultTableHeaders }
     },
-    'e.ijru.fs.dd.ddpf.4.75': {
+    'e.svgf.sp.dd.ddut.4.0': {
+      name: 'Double Dutch Utmaningen',
+      judges: timingJudges.map(j => j('e.svgf.sp.dd.ddut.4.0')),
+      calculateEntry: calculateTimingEntry('e.svgf.sp.dd.ddut.4.0'),
+      rankEntries: rankTimingEntries('e.svgf.sp.dd.ddut.4.0'),
+      previewTable: timingPreviewTableHeaders,
+      resultTable: { headers: timingResultTableHeaders }
+    },
+    'e.svgf.fs.dd.ddpf.4.120': {
       name: 'Double Dutch Pair Freestyle',
-      judges: freestyleJudges.map(j => j('e.ijru.fs.dd.ddpf.4.75')),
-      calculateEntry: calculateFreestyleEntry('e.ijru.fs.dd.ddpf.4.75'),
-      rankEntries: rankFreestyleEntries('e.ijru.fs.dd.ddpf.4.75'),
+      judges: freestyleJudges.map(j => j('e.svgf.fs.dd.ddpf.4.120')),
+      calculateEntry: calculateFreestyleEntry('e.svgf.fs.dd.ddpf.4.120'),
+      rankEntries: rankFreestyleEntries('e.svgf.fs.dd.ddpf.4.120'),
       previewTable: freestylePreviewTableHeaders,
       resultTable: { headers: freestyleResultTableHeaders }
     }
   },
   overalls: {
-    'e.ijru.oa.sr.isro.1.0': {
+    'e.svgf.oa.sr.vhio.1.0': {
       name: 'Individuell Overall',
       competitionEvents: [
         ['e.ijru.sp.sr.srss.1.30', {}],
-        ['e.ijru.sp.sr.srse.1.180', {}],
+        ['e.svgf.sp.sr.srdu.1.30', {}],
+        ['e.svgf.sp.sr.srse.1.120', {}],
         ['e.ijru.fs.sr.srif.1.75', {}]
       ],
       resultTable: overallTableFactory([
         'e.ijru.sp.sr.srss.1.30',
-        'e.ijru.sp.sr.srse.1.180',
+        'e.svgf.sp.sr.srdu.1.30',
+        'e.svgf.sp.sr.srse.1.120',
         'e.ijru.fs.sr.srif.1.75'
       ]),
-      rankOverall: rankOverall('e.ijru.oa.sr.isro.1.0')
+      rankOverall: rankOverall('e.svgf.oa.sr.vhio.1.0')
     },
-    'e.svgf.oa.xd.rsaa.4.0': {
-      name: 'Rikshoppet 6:an Overall',
+    'e.svgf.oa.sr.vhto.4.0': {
+      name: 'Enkelrep Overall',
       competitionEvents: [
-        ['e.ijru.sp.sr.srdr.2.2x30', {}],
         ['e.ijru.sp.sr.srsr.4.4x30', {}],
-        ['e.ijru.fs.sr.srtf.4.75', {}],
-
-        ['e.ijru.sp.dd.ddss.3.60', {}],
-        ['e.svgf.sp.dd.ddsr.4.4x45', {}],
-        ['e.ijru.fs.dd.ddpf.4.75', {}]
+        ['e.svgf.sp.sr.srdr.4.4x30', {}],
+        ['e.ijru.fs.sr.srtf.4.75', {}]
       ],
       resultTable: overallTableFactory([
-        'e.ijru.sp.sr.srdr.2.2x30',
         'e.ijru.sp.sr.srsr.4.4x30',
-        'e.ijru.fs.sr.srtf.4.75',
-
-        'e.ijru.sp.dd.ddss.3.60',
-        'e.svgf.sp.dd.ddsr.4.4x45',
-        'e.ijru.fs.dd.ddpf.4.75'
+        'e.svgf.sp.sr.srdr.4.4x30',
+        'e.ijru.fs.sr.srtf.4.75'
       ]),
-      rankOverall: rankOverall('e.svgf.oa.xd.rsaa.4.0')
+      rankOverall: rankOverall('e.svgf.oa.sr.vhto.4.0')
     },
-    'e.svgf.oa.xd.reaa.4.0': {
-      name: 'Rikshoppet 8:an Overall',
+    'e.svgf.oa.dd.vhto.4.0': {
+      name: 'Dubbelrep Overall',
       competitionEvents: [
-        ['e.ijru.sp.sr.srdr.2.2x30', {}],
-        ['e.ijru.sp.sr.srsr.4.4x30', {}],
-        ['e.ijru.fs.sr.srpf.2.75', {}],
-        ['e.ijru.fs.sr.srtf.4.75', {}],
-
-        ['e.ijru.sp.dd.ddss.3.60', {}],
-        ['e.svgf.sp.dd.ddsr.4.4x45', {}],
-        ['e.ijru.fs.dd.ddsf.3.75', {}],
-        ['e.ijru.fs.dd.ddpf.4.75', {}]
+        ['e.svgf.sp.dd.ddsr.4.2x45', {}],
+        ['e.svgf.sp.dd.ddut.4.0', {}],
+        ['e.svgf.fs.dd.ddpf.4.120', {}]
       ],
       resultTable: overallTableFactory([
-        'e.ijru.sp.sr.srdr.2.2x30',
-        'e.ijru.sp.sr.srsr.4.4x30',
-        'e.ijru.fs.sr.srpf.2.75',
-        'e.ijru.fs.sr.srtf.4.75',
-
-        'e.ijru.sp.dd.ddss.3.60',
-        'e.svgf.sp.dd.ddsr.4.4x45',
-        'e.ijru.fs.dd.ddsf.3.75',
-        'e.ijru.fs.dd.ddpf.4.75'
+        'e.svgf.sp.dd.ddsr.4.2x45',
+        'e.svgf.sp.dd.ddut.4.0',
+        'e.svgf.fs.dd.ddpf.4.120'
       ]),
-      rankOverall: rankOverall('e.svgf.oa.xd.reaa.4.0')
-    },
-    'e.svgf.oa.sr.rpaa.2.0': {
-      name: 'Rikshoppet Par Overall',
-      competitionEvents: [
-        ['e.svgf.sp.sr.srps.2.2x30', {}],
-        ['e.svgf.sp.sr.srpe.2.2x90', {}],
-        ['e.ijru.sp.sr.srdr.2.2x30', {}],
-
-        ['e.ijru.fs.sr.srpf.2.75', { rankMultiplier: 2 }]
-      ],
-      resultTable: overallTableFactory([
-        'e.svgf.sp.sr.srps.2.2x30',
-        'e.svgf.sp.sr.srpe.2.2x90',
-        'e.ijru.sp.sr.srdr.2.2x30',
-
-        'e.ijru.fs.sr.srpf.2.75'
-      ]),
-      rankOverall: rankOverall('e.svgf.oa.sr.rpaa.2.0')
+      rankOverall: rankOverall('e.svgf.oa.dd.vhto.4.0')
     }
   }
 }
