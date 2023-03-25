@@ -473,12 +473,12 @@ export const rankOverall: RankOverallFn = oEvtDef => res => {
 // TABLES
 // ======
 export const speedPreviewTableHeaders: TableHeader[] = [
-  { text: 'Steps (a)', key: 'a' },
+  { text: 'Steps (a)', key: 'a', formatter: roundToCurry(2) },
   { text: 'Result (R)', key: 'R' }
 ]
 
 export const timingPreviewTableHeaders: TableHeader[] = [
-  { text: 'Seconds (t)', key: 't' },
+  { text: 'Seconds (t)', key: 't', formatter: roundToCurry(2) },
   { text: 'Result (R)', key: 'R' }
 ]
 
