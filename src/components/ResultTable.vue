@@ -212,7 +212,7 @@ const setPagePrintConfigMutation = useSetPagePrintConfigMutation({})
 
 // spreadsheet stuff
 
-const sheetId = computed(() => `${getAbbr(props.competitionEventId)} - ${category.value?.name ?? ''}`)
+const sheetId = computed(() => `${props.competitionEventId} - ${category.value?.name ?? ''}`)
 
 function removeWorksheet () {
   if (!category.value) return

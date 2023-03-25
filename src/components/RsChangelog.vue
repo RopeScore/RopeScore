@@ -1,4 +1,11 @@
 <template>
+  <h2>v5.5.2</h2>
+  <ul>
+    <li>
+      Put the whole competition event definition code in excel sheet names to
+      avoid collisions
+    </li>
+  </ul>
   <h2>v5.5.1</h2>
   <ul>
     <li>SvGF Vikingahoppet round speed scores to whole number</li>
