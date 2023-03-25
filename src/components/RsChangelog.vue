@@ -1,4 +1,9 @@
 <template>
+  <h2>v5.5.1</h2>
+  <ul>
+    <li>SvGF Vikingahoppet round speed scores to whole number</li>
+    <li>Show the system ID on the system page for easier sharing</li>
+  </ul>
   <h2>v5.5.0</h2>
   <ul>
     <li>Add SvGF Vikingahoppet</li>
