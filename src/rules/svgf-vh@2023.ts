@@ -276,7 +276,7 @@ export const calculateSpeedEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
     competitionEvent: cEvtDef,
     result: {
       a,
-      R: roundTo(a, 2)
+      R: roundTo(a, 0)
     }
   }
 }
@@ -300,7 +300,7 @@ export const calculateTimingEntry: CalcEntryFn = cEvtDef => (meta, rawScsh) => {
     competitionEvent: cEvtDef,
     result: {
       t,
-      R: roundTo(t, 2)
+      R: roundTo(t, 0)
     }
   }
 }
@@ -483,10 +483,10 @@ export const timingPreviewTableHeaders: TableHeader[] = [
 ]
 
 export const freestylePreviewTableHeaders: TableHeader[] = [
-  { text: 'Pres (P)', key: 'P', formatter: roundToCurry(2) },
   { text: 'Diff (D)', key: 'D', formatter: roundToCurry(2) },
   { text: 'Obliga (O)', key: 'O', formatter: formatFactor },
-  { text: 'Diff - Obliga (Rdo)', key: 'Rdo', formatter: roundToCurry(2) }
+  { text: 'Diff - Obliga (Rdo)', key: 'Rdo', formatter: roundToCurry(2) },
+  { text: 'Pres (P)', key: 'P', formatter: roundToCurry(2) }
 ]
 
 export const speedResultTableHeaders: TableHeader[] = [
