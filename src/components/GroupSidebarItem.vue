@@ -55,10 +55,10 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType } from 'vue'
+import { type PropType } from 'vue'
 
 import { ButtonLink } from '@ropescore/components'
-import { GroupBaseFragment, CategoryBaseFragment } from '../graphql/generated'
+import { type GroupBaseFragment, type CategoryBaseFragment } from '../graphql/generated'
 
 defineProps({
   group: {

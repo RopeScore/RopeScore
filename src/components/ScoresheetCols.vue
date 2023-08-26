@@ -46,15 +46,15 @@
 
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
-import { calculateTally, CompetitionEvent, isMarkScoresheet, isTallyScoresheet } from '../helpers'
+import { calculateTally, type CompetitionEvent, isMarkScoresheet, isTallyScoresheet } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import TallyScoresheet from './TallyScoresheet.vue'
 import MarkScoresheet from './MarkScoresheet.vue'
 
 import type { PropType } from 'vue'
-import { Judge, MarkScoresheetFragment, ScoresheetBaseFragment, TallyScoresheetFragment, useCreateTallyScoresheetMutation } from '../graphql/generated'
-import { RulesetId } from '../rules'
+import { type Judge, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment, useCreateTallyScoresheetMutation } from '../graphql/generated'
+import { type RulesetId } from '../rules'
 
 const props = defineProps({
   entryId: {

@@ -219,12 +219,13 @@ export function calculateTally (scoresheet: Pick<TallyScoresheet, 'tally'> | Pic
  * timestamp 1 and a TallyScoresheet at timestamp 5, only the TallyScoresheet
  * will be left
  */
-export function filterLatestScoresheets<T extends Pick<ScoresheetBaseFragment, 'createdAt' | 'competitionEventId' | 'judgeType'> & { judge: Pick<Judge, 'id'> }> (scoresheets: T[], cEvtDef: CompetitionEvent): T[] {
+export function filterLatestScoresheets<T extends Pick<ScoresheetBaseFragment, 'createdAt' | 'excludedAt' | 'competitionEventId' | 'judgeType'> & { judge: Pick<Judge, 'id'> }> (scoresheets: T[], cEvtDef: CompetitionEvent): T[] {
   return [...scoresheets]
     .sort((a, b) => b.createdAt - a.createdAt)
+    .filter(scsh => scsh.excludedAt == null)
     .filter((scsh, idx, arr) =>
       scsh.competitionEventId === cEvtDef &&
-        idx === arr.findIndex(s => s.judge.id === scsh.judge.id && s.judgeType === scsh.judgeType)
+      idx === arr.findIndex(s => s.judge.id === scsh.judge.id && s.judgeType === scsh.judgeType)
     )
 }
 

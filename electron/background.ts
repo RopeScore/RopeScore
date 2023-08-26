@@ -215,7 +215,7 @@ app.whenReady().then(async () => {
   }
 
   const indexPath = path.normalize(path.resolve(__dirname, '..', isDevelopment ? 'dist/render' : 'render', 'index.html'))
-  protocol.handle('app', (request) => {
+  protocol.handle('app', async (request) => {
     const url = request.url.substring(6).replace(/\/$/, '').replace(/^index\.html\/(.+)/, '$1')
     const p = path.normalize(path.resolve(__dirname, '..', isDevelopment ? 'dist/render' : 'render', url))
       // Prevent traversing out of the bundle

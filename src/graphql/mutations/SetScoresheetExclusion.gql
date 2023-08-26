@@ -1,0 +1,6 @@
+mutation SetScoresheetExclusion ($scoresheetId: ID!, $exclude: Boolean!) {
+  setScoresheetExclusion (scoresheetId: $scoresheetId, exclude: $exclude) {
+    id
+    excludedAt
+  }
+}

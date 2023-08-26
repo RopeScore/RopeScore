@@ -35,14 +35,14 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue'
 import { useRuleset } from '../hooks/rulesets'
-import { CompetitionEvent, ScoreTally } from '../helpers'
+import { type CompetitionEvent, type ScoreTally } from '../helpers'
 import { name, version } from '../../package.json'
 
 import type { PropType } from 'vue'
 import type { RulesetId } from '../rules'
 
 import { NumberField } from '@ropescore/components'
-import { ScoresheetBaseFragment, TallyScoresheetFragment, useFillTallyScoresheetMutation } from '../graphql/generated'
+import { type ScoresheetBaseFragment, type TallyScoresheetFragment, useFillTallyScoresheetMutation } from '../graphql/generated'
 import { useDebounceFn } from '@vueuse/core'
 import { onBeforeRouteLeave } from 'vue-router'
 

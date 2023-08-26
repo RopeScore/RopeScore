@@ -125,13 +125,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { memberNames, getAbbr, CompetitionEvent } from '../helpers'
+import { memberNames, getAbbr, type CompetitionEvent } from '../helpers'
 
 import { ButtonLink, TextButton } from '@ropescore/components'
 
 import IconLoading from 'virtual:icons/mdi/loading'
 
-import { CategoryType, Participant, useCategoryGridQuery, useCreateEntryMutation } from '../graphql/generated'
+import { CategoryType, type Participant, useCategoryGridQuery, useCreateEntryMutation } from '../graphql/generated'
 
 const route = useRoute()
 const router = useRouter()

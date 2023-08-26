@@ -13,7 +13,7 @@ import { useRuleset } from '../hooks/rulesets'
 
 import type { PropType } from 'vue'
 import type { TableHeader } from '../rules'
-import { EntryBaseFragment, MarkScoresheetFragment, ScoresheetBaseFragment, TallyScoresheetFragment } from '../graphql/generated'
+import { type EntryBaseFragment, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment } from '../graphql/generated'
 
 const props = defineProps({
   rulesId: {

@@ -313,11 +313,11 @@ function findCategory (categoryId: string) {
 
 const entries = computed(() => {
   const ents = [...(heatsQuery.result.value?.group?.entries ?? [])].filter(e => typeof e.heat === 'number')
-  ents.sort((a, b) => a.heat! - b.heat!)
+  ents.sort((a, b) => (a.heat as number) - (b.heat as number))
   const heats: Record<number, typeof ents> = {}
   for (const ent of ents) {
-    heats[ent.heat!] ??= []
-    heats[ent.heat!].push(ent)
+    heats[ent.heat as number] ??= []
+    heats[ent.heat as number].push(ent)
   }
   for (const heat in heats) {
     heats[heat].sort((a, b) => {

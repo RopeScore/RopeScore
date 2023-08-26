@@ -128,7 +128,7 @@ const scoresheetsObj = computed(() => {
 
   // sort ascending by createdAt time so that the last one will be picked
   // in the loop below
-  const scoresheets = [...props.scoresheets].filter(scsh => scsh.__typename === 'MarkScoresheet') as Array<ScoresheetBaseFragment & MarkScoresheetFragment>
+  const scoresheets = [...props.scoresheets].filter(scsh => scsh.__typename === 'MarkScoresheet' && scsh.excludedAt == null) as Array<ScoresheetBaseFragment & MarkScoresheetFragment>
   scoresheets.sort((a, b) => a.createdAt - b.createdAt)
 
   for (const scoresheet of scoresheets) {

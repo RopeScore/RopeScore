@@ -17,8 +17,8 @@ import { useRuleset } from '../hooks/rulesets'
 
 import type { PropType } from 'vue'
 import type { RulesetId } from '../rules'
-import { CompetitionEvent } from '../helpers'
-import { MarkScoresheetFragment, TallyScoresheetFragment, ScoresheetBaseFragment } from '../graphql/generated'
+import { type CompetitionEvent } from '../helpers'
+import { type MarkScoresheetFragment, type TallyScoresheetFragment, type ScoresheetBaseFragment } from '../graphql/generated'
 
 const props = defineProps({
   scoresheet: {

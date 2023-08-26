@@ -13,6 +13,11 @@
     <li>
       Fixes for issue where some forms couldn't be submitted by pressing enter
     </li>
+    <li>
+      You can now mark a scoresheet as excluded, which will exclude it from all
+      result calculations. Result calculations will now always use the latest
+      non-excluded scoresheet.
+    </li>
   </ul>
   <h2>v5.5.2</h2>
   <ul>
@@ -265,7 +270,7 @@
   </ul>
   <h2>v2.10.6</h2>
   <ul>
-    <li>A fix to the excel export of a group/all resutls</li>
+    <li>A fix to the excel export of a group/all results</li>
   </ul>
   <h2>v2.10.5</h2>
   <ul>
@@ -290,7 +295,7 @@
     <li>
       Results can now be printed directly from the results page instead, with a
       preview functionality to make sure everything fits. This can also be used to
-      export directly to pdf, skipping the excel intermidiate
+      export directly to pdf, skipping the excel intermediate
     </li>
     <li>
       You can no longer change the amount of judges when scores has been entered,
@@ -323,7 +328,7 @@
   </ul>
   <h2>v2.7.1</h2>
   <ul>
-    <li>Timestamp added to bugreport export filenames</li>
+    <li>Timestamp added to bug report export filenames</li>
   </ul>
   <h2>v2.7.0</h2>
   <ul>
@@ -361,17 +366,17 @@
       Remote Debug log collection, if the computer running the system is connected
       to the internet
     </li>
-    <li>Yet another attempt at avoiding team names beeing parsed as dates</li>
+    <li>Yet another attempt at avoiding team names being parsed as dates</li>
     <li>Team Members Column</li>
     <li>
       Results can now be exported to excel with "Rank Everyone in Everything"
-      turned on, a warning will show requireing the operator to confirm that it is
+      turned on, a warning will show requiring the operator to confirm that it is
       intended if attempted
     </li>
   </ul>
   <h2>v2.5.2</h2>
   <ul>
-    <li>Fix a bug causing some ties to be inproperly resolved</li>
+    <li>Fix a bug causing some ties to be improperly resolved</li>
   </ul>
   <h2>v2.5.1</h2>
   <ul>
@@ -477,15 +482,15 @@
     </li>
     <li>It's no longer to enter space misses or time violations into the head judge box</li>
     <li>Result tables for each event is once again ordered by the ranks in that event</li>
-    <li>Reorderable dashboard</li>
+    <li>Re-orderable dashboard</li>
     <li>
       New interpretation of
       <code>JMC3PaA3 Single Rope Required Elements</code>
-      recieved from fisac, system updated to match
+      received from FISAC, system updated to match
     </li>
     <li>
       Fine tuning of double dutch required elements calculations with regards to
-      speed dances, releases, and turner involvment skills
+      speed dances, releases, and turner involvement skills
     </li>
   </ul>
   <h2>v2.1.4</h2>
@@ -517,7 +522,7 @@
       dashboard)
     </li>
     <li>
-      Save, and display buttons are now avilable to the top right of the screen,
+      Save, and display buttons are now available to the top right of the screen,
       as well as on the bottom
     </li>
     <li>

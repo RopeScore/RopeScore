@@ -8,11 +8,18 @@
     <details
       v-for="(scoresheet, idx) of scoresheets"
       :key="scoresheet.id"
-      :open="idx === scoresheets.length - 1"
-      class="px-2 border-b"
+      :open="idx === lastIncludedIdx"
+      class="px-2 border-b relative"
     >
-      <summary tabindex="-1" class="cursor-pointer" :class="{ 'text-gray-400': idx !== scoresheets.length - 1 }">
-        {{ isTallyScoresheet(scoresheet) ? 'Tally' : 'Mark' }} at {{ formatDate(scoresheet.createdAt) }} <span class="text-gray-700 text-[0.5rem] whitespace-nowrap">({{ scoresheet.id }}) app: {{ scoresheet.submitterProgramVersion ?? '-' }}</span>
+      <summary tabindex="-1" class="cursor-pointer" :class="{ 'text-gray-400': idx !== lastIncludedIdx }">
+        <div class="inline-grid items-start grid-rows-[max-content,max-content]">
+          <div>
+            {{ isTallyScoresheet(scoresheet) ? 'Tally' : 'Mark' }} at {{ formatDate(scoresheet.createdAt) }}
+          </div>
+          <div class="text-gray-700 text-[0.5rem] whitespace-nowrap row-start-2 mb-1">
+            ({{ scoresheet.id }}) app: {{ scoresheet.submitterProgramVersion ?? '-' }}
+          </div>
+        </div>
       </summary>
 
       <tally-scoresheet
@@ -21,7 +28,7 @@
         :rules-id="rulesId"
         :competition-event="competitionEvent"
         :judge-type="judgeType"
-        :disabled="disabled || idx !== scoresheets.length - 1"
+        :disabled="disabled || idx !== lastIncludedIdx"
       />
 
       <mark-scoresheet
@@ -30,7 +37,7 @@
         :rules-id="rulesId"
         :competition-event="competitionEvent"
         :judge-type="judgeType"
-        :disabled="disabled || idx !== scoresheets.length - 1"
+        :disabled="disabled || idx !== lastIncludedIdx"
       />
 
       <scoresheet-result
@@ -40,6 +47,17 @@
         :judge-type="judgeType"
         class="mb-2 w-full"
       />
+
+      <div class="mb-2 text-right">
+        <text-button
+          dense
+          :color="scoresheet.excludedAt ? 'green' : 'orange'"
+          :loading="setScoresheetExclusionMutation.loading.value"
+          @click="setScoresheetExclusionMutation.mutate({ scoresheetId: scoresheet.id, exclude: scoresheet.excludedAt == null })"
+        >
+          {{ scoresheet.excludedAt ? 'Include' : 'Exclude' }}
+        </text-button>
+      </div>
     </details>
 
     <div v-if="!scoresheets.length" class="w-full px-1">
@@ -72,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { formatDate, calculateTally, type CompetitionEvent, isTallyScoresheet, isMarkScoresheet } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
@@ -80,7 +99,7 @@ import MarkScoresheet from './MarkScoresheet.vue'
 import ScoresheetResult from './ScoresheetResult.vue'
 
 import type { PropType } from 'vue'
-import { type Judge, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment, useCreateTallyScoresheetMutation } from '../graphql/generated'
+import { type Judge, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment, useCreateTallyScoresheetMutation, useSetScoresheetExclusionMutation } from '../graphql/generated'
 import { type RulesetId } from '../rules'
 
 const props = defineProps({
@@ -114,10 +133,14 @@ const props = defineProps({
   }
 })
 
+const lastIncludedIdx = computed(() => props.scoresheets.findLastIndex(scsh => scsh.excludedAt == null))
+
 const createTallyScoresheetMutation = useCreateTallyScoresheetMutation({
   refetchQueries: ['EntryWithScoresheets'],
   awaitRefetchQueries: true
 })
+
+const setScoresheetExclusionMutation = useSetScoresheetExclusionMutation()
 
 function createTallyScoresheet (previousScoresheet?: ScoresheetBaseFragment) {
   console.log(previousScoresheet)

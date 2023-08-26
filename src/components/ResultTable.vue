@@ -109,10 +109,11 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { inject, computed, watch, ref, onUnmounted, toRef } from 'vue'
-import Excel from 'exceljs'
+import type Excel from 'exceljs'
 import { isOverallRulesDefinition, isOverallResult } from '../rules'
-import { memberNames, isOverall, getAbbr, CompetitionEvent } from '../helpers'
+import { memberNames, isOverall, getAbbr, type CompetitionEvent } from '../helpers'
 import { useRuleset } from '../hooks/rulesets'
 import { version } from '../../package.json'
 
@@ -120,7 +121,7 @@ import { TextButton } from '@ropescore/components'
 
 import type { Ref, PropType } from 'vue'
 import type { EntryResult, OverallResult, TableHeader } from '../rules'
-import { CategoryBaseFragment, CategoryPrintFragment, CategoryResultsFragment, Participant, CategoryType, useSetPagePrintConfigMutation } from '../graphql/generated'
+import { type CategoryBaseFragment, type CategoryPrintFragment, type CategoryResultsFragment, type Participant, CategoryType, useSetPagePrintConfigMutation } from '../graphql/generated'
 
 const workbook = inject<Ref<Excel.Workbook>>('workbook')
 
@@ -261,7 +262,7 @@ onUnmounted(() => {
 function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
   if (!isOverallRulesDefinition(cEvt.value)) return
   const excelGroupedHeaderRows: any[][] = []
-  const merges: [number, number, number, number][] = []
+  const merges: Array<[number, number, number, number]> = []
   const groups = [...(cEvt.value.resultTable.groups?.map(gr => [...gr]) ?? [])]
 
   groups[0].unshift({ text: '', key: 'parts', colspan: type === CategoryType.Team ? 3 : 2, rowspan: groups.length })
@@ -276,6 +277,7 @@ function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
     if (!excelGroupedHeaderRows[groupRow]) {
       excelGroupedHeaderRows[groupRow] = []
     }
+    // eslint-disable-next-line @typescript-eslint/no-for-in-array
     for (const groupCell in groups[groupRow]) {
       for (
         let cspan: number = 0;
@@ -422,7 +424,7 @@ function addParticipantRows (
   type: CategoryType
 ) {
   for (const entryRes of results.value) {
-    const row: Array<string | number> = new Array(1)
+    const row = new Array<string | number>(1)
     if (type === CategoryType.Team) {
       row.push(
         getParticipant(entryRes.participantId)?.name ?? '',
@@ -472,7 +474,7 @@ function addParticipantRows (
   }
 }
 
-function nameToARGB (color : 'red' | 'green' | 'gray' | undefined) {
+function nameToARGB (color: 'red' | 'green' | 'gray' | undefined) {
   switch (color) {
     case 'red':
       return 'FFEF4444'

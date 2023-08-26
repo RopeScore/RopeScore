@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.electron.json",
+  "include": [
+    ".*.js",
+    "*.config.js",
+    "electron/*.js"
+  ]
+}

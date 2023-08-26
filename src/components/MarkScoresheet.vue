@@ -33,7 +33,7 @@ import type { CompetitionEvent } from '../helpers'
 import type { RulesetId } from '../rules'
 
 import { NumberField } from '@ropescore/components'
-import { MarkScoresheetFragment, ScoresheetBaseFragment } from '../graphql/generated'
+import { type MarkScoresheetFragment, type ScoresheetBaseFragment } from '../graphql/generated'
 
 const props = defineProps({
   scoresheet: {

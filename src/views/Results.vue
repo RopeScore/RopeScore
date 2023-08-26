@@ -65,8 +65,8 @@ import { useRuleset } from '../hooks/rulesets'
 import { TextButton } from '@ropescore/components'
 import ExcelWorkbook from '../components/ExcelWorkbook.vue'
 import ResultTable from '../components/ResultTable.vue'
-import { CompetitionEvent } from '../helpers'
-import { CategoryBaseFragment, useResultsQuery } from '../graphql/generated'
+import { type CompetitionEvent } from '../helpers'
+import { type CategoryBaseFragment, useResultsQuery } from '../graphql/generated'
 
 const route = useRoute()
 const workbook = ref<typeof ExcelWorkbook>()

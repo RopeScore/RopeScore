@@ -70,15 +70,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, UnwrapRef } from 'vue'
+import { computed, type UnwrapRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
 
 import { TextButton } from '@ropescore/components'
 import Scoresheets from '../components/Scoresheets.vue'
 
-import { EntryBaseFragment, Judge, JudgeAssignment, ScoresheetBaseFragment, useEntryWithScoresheetsQuery, useToggleEntryLockMutation } from '../graphql/generated'
-import { RulesetId } from '../rules'
+import { type EntryBaseFragment, type Judge, type JudgeAssignment, type ScoresheetBaseFragment, useEntryWithScoresheetsQuery, useToggleEntryLockMutation } from '../graphql/generated'
+import { type RulesetId } from '../rules'
 
 const route = useRoute()
 const router = useRouter()

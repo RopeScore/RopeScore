@@ -171,16 +171,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, UnwrapRef } from 'vue'
+import { computed, type UnwrapRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
-import { CompetitionEvent, memberNames } from '../helpers'
+import { type CompetitionEvent, memberNames } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import ScoresheetCols from '../components/ScoresheetCols.vue'
 import ResultCols from '../components/ResultCols.vue'
-import { useCreateEntryMutation, useToggleEntryLockMutation, useEntriesWithScoresheetsQuery, CategoryType, Participant, Judge, JudgeAssignment, ScoresheetBaseFragment } from '../graphql/generated'
-import { RulesetId } from '../rules'
+import { useCreateEntryMutation, useToggleEntryLockMutation, useEntriesWithScoresheetsQuery, CategoryType, type Participant, type Judge, type JudgeAssignment, type ScoresheetBaseFragment } from '../graphql/generated'
+import { type RulesetId } from '../rules'
 
 const route = useRoute()
 const router = useRouter()
