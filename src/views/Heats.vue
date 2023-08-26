@@ -62,14 +62,16 @@
             <td v-else colspan="4" />
 
             <td class="max-w-[10ch]">
-              <text-field v-model="newDevices[judge.id]" dense label="Device ID" />
+              <form :id="`new-device-id-${judge.id}`" class="hidden" @submit.prevent="setJudgeDevice.mutate({ judgeId: judge.id, deviceId: newDevices[judge.id] })" />
+              <text-field v-model="newDevices[judge.id]" :form="`new-device-id-${judge.id}`" dense label="Device ID" required />
             </td>
             <td>
               <text-button
+                :form="`new-device-id-${judge.id}`"
                 dense
                 :loading="setJudgeDevice.loading.value"
                 :disabled="!newDevices[judge.id]"
-                @click="setJudgeDevice.mutate({ judgeId: judge.id, deviceId: newDevices[judge.id] })"
+                type="submit"
               >
                 Set
               </text-button>
@@ -148,9 +150,11 @@
           </text-button>
           <text-field
             :model-value="`${currentHeat}`"
+            form="new-heat"
             type="number"
             dense
             label="Heat"
+            required
             class="max-w-16"
             @update:model-value="newCurrentHeat = $event"
           />
@@ -163,12 +167,14 @@
         </div>
 
         <text-button
+          form="new-heat"
           :disabled="typeof newCurrentHeat !== 'number' || newCurrentHeat === currentHeat"
           :loading="setCurrentHeat.loading.value"
-          @click="setCurrentHeat.mutate({ groupId: route.params.groupId as string, heat: newCurrentHeat! })"
+          type="submit"
         >
           Set Heat
         </text-button>
+        <form id="new-heat" @submit.prevent="setCurrentHeat.mutate({ groupId: route.params.groupId as string, heat: newCurrentHeat! })" />
         <text-button @click="scrollToCurrentHeat()">
           Scroll
         </text-button>
@@ -200,7 +206,7 @@
     <div class="mt-30 lg:mt-10" />
 
     <div class="fixed bottom-0 right-0 left-0 h-36 lg:h-18 bg-white px-2 flex justify-center items-center border-t z-1500">
-      <div class="grid grid-cols-4 lg:grid-cols-7 gap-4">
+      <form class="grid grid-cols-4 lg:grid-cols-7 gap-4" @submit.prevent="findCreateEntry()">
         <div class="flex items-end justify-end py-1.5">
           <label>
             <input v-model="autoIncrement" type="checkbox" class="mb-1">
@@ -212,6 +218,7 @@
           type="number"
           label="Heat"
           :data-list="heats"
+          required
         />
         <text-field
           v-model="newEntry.pool.value"
@@ -222,6 +229,7 @@
           v-model="newEntry.categoryId.value"
           label="Category"
           :data-list="categories"
+          required
         />
         <div class="lg:hidden" />
         <select-field
@@ -229,23 +237,25 @@
           label="Competition Event"
           :data-list="categoryCompetitionEvents"
           :disabled="!newEntry.categoryId.value || categoryGridQuery.loading.value"
+          required
         />
         <select-field
           v-model="newEntry.participantId.value"
           label="Participant"
           :data-list="categoryParticipants"
           :disabled="!newEntry.categoryId.value || categoryGridQuery.loading.value"
+          required
         />
         <text-button
           color="blue"
           :disabled="!formFilled"
           :loading="heatingEntry"
           class="mt-2"
-          @click="findCreateEntry()"
+          type="submit"
         >
           Create Entry
         </text-button>
-      </div>
+      </form>
     </div>
   </section>
 </template>

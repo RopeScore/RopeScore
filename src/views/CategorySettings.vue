@@ -148,22 +148,50 @@
       <tfoot>
         <tr>
           <td />
-          <td><text-field v-model="newParticipant.name" :disabled="createParticipantLoading" label="Name" dense /></td>
+          <td>
+            <text-field
+              v-model="newParticipant.name"
+              form="new-participant"
+              :disabled="createParticipantLoading"
+              label="Name"
+              required
+              dense
+            />
+          </td>
           <td v-if="category?.type === CategoryType.Team">
-            <text-field v-model="newParticipant.members" :disabled="createParticipantLoading" label="Members, comma separated" dense />
+            <text-field v-model="newParticipant.members" form="new-participant" :disabled="createParticipantLoading" label="Members, comma separated" dense />
           </td>
           <td v-else>
-            <text-field v-model="newParticipant.ijruId" :disabled="createParticipantLoading" label="IJRU ID" dense />
+            <text-field v-model="newParticipant.ijruId" form="new-participant" :disabled="createParticipantLoading" label="IJRU ID" dense />
           </td>
-          <td><text-field v-model="newParticipant.club" :disabled="createParticipantLoading" label="Club" dense :data-list="clubNames" /></td>
-          <td><text-field v-model="newParticipant.country" :disabled="createParticipantLoading" label="Country" dense :data-list="countries" /></td>
+          <td>
+            <text-field
+              v-model="newParticipant.club"
+              form="new-participant"
+              :disabled="createParticipantLoading"
+              label="Club"
+              dense
+              :data-list="clubNames"
+            />
+          </td>
+          <td>
+            <text-field
+              v-model="newParticipant.country"
+              form="new-participant"
+              :disabled="createParticipantLoading"
+              label="Country"
+              dense
+              :data-list="countries"
+            />
+          </td>
           <td class="text-center">
             <text-button
+              form="new-participant"
               dense
               color="blue"
+              type="submit"
               :disabled="!newParticipant.name || (category?.type === CategoryType.Team && !newParticipant.members)"
               :loading="createParticipantLoading"
-              @click="addParticipant()"
             >
               Create
             </text-button>
@@ -171,6 +199,7 @@
         </tr>
       </tfoot>
     </table>
+    <form id="new-participant" @submit.prevent="addParticipant()" />
     <!-- TODO: excel import -->
   </div>
 
@@ -250,21 +279,41 @@
       <tfoot>
         <tr>
           <td />
-          <td><text-field v-model="newJudge.name" :disabled="createJudgeMutation.loading.value" label="Name" dense /></td>
-          <td><text-field :model-value="newJudge.ijruId ?? ''" :disabled="createJudgeMutation.loading.value" label="IJRU ID" dense @update:model-value="newJudge.ijruId = $event" /></td>
+          <td>
+            <text-field
+              v-model="newJudge.name"
+              form="new-judge"
+              :disabled="createJudgeMutation.loading.value"
+              label="Name"
+              required
+              dense
+            />
+          </td>
+          <td>
+            <text-field
+              :model-value="newJudge.ijruId ?? ''"
+              form="new-judge"
+              :disabled="createJudgeMutation.loading.value"
+              label="IJRU ID"
+              dense
+              @update:model-value="newJudge.ijruId = $event"
+            />
+          </td>
           <td :colspan="category.competitionEventIds.length * 3">
             <text-button
+              form="new-judge"
               dense
               color="blue"
+              type="submit"
               :loading="createJudgeMutation.loading.value"
               :disabled="!newJudge.name"
-              @click="createJudgeMutation.mutate({ groupId: route.params.groupId as string, data: newJudge })"
             >
               Create
             </text-button>
           </td>
         </tr>
       </tfoot>
+      <form id="new-judge" @submit.prevent="createJudgeMutation.mutate({ groupId: route.params.groupId as string, data: newJudge })" />
     </table>
   </div>
 </template>
@@ -273,10 +322,10 @@
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
-import { memberNames, getAbbr, CompetitionEvent, isAthlete } from '../helpers'
+import { memberNames, getAbbr, type CompetitionEvent, isAthlete } from '../helpers'
 import {
-  CategoryType, CreateAthleteInput, CreateJudgeInput, CreateTeamInput, Judge, JudgeAssignmentFragment, Participant,
-  Category,
+  CategoryType, type CreateAthleteInput, type CreateJudgeInput, type CreateTeamInput, type Judge, type JudgeAssignmentFragment, type Participant,
+  type Category,
   useCategorySettingsQuery,
   useDeleteCategoryMutation,
   useUpdateCategoryMutation,

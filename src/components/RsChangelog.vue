@@ -1,4 +1,19 @@
 <template>
+  <h2>v5.6.0</h2>
+  <ul>
+    <li>
+      Display what program (ropescore core/ropescore app/etc.) that filled a
+      scoresheet last and what version of that program was used
+    </li>
+    <li>Some fixes for SvGF speed preview tables in entries</li>
+    <li>Quick next/previous heat buttons on the heats page</li>
+    <li>
+      Sort judges in entry cards in heat view first by judge type then by name
+    </li>
+    <li>
+      Fixes for issue where some forms couldn't be submitted by pressing enter
+    </li>
+  </ul>
   <h2>v5.5.2</h2>
   <ul>
     <li>
@@ -16,7 +31,7 @@
     <li>Add SvGF Vikingahoppet</li>
     <li>Add IJRU v3.0.0</li>
     <li>
-      Fix a bug in IJRU riles where the same normalisation score would yield
+      Fix a bug in IJRU rules where the same normalisation score would yield
       different rank.
     </li>
     <li>

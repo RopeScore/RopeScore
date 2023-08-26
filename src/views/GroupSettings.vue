@@ -24,11 +24,12 @@
       </menu>
     </div>
 
-    <fieldset v-if="group">
+    <form v-if="group" @submit.prevent="updateGroup.mutate({ groupId: group?.id!, data: updateData as UpdateGroupInput })">
       <text-field
         :model-value="group.name"
         :disabled="!!group.completedAt"
         label="Group Name"
+        required
         @update:model-value="updateData.name = $event"
       />
 
@@ -36,11 +37,12 @@
         class="mt-2"
         :disabled="!updateData.name"
         :loading="updateGroup.loading.value"
-        @click="updateGroup.mutate({ groupId: group?.id!, data: updateData as UpdateGroupInput })"
+        type="submit"
+        color="blue"
       >
         Update
       </text-button>
-    </fieldset>
+    </form>
 
     <div>
       <h3 class="mt-4 container mx-auto">
@@ -80,15 +82,23 @@
           <tfoot>
             <tr>
               <td>
-                <text-field label="User ID" dense :model-value="newAdminId" @update:model-value="newAdminId = $event" />
+                <text-field
+                  form="new-admin"
+                  label="User ID"
+                  required
+                  dense
+                  :model-value="newAdminId"
+                  @update:model-value="newAdminId = $event"
+                />
               </td>
               <td colspan="2">
                 <text-button
+                  form="new-admin"
                   color="blue"
                   dense
                   :disabled="!newAdminId || !!group?.completedAt"
                   :loading="addGroupAdmin.loading.value"
-                  @click="addGroupAdmin.mutate({ groupId, userId: newAdminId! })"
+                  type="submit"
                 >
                   Add Admin
                 </text-button>
@@ -96,6 +106,7 @@
             </tr>
           </tfoot>
         </table>
+        <form id="new-admin" @submit.prevent="addGroupAdmin.mutate({ groupId, userId: newAdminId! })" />
       </div>
     </div>
 
@@ -136,15 +147,23 @@
           <tfoot>
             <tr>
               <td>
-                <text-field label="User ID" dense :model-value="newViewerId" @update:model-value="newViewerId = $event" />
+                <text-field
+                  form="new-viewer"
+                  label="User ID"
+                  required
+                  dense
+                  :model-value="newViewerId"
+                  @update:model-value="newViewerId = $event"
+                />
               </td>
               <td colspan="2">
                 <text-button
+                  form="new-viewer"
                   color="blue"
                   dense
                   :disabled="!newViewerId || !!group?.completedAt"
                   :loading="addGroupViewer.loading.value"
-                  @click="addGroupViewer.mutate({ groupId, userId: newViewerId! })"
+                  type="submit"
                 >
                   Add Viewer
                 </text-button>
@@ -152,6 +171,7 @@
             </tr>
           </tfoot>
         </table>
+        <form id="new-viewer" @submit.prevent="addGroupViewer.mutate({ groupId, userId: newViewerId! })" />
       </div>
     </div>
   </div>
@@ -160,10 +180,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, UpdateGroupInput, useMeQuery } from '../graphql/generated'
+import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, type UpdateGroupInput, useMeQuery } from '../graphql/generated'
 
 import { TextButton, TextField } from '@ropescore/components'
-import IconLoading from 'virtual:icons/mdi/loading'
 
 const route = useRoute()
 const router = useRouter()

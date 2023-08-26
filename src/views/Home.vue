@@ -6,7 +6,7 @@
           New Group
         </h1>
         <form method="dialog" class="mt-4" @submit.prevent="createGroup({ data: newGroup })">
-          <text-field v-model="newGroup.name" label="Group Name" />
+          <text-field v-model="newGroup.name" label="Group Name" required />
 
           <text-button color="blue" class="mt-4" type="submit" :loading="loading">
             Create Group
@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { CreateGroupInput, useCreateGroupMutation, useGroupsQuery } from '../graphql/generated'
+import { type CreateGroupInput, useCreateGroupMutation, useGroupsQuery } from '../graphql/generated'
 
 import { TextField, DialogButton, TextButton } from '@ropescore/components'
 import GroupCard from '../components/GroupCard.vue'

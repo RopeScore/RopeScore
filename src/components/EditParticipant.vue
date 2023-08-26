@@ -10,6 +10,7 @@
         :model-value="participant.name"
         :disabled="loading"
         label="Name"
+        required
         @update:model-value="newParticipant.name = $event"
       />
 
@@ -57,8 +58,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, reactive, toRef, computed } from 'vue'
-import { AthleteFragment, CategoryType, Participant, TeamFragment, UpdateAthleteInput, UpdateTeamInput, useUpdateAthleteMutation, useUpdateTeamMutation } from '../graphql/generated'
+import { type PropType, ref, reactive, toRef, computed } from 'vue'
+import { type AthleteFragment, CategoryType, type Participant, type TeamFragment, type UpdateAthleteInput, type UpdateTeamInput, useUpdateAthleteMutation, useUpdateTeamMutation } from '../graphql/generated'
 
 import { DialogButton, TextButton, TextField } from '@ropescore/components'
 

@@ -33,9 +33,9 @@
         </h1>
         <span class="mx-2">Group: {{ group?.name }}</span>
         <form method="dialog" class="mt-4" @submit.prevent="createCategory({ groupId: group.id, data: newCategory as CreateCategoryInput })">
-          <text-field v-model="newCategory.name" label="Category Name" />
-          <select-field v-model="newCategory.rulesId" label="Ruleset" :data-list="rulesetIds" />
-          <select-field v-model="newCategory.type" label="Competition Type" :data-list="[CategoryType.Individual, CategoryType.Team]" />
+          <text-field v-model="newCategory.name" label="Category Name" required />
+          <select-field v-model="newCategory.rulesId" label="Ruleset" required :data-list="rulesetIds" />
+          <select-field v-model="newCategory.type" label="Competition Type" required :data-list="[CategoryType.Individual, CategoryType.Team]" />
 
           <text-button
             color="blue"
@@ -53,11 +53,11 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, reactive, ref } from 'vue'
+import { type PropType, reactive, ref } from 'vue'
 import { rulesets } from '../rules'
 
 import { ButtonLink, TextField, SelectField, DialogButton, TextButton } from '@ropescore/components'
-import { GroupBaseFragment, CategoryBaseFragment, CategoryType, useCreateCategoryMutation, CreateCategoryInput } from '../graphql/generated'
+import { type GroupBaseFragment, type CategoryBaseFragment, CategoryType, useCreateCategoryMutation, type CreateCategoryInput } from '../graphql/generated'
 
 defineProps({
   group: {

@@ -2,7 +2,7 @@
   <section class="container mx-auto">
     <h1>System Settings</h1>
 
-    <fieldset>
+    <form @click.prevent="system.rsApiToken ? update({ name: newName }) : register({ name: newName })">
       <text-field
         :model-value="me?.name ?? ''"
         label="System Name"
@@ -15,7 +15,7 @@
         color="blue"
         :loading="loading"
         :disabled="loading"
-        @click="register({ name: newName })"
+        type="submit"
       >
         Register
       </text-button>
@@ -25,7 +25,7 @@
         color="blue"
         :loading="loading"
         :disabled="loading"
-        @click="update({ name: newName })"
+        type="submit"
       >
         Update
       </text-button>
@@ -50,7 +50,7 @@
         Note that it is <b class="font-semibold">your responsibility</b> to
         inform data subjects that this processing is taking place.
       </note-card>
-    </fieldset>
+    </form>
   </section>
 
   <section class="container mx-auto mt-8">
