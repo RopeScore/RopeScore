@@ -1,8 +1,9 @@
-import { app, protocol, BrowserWindow, Menu, type MenuItem, type MenuItemConstructorOptions } from 'electron'
+import { app, net, protocol, BrowserWindow, Menu, type MenuItem, type MenuItemConstructorOptions } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import * as path from 'path'
 import { accessSync, constants } from 'fs'
 import { getType } from 'mime/lite'
+import { pathToFileURL } from 'url'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 
@@ -214,18 +215,26 @@ app.whenReady().then(async () => {
   }
 
   const indexPath = path.normalize(path.resolve(__dirname, '..', isDevelopment ? 'dist/render' : 'render', 'index.html'))
-  protocol.registerFileProtocol('app', (request, callback) => {
-    const url = request.url.substr(6).replace(/\/$/, '').replace(/^index\.html\/(.+)/, '$1')
+  protocol.handle('app', (request) => {
+    const url = request.url.substring(6).replace(/\/$/, '').replace(/^index\.html\/(.+)/, '$1')
     const p = path.normalize(path.resolve(__dirname, '..', isDevelopment ? 'dist/render' : 'render', url))
+      // Prevent traversing out of the bundle
+      .replace(/^(\.\.(\/|\\|$)?)+/, '')
     try {
       accessSync(p, constants.R_OK)
       const mimeType = getType(p) ?? undefined
       console.log(p, mimeType)
-      // eslint-disable-next-line n/no-callback-literal
-      callback({ path: p, mimeType })
+      return net.fetch(pathToFileURL(p).href, {
+        headers: {
+          ...(mimeType ? { 'content-type': mimeType } : {})
+        }
+      })
     } catch {
-      // eslint-disable-next-line n/no-callback-literal
-      callback({ path: indexPath })
+      return net.fetch(pathToFileURL(indexPath).href, {
+        headers: {
+          'content-type': 'text/html'
+        }
+      })
     }
   })
 
