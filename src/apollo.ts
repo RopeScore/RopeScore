@@ -6,7 +6,8 @@ import { useSystem } from './hooks/system'
 import { v4 as uuid } from 'uuid'
 
 const httpLink = createHttpLink({
-  uri: 'https://api.ropescore.com/graphql'
+  // uri: 'https://api.ropescore.com/graphql'
+  uri: 'http://localhost:5000/graphql'
 })
 
 const system = useSystem()

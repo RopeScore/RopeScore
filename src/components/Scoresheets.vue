@@ -12,7 +12,7 @@
       class="px-2 border-b"
     >
       <summary tabindex="-1" class="cursor-pointer" :class="{ 'text-gray-400': idx !== scoresheets.length - 1 }">
-        {{ isTallyScoresheet(scoresheet) ? 'Tally' : 'Mark' }} at {{ formatDate(scoresheet.createdAt) }} <span class="text-gray-700 text-[0.5rem]">({{ scoresheet.id }})</span>
+        {{ isTallyScoresheet(scoresheet) ? 'Tally' : 'Mark' }} at {{ formatDate(scoresheet.createdAt) }} <span class="text-gray-700 text-[0.5rem] whitespace-nowrap">({{ scoresheet.id }}) app: {{ scoresheet.submitterProgramVersion ?? '-' }}</span>
       </summary>
 
       <tally-scoresheet
@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { formatDate, calculateTally, CompetitionEvent, isTallyScoresheet, isMarkScoresheet } from '../helpers'
+import { formatDate, calculateTally, type CompetitionEvent, isTallyScoresheet, isMarkScoresheet } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import TallyScoresheet from './TallyScoresheet.vue'
@@ -80,8 +80,8 @@ import MarkScoresheet from './MarkScoresheet.vue'
 import ScoresheetResult from './ScoresheetResult.vue'
 
 import type { PropType } from 'vue'
-import { Judge, MarkScoresheetFragment, ScoresheetBaseFragment, TallyScoresheetFragment, useCreateTallyScoresheetMutation } from '../graphql/generated'
-import { RulesetId } from '../rules'
+import { type Judge, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment, useCreateTallyScoresheetMutation } from '../graphql/generated'
+import { type RulesetId } from '../rules'
 
 const props = defineProps({
   entryId: {

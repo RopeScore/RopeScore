@@ -5,6 +5,7 @@ fragment ScoresheetBaseFragment on Scoresheet {
   rulesId
   judgeType
   competitionEventId
+  submitterProgramVersion
 
   createdAt
   updatedAt

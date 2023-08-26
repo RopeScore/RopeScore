@@ -36,6 +36,7 @@
 import { computed, ref, toRef, watch } from 'vue'
 import { useRuleset } from '../hooks/rulesets'
 import { CompetitionEvent, ScoreTally } from '../helpers'
+import { name, version } from '../../package.json'
 
 import type { PropType } from 'vue'
 import type { RulesetId } from '../rules'
@@ -100,7 +101,8 @@ const fillTallyScoresheetMutation = useFillTallyScoresheetMutation({})
 const saveTally = useDebounceFn(() => {
   fillTallyScoresheetMutation.mutate({
     scoresheetId: props.scoresheet.id,
-    tally: tally.value
+    tally: tally.value,
+    programVersion: `${name}@${version}`
   })
 }, 2000)
 

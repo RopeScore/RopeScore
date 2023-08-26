@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import * as Sentry from '@sentry/vue'
-import { Integrations } from '@sentry/tracing'
 import 'virtual:windi.css'
 import '../node_modules/@ropescore/components/dist/style.css'
 import '@github/relative-time-element'
@@ -22,7 +21,7 @@ if (import.meta.env.PROD) {
     dsn: 'https://dde56038805e456bb0f9bc120547ea07@sentry.io/1045868',
     release: `${name}@${version}`,
     logErrors: true,
-    integrations: [new Integrations.BrowserTracing({
+    integrations: [new Sentry.BrowserTracing({
       tracingOrigins: ['localhost', 'core.ropescore.com'],
       routingInstrumentation: Sentry.vueRouterInstrumentation(router)
     })],
