@@ -133,22 +133,33 @@
     </div>
     <div class="container mx-auto flex flex-row justify-between my-1">
       <p>
-        The latest change happened {{ entryFetchTime ? formatDate(entryFetchTime) : 'never' }}.
-
         <text-button :loading="heatsQuery.loading.value" @click="heatsQuery.refetch()">
           Refresh
         </text-button>
       </p>
 
       <div class="flex">
-        <div class="w-16">
+        <div class="grid grid-cols-3">
+          <text-button
+            :disabled="setCurrentHeat.loading.value || (currentHeat ?? 1) <= (heats.at(0) ?? 1)"
+            @click="prevHeat()"
+          >
+            Prev
+          </text-button>
           <text-field
             :model-value="`${currentHeat}`"
             type="number"
             dense
             label="Heat"
+            class="max-w-16"
             @update:model-value="newCurrentHeat = $event"
           />
+          <text-button
+            :disabled="setCurrentHeat.loading.value || (currentHeat ?? 1) >= (heats.at(-2) ?? 1)"
+            @click="nextHeat()"
+          >
+            Next
+          </text-button>
         </div>
 
         <text-button
@@ -242,12 +253,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import { CompetitionEvent, formatDate, isMarkScoresheet } from '../helpers'
+import { type CompetitionEvent, formatDate, isMarkScoresheet } from '../helpers'
 
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
-import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, ScoresheetBaseFragment, MarkScoresheetStatusFragment } from '../graphql/generated'
+import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, type MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, type ScoresheetBaseFragment, type MarkScoresheetStatusFragment } from '../graphql/generated'
 
 const route = useRoute()
 const fetchTime = ref(0)
@@ -316,6 +327,20 @@ const heats = computed(() => {
   existing.sort((a, b) => a - b)
   return existing
 })
+
+async function nextHeat () {
+  const nextHeat = currentHeat.value == null
+    ? heats.value[0]
+    : heats.value[heats.value.indexOf(currentHeat.value) + 1]
+  if (nextHeat != null && nextHeat < (heats.value.at(-1) ?? 1)) return setCurrentHeat.mutate({ groupId: route.params.groupId as string, heat: nextHeat })
+}
+
+async function prevHeat () {
+  const prevHeat = currentHeat.value == null
+    ? heats.value[0]
+    : heats.value[heats.value.indexOf(currentHeat.value) - 1]
+  if (prevHeat != null) return setCurrentHeat.mutate({ groupId: route.params.groupId as string, heat: prevHeat })
+}
 
 const newEntry = {
   heat: ref<number>(),
