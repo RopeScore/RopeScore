@@ -80,7 +80,7 @@ import { computed, toRef } from 'vue'
 
 import type { PropType } from 'vue'
 import { CheckboxField, ButtonLink, TextButton } from '@ropescore/components'
-import { AthleteFragment, EntryBaseFragment, CategoryBaseFragment, JudgeAssignmentFragment, JudgeBaseFragment, MarkScoresheetFragment, MarkScoresheetStatusFragment, ScoresheetBaseFragment, TeamFragment, useSetScoresheetOptionsMutation, useHeatsQuery, useReorderEntryMutation, useToggleEntryLockMutation } from '../graphql/generated'
+import { type AthleteFragment, type EntryBaseFragment, type CategoryBaseFragment, type JudgeAssignmentFragment, type JudgeBaseFragment, type MarkScoresheetFragment, type MarkScoresheetStatusFragment, type ScoresheetBaseFragment, type TeamFragment, useSetScoresheetOptionsMutation, useHeatsQuery, useReorderEntryMutation, useToggleEntryLockMutation } from '../graphql/generated'
 
 const props = defineProps({
   groupId: {
@@ -115,7 +115,12 @@ const reorderEntryMutation = useReorderEntryMutation({})
 
 const judgeAssignments = computed(() => {
   if (!jAs.value) return []
-  return jAs.value.filter(jA => jA.competitionEventId === props.entry.competitionEventId && (jA.pool != null ? jA.pool === props.entry.pool : true))
+  return [...jAs.value]
+    .filter(jA => jA.competitionEventId === props.entry.competitionEventId && (jA.pool != null ? jA.pool === props.entry.pool : true))
+    .sort((a, b) => {
+      if (a.judgeType === b.judgeType) return (a.judge.name ?? a.judge.id).localeCompare(b.judge.name ?? b.judge.id)
+      return a.judgeType.localeCompare(b.judgeType)
+    })
 })
 
 const scoresheetsObj = computed(() => {
