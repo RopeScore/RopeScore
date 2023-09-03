@@ -1,4 +1,11 @@
 <template>
+  <h2>v6.1.0</h2>
+  <ul>
+    <li>
+      The options for a result page no longer obstructs the page on sufficiently
+      large screens
+    </li>
+  </ul>
   <h2>v6.0.0</h2>
   <ul>
     <li>

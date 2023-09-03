@@ -1,9 +1,15 @@
 <template>
-  <section
-    class="page my-4 p-2 flex flex-col justify-between flex-nowrap relative"
-    :class="{ 'bg-gray-100': excluded, 'noprint': excluded }"
-  >
-    <div class="noprint nozoom absolute top-0 right-0 p-2 bg-white bg-white border-l border-b rounded-bl">
+  <div class="
+    relative w-max my-4
+    mx-auto
+    2xl:(grid grid-cols-[max-content,auto] gap-2 items-start)
+  ">
+    <div class="
+      noprint nozoom border-gray-300
+      <2xl:(absolute top-[1px] right-[1px] border-l border-b rounded-bl)
+      2xl:(border rounded col-start-2)
+      p-2 bg-white
+    ">
       <div class="flex justify-between">
         <text-button class="nozoom" :loading="setPagePrintConfigMutation.loading.value" @click="setPagePrintConfigMutation.mutate({ categoryId: category.id, competitionEventId, data: { zoom: zoom - 0.03 } })">
           Zoom -
@@ -55,92 +61,96 @@
       </div>
       <span v-if="selectedResult != null" class="noprint text-gray-400 text-sm font-normal">Locked until {{ formatDate(selectedResult?.maxEntryLockedAt) }}</span>
     </div>
+    <section
+      class="page p-2 flex flex-col justify-between flex-nowrap 2xl:(col-start-1 row-start-1)"
+      :class="{ 'bg-gray-100': excluded, 'noprint': excluded }"
+    >
+      <header class="flex justify-between flex-grow-0 mb-4">
+        <div class="flex-grow">
+          <h1 class="text-xl">
+            {{ category?.name }} <span v-if="groupName != null"> &ndash; {{ groupName }}</span>
+          </h1>
+          <h2 class="text-xl text-gray-500">
+            {{ cEvt?.name }}
+          </h2>
+        </div>
 
-    <header class="flex justify-between flex-grow-0 mb-4">
-      <div class="flex-grow">
-        <h1 class="text-xl">
-          {{ category?.name }} <span v-if="groupName != null"> &ndash; {{ groupName }}</span>
-        </h1>
-        <h2 class="text-xl text-gray-500">
-          {{ cEvt?.name }}
-        </h2>
-      </div>
+        <!-- TODO: logo <div class="min-w-[20mm]">
+          <img v-if="category?.logo" :src="category.logo" class="h-[20mm]">
+        </div> -->
+      </header>
 
-      <!-- TODO: logo <div class="min-w-[20mm]">
-        <img v-if="category?.logo" :src="category.logo" class="h-[20mm]">
-      </div> -->
-    </header>
-
-    <main class="overflow-x-auto w-full flex-grow">
-      <table v-if="category != null && cEvt != null">
-        <thead>
-          <tr
-            v-for="(row, idx) of resultTable.groups ?? []"
-            :key="`group-${String(idx)}`"
-          >
-            <th
-              v-if="idx === 0"
-              :colspan="category.type === CategoryType.Team ? 3 : 2"
-              :rowspan="(resultTable.groups ?? []).length"
-            />
-
-            <th
-              v-for="hGroup of row"
-              :key="hGroup.key"
-              :colspan="hGroup.colspan ?? 1"
-              :rowspan="hGroup.rowspan ?? 1"
+      <main class="overflow-x-auto w-full flex-grow">
+        <table v-if="category != null && cEvt != null">
+          <thead>
+            <tr
+              v-for="(row, idx) of resultTable.groups ?? []"
+              :key="`group-${String(idx)}`"
             >
-              {{ hGroup.text }}
-            </th>
-          </tr>
+              <th
+                v-if="idx === 0"
+                :colspan="category.type === CategoryType.Team ? 3 : 2"
+                :rowspan="(resultTable.groups ?? []).length"
+              />
 
-          <tr>
-            <template v-if="category.type === CategoryType.Team">
-              <th>Team Name</th>
-              <th>Team Members</th>
-            </template>
-            <th v-else>
-              Name
-            </th>
-            <th>Club</th>
+              <th
+                v-for="hGroup of row"
+                :key="hGroup.key"
+                :colspan="hGroup.colspan ?? 1"
+                :rowspan="hGroup.rowspan ?? 1"
+              >
+                {{ hGroup.text }}
+              </th>
+            </tr>
 
-            <th
-              v-for="header in resultTable.headers"
-              :key="header.key"
-              :class="`text-${header.color}-500`"
-            >
-              {{ header.text }}
-            </th>
-          </tr>
-        </thead>
+            <tr>
+              <template v-if="category.type === CategoryType.Team">
+                <th>Team Name</th>
+                <th>Team Members</th>
+              </template>
+              <th v-else>
+                Name
+              </th>
+              <th>Club</th>
 
-        <tbody>
-          <tr v-for="entryRes of results" :key="entryRes.meta.participantId">
-            <td>
-              {{ getParticipant(entryRes.meta.participantId)?.name }}
-            </td>
-            <td v-if="category.type === CategoryType.Team" class="text-xs">
-              {{ memberNames(getParticipant(entryRes.meta.participantId)) }}
-            </td>
-            <td>{{ getParticipant(entryRes.meta.participantId)?.club }}</td>
+              <th
+                v-for="header in resultTable.headers"
+                :key="header.key"
+                :class="`text-${header.color}-500`"
+              >
+                {{ header.text }}
+              </th>
+            </tr>
+          </thead>
 
-            <td
-              v-for="header in resultTable.headers"
-              :key="header.key"
-              class="text-right"
-              :class="`text-${header.color}-500`"
-            >
-              {{ getScore(header, entryRes) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </main>
+          <tbody>
+            <tr v-for="entryRes of results" :key="entryRes.meta.participantId">
+              <td>
+                {{ getParticipant(entryRes.meta.participantId)?.name }}
+              </td>
+              <td v-if="category.type === CategoryType.Team" class="text-xs">
+                {{ memberNames(getParticipant(entryRes.meta.participantId)) }}
+              </td>
+              <td>{{ getParticipant(entryRes.meta.participantId)?.club }}</td>
 
-    <footer class="text-sm flex-grow-0 text-right mt-2">
-      Scores from RopeScore v{{ version }} - <a class="text-blue-500">ropescore.com</a>
-    </footer>
-  </section>
+              <td
+                v-for="header in resultTable.headers"
+                :key="header.key"
+                class="text-right"
+                :class="`text-${header.color}-500`"
+              >
+                {{ getScore(header, entryRes) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </main>
+
+      <footer class="text-sm flex-grow-0 text-right mt-2">
+        Scores from RopeScore v{{ version }} - <a class="text-blue-500">ropescore.com</a>
+      </footer>
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
