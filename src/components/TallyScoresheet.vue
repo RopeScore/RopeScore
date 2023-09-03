@@ -35,7 +35,8 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue'
 import { type CompetitionEvent } from '../helpers'
-import { name, version } from '../../package.json'
+import { name } from '../../package.json'
+import { version } from '../helpers'
 
 import type { PropType } from 'vue'
 

@@ -7,7 +7,7 @@ import App from './App.vue'
 import router from './router'
 import { DefaultApolloClient } from '@vue/apollo-composable'
 import { apolloClient } from './apollo'
-import { name, version } from '../package.json'
+import { version } from './helpers'
 
 const app = createApp(App)
 
@@ -19,7 +19,7 @@ if (import.meta.env.PROD) {
   Sentry.init({
     app,
     dsn: 'https://dde56038805e456bb0f9bc120547ea07@sentry.io/1045868',
-    release: import.meta.env.VITE_COMMIT_REF?.toString() ?? version,
+    release: version,
     environment: import.meta.env.VITE_CONTEXT?.toString(),
     logErrors: true,
     integrations: [new Sentry.BrowserTracing({

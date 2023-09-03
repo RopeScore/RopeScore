@@ -6,7 +6,7 @@
 import { provide, ref, watch } from 'vue'
 import Excel from 'exceljs'
 import { nameCleaner, formatShortDate } from '../helpers'
-import { version } from '../../package.json'
+import { version } from '../helpers'
 
 const props = defineProps({
   name: {

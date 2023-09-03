@@ -50,7 +50,7 @@
 
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router'
-import { version } from '../package.json'
+import { version } from './helpers'
 import { useSystem } from './hooks/system'
 
 import IconMenu from 'virtual:icons/mdi/menu'

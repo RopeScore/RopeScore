@@ -1,6 +1,7 @@
 import { parseCompetitionEventDefinition } from '@ropescore/rulesets'
 import { ResultVisibilityLevel, type Athlete, type MarkScoresheet, type Participant, type TallyScoresheet, type Team, type ScoresheetBaseFragment } from './graphql/generated'
 import type { DataListItem } from '@ropescore/components'
+import { version as pkgVersion } from '../package.json'
 
 const locales = ['en-SE', 'en-AU', 'en-GB']
 
@@ -95,3 +96,5 @@ export function filterLatestScoresheets <T extends Pick<ScoresheetBaseFragment, 
       idx === arr.findIndex(s => s.judge.id === scsh.judge.id && s.judgeType === scsh.judgeType)
     )
 }
+
+export const version = (import.meta.env.VITE_COMMIT_REF?.toString()?.substring(0, 7)) ?? pkgVersion

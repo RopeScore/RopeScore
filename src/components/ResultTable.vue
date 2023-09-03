@@ -159,7 +159,7 @@ import { inject, computed, watch, onUnmounted, toRef, ref, reactive } from 'vue'
 import type Excel from 'exceljs'
 import { memberNames, type CompetitionEvent, formatDate } from '../helpers'
 import { useCompetitionEventOrOverall } from '../hooks/rulesets'
-import { version } from '../../package.json'
+import { version } from '../helpers'
 
 import { TextButton, SelectField, type DataListItem, DialogButton, TextField } from '@ropescore/components'
 
