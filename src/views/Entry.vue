@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { computed, type UnwrapRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useCompetitionEvent, useRuleset } from '../hooks/rulesets'
+import { useCompetitionEvent } from '../hooks/rulesets'
 
 import { TextButton } from '@ropescore/components'
 import Scoresheets from '../components/Scoresheets.vue'
