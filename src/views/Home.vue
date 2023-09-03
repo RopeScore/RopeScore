@@ -7,6 +7,12 @@
         </h1>
         <form method="dialog" class="mt-4" @submit.prevent="createGroup({ data: newGroup })">
           <text-field v-model="newGroup.name" label="Group Name" required />
+          <select-field
+            :v-model="newGroup.resultVisibility"
+            label="Result visibility"
+            required
+            :data-list="resultVisibilitiesDataList"
+          />
 
           <text-button color="blue" class="mt-4" type="submit" :loading="loading">
             Create Group
@@ -27,10 +33,11 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { type CreateGroupInput, useCreateGroupMutation, useGroupsQuery } from '../graphql/generated'
+import { type CreateGroupInput, useCreateGroupMutation, useGroupsQuery, ResultVisibilityLevel } from '../graphql/generated'
 
 import { TextField, DialogButton, TextButton } from '@ropescore/components'
 import GroupCard from '../components/GroupCard.vue'
+import { resultVisibilitiesDataList } from '../helpers'
 
 const groupsQuery = useGroupsQuery({
   fetchPolicy: 'cache-and-network'
@@ -39,7 +46,8 @@ const groups = computed(() => groupsQuery.result.value?.groups)
 
 const dialogRef = ref<typeof DialogButton>()
 const newGroup = reactive<CreateGroupInput>({
-  name: ''
+  name: '',
+  resultVisibility: ResultVisibilityLevel.Private
 })
 
 const { mutate: createGroup, loading, onDone } = useCreateGroupMutation({
@@ -48,6 +56,7 @@ const { mutate: createGroup, loading, onDone } = useCreateGroupMutation({
 
 onDone(() => {
   newGroup.name = ''
+  newGroup.resultVisibility = ResultVisibilityLevel.Private
 
   dialogRef.value?.close()
 })

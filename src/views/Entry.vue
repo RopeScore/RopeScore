@@ -38,7 +38,7 @@
   </div>
 
   <div v-if="entry && !entry?.didNotSkipAt">
-    <section v-for="judgeType of competitionEvent?.judges" :key="judgeType.id" class="mt-4">
+    <section v-for="judgeType of judges" :key="judgeType.id" class="mt-4">
       <h2>{{ judgeType.name }} ({{ judgeType.id }})</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
@@ -50,7 +50,7 @@
           :judge="assignment.judge"
           :competition-event="entry.competitionEventId"
           :judge-type="assignment.judgeType"
-          :rules-id="(category?.rulesId! as RulesetId)"
+          :rules-id="category?.rulesId!"
           :disabled="!!entry.lockedAt"
         />
       </div>
@@ -61,7 +61,7 @@
 
   <div v-if="!entry?.didNotSkipAt" class="fixed bottom-0 right-0 left-0 h-18 bg-white  flex justify-center items-center border-t">
     <div class="grid grid-rows-2 grid-cols-[repeat(auto-fill,1fr)] container">
-      <template v-for="col of previewTable ?? []" :key="col.key">
+      <template v-for="col of previewTable?.headers ?? []" :key="col.key">
         <span class="row-start-1 font-bold px-2 border-b">{{ col.text }}</span>
         <span v-if="result" class="row-start-2 px-2">{{ col.formatter?.(result.result[col.key]) ?? result.result[col.key] }}</span>
       </template>
@@ -72,13 +72,14 @@
 <script setup lang="ts">
 import { computed, type UnwrapRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useRuleset } from '../hooks/rulesets'
+import { useCompetitionEvent, useRuleset } from '../hooks/rulesets'
 
 import { TextButton } from '@ropescore/components'
 import Scoresheets from '../components/Scoresheets.vue'
 
 import { type EntryBaseFragment, type Judge, type JudgeAssignment, type ScoresheetBaseFragment, useEntryWithScoresheetsQuery, useToggleEntryLockMutation } from '../graphql/generated'
-import { type RulesetId } from '../rules'
+import { filterLatestScoresheets } from '../helpers'
+import { isMarkScoresheet, isTallyScoresheet, type JudgeResult, type ScoreTally } from '@ropescore/rulesets'
 
 const route = useRoute()
 const router = useRouter()
@@ -93,22 +94,49 @@ const category = computed(() => entryWithScoresheetQuery.result.value?.group?.ca
 const entry = computed(() => entryWithScoresheetQuery.result.value?.group?.entry)
 const scoresheets = computed(() => entryWithScoresheetQuery.result.value?.group?.entry?.scoresheets ?? [])
 const judgeAssignments = computed(() => entryWithScoresheetQuery.result.value?.group?.category?.judgeAssignments)
+const competitionEventId = computed(() => entry.value?.competitionEventId)
 
-const ruleset = computed(() => useRuleset(category.value?.rulesId).value)
-
-const competitionEvent = computed(() => {
-  if (!entry.value?.competitionEventId) return
-  return ruleset.value?.competitionEvents[entry.value?.competitionEventId]
-})
+const competitionEvent = useCompetitionEvent(competitionEventId)
+// TODO: apply options
+const judges = computed(() => competitionEvent.value?.judges.map(j => j({})) ?? [])
 
 const result = computed(() => {
-  if (!entry.value) return
-  return ruleset.value?.competitionEvents[entry.value.competitionEventId]?.calculateEntry({ entryId: entry.value.id, participantId: entry.value.participant.id }, entry.value.scoresheets)
+  if (entry.value == null) return
+  const scoresheets = filterLatestScoresheets(entry.value.scoresheets)
+  // TODO: apply config
+  const judges = competitionEvent.value?.judges.map(j => j({})) ?? []
+  const judgeResults = scoresheets
+    .map(scsh => entry.value == null
+      ? undefined
+      : judges.find(j => j.id === scsh.judgeType)?.calculateScoresheet({
+        meta: {
+          entryId: entry.value.id,
+          participantId: entry.value.participant.id,
+          competitionEvent: entry.value.competitionEventId,
+          judgeTypeId: scsh.judgeType,
+          judgeId: scsh.judge.id
+        },
+        ...(isTallyScoresheet(scsh)
+          ? { tally: scsh.tally as ScoreTally }
+          : { marks: isMarkScoresheet(scsh) ? scsh.marks : [] }
+        )
+      }))
+    .filter(r => r != null) as JudgeResult[]
+  return competitionEvent.value?.calculateEntry(
+    {
+      entryId: entry.value.id,
+      participantId: entry.value.participant.id,
+      competitionEvent: entry.value.competitionEventId
+    },
+    judgeResults,
+    // TODO: apply options
+    {}
+  )
 })
 
 const previewTable = computed(() => {
-  if (!entry.value) return
-  return ruleset.value?.competitionEvents[entry.value.competitionEventId]?.previewTable
+  // TODO: apply options
+  return competitionEvent.value?.previewTable({})
 })
 
 function goBack () {

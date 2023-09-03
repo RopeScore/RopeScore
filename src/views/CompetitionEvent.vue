@@ -55,7 +55,7 @@
           </th>
 
           <th
-            v-for="column in competitionEvent?.previewTable"
+            v-for="column in previewTable?.headers ?? []"
             :key="column.key"
             rowspan="2"
           >
@@ -145,7 +145,7 @@
               :judge="assignment.judge"
               :competition-event="entries[participant.id].competitionEventId"
               :judge-type="assignment.judgeType"
-              :rules-id="(category?.rulesId! as RulesetId)"
+              :rules-id="category?.rulesId!"
               :disabled="!!entries[participant.id]?.lockedAt"
               :did-not-skip="!!entries[participant.id]?.didNotSkipAt"
               :colspan="judgeCols(assignment.judgeType).length + 1"
@@ -154,15 +154,15 @@
           </template>
 
           <result-cols
-            v-if="category && competitionEvent?.previewTable && entries[participant.id]"
+            v-if="category && previewTable && entries[participant.id]"
             :rules-id="category.rulesId"
             :participant-id="participant.id"
             :entry="entries[participant.id]"
-            :columns="competitionEvent?.previewTable"
+            :columns="previewTable.headers"
           />
           <td
             v-else
-            :colspan="competitionEvent?.previewTable.length ?? 1"
+            :colspan="previewTable?.headers.length ?? 1"
           />
         </tr>
       </tbody>
@@ -173,14 +173,14 @@
 <script setup lang="ts">
 import { computed, type UnwrapRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useRuleset } from '../hooks/rulesets'
-import { type CompetitionEvent, memberNames } from '../helpers'
+import { useCompetitionEvent } from '../hooks/rulesets'
+import { memberNames } from '../helpers'
+import { useRouteParams } from '@vueuse/router'
 
 import { TextButton } from '@ropescore/components'
 import ScoresheetCols from '../components/ScoresheetCols.vue'
 import ResultCols from '../components/ResultCols.vue'
 import { useCreateEntryMutation, useToggleEntryLockMutation, useEntriesWithScoresheetsQuery, CategoryType, type Participant, type Judge, type JudgeAssignment, type ScoresheetBaseFragment } from '../graphql/generated'
-import { type RulesetId } from '../rules'
 
 const route = useRoute()
 const router = useRouter()
@@ -196,11 +196,16 @@ const judgeAssignments = computed(() => entriesWithScoresheetQuery.result.value?
 const ents = computed(() => entriesWithScoresheetQuery.result.value?.group?.category?.entries ?? [])
 const participants = computed(() => entriesWithScoresheetQuery.result.value?.group?.category?.participants ?? [])
 
-const ruleset = computed(() => useRuleset(category.value?.rulesId).value)
-const competitionEvent = computed(() => {
-  if (!route.params.competitionEventId) return
-  return ruleset.value?.competitionEvents[route.params.competitionEventId as CompetitionEvent]
+const competitionEventId = useRouteParams<string>('competitionEventId')
+const competitionEvent = useCompetitionEvent(competitionEventId)
+
+const previewTable = computed(() => {
+  // TODO: apply options
+  return competitionEvent.value?.previewTable({})
 })
+
+// TODO: apply options
+const judges = computed(() => competitionEvent.value?.judges.map(j => j({})) ?? [])
 
 const assignments = computed(() => {
   return [...(judgeAssignments.value ?? [])]
@@ -226,7 +231,7 @@ function goBack () {
 }
 
 function judgeCols (judgeType: string) {
-  return competitionEvent.value?.judges.find(j => j.id === judgeType)?.tallyFields ?? []
+  return judges.value.find(j => j.id === judgeType)?.fieldDefinitions ?? []
 }
 
 const createEntryMutation = useCreateEntryMutation({

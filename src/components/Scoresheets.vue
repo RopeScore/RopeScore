@@ -53,6 +53,7 @@
           dense
           :color="scoresheet.excludedAt ? 'green' : 'orange'"
           :loading="setScoresheetExclusionMutation.loading.value"
+          :disabled="disabled"
           @click="setScoresheetExclusionMutation.mutate({ scoresheetId: scoresheet.id, exclude: scoresheet.excludedAt == null })"
         >
           {{ scoresheet.excludedAt ? 'Include' : 'Exclude' }}
@@ -91,7 +92,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatDate, calculateTally, type CompetitionEvent, isTallyScoresheet, isMarkScoresheet } from '../helpers'
+import { formatDate, type CompetitionEvent, isTallyScoresheet, isMarkScoresheet } from '../helpers'
 
 import { TextButton } from '@ropescore/components'
 import TallyScoresheet from './TallyScoresheet.vue'
@@ -100,7 +101,7 @@ import ScoresheetResult from './ScoresheetResult.vue'
 
 import type { PropType } from 'vue'
 import { type Judge, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment, useCreateTallyScoresheetMutation, useSetScoresheetExclusionMutation } from '../graphql/generated'
-import { type RulesetId } from '../rules'
+import { calculateTally, isMarkScoresheet as rsIsMarkScoresheet, isTallyScoresheet as rsIsTallyScoresheet } from '@ropescore/rulesets'
 
 const props = defineProps({
   entryId: {
@@ -124,7 +125,7 @@ const props = defineProps({
     required: true
   },
   rulesId: {
-    type: String as PropType<RulesetId>,
+    type: String,
     required: true
   },
   disabled: {
@@ -147,8 +148,8 @@ function createTallyScoresheet (previousScoresheet?: ScoresheetBaseFragment) {
   if (!props.judgeType) return
   let tally = {}
 
-  if (isMarkScoresheet(previousScoresheet)) tally = calculateTally(previousScoresheet)
-  else if (isTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally ?? {}
+  if (rsIsMarkScoresheet(previousScoresheet)) tally = calculateTally<string>(previousScoresheet)
+  else if (rsIsTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally ?? {}
 
   createTallyScoresheetMutation.mutate({
     entryId: props.entryId,

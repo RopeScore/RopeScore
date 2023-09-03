@@ -1,4 +1,14 @@
 <template>
+  <h2>v6.0.0</h2>
+  <ul>
+    <li>
+      Results have moved to the cloud! This means you now have the option to
+      store and see historic versions of the results for a competition, and, by
+      changing the visibility setting in the group settings you can make the
+      results publicly accessible via
+      <a class="text-blue-700 hover:text-blue-900 underline">https://ropescore.live</a>
+    </li>
+  </ul>
   <h2>v5.6.0</h2>
   <ul>
     <li>

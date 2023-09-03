@@ -53,9 +53,9 @@
 </template>
 
 <script lang="ts" setup>
-import { type PropType, reactive, ref } from 'vue'
-import { rulesets } from '../rules'
+import { type PropType, reactive, ref, computed, onMounted } from 'vue'
 
+import { listRulesets } from '@ropescore/rulesets'
 import { ButtonLink, TextField, SelectField, DialogButton, TextButton } from '@ropescore/components'
 import { type GroupBaseFragment, type CategoryBaseFragment, CategoryType, useCreateCategoryMutation, type CreateCategoryInput } from '../graphql/generated'
 
@@ -72,7 +72,15 @@ defineProps({
 
 const dialogRef = ref<typeof DialogButton>()
 
-const rulesetIds = Object.keys(rulesets)
+const rulesetIds = ref<string[]>([])
+
+onMounted(async () => {
+  try {
+    rulesetIds.value = Object.keys(await listRulesets())
+  } catch (err) {
+    console.error(err)
+  }
+})
 
 const newCategory = reactive<Partial<CreateCategoryInput>>({
   name: undefined,

@@ -1,0 +1,8 @@
+fragment RankedResultBaseFragment on RankedResult {
+  id
+  versionName
+  versionType
+  competitionEventId
+  maxEntryLockedAt
+  results
+}

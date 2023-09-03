@@ -11,7 +11,7 @@
         :disabled="loading"
         label="Name"
         required
-        @update:model-value="newParticipant.name = $event"
+        @update:model-value="newParticipant.name = ($event as string)"
       />
 
       <text-field
@@ -19,14 +19,14 @@
         :model-value="origMemberNames"
         :disabled="loading"
         label="Members, comma separated"
-        @update:model-value="newParticipant.members = $event"
+        @update:model-value="newParticipant.members = ($event as string)"
       />
       <text-field
         v-else
         :model-value="(participant as AthleteFragment).ijruId ?? ''"
         :disabled="loading"
         label="IJRU ID"
-        @update:model-value="newParticipant.ijruId = $event"
+        @update:model-value="newParticipant.ijruId = ($event as string)"
       />
 
       <text-field
@@ -34,7 +34,7 @@
         :disabled="loading"
         label="Club"
         :data-list="clubNames"
-        @update:model-value="newParticipant.club = $event"
+        @update:model-value="newParticipant.club = ($event as string)"
       />
 
       <text-field
@@ -42,7 +42,7 @@
         :disabled="loading"
         label="Country"
         :data-list="countries"
-        @update:model-value="newParticipant.country = $event"
+        @update:model-value="newParticipant.country = ($event as string)"
       />
 
       <text-button

@@ -46,7 +46,8 @@
 
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
-import { calculateTally, type CompetitionEvent, isMarkScoresheet, isTallyScoresheet } from '../helpers'
+import { isTallyScoresheet, type CompetitionEvent, isMarkScoresheet } from '../helpers'
+import { calculateTally, isMarkScoresheet as rsIsMarkScoresheet, isTallyScoresheet as rsIsTallyScoresheet } from '@ropescore/rulesets'
 
 import { TextButton } from '@ropescore/components'
 import TallyScoresheet from './TallyScoresheet.vue'
@@ -54,7 +55,6 @@ import MarkScoresheet from './MarkScoresheet.vue'
 
 import type { PropType } from 'vue'
 import { type Judge, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment, useCreateTallyScoresheetMutation } from '../graphql/generated'
-import { type RulesetId } from '../rules'
 
 const props = defineProps({
   entryId: {
@@ -78,7 +78,7 @@ const props = defineProps({
     required: true
   },
   rulesId: {
-    type: String as PropType<RulesetId>,
+    type: String,
     required: true
   },
   disabled: {
@@ -109,8 +109,8 @@ function createTallyScoresheet (previousScoresheet?: ScoresheetBaseFragment) {
   if (!props.judgeType) return
   let tally = {}
 
-  if (isMarkScoresheet(previousScoresheet)) tally = calculateTally(previousScoresheet)
-  else if (isTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally ?? {}
+  if (rsIsMarkScoresheet(previousScoresheet)) tally = calculateTally(previousScoresheet)
+  else if (rsIsTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally ?? {}
 
   createTallyScoresheetMutation.mutate({
     entryId: props.entryId,

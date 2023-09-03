@@ -125,7 +125,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { memberNames, getAbbr, type CompetitionEvent } from '../helpers'
+import { memberNames, getAbbr, type CompetitionEvent, isSpeedEvent } from '../helpers'
 
 import { ButtonLink, TextButton } from '@ropescore/components'
 
@@ -144,10 +144,6 @@ const categoryGridQuery = useCategoryGridQuery({
 const category = computed(() => categoryGridQuery.result.value?.group?.category)
 const participants = computed(() => categoryGridQuery.result.value?.group?.category?.participants ?? [])
 const entries = computed(() => categoryGridQuery.result.value?.group?.category?.entries ?? [])
-
-function isSpeedEvent (cEvtDefCode: CompetitionEvent) {
-  return cEvtDefCode.split('.')[2] === 'sp'
-}
 
 const entryStatus = computed(() => {
   const res: Record<string, Record<string, undefined | 'created' | 'locked' | 'dns'>> = {}

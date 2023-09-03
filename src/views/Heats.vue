@@ -156,7 +156,7 @@
             label="Heat"
             required
             class="max-w-16"
-            @update:model-value="newCurrentHeat = $event"
+            @update:model-value="newCurrentHeat = ($event as number)"
           />
           <text-button
             :disabled="setCurrentHeat.loading.value || (currentHeat ?? 1) >= (heats.at(-2) ?? 1)"
@@ -185,7 +185,13 @@
   <section>
     <div class="min-w-full overflow-x-auto grid grid-cols-[3rem,auto] gap-2">
       <template v-for="(ents, heat) of entries" :key="heat">
-        <div :id="`heat-${heat}`" class="sticky right-2 flex items-center justify-end">
+        <div
+          :id="`heat-${heat}`"
+          class="sticky right-2 flex items-center justify-end p-1"
+          :class="{
+            'bg-orange-200': `${heat}` === `${currentHeat}`
+          }"
+        >
           {{ heat }}
         </div>
         <div class="flex gap-2 overflow-x-auto">
@@ -272,7 +278,6 @@ import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCate
 
 const route = useRoute()
 const fetchTime = ref(0)
-const entryFetchTime = ref(0)
 const newDevices = reactive<Record<string, string>>({})
 const newCurrentHeat = ref<number>()
 

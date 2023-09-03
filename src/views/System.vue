@@ -6,7 +6,7 @@
       <text-field
         :model-value="me?.name ?? ''"
         label="System Name"
-        @update:model-value="newName = $event"
+        @update:model-value="newName = ($event as string)"
       />
 
       <text-button

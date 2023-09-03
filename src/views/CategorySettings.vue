@@ -57,20 +57,20 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(definition, cEvtDefCode) of (ruleset?.competitionEvents ?? {})" :key="cEvtDefCode">
+          <tr v-for="definition of (ruleset?.competitionEvents ?? {})" :key="definition.id">
             <td
               class="p-0 hover:bg-gray-200"
-              :class="{ 'bg-green-500': cEvtEnabled(cEvtDefCode, category), 'hover:bg-green-300': cEvtEnabled(cEvtDefCode, category) }"
+              :class="{ 'bg-green-500': cEvtEnabled(definition.id, category), 'hover:bg-green-300': cEvtEnabled(definition.id, category) }"
             >
               <label class="px-0.5 flex justify-center items-center w-full h-full cursor-pointer">
                 <icon-check v-if="!updateCategory.loading.value" class="text-white" />
                 <icon-loading v-else class="animate-spin text-white" />
-                <input type="checkbox" class="hidden" :checked="cEvtEnabled(cEvtDefCode, category)" :disabled="updateCategory.loading.value" @click="toggleCEvt(cEvtDefCode)">
+                <input type="checkbox" class="hidden" :checked="cEvtEnabled(definition.id, category)" :disabled="updateCategory.loading.value" @click="toggleCEvt(definition.id)">
               </label>
             </td>
             <td>{{ definition?.name }}</td>
             <td class="font-thin font-mono text-dark-100">
-              {{ cEvtDefCode }}
+              {{ definition.id }}
             </td>
           </tr>
         </tbody>
@@ -246,7 +246,7 @@
                 :disabled="judgeAssignmentLoading"
                 dense
                 :data-list="judgeTypes(cEvtDefCode)"
-                @update:model-value="updateAssignment(judge, cEvtDefCode, $event)"
+                @update:model-value="updateAssignment(judge, cEvtDefCode, $event as string)"
               />
             </td>
             <td>
@@ -296,7 +296,7 @@
               :disabled="createJudgeMutation.loading.value"
               label="IJRU ID"
               dense
-              @update:model-value="newJudge.ijruId = $event"
+              @update:model-value="newJudge.ijruId = ($event as string)"
             />
           </td>
           <td :colspan="category.competitionEventIds.length * 3">
@@ -319,7 +319,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
 import { memberNames, getAbbr, type CompetitionEvent, isAthlete } from '../helpers'
@@ -371,10 +371,9 @@ deleteCategoryMutation.onDone(() => {
   router.replace({ name: 'home' })
 })
 
-const ruleset = computed(() => {
-  if (!category.value?.rulesId) return null
-  return useRuleset(category.value.rulesId).value
-})
+const rulesId = computed(() => category.value?.rulesId)
+
+const ruleset = useRuleset(rulesId)
 
 const clubNames = computed(() => {
   if (!participants.value) return []
@@ -484,7 +483,8 @@ createJudgeMutation.onDone(() => {
 
 function judgeTypes (cEvtDef: CompetitionEvent) {
   if (!ruleset.value) return []
-  const types = ruleset.value.competitionEvents[cEvtDef]?.judges.map(j => j.id) ?? []
+  // TODO: apply options?
+  const types = ruleset.value.competitionEvents.find(cEvt => cEvt.id === cEvtDef)?.judges.map(j => j({}).id) ?? []
   types.unshift('none')
   return types
 }

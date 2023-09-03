@@ -1,0 +1,5 @@
+mutation ReleaseRankedResultVersion ($resultId: ID!) {
+  releaseRankedResultVersion (resultId: $resultId) {
+    ...RankedResultBaseFragment
+  }
+}

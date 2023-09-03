@@ -1,6 +1,6 @@
 <template>
   <table>
-    <tr v-for="(score, symbol) of result" :key="symbol">
+    <tr v-for="(score, symbol) of result?.result" :key="symbol">
       <th class="text-left w-[50%]">
         {{ symbol }}
       </th>
@@ -12,13 +12,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRuleset } from '../hooks/rulesets'
+import { computed, toRef } from 'vue'
 
 import type { PropType } from 'vue'
-import type { RulesetId } from '../rules'
-import { type CompetitionEvent } from '../helpers'
+import { isMarkScoresheet, isTallyScoresheet, type CompetitionEvent } from '../helpers'
 import { type MarkScoresheetFragment, type TallyScoresheetFragment, type ScoresheetBaseFragment } from '../graphql/generated'
+import { type ScoreTally, type Mark } from '@ropescore/rulesets'
+import { useCompetitionEvent } from '../hooks/rulesets'
 
 const props = defineProps({
   scoresheet: {
@@ -26,7 +26,7 @@ const props = defineProps({
     required: true
   },
   rulesId: {
-    type: String as PropType<RulesetId>,
+    type: String,
     required: true
   },
   competitionEvent: {
@@ -39,13 +39,27 @@ const props = defineProps({
   }
 })
 
+const competitionEventId = toRef(props, 'competitionEvent')
+const cEvt = useCompetitionEvent(competitionEventId)
+
 const judgeType = computed(() =>
-  useRuleset(props.rulesId)
-    .value?.competitionEvents[props.competitionEvent]?.judges
+  cEvt.value?.judges
+  // TODO apply options
+    .map(j => j({}))
     .find(j => j.id === props.judgeType)
 )
 
 const result = computed(() => {
-  return judgeType.value?.calculateScoresheet(props.scoresheet)
+  if (!isTallyScoresheet(props.scoresheet) && !isMarkScoresheet(props.scoresheet)) return
+  return judgeType.value?.calculateScoresheet({
+    meta: {
+      judgeId: props.scoresheet.judge.id,
+      judgeTypeId: props.scoresheet.judgeType,
+      entryId: '1',
+      participantId: '1',
+      competitionEvent: props.competitionEvent
+    },
+    ...(isMarkScoresheet(props.scoresheet) ? { marks: props.scoresheet.marks as Array<Mark<string>> } : { tally: props.scoresheet.tally as ScoreTally })
+  })
 })
 </script>

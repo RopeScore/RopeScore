@@ -1,6 +1,7 @@
 fragment GroupBaseFragment on Group {
   id
   name
+  resultVisibility
   createdAt
   completedAt
   currentHeat

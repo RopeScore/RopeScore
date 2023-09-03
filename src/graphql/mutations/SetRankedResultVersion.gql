@@ -1,0 +1,5 @@
+mutation SetRankedResultVersion ($resultId: ID!, $type: ResultVersionType!, $name: String!) {
+  setRankedResultVersion (resultId: $resultId, type: $type, name: $name) {
+    ...RankedResultBaseFragment
+  }
+}

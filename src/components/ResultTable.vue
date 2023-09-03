@@ -1,19 +1,10 @@
 <template>
   <section
-    class="page my-4 p-2 flex flex-col justify-between flex-nowrap"
+    class="page my-4 p-2 flex flex-col justify-between flex-nowrap relative"
     :class="{ 'bg-gray-100': excluded, 'noprint': excluded }"
   >
-    <header class="flex justify-between flex-grow-0 mb-4">
-      <div class="flex-grow">
-        <h1 class="text-xl">
-          {{ category?.name }} <span v-if="groupName"> &ndash; {{ groupName }}</span>
-        </h1>
-        <h2 class="text-xl text-gray-500">
-          {{ cEvt?.name }}
-        </h2>
-      </div>
-
-      <div class="noprint nozoom">
+    <div class="noprint nozoom absolute top-0 right-0 p-2 bg-white bg-white border-l border-b rounded-bl">
+      <div class="flex justify-between">
         <text-button class="nozoom" :loading="setPagePrintConfigMutation.loading.value" @click="setPagePrintConfigMutation.mutate({ categoryId: category.id, competitionEventId, data: { zoom: zoom - 0.03 } })">
           Zoom -
         </text-button>
@@ -32,6 +23,48 @@
           {{ excluded ? 'Include' : 'Exclude' }}
         </text-button>
       </div>
+      <div class="grid items-baseline gap-2 grid-cols-[15rem,6rem]">
+        <select-field
+          :model-value="selectedResult?.id"
+          label="Version"
+          :data-list="versionsDataList"
+          @update:model-value="selectResult($event as string)"
+        />
+        <dialog-button v-if="selectedResult?.versionType === ResultVersionType.Temporary" ref="dialogRef" :disabled="selectedResult == null" color="green" label="Save">
+          <h1 class="mx-2">
+            Save Result Version
+          </h1>
+
+          <form method="dialog" class="mt-4" @submit.prevent="storeVersion()">
+            <text-field v-model="newVersion.name" label="Version Name" required />
+            <select-field :model-value="newVersion.type" label="Version Type" required :data-list="[ResultVersionType.Private, ResultVersionType.Public]" />
+
+            <text-button
+              color="blue"
+              class="mt-4"
+              type="submit"
+              :loading="setRankedResultVersionMutation.loading.value"
+            >
+              Save
+            </text-button>
+          </form>
+        </dialog-button>
+        <text-button v-else :loading="relaseRankedResultVersionMutation.loading.value" :disabled="selectedResult == null" color="red" @click="relaseRankedResultVersionMutation.mutate({ resultId: selectedResult?.id! })">
+          Release
+        </text-button>
+      </div>
+      <span v-if="selectedResult != null" class="noprint text-gray-400 text-sm font-normal">Locked until {{ formatDate(selectedResult?.maxEntryLockedAt) }}</span>
+    </div>
+
+    <header class="flex justify-between flex-grow-0 mb-4">
+      <div class="flex-grow">
+        <h1 class="text-xl">
+          {{ category?.name }} <span v-if="groupName != null"> &ndash; {{ groupName }}</span>
+        </h1>
+        <h2 class="text-xl text-gray-500">
+          {{ cEvt?.name }}
+        </h2>
+      </div>
 
       <!-- TODO: logo <div class="min-w-[20mm]">
         <img v-if="category?.logo" :src="category.logo" class="h-[20mm]">
@@ -39,16 +72,16 @@
     </header>
 
     <main class="overflow-x-auto w-full flex-grow">
-      <table v-if="category && cEvt">
+      <table v-if="category != null && cEvt != null">
         <thead>
           <tr
-            v-for="(row, idx) of cEvt.resultTable.groups ?? []"
+            v-for="(row, idx) of resultTable.groups ?? []"
             :key="`group-${String(idx)}`"
           >
             <th
               v-if="idx === 0"
               :colspan="category.type === CategoryType.Team ? 3 : 2"
-              :rowspan="(cEvt.resultTable.groups ?? []).length"
+              :rowspan="(resultTable.groups ?? []).length"
             />
 
             <th
@@ -72,7 +105,7 @@
             <th>Club</th>
 
             <th
-              v-for="header in cEvt.resultTable.headers"
+              v-for="header in resultTable.headers"
               :key="header.key"
               :class="`text-${header.color}-500`"
             >
@@ -82,15 +115,17 @@
         </thead>
 
         <tbody>
-          <tr v-for="entryRes of results" :key="entryRes.participantId">
-            <td>{{ getParticipant(entryRes.participantId)?.name }}</td>
-            <td v-if="category.type === CategoryType.Team" class="text-xs">
-              {{ memberNames(getParticipant(entryRes.participantId)) }}
+          <tr v-for="entryRes of results" :key="entryRes.meta.participantId">
+            <td>
+              {{ getParticipant(entryRes.meta.participantId)?.name }}
             </td>
-            <td>{{ getParticipant(entryRes.participantId)?.club }}</td>
+            <td v-if="category.type === CategoryType.Team" class="text-xs">
+              {{ memberNames(getParticipant(entryRes.meta.participantId)) }}
+            </td>
+            <td>{{ getParticipant(entryRes.meta.participantId)?.club }}</td>
 
             <td
-              v-for="header in cEvt.resultTable.headers"
+              v-for="header in resultTable.headers"
               :key="header.key"
               class="text-right"
               :class="`text-${header.color}-500`"
@@ -110,18 +145,17 @@
 
 <script setup lang="ts">
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-import { inject, computed, watch, ref, onUnmounted, toRef } from 'vue'
+import { inject, computed, watch, onUnmounted, toRef, ref, reactive } from 'vue'
 import type Excel from 'exceljs'
-import { isOverallRulesDefinition, isOverallResult } from '../rules'
-import { memberNames, isOverall, getAbbr, type CompetitionEvent } from '../helpers'
-import { useRuleset } from '../hooks/rulesets'
+import { memberNames, type CompetitionEvent, formatDate } from '../helpers'
+import { useCompetitionEventOrOverall } from '../hooks/rulesets'
 import { version } from '../../package.json'
 
-import { TextButton } from '@ropescore/components'
+import { TextButton, SelectField, type DataListItem, DialogButton, TextField } from '@ropescore/components'
 
 import type { Ref, PropType } from 'vue'
-import type { EntryResult, OverallResult, TableHeader } from '../rules'
-import { type CategoryBaseFragment, type CategoryPrintFragment, type CategoryResultsFragment, type Participant, CategoryType, useSetPagePrintConfigMutation } from '../graphql/generated'
+import { type CategoryBaseFragment, type CategoryPrintFragment, type CategoryResultsFragment, CategoryType, useSetPagePrintConfigMutation, type RankedResultBaseFragment, useSetRankedResultVersionMutation, useReleaseRankedResultVersionMutation, ResultVersionType } from '../graphql/generated'
+import { parseCompetitionEventDefinition, type EntryResult, type OverallResult, type TableHeader } from '@ropescore/rulesets'
 
 const workbook = inject<Ref<Excel.Workbook>>('workbook')
 
@@ -132,26 +166,38 @@ const props = defineProps({
   },
   groupName: {
     type: String,
-    default: undefined
+    default: () => null
   },
   competitionEventId: {
     type: String as PropType<CompetitionEvent>,
+    required: true
+  },
+  rankedResults: {
+    type: Array as PropType<RankedResultBaseFragment[]>,
     required: true
   }
 })
 
 const category = toRef(props, 'category')
+const cEvtId = toRef(props, 'competitionEventId')
 
 const participants = computed(() => category.value.participants ?? [])
-const entries = computed(() => category.value.entries ?? [])
-const ruleset = computed(() => useRuleset(category.value?.rulesId).value)
 
-const cEvt = computed(() => {
-  if (isOverall(props.competitionEventId)) {
-    return ruleset.value?.overalls[props.competitionEventId]
-  } else {
-    return ruleset.value?.competitionEvents[props.competitionEventId]
-  }
+const cEvt = useCompetitionEventOrOverall(cEvtId)
+// TODO apply options
+const resultTable = computed(() => cEvt.value?.resultTable({}) ?? { headers: [], groups: [] })
+
+const selectedResult = ref<RankedResultBaseFragment | undefined>(props.rankedResults[0])
+const results = computed(() => (selectedResult.value?.results ?? []) as EntryResult[] | OverallResult[])
+
+function selectResult (resultId: string) {
+  const result = props.rankedResults.find(rr => rr.id === resultId)
+  if (result == null) return
+  selectedResult.value = result
+}
+
+watch(() => props.rankedResults, (newResults) => {
+  selectedResult.value = newResults[0]
 })
 
 const zoom = computed(() => {
@@ -168,43 +214,41 @@ const excluded = computed(() => {
   return !!conf?.exclude
 })
 
-const results = ref<EntryResult[] | OverallResult[]>([])
+const versionsDataList = computed<DataListItem[]>(() => props.rankedResults
+  .map(rr => ({
+    text: rr.versionType === ResultVersionType.Temporary ? `(Unsaved) Locked until ${formatDate(rr.maxEntryLockedAt)}` : `(${rr.versionType}) ${rr.versionName}`,
+    value: rr.id
+  }))
+)
 
-async function calculateResults () {
-  if (!entries.value.length || !cEvt.value) return
-  const res: EntryResult[] = []
-  for (const entry of entries.value) {
-    if (entry.didNotSkipAt) continue
+const setRankedResultVersionMutation = useSetRankedResultVersionMutation()
+const relaseRankedResultVersionMutation = useReleaseRankedResultVersionMutation()
 
-    if (isOverallRulesDefinition(cEvt.value)) {
-      const score = ruleset.value?.competitionEvents[entry.competitionEventId]?.calculateEntry({ entryId: entry.id, participantId: entry.participant.id }, entry.scoresheets)
-      if (score) res.push(score)
-    } else {
-      if (entry.competitionEventId !== props.competitionEventId) continue
-      const score = cEvt.value.calculateEntry({ entryId: entry.id, participantId: entry.participant.id }, entry.scoresheets)
-      if (score) res.push(score)
-    }
-  }
+const newVersion = reactive({
+  name: '',
+  type: ResultVersionType.Private
+})
+const dialogRef = ref<typeof DialogButton>()
 
-  if (isOverallRulesDefinition(cEvt.value)) {
-    const ranked = cEvt.value.rankOverall(res)
-    results.value = ranked
-  } else {
-    const ranked = cEvt.value.rankEntries(res)
-    results.value = ranked
-  }
+async function storeVersion () {
+  if (selectedResult.value == null) return
+  await setRankedResultVersionMutation.mutate({
+    resultId: selectedResult.value.id,
+    type: newVersion.type,
+    name: newVersion.name
+  })
+  newVersion.name = ''
+  newVersion.type = ResultVersionType.Private
+  dialogRef.value?.close()
 }
 
-watch(ruleset, calculateResults, { immediate: true })
-watch(category, calculateResults, { deep: true, immediate: true })
-
-function getParticipant (participantId: Participant['id']) {
+function getParticipant (participantId: string | number) {
   return participants.value.find(p => p.id === participantId)
 }
 
 function getScore (header: TableHeader, result: EntryResult | OverallResult) {
   let score: number
-  if (header.component && isOverallResult(result)) score = result.componentResults[header.component].result[header.key]
+  if (header.component && 'componentResults' in result) score = result.componentResults[header.component].result[header.key]
   else score = result.result[header.key]
   return header.formatter?.(score) ?? score ?? ''
 }
@@ -212,8 +256,7 @@ function getScore (header: TableHeader, result: EntryResult | OverallResult) {
 const setPagePrintConfigMutation = useSetPagePrintConfigMutation({})
 
 // spreadsheet stuff
-
-const sheetId = computed(() => `${props.competitionEventId} - ${category.value?.name ?? ''}`)
+const sheetId = computed(() => `${props.competitionEventId} - ${category.value?.name ?? ''}`.substring(0, 31))
 
 function removeWorksheet () {
   if (!category.value) return
@@ -234,17 +277,15 @@ function createWorksheet () {
 
   worksheet.headerFooter.oddFooter = `&LScores from RopeScore v${version} - ropescore.com&RPage &P of &N`
   worksheet.headerFooter.oddHeader = `&L${
-    ruleset.value?.competitionEvents[props.competitionEventId]?.name ??
-    ruleset.value?.overalls[props.competitionEventId]?.name ??
-    getAbbr(props.competitionEventId)
+    cEvt.value?.name ??
+    parseCompetitionEventDefinition(props.competitionEventId).eventAbbr
   } - ${category.value?.name}&R${props.groupName ?? ''}` // worksheet name, add &R&G to add the logo?
 
   return worksheet
 }
 
-watch(results, () => {
-  if (!workbook || !category.value) return
-
+watch(() => [results.value, cEvt.value] as const, () => {
+  if (!workbook || !category.value || !cEvt.value) return
   removeWorksheet()
   const sheet = createWorksheet()
 
@@ -260,10 +301,10 @@ onUnmounted(() => {
 })
 
 function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
-  if (!isOverallRulesDefinition(cEvt.value)) return
+  if (!Array.isArray(resultTable.value.groups) || resultTable.value.groups.length === 0) return
   const excelGroupedHeaderRows: any[][] = []
   const merges: Array<[number, number, number, number]> = []
-  const groups = [...(cEvt.value.resultTable.groups?.map(gr => [...gr]) ?? [])]
+  const groups = [...(resultTable.value.groups?.map(gr => [...gr]) ?? [])]
 
   groups[0].unshift({ text: '', key: 'parts', colspan: type === CategoryType.Team ? 3 : 2, rowspan: groups.length })
   // create array
@@ -390,7 +431,7 @@ function addTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
     })
   }
 
-  for (const header of cEvt.value?.resultTable.headers ?? []) {
+  for (const header of resultTable.value.headers ?? []) {
     row.push({
       richText: [{
         alignment: { horizontal: 'center', vertical: 'middle' },
@@ -427,17 +468,17 @@ function addParticipantRows (
     const row = new Array<string | number>(1)
     if (type === CategoryType.Team) {
       row.push(
-        getParticipant(entryRes.participantId)?.name ?? '',
-        memberNames(getParticipant(entryRes.participantId)),
-        getParticipant(entryRes.participantId)?.club ?? ''
+        getParticipant(entryRes.meta.participantId)?.name ?? '',
+        memberNames(getParticipant(entryRes.meta.participantId)),
+        getParticipant(entryRes.meta.participantId)?.club ?? ''
       )
     } else {
       row.push(
-        getParticipant(entryRes.participantId)?.name ?? '',
-        getParticipant(entryRes.participantId)?.club ?? ''
+        getParticipant(entryRes.meta.participantId)?.name ?? '',
+        getParticipant(entryRes.meta.participantId)?.club ?? ''
       )
     }
-    for (const header of cEvt.value?.resultTable.headers ?? []) {
+    for (const header of resultTable.value.headers ?? []) {
       // row.push({
       //   richText: [
       //     {
@@ -457,7 +498,7 @@ function addParticipantRows (
     lastRow.eachCell((cell: any) => {
       cell.font = {
         color: {
-          argb: nameToARGB(cEvt.value?.resultTable.headers[cell.col - 1 - offset]?.color)
+          argb: nameToARGB(resultTable.value.headers[cell.col - 1 - offset]?.color)
         }
       }
       cell.alignment = {
@@ -493,7 +534,7 @@ td, th {
   @apply border-black;
 }
 
-.page header *:not(.nozoom),
+.page header,
 .page main,
 .page footer {
   zoom: v-bind(zoomPercentage);

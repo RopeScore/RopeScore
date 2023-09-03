@@ -1,7 +1,7 @@
 <template>
   <fieldset v-if="!table" class="mb-2">
     <number-field
-      v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
+      v-for="tField of judgeTypes?.[judgeType]?.fieldDefinitions ?? []"
       :key="tField.schema"
       :model-value="scoresheet.tally?.[tField.schema]"
       :label="tField.name"
@@ -14,7 +14,7 @@
   </fieldset>
   <template v-else-if="table">
     <td
-      v-for="tField of judgeTypes?.[judgeType]?.tallyFields ?? []"
+      v-for="tField of judgeTypes?.[judgeType]?.fieldDefinitions ?? []"
       :key="tField.schema"
       class="min-w-16"
     >
@@ -34,17 +34,17 @@
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue'
-import { useRuleset } from '../hooks/rulesets'
-import { type CompetitionEvent, type ScoreTally } from '../helpers'
+import { type CompetitionEvent } from '../helpers'
 import { name, version } from '../../package.json'
 
 import type { PropType } from 'vue'
-import type { RulesetId } from '../rules'
 
 import { NumberField } from '@ropescore/components'
 import { type ScoresheetBaseFragment, type TallyScoresheetFragment, useFillTallyScoresheetMutation } from '../graphql/generated'
 import { useDebounceFn } from '@vueuse/core'
 import { onBeforeRouteLeave } from 'vue-router'
+import { useCompetitionEvent } from '../hooks/rulesets'
+import { type ScoreTally } from '@ropescore/rulesets'
 
 const props = defineProps({
   scoresheet: {
@@ -52,7 +52,7 @@ const props = defineProps({
     required: true
   },
   rulesId: {
-    type: String as PropType<RulesetId>,
+    type: String,
     required: true
   },
   competitionEvent: {
@@ -75,10 +75,17 @@ const props = defineProps({
 
 const emit = defineEmits(['update:tally', 'dirty'])
 
+const competitionEventId = toRef(props, 'competitionEvent')
+
+const cEvt = useCompetitionEvent(competitionEventId)
+
 const judgeTypes = computed(() => Object.fromEntries(
-  useRuleset(props.rulesId)
-    .value?.competitionEvents[props.competitionEvent]?.judges
-    .map(j => [j.id, j] as const) ?? []
+  cEvt.value?.judges
+    .map(j => {
+      // TODO apply options
+      const judge = j({})
+      return [judge.id, judge] as const
+    }) ?? []
 ))
 
 const tally = ref<ScoreTally>({})

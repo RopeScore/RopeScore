@@ -22,36 +22,36 @@
       displayed in the page header
     </p>
 
-    <text-button color="blue" @click="print">
-      Print
-    </text-button>
-    <text-button @click="workbook?.print">
-      Export to Excel
-    </text-button>
-    <!-- <text-button @click="setLogos">
-      Set Logo
-    </text-button>
-    <text-button v-if="hasLogo" color="red" @click="removeLogos">
-      Remove Logo
-    </text-button> -->
+    <div class="flex justify-between gap-2 w-full">
+      <div>
+        <text-button color="blue" @click="print">
+          Print
+        </text-button>
+        <text-button @click="workbook?.print">
+          Export to Excel
+        </text-button>
+        <!-- <text-button @click="setLogos">
+          Set Logo
+        </text-button>
+        <text-button v-if="hasLogo" color="red" @click="removeLogos">
+          Remove Logo
+        </text-button> -->
+      </div>
+      <text-button :loading="resultsQuery.loading.value" @click="resultsQuery.refetch()">
+        Refresh
+      </text-button>
+    </div>
   </div>
 
   <excel-workbook ref="workbook" :name="group?.name">
     <template v-for="category of categories">
       <result-table
-        v-for="oEvt of getOveralls(category)"
-        :key="`${category.id}${oEvt}`"
+        v-for="rr of transposeResults(category.rankedResults, category.competitionEventIds)"
+        :key="`${category.id}${rr[0]}`"
         :category="category"
         :group-name="categories.length > 1 ? group?.name : undefined"
-        :competition-event-id="oEvt"
-      />
-
-      <result-table
-        v-for="cEvtDef of category.competitionEventIds"
-        :key="`${category.id}${cEvtDef}`"
-        :category="category"
-        :group-name="categories.length > 1 ? group?.name : undefined"
-        :competition-event-id="cEvtDef"
+        :competition-event-id="rr[0]"
+        :ranked-results="rr[1]"
       />
     </template>
   </excel-workbook>
@@ -60,13 +60,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useRuleset } from '../hooks/rulesets'
 
 import { TextButton } from '@ropescore/components'
 import ExcelWorkbook from '../components/ExcelWorkbook.vue'
 import ResultTable from '../components/ResultTable.vue'
-import { type CompetitionEvent } from '../helpers'
-import { type CategoryBaseFragment, useResultsQuery } from '../graphql/generated'
+import { type RankedResultBaseFragment, useResultsQuery } from '../graphql/generated'
+import { type CompetitionEventDefinition, parseCompetitionEventDefinition } from '@ropescore/rulesets'
 
 const route = useRoute()
 const workbook = ref<typeof ExcelWorkbook>()
@@ -75,7 +74,7 @@ const resultsQuery = useResultsQuery({
   groupId: route.params.groupId as string,
   categoryId: route.params.categoryId as string ?? '',
   singleCategory: !!route.params.categoryId
-})
+}, { fetchPolicy: 'cache-and-network', pollInterval: 60_000 })
 
 const group = computed(() => resultsQuery.result.value?.group)
 
@@ -83,7 +82,7 @@ const categories = computed(() => {
   if (resultsQuery.result.value?.group?.category) {
     return [resultsQuery.result.value?.group?.category]
   } else if (resultsQuery.result.value?.group?.categories) {
-    return resultsQuery.result.value?.group?.categories
+    return [...resultsQuery.result.value?.group?.categories]
   } else return []
 })
 
@@ -92,15 +91,18 @@ const hasLogo = computed(() => {
   return false
 })
 
-function getOveralls (category: CategoryBaseFragment & { competitionEventIds: CompetitionEvent[] }) {
-  const ruleset = useRuleset(category.rulesId).value
+function transposeResults (rankedResults: RankedResultBaseFragment[], defaultEnabled: CompetitionEventDefinition[]) {
+  const orderedCEvtIds: CompetitionEventDefinition[] = [...new Set(rankedResults.map(rr => rr.competitionEventId).concat(defaultEnabled))]
+    .sort((a, b) => {
+      const parsedA = parseCompetitionEventDefinition(a)
+      const parsedB = parseCompetitionEventDefinition(b)
+      if (parsedA.type === 'oa' && parsedB.type === 'oa') return a.localeCompare(b)
+      else if (parsedA.type === 'oa' && parsedB.type !== 'oa') return -1
+      else if (parsedA.type !== 'oa' && parsedB.type === 'oa') return 1
+      else return a.localeCompare(b)
+    })
 
-  if (!ruleset) return []
-
-  return Object.entries(ruleset.overalls)
-    .map(([oEvt, def]) => [oEvt, def?.competitionEvents.map(([cEvt]) => cEvt)])
-    .filter(([oEvt, defs]) => (defs as CompetitionEvent[])?.every(cEvt => category.competitionEventIds.includes(cEvt)))
-    .map(([oEvt]) => oEvt) as CompetitionEvent[]
+  return orderedCEvtIds.map(cEvt => [cEvt, rankedResults.filter(rr => rr.competitionEventId === cEvt)] as const)
 }
 
 function print () {

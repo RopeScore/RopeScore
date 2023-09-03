@@ -9,17 +9,14 @@
 
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
-import { useRuleset } from '../hooks/rulesets'
+import { useCompetitionEvent } from '../hooks/rulesets'
+import { filterLatestScoresheets, isTallyScoresheet } from '../helpers'
 
 import type { PropType } from 'vue'
-import type { TableHeader } from '../rules'
+import { isMarkScoresheet, type JudgeResult, type ScoreTally, type TableHeader } from '@ropescore/rulesets'
 import { type EntryBaseFragment, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment } from '../graphql/generated'
 
 const props = defineProps({
-  rulesId: {
-    type: String,
-    required: true
-  },
   columns: {
     type: Object as PropType<TableHeader[]>,
     required: true
@@ -34,11 +31,39 @@ const props = defineProps({
   }
 })
 
-const ruleset = computed(() => useRuleset(props.rulesId).value)
 const entry = toRef(props, 'entry')
+const cEvtId = computed(() => entry.value.competitionEventId)
+const competitionEvent = useCompetitionEvent(cEvtId)
 
 const result = computed(() => {
   if (!entry.value) return
-  return ruleset.value?.competitionEvents[entry.value.competitionEventId]?.calculateEntry({ entryId: entry.value.id, participantId: props.participantId }, entry.value.scoresheets)
+  const scoresheets = filterLatestScoresheets(entry.value.scoresheets)
+  // TODO: apply options
+  const judges = competitionEvent.value?.judges.map(j => j({})) ?? []
+  const judgeResults = scoresheets
+    .map(scsh => judges.find(j => j.id === scsh.judgeType)?.calculateScoresheet({
+      meta: {
+        entryId: entry.value.id,
+        participantId: props.participantId,
+        competitionEvent: entry.value.competitionEventId,
+        judgeTypeId: scsh.judgeType,
+        judgeId: scsh.judge.id
+      },
+      ...(isTallyScoresheet(scsh)
+        ? { tally: scsh.tally as ScoreTally }
+        : { marks: isMarkScoresheet(scsh) ? scsh.marks : [] }
+      )
+    }))
+    .filter(r => r != null) as JudgeResult[]
+  return competitionEvent.value?.calculateEntry(
+    {
+      entryId: entry.value.id,
+      participantId: props.participantId,
+      competitionEvent: entry.value.competitionEventId
+    },
+    judgeResults,
+    // TODO: apply options
+    {}
+  )
 })
 </script>

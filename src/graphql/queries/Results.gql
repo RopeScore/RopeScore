@@ -6,12 +6,20 @@ query Results ($groupId: ID!, $categoryId: ID!, $singleCategory: Boolean!) {
       ...CategoryBaseFragment
       ...CategoryPrintFragment
       ...CategoryResultsFragment
+
+      rankedResults {
+        ...RankedResultBaseFragment
+      }
     }
 
     categories @skip(if: $singleCategory) {
       ...CategoryBaseFragment
       ...CategoryPrintFragment
       ...CategoryResultsFragment
+
+      rankedResults {
+        ...RankedResultBaseFragment
+      }
     }
   }
 }

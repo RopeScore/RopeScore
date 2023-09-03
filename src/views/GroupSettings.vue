@@ -26,16 +26,23 @@
 
     <form v-if="group" @submit.prevent="updateGroup.mutate({ groupId: group?.id!, data: updateData as UpdateGroupInput })">
       <text-field
-        :model-value="group.name"
+        :model-value="updateData.name"
         :disabled="!!group.completedAt"
         label="Group Name"
         required
-        @update:model-value="updateData.name = $event"
+        @update:model-value="updateData.name = ($event as string)"
+      />
+
+      <select-field
+        :model-value="updateData.resultVisibility ?? undefined"
+        :disabled="!!group.completedAt"
+        label="Result visibility"
+        :data-list="resultVisibilitiesDataList"
+        @update:model-value="updateData.resultVisibility = ($event as ResultVisibilityLevel)"
       />
 
       <text-button
         class="mt-2"
-        :disabled="!updateData.name"
         :loading="updateGroup.loading.value"
         type="submit"
         color="blue"
@@ -88,7 +95,7 @@
                   required
                   dense
                   :model-value="newAdminId"
-                  @update:model-value="newAdminId = $event"
+                  @update:model-value="newAdminId = ($event as string)"
                 />
               </td>
               <td colspan="2">
@@ -153,7 +160,7 @@
                   required
                   dense
                   :model-value="newViewerId"
-                  @update:model-value="newViewerId = $event"
+                  @update:model-value="newViewerId = ($event as string)"
                 />
               </td>
               <td colspan="2">
@@ -180,9 +187,10 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, type UpdateGroupInput, useMeQuery } from '../graphql/generated'
+import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, type UpdateGroupInput, useMeQuery, type ResultVisibilityLevel } from '../graphql/generated'
 
-import { TextButton, TextField } from '@ropescore/components'
+import { TextButton, TextField, SelectField } from '@ropescore/components'
+import { resultVisibilitiesDataList } from '../helpers'
 
 const route = useRoute()
 const router = useRouter()
@@ -219,8 +227,9 @@ const toggleGroupComplete = useToggleGroupCompleteMutation({})
 const updateGroup = useUpdateGroupMutation({})
 const updateData = reactive<Partial<UpdateGroupInput>>({})
 
-updateGroup.onDone(() => {
-  delete updateData.name
+watch(group, group => {
+  updateData.name = group?.name
+  updateData.resultVisibility = group?.resultVisibility
 })
 
 function goBack () {
