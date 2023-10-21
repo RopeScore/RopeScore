@@ -25,7 +25,7 @@
     "@apollo/client": "^3.8.2",
     "@github/relative-time-element": "^4.3.0",
     "@ropescore/components": "^1.8.1",
-    "@ropescore/rulesets": "^0.6.1",
+    "@ropescore/rulesets": "^0.7.1",
     "@sentry/vue": "^7.66.0",
     "@vue/apollo-composable": "^4.0.0-beta.9",
     "@vueuse/core": "^10.4.1",
