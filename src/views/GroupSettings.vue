@@ -186,17 +186,16 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAddGroupAdminMutation, useAddGroupViewerMutation, useRemoveGroupAdminMutation, useRemoveGroupViewerMutation, useGroupInfoQuery, useToggleGroupCompleteMutation, useUpdateGroupMutation, type UpdateGroupInput, useMeQuery, type ResultVisibilityLevel } from '../graphql/generated'
+import { useRouteParams } from '@vueuse/router'
 
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import { resultVisibilitiesDataList } from '../helpers'
 
-const route = useRoute()
-const router = useRouter()
+const groupId = useRouteParams<string>('groupId', '')
 
-const groupId = ref<string>(route.params.groupId as string)
-watch(() => route.params.groupId, newId => { groupId.value = newId as string })
+const router = useRouter()
 
 const meQuery = useMeQuery()
 const groupInfoQuery = useGroupInfoQuery({ groupId: groupId as unknown as string }, { fetchPolicy: 'cache-and-network' })

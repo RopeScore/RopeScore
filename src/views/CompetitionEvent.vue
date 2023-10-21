@@ -105,7 +105,7 @@
               dense
               color="blue"
               :loading="createEntryMutation.loading.value"
-              @click="createEntryMutation.mutate({ categoryId: route.params.categoryId as string, participantId: participant.id, data: { competitionEventId: route.params.competitionEventId as string } })"
+              @click="createEntryMutation.mutate({ categoryId, participantId: participant.id, data: { competitionEventId } })"
             >
               Score
             </text-button>
@@ -172,7 +172,7 @@
 
 <script setup lang="ts">
 import { computed, type UnwrapRef } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useCompetitionEvent } from '../hooks/rulesets'
 import { memberNames } from '../helpers'
 import { useRouteParams } from '@vueuse/router'
@@ -182,21 +182,23 @@ import ScoresheetCols from '../components/ScoresheetCols.vue'
 import ResultCols from '../components/ResultCols.vue'
 import { useCreateEntryMutation, useToggleEntryLockMutation, useEntriesWithScoresheetsQuery, CategoryType, type Participant, type Judge, type JudgeAssignment, type ScoresheetBaseFragment } from '../graphql/generated'
 
-const route = useRoute()
+const competitionEventId = useRouteParams<string>('competitionEventId', '')
+const categoryId = useRouteParams<string>('categoryId', '')
+const groupId = useRouteParams<string>('groupId', '')
+
 const router = useRouter()
 
-const entriesWithScoresheetQuery = useEntriesWithScoresheetsQuery({
-  groupId: route.params.groupId as string,
-  categoryId: route.params.categoryId as string,
-  competitionEventId: route.params.competitionEventId as string
-}, { fetchPolicy: 'cache-and-network' })
+const entriesWithScoresheetQuery = useEntriesWithScoresheetsQuery(() => ({
+  groupId: groupId.value,
+  categoryId: categoryId.value,
+  competitionEventId: competitionEventId.value
+}), { fetchPolicy: 'cache-and-network' })
 
 const category = computed(() => entriesWithScoresheetQuery.result.value?.group?.category)
 const judgeAssignments = computed(() => entriesWithScoresheetQuery.result.value?.group?.category?.judgeAssignments ?? [])
 const ents = computed(() => entriesWithScoresheetQuery.result.value?.group?.category?.entries ?? [])
 const participants = computed(() => entriesWithScoresheetQuery.result.value?.group?.category?.participants ?? [])
 
-const competitionEventId = useRouteParams<string>('competitionEventId')
 const competitionEvent = useCompetitionEvent(competitionEventId)
 
 const previewTable = computed(() => {
@@ -209,7 +211,7 @@ const judges = computed(() => competitionEvent.value?.judges.map(j => j({})) ?? 
 
 const assignments = computed(() => {
   return [...(judgeAssignments.value ?? [])]
-    .filter(ja => ja.competitionEventId === route.params.competitionEventId)
+    .filter(ja => ja.competitionEventId === competitionEventId.value)
     .sort((a, b) => {
       if (a.judgeType === b.judgeType) return a.judge.id.localeCompare(b.judge.id)
       return a.judgeType.localeCompare(b.judgeType)
@@ -220,7 +222,7 @@ const entries = computed(() => {
   if (!ents.value) return {}
   const map: Record<Participant['id'], UnwrapRef<typeof ents>[number]> = {}
   for (const entry of ents.value) {
-    if (entry.competitionEventId !== route.params.competitionEventId) continue
+    if (entry.competitionEventId !== competitionEventId.value) continue
     map[entry.participant.id] = entry
   }
   return map
@@ -242,6 +244,6 @@ const toggleLock = useToggleEntryLockMutation({})
 
 function filterScoresheets<T extends ScoresheetBaseFragment> (scoresheets: T[], judgeId: Judge['id'], judgeType: JudgeAssignment['judgeType']): T[] {
   console.log(scoresheets, judgeId, judgeType)
-  return scoresheets.filter(scsh => scsh?.judge?.id === judgeId && scsh.judgeType === judgeType)
+  return scoresheets.filter(scsh => scsh?.judge?.id === judgeId && scsh.judgeType === judgeType && scsh.excludedAt == null)
 }
 </script>

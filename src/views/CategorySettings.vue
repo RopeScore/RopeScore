@@ -9,7 +9,7 @@
         <text-button :loading="categorySettingsQuery.loading.value" @click="categorySettingsQuery.refetch()">
           Refresh
         </text-button>
-        <text-button color="red" :loading="deleting" @click="deleteConfirm ? deleteCategoryMutation.mutate() : deleteConfirm = true">
+        <text-button color="red" :loading="deleting" @click="deleteConfirm ? deleteCategoryMutation.mutate({ categoryId }) : deleteConfirm = true">
           {{ deleteConfirm ? 'Confirm Delete' : 'Delete' }}
         </text-button>
         <text-button @click="goBack">
@@ -313,14 +313,14 @@
           </td>
         </tr>
       </tfoot>
-      <form id="new-judge" @submit.prevent="createJudgeMutation.mutate({ groupId: route.params.groupId as string, data: newJudge })" />
+      <form id="new-judge" @submit.prevent="createJudgeMutation.mutate({ groupId: groupId, data: newJudge })" />
     </table>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useRuleset } from '../hooks/rulesets'
 import { memberNames, getAbbr, type CompetitionEvent, isAthlete } from '../helpers'
 import {
@@ -337,6 +337,7 @@ import {
   useCreateTeamMutation,
   useDeleteParticipantMutation
 } from '../graphql/generated'
+import { useRouteParams } from '@vueuse/router'
 
 import countryData from '../data/countries.json'
 
@@ -345,13 +346,15 @@ import EditParticipant from '../components/EditParticipant.vue'
 import IconCheck from 'virtual:icons/mdi/check'
 import IconLoading from 'virtual:icons/mdi/loading'
 
-const route = useRoute()
+const categoryId = useRouteParams<string>('categoryId', '')
+const groupId = useRouteParams<string>('groupId', '')
+
 const router = useRouter()
 
-const categorySettingsQuery = useCategorySettingsQuery({
-  groupId: route.params.groupId as string,
-  categoryId: route.params.categoryId as string
-}, { fetchPolicy: 'cache-and-network' })
+const categorySettingsQuery = useCategorySettingsQuery(() => ({
+  groupId: groupId.value,
+  categoryId: categoryId.value
+}), { fetchPolicy: 'cache-and-network' })
 
 const category = computed(() => categorySettingsQuery.result.value?.group?.category)
 const participants = computed(() => categorySettingsQuery.result.value?.group?.category?.participants ?? [])
@@ -363,7 +366,6 @@ const deleteConfirm = ref(false)
 const deleting = ref(false)
 
 const deleteCategoryMutation = useDeleteCategoryMutation({
-  variables: { categoryId: route.params.categoryId as string },
   refetchQueries: ['Groups']
 })
 
@@ -453,7 +455,7 @@ function addParticipant () {
     team.members = newParticipant.members.split(',')
 
     createTeamMutation.mutate({
-      categoryId: route.params.categoryId as string,
+      categoryId: categoryId.value,
       data: team
     })
   } else {
@@ -461,7 +463,7 @@ function addParticipant () {
     athlete.ijruId = newParticipant.ijruId
 
     createAthleteMutation.mutate({
-      categoryId: route.params.categoryId as string,
+      categoryId: categoryId.value,
       data: athlete
     })
   }
@@ -515,9 +517,9 @@ async function updateAssignment (judge: Pick<Judge, 'id'> & { assignments: Judge
     await deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id })
   } else if (existing) {
     await deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id }, { awaitRefetchQueries: false, refetchQueries: [] })
-    await createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
+    await createJudgeAssignment.mutate({ categoryId: categoryId.value, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
   } else if (judgeType !== 'none') {
-    await createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
+    await createJudgeAssignment.mutate({ categoryId: categoryId.value, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType } })
   }
 }
 
@@ -526,7 +528,7 @@ async function updateAssignmentPool (judge: Pick<Judge, 'id'> & { assignments: J
 
   if (existing) {
     await deleteJudgeAssignment.mutate({ judgeAssignmentId: existing.id }, { awaitRefetchQueries: false, refetchQueries: [] })
-    await createJudgeAssignment.mutate({ categoryId: route.params.categoryId as string, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType: existing.judgeType, pool, options: existing.options } })
+    await createJudgeAssignment.mutate({ categoryId: categoryId.value, judgeId: judge.id, data: { competitionEventId: cEvtDef, judgeType: existing.judgeType, pool, options: existing.options } })
   }
 }
 

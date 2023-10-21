@@ -6,7 +6,7 @@
         <text-button :loading="categoryGridQuery.loading.value" @click="categoryGridQuery.refetch()">
           Refresh
         </text-button>
-        <button-link :to="`/groups/${route.params.groupId}/categories/${route.params.categoryId}/settings`">
+        <button-link :to="`/groups/${groupId}/categories/${categoryId}/settings`">
           Settings
         </button-link>
       </menu>
@@ -61,7 +61,7 @@
           >
             <button-link
               v-if="isSpeedEvent(cEvtDefCode)"
-              :to="`/groups/${route.params.groupId}/categories/${$route.params.categoryId}/competition-events/${cEvtDefCode}`"
+              :to="`/groups/${groupId}/categories/${categoryId}/competition-events/${cEvtDefCode}`"
               dense
             >
               All
@@ -124,8 +124,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { memberNames, getAbbr, type CompetitionEvent, isSpeedEvent } from '../helpers'
+import { useRouteParams } from '@vueuse/router'
 
 import { ButtonLink, TextButton } from '@ropescore/components'
 
@@ -133,13 +134,15 @@ import IconLoading from 'virtual:icons/mdi/loading'
 
 import { CategoryType, type Participant, useCategoryGridQuery, useCreateEntryMutation } from '../graphql/generated'
 
-const route = useRoute()
+const categoryId = useRouteParams<string>('categoryId', '')
+const groupId = useRouteParams<string>('groupId', '')
+
 const router = useRouter()
 
-const categoryGridQuery = useCategoryGridQuery({
-  groupId: route.params.groupId as string,
-  categoryId: route.params.categoryId as string
-}, { fetchPolicy: 'cache-and-network' })
+const categoryGridQuery = useCategoryGridQuery(() => ({
+  groupId: groupId.value,
+  categoryId: categoryId.value
+}), { fetchPolicy: 'cache-and-network' })
 
 const category = computed(() => categoryGridQuery.result.value?.group?.category)
 const participants = computed(() => categoryGridQuery.result.value?.group?.category?.participants ?? [])
@@ -162,7 +165,7 @@ async function openEntry (participantId: Participant['id'], cEvtDef: Competition
   let entry = entries.value.find(en => en.participant.id === participantId && en.competitionEventId === cEvtDef)
   if (!entry) {
     const result = await createEntryMutation.mutate({
-      categoryId: route.params.categoryId as string,
+      categoryId: categoryId.value,
       participantId,
       data: {
         competitionEventId: cEvtDef
@@ -171,6 +174,6 @@ async function openEntry (participantId: Participant['id'], cEvtDef: Competition
     entry = result?.data?.createEntry
     if (!entry) return
   }
-  router.push(`/groups/${route.params.groupId}/categories/${route.params.categoryId}/entries/${entry.id}`)
+  router.push(`/groups/${groupId.value}/categories/${categoryId.value}/entries/${entry.id}`)
 }
 </script>

@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouteParams } from '@vueuse/router'
 
 import { TextButton } from '@ropescore/components'
 import ExcelWorkbook from '../components/ExcelWorkbook.vue'
@@ -67,14 +67,16 @@ import ResultTable from '../components/ResultTable.vue'
 import { type RankedResultBaseFragment, useResultsQuery } from '../graphql/generated'
 import { type CompetitionEventDefinition, parseCompetitionEventDefinition } from '@ropescore/rulesets'
 
-const route = useRoute()
+const categoryId = useRouteParams<string>('categoryId', '')
+const groupId = useRouteParams<string>('groupId', '')
+
 const workbook = ref<typeof ExcelWorkbook>()
 
-const resultsQuery = useResultsQuery({
-  groupId: route.params.groupId as string,
-  categoryId: route.params.categoryId as string ?? '',
-  singleCategory: !!route.params.categoryId
-}, { fetchPolicy: 'cache-and-network', pollInterval: 60_000 })
+const resultsQuery = useResultsQuery(() => ({
+  groupId: groupId.value,
+  categoryId: categoryId.value ?? '',
+  singleCategory: !!categoryId.value
+}), { fetchPolicy: 'cache-and-network', pollInterval: 60_000 })
 
 const group = computed(() => resultsQuery.result.value?.group)
 

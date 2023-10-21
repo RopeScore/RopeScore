@@ -23,14 +23,14 @@
         :disabled="!!entry?.lockedAt && !entry.didNotSkipAt"
         :loading="toggleLock.loading.value"
         :color="!!entry?.didNotSkipAt ? undefined : 'red'"
-        @click="toggleLock.mutate({ entryId: route.params.entryId as string, lock: !entry?.lockedAt, didNotSkip: true })"
+        @click="toggleLock.mutate({ entryId, lock: !entry?.lockedAt, didNotSkip: true })"
       >
         {{ entry?.didNotSkipAt ? 'Did Skip' : 'Did Not Skip' }}
       </text-button>
       <text-button
         :disabled="!!entry?.didNotSkipAt"
         :loading="toggleLock.loading.value"
-        @click="toggleLock.mutate({ entryId: route.params.entryId as string, lock: !entry?.lockedAt, didNotSkip: false })"
+        @click="toggleLock.mutate({ entryId, lock: !entry?.lockedAt, didNotSkip: false })"
       >
         {{ entry?.lockedAt ? 'Unlock' : 'Lock' }}
       </text-button>
@@ -71,8 +71,9 @@
 
 <script setup lang="ts">
 import { computed, type UnwrapRef } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useCompetitionEvent } from '../hooks/rulesets'
+import { useRouteParams } from '@vueuse/router'
 
 import { TextButton } from '@ropescore/components'
 import Scoresheets from '../components/Scoresheets.vue'
@@ -81,14 +82,17 @@ import { type EntryBaseFragment, type Judge, type JudgeAssignment, type Scoreshe
 import { filterLatestScoresheets } from '../helpers'
 import { isMarkScoresheet, isTallyScoresheet, type JudgeResult, type ScoreTally } from '@ropescore/rulesets'
 
-const route = useRoute()
+const categoryId = useRouteParams<string>('categoryId', '')
+const groupId = useRouteParams<string>('groupId', '')
+const entryId = useRouteParams<string>('entryId', '')
+
 const router = useRouter()
 
-const entryWithScoresheetQuery = useEntryWithScoresheetsQuery({
-  groupId: route.params.groupId as string,
-  categoryId: route.params.categoryId as string,
-  entryId: route.params.entryId as string
-}, { fetchPolicy: 'cache-and-network' })
+const entryWithScoresheetQuery = useEntryWithScoresheetsQuery(() => ({
+  groupId: groupId.value,
+  categoryId: categoryId.value,
+  entryId: entryId.value
+}), { fetchPolicy: 'cache-and-network' })
 
 const category = computed(() => entryWithScoresheetQuery.result.value?.group?.category)
 const entry = computed(() => entryWithScoresheetQuery.result.value?.group?.entry)

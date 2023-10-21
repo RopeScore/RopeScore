@@ -174,7 +174,7 @@
         >
           Set Heat
         </text-button>
-        <form id="new-heat" @submit.prevent="setCurrentHeat.mutate({ groupId: route.params.groupId as string, heat: newCurrentHeat! })" />
+        <form id="new-heat" @submit.prevent="setCurrentHeat.mutate({ groupId, heat: newCurrentHeat! })" />
         <text-button @click="scrollToCurrentHeat()">
           Scroll
         </text-button>
@@ -198,7 +198,7 @@
           <entry-card
             v-for="entry of ents"
             :key="entry.id"
-            :group-id="route.params.groupId as string"
+            :group-id="groupId"
             :category="findCategory(entry.category.id)!"
             :entry="entry"
             :participant="entry.participant"
@@ -268,15 +268,16 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue'
-import { useRoute } from 'vue-router'
-import { type CompetitionEvent, formatDate, isMarkScoresheet } from '../helpers'
+import { type CompetitionEvent, isMarkScoresheet } from '../helpers'
+import { useRouteParams } from '@vueuse/router'
 
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
 import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, type MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, type ScoresheetBaseFragment, type MarkScoresheetStatusFragment } from '../graphql/generated'
 
-const route = useRoute()
+const groupId = useRouteParams<string>('groupId', '')
+
 const fetchTime = ref(0)
 const newDevices = reactive<Record<string, string>>({})
 const newCurrentHeat = ref<number>()
@@ -298,11 +299,11 @@ setJudgeDevice.onDone(res => {
 })
 
 const heatsQuery = useHeatsQuery(
-  () => ({ groupId: route.params.groupId as string }),
+  () => ({ groupId: groupId.value }),
   { pollInterval: 60_000, fetchPolicy: 'cache-and-network' }
 )
 const judgeStatusesQuery = useJudgeStatusesQuery(
-  () => ({ groupId: route.params.groupId as string }),
+  () => ({ groupId: groupId.value }),
   { pollInterval: 60_000, fetchPolicy: 'cache-and-network' }
 )
 
@@ -347,14 +348,14 @@ async function nextHeat () {
   const nextHeat = currentHeat.value == null
     ? heats.value[0]
     : heats.value[heats.value.indexOf(currentHeat.value) + 1]
-  if (nextHeat != null && nextHeat < (heats.value.at(-1) ?? 1)) return setCurrentHeat.mutate({ groupId: route.params.groupId as string, heat: nextHeat })
+  if (nextHeat != null && nextHeat < (heats.value.at(-1) ?? 1)) return setCurrentHeat.mutate({ groupId: groupId.value, heat: nextHeat })
 }
 
 async function prevHeat () {
   const prevHeat = currentHeat.value == null
     ? heats.value[0]
     : heats.value[heats.value.indexOf(currentHeat.value) - 1]
-  if (prevHeat != null) return setCurrentHeat.mutate({ groupId: route.params.groupId as string, heat: prevHeat })
+  if (prevHeat != null) return setCurrentHeat.mutate({ groupId: groupId.value, heat: prevHeat })
 }
 
 const newEntry = {
@@ -373,8 +374,8 @@ const formFilled = computed(() => {
 })
 
 const catGridVars = computed(() => ({
-  groupId: route.params.groupId as string,
-  categoryId: newEntry.categoryId.value as string
+  groupId: groupId.value,
+  categoryId: newEntry.categoryId.value ?? ''
 }))
 
 const categoryGridQuery = useCategoryGridQuery(catGridVars, {
