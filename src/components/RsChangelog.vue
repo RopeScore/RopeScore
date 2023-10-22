@@ -1,4 +1,23 @@
 <template>
+  <h2>v6.1.2</h2>
+  <ul>
+    <li>
+      Fix an issue where SvGF Rikshoppet Overalls were using SvGF Pair overall
+      rules
+    </li>
+    <li>Fix the name of SvGF Rikshoppet 8:an overall</li>
+  </ul>
+  <h2>v6.1.1</h2>
+  <ul>
+    <li>Fix Wheel Required Elements missing interactions</li>
+    <li>
+      Fix an issue where the interface didn't update when you switched category
+      from the side menu while on a category overview
+    </li>
+    <li>
+      Hide excluded scoresheets from the score all for a competition event
+    </li>
+  </ul>
   <h2>v6.1.0</h2>
   <ul>
     <li>
