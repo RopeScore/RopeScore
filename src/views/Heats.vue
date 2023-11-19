@@ -61,7 +61,7 @@
             </template>
             <td v-else colspan="4" />
 
-            <td class="max-w-[10ch]">
+            <td class="max-w-[10ch] min-w-[6ch]">
               <form :id="`new-device-id-${judge.id}`" class="hidden" @submit.prevent="setJudgeDevice.mutate({ judgeId: judge.id, deviceId: newDevices[judge.id] })" />
               <text-field v-model="newDevices[judge.id]" :form="`new-device-id-${judge.id}`" dense label="Device ID" required />
             </td>

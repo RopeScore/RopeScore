@@ -1,4 +1,14 @@
 <template>
+  <h2>v6.1.3</h2>
+  <ul>
+    <li>
+      Fix an issue where SvGF Vikingahoppet Utmaningen always had a result of 0
+    </li>
+    <li>
+      Fix an issue where the input field for changing the judge device on the
+      heats view had no width when the screen was narrow.
+    </li>
+  </ul>
   <h2>v6.1.2</h2>
   <ul>
     <li>
