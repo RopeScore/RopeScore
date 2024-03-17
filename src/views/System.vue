@@ -2,7 +2,7 @@
   <section v-if="!auth.firebaseUser.value" class="container mx-auto">
     <h1>User Registration</h1>
 
-    <note-card v-if="system.oldSystemId != null" color="orange">
+    <note-card v-if="system.oldSystemId.value != null" color="orange">
       RopeScore is moving from each device having an identity to
       each person having a login. This means you'll be able to log
       in and access your competitions from any RopeScore installation
