@@ -1,8 +1,16 @@
 <template>
-  <h2>v6.1.4</h2>
+  <h2>v6.2.0</h2>
   <ul>
     <li>
       SvGF Vikingahoppet speed should always round to whole numbers.
+    </li>
+    <li>
+      It is now possible to edit the names of judges.
+    </li>
+    <li>
+      Authentication has changed from a per-device model to a per-user model.
+      You will be prompted to register an account (which migrates your old
+      account) when you first start this version.
     </li>
   </ul>
   <h2>v6.1.3</h2>

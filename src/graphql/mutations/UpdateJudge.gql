@@ -1,0 +1,5 @@
+mutation UpdateJudge ($judgeId: ID!, $data: UpdateJudgeInput!) {
+  updateJudge (judgeId: $judgeId, data: $data) {
+    ...JudgeBaseFragment
+  }
+}

@@ -30,7 +30,7 @@
       </nav>
     </header>
     <aside :class="{ 'hidden': !sidebarOpen }" class="noprint bg-white border-r border-r-gray-200 fixed z-2000 top-[3.5rem] bottom-0 overflow-y-auto w-[33%]">
-      <nav class="px-4 pt-4">
+      <nav v-if="auth.isAuthenticated.value" class="px-4 pt-4">
         <template v-for="group, idx of groups" :key="group.id">
           <group-sidebar-item :group="group" :categories="group.categories" />
           <hr v-if="idx !== (groups?.length ?? 0) - 1" class="border-t-0 border-b border-gray-300 my-2">
@@ -51,7 +51,7 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from 'vue-router'
 import { version } from './helpers'
-import { useSystem } from './hooks/system'
+import useFirebaseAuth from './hooks/firebase-auth'
 
 import IconMenu from 'virtual:icons/mdi/menu'
 import { ButtonLink, TextButton } from '@ropescore/components'
@@ -63,19 +63,16 @@ import { computed, ref } from 'vue'
 const route = useRoute()
 const router = useRouter()
 
-const system = useSystem()
+const auth = useFirebaseAuth()
 
 const sidebarOpen = ref(false)
-
-if (!system.value.rsApiToken && route.name !== 'system') {
-  router.push({ name: 'system' })
-}
 
 const meQuery = useMeQuery()
 const me = computed(() => meQuery.result.value?.me)
 
 const groupsQuery = useGroupsQuery({
-  fetchPolicy: 'cache-and-network'
+  fetchPolicy: 'cache-and-network',
+  enabled: auth.isAuthenticated
 })
 const groups = computed(() => groupsQuery.result.value?.groups)
 

@@ -8,6 +8,15 @@ import router from './router'
 import { DefaultApolloClient } from '@vue/apollo-composable'
 import { apolloClient } from './apollo'
 import { version } from './helpers'
+import { initializeApp } from 'firebase/app'
+
+initializeApp({
+  apiKey: 'AIzaSyCbOo3XqKZfQWkfudXQ-_5OKvNaWnSeRsA',
+  authDomain: 'ropescore-app.firebaseapp.com',
+  projectId: 'ropescore-app',
+  messagingSenderId: '224455118938',
+  appId: '1:224455118938:web:16809333c313cee9398863'
+})
 
 const app = createApp(App as Component)
 

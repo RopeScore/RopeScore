@@ -1,58 +1,55 @@
 import { ApolloClient, createHttpLink, InMemoryCache, from } from '@apollo/client/core'
 import { onError } from '@apollo/client/link/error'
 import { setContext } from '@apollo/client/link/context'
-import { ref } from 'vue'
 import { useSystem } from './hooks/system'
-import { v4 as uuid } from 'uuid'
+import useNotifications from './hooks/notifications'
+import { getAuth } from 'firebase/auth'
 
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_GRAPHQL_ENDPOINT ?? 'https://api.ropescore.com/graphql'
 })
 
 const system = useSystem()
-export const errors = ref<Array<{ id: string, message: string, type: 'server' | 'network' }>>([])
+const notifications = useNotifications()
 
 const authLink = setContext(async (_, { headers }) => {
-  const token = system.value.rsApiToken
+  const auth = getAuth()
+  const token = system.settings.value.rsApiToken
+  const firebaseToken = await new Promise<string | undefined>((resolve, reject) => {
+    const off = auth.onAuthStateChanged(user => {
+      off()
+      if (user) {
+        user.getIdToken()
+          .then(token => { resolve(token) })
+          .catch(err => { reject(err) })
+      } else resolve(undefined)
+    })
+  })
+
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : ''
+      authorization: token ? `Bearer ${token}` : '',
+      'firebase-authorization': firebaseToken ? `Bearer ${firebaseToken}` : ''
     }
   }
 })
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    const ids: string[] = []
     for (const err of graphQLErrors) {
-      const id = uuid()
-      errors.value.push({
-        id,
+      notifications.push({
         message: err.message,
         type: 'server'
       })
-      ids.push(id)
       console.warn(err)
     }
-    setTimeout(() => {
-      for (const id of ids) {
-        const errIdx = errors.value.findIndex(e => e.id === id)
-        if (errIdx > -1) errors.value.splice(errIdx, 1)
-      }
-    }, 5000)
   }
   if (networkError) {
-    const id = uuid()
-    errors.value.push({
-      id,
+    notifications.push({
       message: networkError.message,
       type: 'network'
     })
-    setTimeout(() => {
-      const errIdx = errors.value.findIndex(e => e.id === id)
-      if (errIdx > -1) errors.value.splice(errIdx, 1)
-    }, 5000)
     console.error(networkError)
   }
 })
