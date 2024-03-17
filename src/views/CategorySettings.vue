@@ -224,6 +224,7 @@
           <th>ID</th>
           <th>Name</th>
           <th>IJRU ID</th>
+          <th />
           <th v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode" colspan="3">
             {{ getAbbr(cEvtDefCode) }}
           </th>
@@ -238,6 +239,9 @@
           </td>
           <td>{{ judge.name }}</td>
           <td>{{ judge.ijruId }}</td>
+          <td>
+            <edit-judge :judge="judge" />
+          </td>
           <template v-for="cEvtDefCode of category.competitionEventIds" :key="cEvtDefCode">
             <td>
               <select-field
@@ -299,7 +303,7 @@
               @update:model-value="newJudge.ijruId = ($event as string)"
             />
           </td>
-          <td :colspan="category.competitionEventIds.length * 3">
+          <td>
             <text-button
               form="new-judge"
               dense
@@ -311,6 +315,7 @@
               Create
             </text-button>
           </td>
+          <td :colspan="category.competitionEventIds.length * 3" />
         </tr>
       </tfoot>
       <form id="new-judge" @submit.prevent="createJudgeMutation.mutate({ groupId: groupId, data: newJudge })" />
@@ -343,6 +348,7 @@ import countryData from '../data/countries.json'
 
 import { TextButton, TextField, SelectField, CheckboxField, NumberField } from '@ropescore/components'
 import EditParticipant from '../components/EditParticipant.vue'
+import EditJudge from '../components/EditJudge.vue'
 import IconCheck from 'virtual:icons/mdi/check'
 import IconLoading from 'virtual:icons/mdi/loading'
 
