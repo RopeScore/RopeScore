@@ -15,7 +15,7 @@ module.exports = {
   ],
   extends: [
     'plugin:vue/vue3-recommended',
-    'standard-with-typescript'
+    'love'
   ],
   parserOptions: {
     project: ['tsconfig.json', 'tsconfig.test.json', 'tsconfig.electron.json', 'tsconfig.eslint.json'],
