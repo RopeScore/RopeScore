@@ -1,4 +1,10 @@
 <template>
+  <h2>v6.1.4</h2>
+  <ul>
+    <li>
+      SvGF Vikingahoppet speed should always round to whole numbers.
+    </li>
+  </ul>
   <h2>v6.1.3</h2>
   <ul>
     <li>
