@@ -1,15 +1,19 @@
 <template>
-  <div class="
-    relative w-max my-4
-    mx-auto
-    2xl:(grid grid-cols-[max-content,auto] gap-2 items-start)
-  ">
-    <div class="
-      noprint nozoom border-gray-300
-      <2xl:(absolute top-[1px] right-[1px] border-l border-b rounded-bl)
-      2xl:(border rounded col-start-2)
-      p-2 bg-white
-    ">
+  <div
+    class="
+      relative w-max my-4
+      mx-auto
+      2xl:(grid grid-cols-[max-content,auto] gap-2 items-start)
+    "
+  >
+    <div
+      class="
+        noprint nozoom border-gray-300
+        <2xl:(absolute top-[1px] right-[1px] border-l border-b rounded-bl)
+        2xl:(border rounded col-start-2)
+        p-2 bg-white
+      "
+    >
       <div class="flex justify-between">
         <text-button class="nozoom" :loading="setPagePrintConfigMutation.loading.value" @click="setPagePrintConfigMutation.mutate({ categoryId: category.id, competitionEventId, data: { zoom: zoom - 0.03 } })">
           Zoom -
@@ -390,7 +394,7 @@ function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
         }
       }
     }
-    excelGroupedHeaderRows[groupRow] = [].concat.apply(
+    excelGroupedHeaderRows[groupRow] = ([] as any[]).concat.apply(
       new Array(1),
       excelGroupedHeaderRows[groupRow]
     )

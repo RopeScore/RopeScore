@@ -396,13 +396,13 @@ const updateCategory = useUpdateCategoryMutation({
 
 function toggleCEvt (cEvtDef: CompetitionEvent) {
   if (!category.value) return
-  const competitionEventIds = [...category.value.competitionEventIds]
+  const competitionEventIds: string[] = [...category.value.competitionEventIds]
   const existsIdx = competitionEventIds.indexOf(cEvtDef)
 
   if (existsIdx > -1) competitionEventIds.splice(existsIdx, 1)
   else competitionEventIds.push(cEvtDef)
 
-  const template = Object.keys(ruleset.value?.competitionEvents ?? {})
+  const template: string[] = Object.keys(ruleset.value?.competitionEvents ?? {})
   competitionEventIds.sort((a, b) => template.indexOf(a) - template.indexOf(b))
 
   updateCategory.mutate({ categoryId: category.value.id, data: { competitionEventIds } })

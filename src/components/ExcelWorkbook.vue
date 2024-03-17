@@ -5,8 +5,7 @@
 <script setup lang="ts">
 import { provide, ref, watch } from 'vue'
 import Excel from 'exceljs'
-import { nameCleaner, formatShortDate } from '../helpers'
-import { version } from '../helpers'
+import { nameCleaner, formatShortDate, version } from '../helpers'
 
 const props = defineProps({
   name: {

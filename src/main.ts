@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, type Component } from 'vue'
 import * as Sentry from '@sentry/vue'
 import 'virtual:windi.css'
 import '../node_modules/@ropescore/components/dist/style.css'
@@ -9,7 +9,7 @@ import { DefaultApolloClient } from '@vue/apollo-composable'
 import { apolloClient } from './apollo'
 import { version } from './helpers'
 
-const app = createApp(App)
+const app = createApp(App as Component)
 
 app.provide(DefaultApolloClient, apolloClient)
   .use(router)

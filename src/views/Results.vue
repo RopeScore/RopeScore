@@ -95,7 +95,7 @@ const hasLogo = computed(() => {
 
 function transposeResults (rankedResults: RankedResultBaseFragment[], defaultEnabled: CompetitionEventDefinition[]) {
   const orderedCEvtIds: CompetitionEventDefinition[] = [...new Set(rankedResults.map(rr => rr.competitionEventId).concat(defaultEnabled))]
-    .sort((a, b) => {
+    .sort((a: string, b: string) => {
       const parsedA = parseCompetitionEventDefinition(a)
       const parsedB = parseCompetitionEventDefinition(b)
       if (parsedA.type === 'oa' && parsedB.type === 'oa') return a.localeCompare(b)
