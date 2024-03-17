@@ -44,6 +44,19 @@
         >
           Log In
         </text-button>
+        <text-button
+          class="mt-4 mb-2"
+          type="button"
+          :loading="auth.resetPasswordLoading.value"
+          :disabled="auth.resetPasswordLoading.value || !loginInfo.email"
+          @click="resetPassword()"
+        >
+          Reset Password
+        </text-button>
+
+        <note-card v-if="showResetSent">
+          A link to reset your password has been sent to your email.
+        </note-card>
       </form>
 
       <form @submit.prevent="register()">
@@ -206,4 +219,11 @@ async function register () {
 const updateInfo = reactive({
   name: ''
 })
+
+const showResetSent = ref(false)
+async function resetPassword () {
+  if (auth.firebaseUser.value != null) return
+  await auth.resetPassword({ email: loginInfo.email })
+  showResetSent.value = true
+}
 </script>

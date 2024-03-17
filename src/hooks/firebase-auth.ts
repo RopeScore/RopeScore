@@ -1,4 +1,4 @@
-import { getAuth, type User, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth'
+import { getAuth, type User, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, sendPasswordResetEmail } from 'firebase/auth'
 import { setUser } from '@sentry/browser'
 import { ref, computed, onUnmounted } from 'vue'
 import { useMeQuery, useUpdateUserMutation } from '../graphql/generated'
@@ -9,6 +9,10 @@ import { apolloClient } from '../apollo'
 
 const notifications = useNotifications()
 const system = useSystem()
+
+export interface ResetPasswordCredentials {
+  email: string
+}
 
 export interface LoginCredentials {
   email: string
@@ -139,7 +143,28 @@ export default function useFirebaseAuth () {
     } finally {
       resendEmailVerificationLoading.value = false
     }
-}
+  }
+
+  const resetPasswordLoading = ref(false)
+  async function resetPassword (credentials: ResetPasswordCredentials) {
+    if (firebaseUser.value != null) return
+    try {
+      resetPasswordLoading.value = true
+      await sendPasswordResetEmail(auth, credentials.email)
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        notifications.push({
+          message: err.message,
+          code: err.code,
+          type: 'server'
+        })
+      } else {
+        throw err
+      }
+    } finally {
+      resetPasswordLoading.value = false
+    }
+  }
 
   return {
     user,
@@ -149,12 +174,13 @@ export default function useFirebaseAuth () {
     login,
     logout,
     loginLoading,
-
+    resetPassword,
+    resetPasswordLoading,
     register,
     registerLoading,
     update,
     updateLoading,
     resendEmailVerification,
-    resendEmailVerificationLoading,
+    resendEmailVerificationLoading
   }
 }
