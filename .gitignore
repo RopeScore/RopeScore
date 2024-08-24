@@ -10,3 +10,4 @@ src/graphql/generated.ts
 
 coverage
 .vscode
+.firebaserc
