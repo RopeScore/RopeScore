@@ -26,7 +26,7 @@
     "@github/relative-time-element": "^4.4.3",
     "@ropescore/components": "^1.9.1",
     "@ropescore/rulesets": "^0.11.0",
-    "@sentry/vue": "^7.107.0",
+    "@sentry/vue": "^8.35.0",
     "@vue/apollo-composable": "^4.2.1",
     "@vueuse/core": "^11.2.0",
     "@vueuse/router": "^11.2.0",
