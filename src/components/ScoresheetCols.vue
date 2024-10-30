@@ -122,7 +122,7 @@ async function createTallyScoresheet (previousScoresheet?: ScoresheetBaseFragmen
   let tally = {}
 
   if (rsIsMarkScoresheet(previousScoresheet)) {
-    judgeTypes.value?.[props.judgeType]?.calculateTally({
+    tally = judgeTypes.value?.[props.judgeType]?.calculateTally({
       meta: {
         judgeId: previousScoresheet.judge.id,
         judgeTypeId: previousScoresheet.judgeType,

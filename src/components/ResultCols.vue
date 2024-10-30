@@ -13,7 +13,7 @@ import { useCompetitionEvent } from '../hooks/rulesets'
 import { filterLatestScoresheets, isTallyScoresheet } from '../helpers'
 
 import type { PropType } from 'vue'
-import { isMarkScoresheet, type JudgeResult, type ScoreTally, type TableHeader } from '@ropescore/rulesets'
+import { isMarkScoresheet, type ScoreTally, type TableHeader } from '@ropescore/rulesets'
 import { type EntryBaseFragment, type MarkScoresheetFragment, type ScoresheetBaseFragment, type TallyScoresheetFragment } from '../graphql/generated'
 
 const props = defineProps({

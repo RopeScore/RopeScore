@@ -81,7 +81,7 @@ import Scoresheets from '../components/Scoresheets.vue'
 
 import { type EntryBaseFragment, type Judge, type JudgeAssignment, type ScoresheetBaseFragment, useEntryWithScoresheetsQuery, useToggleEntryLockMutation } from '../graphql/generated'
 import { filterLatestScoresheets } from '../helpers'
-import { isMarkScoresheet, isTallyScoresheet, type JudgeResult, type ScoreTally } from '@ropescore/rulesets'
+import { isMarkScoresheet, isTallyScoresheet, type ScoreTally } from '@ropescore/rulesets'
 
 const categoryId = useRouteParams<string>('categoryId', '')
 const groupId = useRouteParams<string>('groupId', '')
@@ -117,18 +117,18 @@ const result = computed(() => {
       if (judge == null) return undefined
 
       const meta = {
-          entryId: entry.value.id,
-          participantId: entry.value.participant.id,
-          competitionEvent: entry.value.competitionEventId,
-          judgeTypeId: scsh.judgeType,
-          judgeId: scsh.judge.id
-        }
+        entryId: entry.value.id,
+        participantId: entry.value.participant.id,
+        competitionEvent: entry.value.competitionEventId,
+        judgeTypeId: scsh.judgeType,
+        judgeId: scsh.judge.id
+      }
 
       const tallyScsh = isTallyScoresheet(scsh) ? { meta, tally: scsh.tally as ScoreTally } : judge.calculateTally({ meta, marks: isMarkScoresheet(scsh) ? scsh.marks : [] })
 
       return judge.calculateJudgeResult(tallyScsh)
     })
-    .filter(r => r != null) as JudgeResult[]
+    .filter(r => r != null)
   return competitionEvent.value?.calculateEntry(
     {
       entryId: entry.value.id,
