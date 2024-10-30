@@ -51,15 +51,20 @@ const judgeType = computed(() =>
 
 const result = computed(() => {
   if (!isTallyScoresheet(props.scoresheet) && !isMarkScoresheet(props.scoresheet)) return
-  return judgeType.value?.calculateScoresheet({
-    meta: {
-      judgeId: props.scoresheet.judge.id,
-      judgeTypeId: props.scoresheet.judgeType,
-      entryId: '1',
-      participantId: '1',
-      competitionEvent: props.competitionEvent
-    },
-    ...(isMarkScoresheet(props.scoresheet) ? { marks: props.scoresheet.marks as Array<Mark<string>> } : { tally: props.scoresheet.tally as ScoreTally })
-  })
+  if (judgeType.value == null) return undefined
+
+  const meta = {
+    judgeId: props.scoresheet.judge.id,
+    judgeTypeId: props.scoresheet.judgeType,
+    entryId: '1',
+    participantId: '1',
+    competitionEvent: props.competitionEvent
+  }
+
+  const tallyScsh = isTallyScoresheet(props.scoresheet)
+    ? { meta, tally: props.scoresheet.tally as ScoreTally }
+    : judgeType.value.calculateTally({ meta, marks: isMarkScoresheet(props.scoresheet) ? props.scoresheet.marks as Array<Mark<string>> : [] })
+
+  return judgeType.value.calculateJudgeResult(tallyScsh)
 })
 </script>

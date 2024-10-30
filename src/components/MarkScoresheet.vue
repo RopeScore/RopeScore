@@ -1,7 +1,7 @@
 <template>
   <fieldset v-if="!table" class="mb-2">
     <number-field
-      v-for="tField of judgeTypes?.[judgeType]?.fieldDefinitions ?? []"
+      v-for="tField of judgeTypes?.[judgeType]?.tallyDefinitions ?? []"
       :key="tField.schema"
       :model-value="tally[tField.schema]"
       :label="tField.name"
@@ -10,7 +10,7 @@
   </fieldset>
   <template v-else>
     <td
-      v-for="tField of judgeTypes?.[judgeType]?.fieldDefinitions ?? []"
+      v-for="tField of judgeTypes?.[judgeType]?.tallyDefinitions ?? []"
       :key="tField.schema"
     >
       <number-field
@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
-import { type MarkScoresheet, calculateTally } from '@ropescore/rulesets'
+import type { Mark, ScoreTally } from '@ropescore/rulesets'
 
 import type { PropType } from 'vue'
 import type { CompetitionEvent } from '../helpers'
@@ -70,9 +70,17 @@ const judgeTypes = computed(() => Object.fromEntries(
     }) ?? []
 ))
 
-const tally = computed(() => {
+const tally = computed<ScoreTally>(() => {
   if (!scoresheet.value) return {}
-  const t = calculateTally(scoresheet.value as unknown as Pick<MarkScoresheet<string>, 'marks'>, judgeTypes.value?.[props.judgeType]?.fieldDefinitions ?? [])
-  return t
+  return judgeTypes.value?.[props.judgeType]?.calculateTally({
+    meta: {
+      judgeId: props.scoresheet.judge.id,
+      judgeTypeId: props.scoresheet.judgeType,
+      entryId: '1',
+      participantId: '1',
+      competitionEvent: props.competitionEvent
+    },
+    marks: (scoresheet.value.marks as Array<Mark<string>> | undefined) ?? []
+  })?.tally ?? {}
 })
 </script>

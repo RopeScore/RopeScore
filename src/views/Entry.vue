@@ -111,21 +111,23 @@ const result = computed(() => {
   // TODO: apply config
   const judges = competitionEvent.value?.judges.map(j => j({})) ?? []
   const judgeResults = scoresheets
-    .map(scsh => entry.value == null
-      ? undefined
-      : judges.find(j => j.id === scsh.judgeType)?.calculateScoresheet({
-        meta: {
+    .map(scsh => {
+      if (entry.value == null) return undefined
+      const judge = judges.find(j => j.id === scsh.judgeType)
+      if (judge == null) return undefined
+
+      const meta = {
           entryId: entry.value.id,
           participantId: entry.value.participant.id,
           competitionEvent: entry.value.competitionEventId,
           judgeTypeId: scsh.judgeType,
           judgeId: scsh.judge.id
-        },
-        ...(isTallyScoresheet(scsh)
-          ? { tally: scsh.tally as ScoreTally }
-          : { marks: isMarkScoresheet(scsh) ? scsh.marks : [] }
-        )
-      }))
+        }
+
+      const tallyScsh = isTallyScoresheet(scsh) ? { meta, tally: scsh.tally as ScoreTally } : judge.calculateTally({ meta, marks: isMarkScoresheet(scsh) ? scsh.marks : [] })
+
+      return judge.calculateJudgeResult(tallyScsh)
+    })
     .filter(r => r != null) as JudgeResult[]
   return competitionEvent.value?.calculateEntry(
     {

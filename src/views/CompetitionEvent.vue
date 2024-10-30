@@ -136,7 +136,7 @@
 
           <template
             v-for="assignment of assignments"
-            :key="assignment.judgeId"
+            :key="assignment.judge.id"
           >
             <scoresheet-cols
               v-if="entries[participant.id] && (assignment.pool != null ? assignment.pool === entries[participant.id].pool : true)"
@@ -233,7 +233,7 @@ function goBack () {
 }
 
 function judgeCols (judgeType: string) {
-  return judges.value.find(j => j.id === judgeType)?.fieldDefinitions ?? []
+  return judges.value.find(j => j.id === judgeType)?.tallyDefinitions ?? []
 }
 
 const createEntryMutation = useCreateEntryMutation({

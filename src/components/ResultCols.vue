@@ -41,20 +41,23 @@ const result = computed(() => {
   // TODO: apply options
   const judges = competitionEvent.value?.judges.map(j => j({})) ?? []
   const judgeResults = scoresheets
-    .map(scsh => judges.find(j => j.id === scsh.judgeType)?.calculateScoresheet({
-      meta: {
+    .map(scsh => {
+      const judge = judges.find(j => j.id === scsh.judgeType)
+      if (judge == null) return undefined
+
+      const meta = {
         entryId: entry.value.id,
         participantId: props.participantId,
         competitionEvent: entry.value.competitionEventId,
         judgeTypeId: scsh.judgeType,
         judgeId: scsh.judge.id
-      },
-      ...(isTallyScoresheet(scsh)
-        ? { tally: scsh.tally as ScoreTally }
-        : { marks: isMarkScoresheet(scsh) ? scsh.marks : [] }
-      )
-    }))
-    .filter(r => r != null) as JudgeResult[]
+      }
+
+      const tallyScsh = isTallyScoresheet(scsh) ? { meta, tally: scsh.tally as ScoreTally } : judge.calculateTally({ meta, marks: isMarkScoresheet(scsh) ? scsh.marks : [] })
+
+      return judge.calculateJudgeResult(tallyScsh)
+    })
+    .filter(r => r != null)
   return competitionEvent.value?.calculateEntry(
     {
       entryId: entry.value.id,
