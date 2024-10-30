@@ -16,7 +16,7 @@ const win = new Map<number, BrowserWindow>()
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
-function createWindow () {
+async function createWindow () {
   // Create the browser window.
   const newWin = new BrowserWindow({
     width: 800,
@@ -32,12 +32,12 @@ function createWindow () {
 
   if (isDevelopment) {
     // newWin.loadURL('http://localhost:5050')
-    newWin.loadURL('app://index.html')
+    await newWin.loadURL('app://index.html')
     newWin.webContents.openDevTools()
   } else {
     // Load the index.html when not in development
-    newWin.loadURL('app://index.html')
-    autoUpdater.checkForUpdatesAndNotify()
+    await newWin.loadURL('app://index.html')
+    void autoUpdater.checkForUpdatesAndNotify()
   }
 
   newWin.on('closed', () => {
@@ -83,7 +83,7 @@ function createWindow () {
           label: 'New',
           accelerator: 'CmdOrCtrl+N',
           click: () => {
-            createWindow()
+            void createWindow()
           }
         },
         {
@@ -148,7 +148,7 @@ function createWindow () {
           label: 'New',
           accelerator: 'CmdOrCtrl+N',
           click: () => {
-            createWindow()
+            void createWindow()
           }
         },
         {
@@ -195,14 +195,14 @@ app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win.size === 0) {
-    createWindow()
+    void createWindow()
   }
 })
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(async () => {
+void app.whenReady().then(async () => {
   if (isDevelopment) {
     // Install Vue Devtools
     const { default: installExtension, VUEJS_DEVTOOLS, APOLLO_DEVELOPER_TOOLS } = await import('electron-devtools-installer')
@@ -224,13 +224,13 @@ app.whenReady().then(async () => {
       accessSync(p, constants.R_OK)
       const mimeType = getType(p) ?? undefined
       console.log(p, mimeType)
-      return net.fetch(pathToFileURL(p).href, {
+      return await net.fetch(pathToFileURL(p).href, {
         headers: {
           ...(mimeType ? { 'content-type': mimeType } : {})
         }
       })
     } catch {
-      return net.fetch(pathToFileURL(indexPath).href, {
+      return await net.fetch(pathToFileURL(indexPath).href, {
         headers: {
           'content-type': 'text/html'
         }
@@ -238,7 +238,7 @@ app.whenReady().then(async () => {
     }
   })
 
-  createWindow()
+  await createWindow()
 })
 
 // Exit cleanly on request from parent process in development mode.

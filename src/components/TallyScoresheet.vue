@@ -1,7 +1,7 @@
 <template>
   <fieldset v-if="!table" class="mb-2">
     <number-field
-      v-for="tField of judgeTypes?.[judgeType]?.fieldDefinitions ?? []"
+      v-for="tField of judgeTypes?.[judgeType]?.tallyDefinitions ?? []"
       :key="tField.schema"
       :model-value="scoresheet.tally?.[tField.schema]"
       :label="tField.name"
@@ -14,7 +14,7 @@
   </fieldset>
   <template v-else-if="table">
     <td
-      v-for="tField of judgeTypes?.[judgeType]?.fieldDefinitions ?? []"
+      v-for="tField of judgeTypes?.[judgeType]?.tallyDefinitions ?? []"
       :key="tField.schema"
       class="min-w-16"
     >
@@ -97,17 +97,17 @@ watch(() => scsh.value.tally, () => {
   tally.value = { ...(scsh.value.tally ?? {}) }
 }, { immediate: true })
 
-const setTally = (schema: string, value: number) => {
+const setTally = async (schema: string, value: number) => {
   tally.value[schema] = value
   dirty.value = true
   emit('update:tally', tally.value)
-  saveTally()
+  await saveTally()
 }
 
 const fillTallyScoresheetMutation = useFillTallyScoresheetMutation({})
 
-const saveTally = useDebounceFn(() => {
-  fillTallyScoresheetMutation.mutate({
+const saveTally = useDebounceFn(async () => {
+  await fillTallyScoresheetMutation.mutate({
     scoresheetId: props.scoresheet.id,
     tally: tally.value,
     programVersion: `${name}@${version}`

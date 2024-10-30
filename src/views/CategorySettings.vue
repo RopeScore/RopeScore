@@ -376,7 +376,7 @@ const deleteCategoryMutation = useDeleteCategoryMutation({
 })
 
 deleteCategoryMutation.onDone(() => {
-  router.replace({ name: 'home' })
+  void router.replace({ name: 'home' })
 })
 
 const rulesId = computed(() => category.value?.rulesId)
@@ -400,7 +400,7 @@ const updateCategory = useUpdateCategoryMutation({
   awaitRefetchQueries: true
 })
 
-function toggleCEvt (cEvtDef: CompetitionEvent) {
+async function toggleCEvt (cEvtDef: CompetitionEvent) {
   if (!category.value) return
   const competitionEventIds: string[] = [...category.value.competitionEventIds]
   const existsIdx = competitionEventIds.indexOf(cEvtDef)
@@ -411,7 +411,7 @@ function toggleCEvt (cEvtDef: CompetitionEvent) {
   const template: string[] = Object.keys(ruleset.value?.competitionEvents ?? {})
   competitionEventIds.sort((a, b) => template.indexOf(a) - template.indexOf(b))
 
-  updateCategory.mutate({ categoryId: category.value.id, data: { competitionEventIds } })
+  await updateCategory.mutate({ categoryId: category.value.id, data: { competitionEventIds } })
 }
 
 const newParticipant = reactive({
@@ -449,7 +449,7 @@ createTeamMutation.onDone(() => {
   newParticipant.ijruId = ''
 })
 
-function addParticipant () {
+async function addParticipant () {
   const part: Partial<Participant> = {
     name: newParticipant.name,
     club: newParticipant.club,
@@ -460,7 +460,7 @@ function addParticipant () {
     const team = part as CreateTeamInput
     team.members = newParticipant.members.split(',')
 
-    createTeamMutation.mutate({
+    await createTeamMutation.mutate({
       categoryId: categoryId.value,
       data: team
     })
@@ -468,7 +468,7 @@ function addParticipant () {
     const athlete = part as CreateAthleteInput
     athlete.ijruId = newParticipant.ijruId
 
-    createAthleteMutation.mutate({
+    await createAthleteMutation.mutate({
       categoryId: categoryId.value,
       data: athlete
     })
@@ -545,6 +545,6 @@ async function toggleAssignmentLive (jA: JudgeAssignmentFragment) {
     live: !jA.options?.live
   }
 
-  updateJudgeAssignment.mutate({ judgeAssignmentId: jA.id, data: { options } })
+  await updateJudgeAssignment.mutate({ judgeAssignmentId: jA.id, data: { options } })
 }
 </script>

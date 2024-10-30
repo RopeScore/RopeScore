@@ -21,7 +21,7 @@ const authLink = setContext(async (_, { headers }) => {
       if (user) {
         user.getIdToken()
           .then(token => { resolve(token) })
-          .catch(err => { reject(err) })
+          .catch((err: Error) => { reject(err) })
       } else resolve(undefined)
     })
   })

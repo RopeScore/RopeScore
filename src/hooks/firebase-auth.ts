@@ -37,9 +37,9 @@ export default function useFirebaseAuth () {
     // set the ref to get the firebase user
     firebaseUser.value = user
     // refetch the user document from the db
-    userQuery.refetch()
+    void userQuery.refetch()
     if (user == null) {
-      apolloClient.resetStore()
+      void apolloClient.resetStore()
     }
     // set the user id for error reporting
     setUser(user ? { id: user.uid } : null)

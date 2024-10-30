@@ -274,7 +274,7 @@ import { useRouteParams } from '@vueuse/router'
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
-import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, TallyScoresheet, type MarkScoresheet, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, type ScoresheetBaseFragment, type MarkScoresheetStatusFragment } from '../graphql/generated'
+import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, type ScoresheetBaseFragment, type MarkScoresheetStatusFragment } from '../graphql/generated'
 
 const groupId = useRouteParams<string>('groupId', '')
 
@@ -319,11 +319,14 @@ function findCategory (categoryId: string) {
 
 const entries = computed(() => {
   const ents = [...(heatsQuery.result.value?.group?.entries ?? [])].filter(e => typeof e.heat === 'number')
-  ents.sort((a, b) => (a.heat as number) - (b.heat as number))
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  ents.sort((a, b) => (a.heat!) - (b.heat!))
   const heats: Record<number, typeof ents> = {}
   for (const ent of ents) {
-    heats[ent.heat as number] ??= []
-    heats[ent.heat as number].push(ent)
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    heats[ent.heat!] ??= []
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    heats[ent.heat!].push(ent)
   }
   for (const heat in heats) {
     heats[heat].sort((a, b) => {
@@ -348,14 +351,14 @@ async function nextHeat () {
   const nextHeat = currentHeat.value == null
     ? heats.value[0]
     : heats.value[heats.value.indexOf(currentHeat.value) + 1]
-  if (nextHeat != null && nextHeat < (heats.value.at(-1) ?? 1)) return setCurrentHeat.mutate({ groupId: groupId.value, heat: nextHeat })
+  if (nextHeat != null && nextHeat < (heats.value.at(-1) ?? 1)) return await setCurrentHeat.mutate({ groupId: groupId.value, heat: nextHeat })
 }
 
 async function prevHeat () {
   const prevHeat = currentHeat.value == null
     ? heats.value[0]
     : heats.value[heats.value.indexOf(currentHeat.value) - 1]
-  if (prevHeat != null) return setCurrentHeat.mutate({ groupId: groupId.value, heat: prevHeat })
+  if (prevHeat != null) return await setCurrentHeat.mutate({ groupId: groupId.value, heat: prevHeat })
 }
 
 const newEntry = {
@@ -447,7 +450,8 @@ async function findCreateEntry () {
 
 function scrollToCurrentHeat () {
   const heat = currentHeat.value ?? Object.entries(entries.value)
-    .find(([heat, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.filter(scsh => isMarkScoresheet(scsh)).every(scsh => !(scsh as MarkScoresheet)?.submittedAt)))?.[0]
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .find(([_, entries]) => entries.some(entry => !entry.didNotSkipAt && entry.scoresheets.filter(scsh => isMarkScoresheet(scsh)).every(scsh => !scsh?.submittedAt)))?.[0]
   const el = document.getElementById(`heat-${heat}`)
 
   if (!el) return

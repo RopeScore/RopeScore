@@ -76,6 +76,7 @@ import { useCompetitionEvent } from '../hooks/rulesets'
 import { useRouteParams } from '@vueuse/router'
 
 import { TextButton } from '@ropescore/components'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Scoresheets from '../components/Scoresheets.vue'
 
 import { type EntryBaseFragment, type Judge, type JudgeAssignment, type ScoresheetBaseFragment, useEntryWithScoresheetsQuery, useToggleEntryLockMutation } from '../graphql/generated'

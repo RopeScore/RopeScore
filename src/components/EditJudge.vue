@@ -66,13 +66,13 @@ updateJudgeMutation.onDone(() => {
   newJudge.ijruId = ''
 })
 
-function updateJudge () {
+async function updateJudge () {
   const part: Partial<Judge> = {}
 
   if (newJudge.name?.length > 0) part.name = newJudge.name
   if (newJudge.ijruId?.length > 0) part.ijruId = newJudge.ijruId
 
-  updateJudgeMutation.mutate({
+  await updateJudgeMutation.mutate({
     judgeId: judge.value.id,
     data: {
       name: newJudge.name?.length > 0 ? newJudge.name : null,

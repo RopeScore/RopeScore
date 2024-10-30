@@ -31,9 +31,13 @@ if (import.meta.env.PROD) {
     release: version,
     environment: import.meta.env.VITE_CONTEXT?.toString(),
     logErrors: true,
-    integrations: [new Sentry.BrowserTracing({
-      tracingOrigins: ['localhost', 'core.ropescore.com'],
-      routingInstrumentation: Sentry.vueRouterInstrumentation(router)
+    tracePropagationTargets: [
+      'localhost',
+      'core.ropescore.com',
+      'api.ropescore.com',
+    ],
+    integrations: [Sentry.browserTracingIntegration({
+      router,
     })],
     tracesSampleRate: 1.0
   })

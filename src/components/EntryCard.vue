@@ -80,7 +80,7 @@ import { computed, toRef } from 'vue'
 
 import type { PropType } from 'vue'
 import { CheckboxField, ButtonLink, TextButton } from '@ropescore/components'
-import { type AthleteFragment, type EntryBaseFragment, type CategoryBaseFragment, type JudgeAssignmentFragment, type JudgeBaseFragment, type MarkScoresheetFragment, type MarkScoresheetStatusFragment, type ScoresheetBaseFragment, type TeamFragment, useSetScoresheetOptionsMutation, useHeatsQuery, useReorderEntryMutation, useToggleEntryLockMutation } from '../graphql/generated'
+import { type AthleteFragment, type EntryBaseFragment, type CategoryBaseFragment, type JudgeAssignmentFragment, type JudgeBaseFragment, type MarkScoresheetFragment, type MarkScoresheetStatusFragment, type ScoresheetBaseFragment, type TeamFragment, useSetScoresheetOptionsMutation, useReorderEntryMutation, useToggleEntryLockMutation } from '../graphql/generated'
 
 const props = defineProps({
   groupId: {
@@ -154,7 +154,7 @@ async function toggleScoresheetLive (scsh: ScoresheetBaseFragment) {
     live: !scsh.options?.live
   }
 
-  setScoresheetOptions.mutate({ scoresheetId: scsh.id, options })
+  await setScoresheetOptions.mutate({ scoresheetId: scsh.id, options })
 }
 
 const toggleLock = useToggleEntryLockMutation({})

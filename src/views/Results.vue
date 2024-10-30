@@ -84,10 +84,11 @@ const categories = computed(() => {
   if (resultsQuery.result.value?.group?.category) {
     return [resultsQuery.result.value?.group?.category]
   } else if (resultsQuery.result.value?.group?.categories) {
-    return [...resultsQuery.result.value?.group?.categories]
+    return [...(resultsQuery.result.value?.group?.categories ?? [])]
   } else return []
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const hasLogo = computed(() => {
   // TODO return categories.value.map(c => c.print.logo).some(l => !!l)
   return false

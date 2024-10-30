@@ -116,7 +116,7 @@ updateTeamMutation.onDone(() => {
   dialogRef.value?.close()
 })
 
-function updateParticipant () {
+async function updateParticipant () {
   const part: Partial<Participant> = {}
 
   if (newParticipant.name?.length > 0) part.name = newParticipant.name
@@ -127,7 +127,7 @@ function updateParticipant () {
     const team = part as UpdateTeamInput
     if (newParticipant.members?.length > 0) team.members = newParticipant.members.split(',')
 
-    updateTeamMutation.mutate({
+    await updateTeamMutation.mutate({
       participantId: participant.value.id,
       data: team
     })
@@ -135,7 +135,7 @@ function updateParticipant () {
     const athlete = part as UpdateAthleteInput
     if (newParticipant.ijruId?.length > 0) athlete.ijruId = newParticipant.ijruId
 
-    updateAthleteMutation.mutate({
+    await updateAthleteMutation.mutate({
       participantId: participant.value.id,
       data: athlete
     })

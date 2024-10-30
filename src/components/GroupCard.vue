@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type PropType, reactive, ref, computed, onMounted } from 'vue'
+import { type PropType, reactive, ref, onMounted } from 'vue'
 
 import { listRulesets } from '@ropescore/rulesets'
 import { ButtonLink, TextField, SelectField, DialogButton, TextButton } from '@ropescore/components'

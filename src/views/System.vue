@@ -186,8 +186,6 @@ import RsChangelog from '../components/RsChangelog.vue'
 import { reactive, ref } from 'vue'
 import useFirebaseAuth from '../hooks/firebase-auth'
 import { useSystem } from '../hooks/system'
-import { sendEmailVerification } from 'firebase/auth'
-import useNotifications from '../hooks/notifications'
 
 const auth = useFirebaseAuth()
 const system = useSystem()

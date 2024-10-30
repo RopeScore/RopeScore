@@ -335,13 +335,13 @@ function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
     // eslint-disable-next-line @typescript-eslint/no-for-in-array
     for (const groupCell in groups[groupRow]) {
       for (
-        let cspan: number = 0;
+        let cspan = 0;
         cspan < (groups[groupRow][groupCell].colspan || 1);
         cspan++
       ) {
-        let free: number = 0
+        let free = 0
         for (
-          let i: number = 0;
+          let i = 0;
           i < excelGroupedHeaderRows[groupRow].length;
           i++
         ) {
@@ -351,7 +351,7 @@ function addGroupTableHeaders (worksheet: Excel.Worksheet, type: CategoryType) {
           free = i + 1
         }
         for (
-          let rspan: number = 0;
+          let rspan = 0;
           rspan < (groups[groupRow][groupCell].rowspan || 1);
           rspan++
         ) {

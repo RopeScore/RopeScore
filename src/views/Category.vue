@@ -174,6 +174,6 @@ async function openEntry (participantId: Participant['id'], cEvtDef: Competition
     entry = result?.data?.createEntry
     if (!entry) return
   }
-  router.push(`/groups/${groupId.value}/categories/${categoryId.value}/entries/${entry.id}`)
+  await router.push(`/groups/${groupId.value}/categories/${categoryId.value}/entries/${entry.id}`)
 }
 </script>

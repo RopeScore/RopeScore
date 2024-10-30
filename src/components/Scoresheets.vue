@@ -143,7 +143,7 @@ const createTallyScoresheetMutation = useCreateTallyScoresheetMutation({
 
 const setScoresheetExclusionMutation = useSetScoresheetExclusionMutation()
 
-function createTallyScoresheet (previousScoresheet?: ScoresheetBaseFragment) {
+async function createTallyScoresheet (previousScoresheet?: ScoresheetBaseFragment) {
   console.log(previousScoresheet)
   if (!props.judgeType) return
   let tally = {}
@@ -151,7 +151,7 @@ function createTallyScoresheet (previousScoresheet?: ScoresheetBaseFragment) {
   if (rsIsMarkScoresheet(previousScoresheet)) tally = calculateTally<string>(previousScoresheet)
   else if (rsIsTallyScoresheet(previousScoresheet)) tally = previousScoresheet.tally ?? {}
 
-  createTallyScoresheetMutation.mutate({
+  await createTallyScoresheetMutation.mutate({
     entryId: props.entryId,
     judgeId: props.judge.id,
     data: {

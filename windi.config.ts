@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { defineConfig } from 'vite-plugin-windicss'
 import plugin from 'windicss/plugin'
 
