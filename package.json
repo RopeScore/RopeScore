@@ -25,8 +25,8 @@
     "@apollo/client": "^3.11.8",
     "@github/relative-time-element": "^4.4.3",
     "@ropescore/components": "^1.9.1",
-    "@ropescore/rulesets": "^0.11.0",
-    "@sentry/vue": "^8.35.0",
+    "@ropescore/rulesets": "^0.12.0",
+    "@sentry/vue": "^8.36.0",
     "@vue/apollo-composable": "^4.2.1",
     "@vueuse/core": "^11.2.0",
     "@vueuse/router": "^11.2.0",
@@ -39,7 +39,7 @@
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.13.0",
+    "@eslint/js": "^9.14.0",
     "@graphql-codegen/cli": "^5.0.3",
     "@graphql-codegen/introspection": "^4.0.3",
     "@graphql-codegen/typescript": "^4.1.1",
@@ -56,7 +56,7 @@
     "electron": "^33.0.2",
     "electron-builder": "^25.1.8",
     "electron-devtools-installer": "^3.2.0",
-    "eslint": "^9.13.0",
+    "eslint": "^9.14.0",
     "eslint-plugin-vue": "^9.30.0",
     "mocha": "^10.8.2",
     "neostandard": "^0.11.7",
