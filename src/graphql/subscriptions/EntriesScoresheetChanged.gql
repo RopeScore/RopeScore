@@ -1,0 +1,3 @@
+subscription EntriesScoresheetsChanged ($entryIds: [ID!]!) {
+  scoresheetChanged (entryIds: $entryIds)
+}

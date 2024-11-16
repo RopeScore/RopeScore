@@ -274,7 +274,7 @@ import { useRouteParams } from '@vueuse/router'
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
-import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, type ScoresheetBaseFragment, type MarkScoresheetStatusFragment } from '../graphql/generated'
+import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, type ScoresheetBaseFragment, type MarkScoresheetStatusFragment, useCurrentHeatScoresheetsQuery, useEntriesScoresheetsChangedSubscription } from '../graphql/generated'
 
 const groupId = useRouteParams<string>('groupId', '')
 
@@ -317,6 +317,13 @@ function findCategory (categoryId: string) {
   return heatsQuery.result.value?.group?.categories.find(c => c.id === categoryId)
 }
 
+const currentHeatScoresheetsQuery = useCurrentHeatScoresheetsQuery(
+  () => ({ groupId: groupId.value, heat: currentHeat.value ?? 1 }),
+  { fetchPolicy: 'cache-and-network' }
+)
+
+const currentHeatEntries = computed(() => currentHeatScoresheetsQuery.result.value?.group?.entriesByHeat ?? [])
+
 const entries = computed(() => {
   const ents = [...(heatsQuery.result.value?.group?.entries ?? [])].filter(e => typeof e.heat === 'number')
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -328,6 +335,16 @@ const entries = computed(() => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     heats[ent.heat!].push(ent)
   }
+
+  for (const ent of currentHeatEntries.value) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const prevEntIdx = heats[ent.heat!]?.findIndex(e => e.id === ent.id) ?? -1
+    if (prevEntIdx > -1) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      heats[ent.heat!].splice(prevEntIdx, 1, { ...heats[ent.heat!][prevEntIdx], scoresheets: ent.scoresheets })
+    }
+  }
+
   for (const heat in heats) {
     heats[heat].sort((a, b) => {
       if (typeof a.pool === 'number' && typeof b.pool === 'number') return a.pool - b.pool
@@ -345,6 +362,16 @@ const heats = computed(() => {
   existing.push(next)
   existing.sort((a, b) => a - b)
   return existing
+})
+
+const currentHeatEntryIds = computed(() => (entries.value[currentHeat.value ?? 1] ?? []).map(e => e.id))
+
+const scoresheetsChanged = useEntriesScoresheetsChangedSubscription(() => ({
+  entryIds: currentHeatEntryIds.value
+}), { enabled: computed(() => currentHeatEntryIds.value.length > 0) })
+
+scoresheetsChanged.onResult(() => {
+  currentHeatScoresheetsQuery.refetch()
 })
 
 async function nextHeat () {
