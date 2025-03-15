@@ -60,7 +60,7 @@
         <table class="min-w-full">
           <thead>
             <tr>
-              <th>ID</th>
+              <th>Username</th>
               <th>Name</th>
               <th class="w-40" />
             </tr>
@@ -70,7 +70,7 @@
               v-for="admin of groupAdmins"
               :key="admin.id"
             >
-              <td><code>{{ admin.id }}</code></td>
+              <td><code>{{ admin.username }}</code></td>
               <td>{{ admin.name }}</td>
               <td>
                 <text-button
@@ -91,11 +91,12 @@
               <td>
                 <text-field
                   form="new-admin"
-                  label="User ID"
+                  label="Username"
+                  type="email"
                   required
                   dense
-                  :model-value="newAdminId"
-                  @update:model-value="newAdminId = ($event as string)"
+                  :model-value="newAdminUsername"
+                  @update:model-value="newAdminUsername = ($event as string)"
                 />
               </td>
               <td colspan="2">
@@ -103,7 +104,7 @@
                   form="new-admin"
                   color="blue"
                   dense
-                  :disabled="!newAdminId || !!group?.completedAt"
+                  :disabled="!newAdminUsername || !!group?.completedAt"
                   :loading="addGroupAdmin.loading.value"
                   type="submit"
                 >
@@ -113,7 +114,7 @@
             </tr>
           </tfoot>
         </table>
-        <form id="new-admin" @submit.prevent="addGroupAdmin.mutate({ groupId, userId: newAdminId! })" />
+        <form id="new-admin" @submit.prevent="addGroupAdmin.mutate({ groupId, username: newAdminUsername! })" />
       </div>
     </div>
 
@@ -136,7 +137,7 @@
               v-for="viewer of groupViewers"
               :key="viewer.id"
             >
-              <td><code>{{ viewer.id }}</code></td>
+              <td><code>{{ viewer.username }}</code></td>
               <td>{{ viewer.name }}</td>
               <td>
                 <text-button
@@ -156,11 +157,12 @@
               <td>
                 <text-field
                   form="new-viewer"
-                  label="User ID"
+                  label="Username"
+                  type="email"
                   required
                   dense
-                  :model-value="newViewerId"
-                  @update:model-value="newViewerId = ($event as string)"
+                  :model-value="newViewerUsername"
+                  @update:model-value="newViewerUsername = ($event as string)"
                 />
               </td>
               <td colspan="2">
@@ -168,7 +170,7 @@
                   form="new-viewer"
                   color="blue"
                   dense
-                  :disabled="!newViewerId || !!group?.completedAt"
+                  :disabled="!newViewerUsername || !!group?.completedAt"
                   :loading="addGroupViewer.loading.value"
                   type="submit"
                 >
@@ -178,7 +180,7 @@
             </tr>
           </tfoot>
         </table>
-        <form id="new-viewer" @submit.prevent="addGroupViewer.mutate({ groupId, userId: newViewerId! })" />
+        <form id="new-viewer" @submit.prevent="addGroupViewer.mutate({ groupId, username: newViewerUsername! })" />
       </div>
     </div>
   </div>
@@ -207,18 +209,18 @@ const groupAdmins = computed(() => groupInfoQuery.result?.value?.group?.admins ?
 
 const addGroupViewer = useAddGroupViewerMutation({})
 const removeGroupViewer = useRemoveGroupViewerMutation({})
-const newViewerId = ref<string>()
+const newViewerUsername = ref<string>()
 
 addGroupViewer.onDone(() => {
-  newViewerId.value = undefined
+  newViewerUsername.value = undefined
 })
 
 const addGroupAdmin = useAddGroupAdminMutation({})
 const removeGroupAdmin = useRemoveGroupAdminMutation({})
-const newAdminId = ref<string>()
+const newAdminUsername = ref<string>()
 
 addGroupAdmin.onDone(() => {
-  newAdminId.value = undefined
+  newAdminUsername.value = undefined
 })
 
 const toggleGroupComplete = useToggleGroupCompleteMutation({})

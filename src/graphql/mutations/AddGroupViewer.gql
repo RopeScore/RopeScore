@@ -1,5 +1,5 @@
-mutation AddGroupViewer ($groupId: ID!, $userId: ID!) {
-  addGroupViewer (groupId: $groupId, userId: $userId) {
+mutation AddGroupViewer ($groupId: ID!, $username: String) {
+  addGroupViewer (groupId: $groupId, username: $username) {
     id
     viewers {
       id

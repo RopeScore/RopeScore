@@ -5,10 +5,12 @@ query GroupInfo ($groupId: ID!) {
     admins {
       id
       name
+      username
     }
     viewers {
       id
       name
+      username
     }
   }
 }

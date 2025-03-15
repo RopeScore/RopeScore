@@ -1,4 +1,37 @@
 <template>
+  <h2>v6.7.0</h2>
+  <ul>
+    <li>
+      Admins and viewers are noe added by username/email rather than ID
+    </li>
+  </ul>
+  <h2>v6.6.0</h2>
+  <ul>
+    <li>
+      Add Rikshoppet 2025 rules
+    </li>
+  </ul>
+  <h2>v6.5.0</h2>
+  <ul>
+    <li>
+      Add support for IJRU v4.2.0 rules
+    </li>
+    <li>
+      The scoresheet status indicators should now be snappier for the current heat
+    </li>
+  </ul>
+  <h2>v6.4.0</h2>
+  <ul>
+    <li>
+      Merge svgf-vh-par@2023 with svgf-vh@2023
+    </li>
+  </ul>
+  <h2>v6.3.0</h2>
+  <ul>
+    <li>
+      Add/Update SvGF Pairs Competitions
+    </li>
+  </ul>
   <h2>v6.2.0</h2>
   <ul>
     <li>

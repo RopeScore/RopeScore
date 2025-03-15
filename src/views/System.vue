@@ -167,7 +167,7 @@
     </form>
 
     <p>
-      User ID: <code class="bg-gray-100 px-2 rounded">{{ auth.user.value?.id ?? '-' }}</code>
+      Username: <code class="bg-gray-100 px-2 rounded">{{ auth.user.value?.__typename === 'User' ? auth.user.value.username ?? auth.user.value.id : auth.user.value?.id ?? '-' }}</code>
     </p>
     <p v-if="system.oldSystemId.value != null">
       Old System ID: <code class="bg-gray-100 px-2 rounded">{{ system.oldSystemId.value ?? '-' }}</code>

@@ -1,5 +1,5 @@
-mutation AddGroupAdmin ($groupId: ID!, $userId: ID!) {
-  addGroupAdmin (groupId: $groupId, userId: $userId) {
+mutation AddGroupAdmin ($groupId: ID!, $username: String) {
+  addGroupAdmin (groupId: $groupId, username: $username) {
     id
     admins {
       id
