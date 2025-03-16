@@ -3,14 +3,14 @@
     v-for="col of columns"
     :key="col.key"
   >
-    {{ result ? col.formatter?.(result.result[col.key]) ?? result.result[col.key] : '' }}
+    {{ extractTableScore(col, result) }}
   </td>
 </template>
 
 <script setup lang="ts">
 import { computed, toRef } from 'vue'
 import { useCompetitionEvent } from '../hooks/rulesets'
-import { filterLatestScoresheets, isTallyScoresheet } from '../helpers'
+import { extractTableScore, filterLatestScoresheets, isTallyScoresheet } from '../helpers'
 
 import type { PropType } from 'vue'
 import { isMarkScoresheet, type ScoreTally, type TableHeader } from '@ropescore/rulesets'

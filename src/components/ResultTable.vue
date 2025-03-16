@@ -143,7 +143,7 @@
                 class="text-right"
                 :class="`text-${header.color}-500`"
               >
-                {{ getScore(header, entryRes) }}
+                {{ extractTableScore(header, entryRes) }}
               </td>
             </tr>
           </tbody>
@@ -161,15 +161,14 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { inject, computed, watch, onUnmounted, toRef, ref, reactive } from 'vue'
 import type Excel from 'exceljs'
-import { memberNames, type CompetitionEvent, formatDate } from '../helpers'
+import { version, memberNames, type CompetitionEvent, formatDate, extractTableScore } from '../helpers'
 import { useCompetitionEventOrOverall } from '../hooks/rulesets'
-import { version } from '../helpers'
 
 import { TextButton, SelectField, type DataListItem, DialogButton, TextField } from '@ropescore/components'
 
 import type { Ref, PropType } from 'vue'
 import { type CategoryBaseFragment, type CategoryPrintFragment, type CategoryResultsFragment, CategoryType, useSetPagePrintConfigMutation, type RankedResultBaseFragment, useSetRankedResultVersionMutation, useReleaseRankedResultVersionMutation, ResultVersionType } from '../graphql/generated'
-import { parseCompetitionEventDefinition, type EntryResult, type OverallResult, type TableHeader } from '@ropescore/rulesets'
+import { parseCompetitionEventDefinition, type EntryResult, type OverallResult } from '@ropescore/rulesets'
 
 const workbook = inject<Ref<Excel.Workbook>>('workbook')
 
@@ -258,13 +257,6 @@ async function storeVersion () {
 
 function getParticipant (participantId: string | number) {
   return participants.value.find(p => p.id === participantId)
-}
-
-function getScore (header: TableHeader, result: EntryResult | OverallResult) {
-  let score: number
-  if (header.component && 'componentResults' in result) score = result.componentResults[header.component].result[header.key]
-  else score = result.result[header.key]
-  return header.formatter?.(score) ?? score ?? ''
 }
 
 const setPagePrintConfigMutation = useSetPagePrintConfigMutation({})
@@ -501,7 +493,7 @@ function addParticipantRows (
       //     }
       //   ]
       // });
-      row.push(getScore(header, entryRes))
+      row.push(extractTableScore(header, entryRes))
     }
 
     worksheet.addRow(row)
@@ -529,7 +521,7 @@ function addParticipantRows (
   }
 }
 
-function nameToARGB (color: 'red' | 'green' | 'gray' | undefined) {
+function nameToARGB (color: 'red' | 'green' | 'gray' | 'blue' | undefined) {
   switch (color) {
     case 'red':
       return 'FFEF4444'
@@ -537,6 +529,8 @@ function nameToARGB (color: 'red' | 'green' | 'gray' | undefined) {
       return 'FF10B981'
     case 'gray':
       return 'FF6B7280'
+    case 'blue':
+      return 'FF3B82F6'
     default:
       return 'FF000000'
   }

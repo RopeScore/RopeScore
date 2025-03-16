@@ -63,7 +63,7 @@
     <div class="grid grid-rows-2 grid-cols-[repeat(auto-fill,1fr)] container">
       <template v-for="col of previewTable?.headers ?? []" :key="col.key">
         <span class="row-start-1 font-bold px-2 border-b">{{ col.text }}</span>
-        <span v-if="result" class="row-start-2 px-2">{{ col.formatter?.(result.result[col.key]) ?? result.result[col.key] }}</span>
+        <span v-if="result" class="row-start-2 px-2">{{ extractTableScore(col, result) }}</span>
       </template>
     </div>
   </div>
@@ -80,7 +80,7 @@ import { TextButton } from '@ropescore/components'
 import Scoresheets from '../components/Scoresheets.vue'
 
 import { type EntryBaseFragment, type Judge, type JudgeAssignment, type ScoresheetBaseFragment, useEntryWithScoresheetsQuery, useToggleEntryLockMutation } from '../graphql/generated'
-import { filterLatestScoresheets } from '../helpers'
+import { extractTableScore, filterLatestScoresheets } from '../helpers'
 import { isMarkScoresheet, isTallyScoresheet, type ScoreTally } from '@ropescore/rulesets'
 
 const categoryId = useRouteParams<string>('categoryId', '')

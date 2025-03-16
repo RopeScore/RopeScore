@@ -274,7 +274,7 @@ import { useRouteParams } from '@vueuse/router'
 import { TextButton, TextField, SelectField } from '@ropescore/components'
 import EntryCard from '../components/EntryCard.vue'
 import IconLoading from 'virtual:icons/mdi/loading'
-import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, type ScoresheetBaseFragment, type MarkScoresheetStatusFragment, useCurrentHeatScoresheetsQuery, useEntriesScoresheetsChangedSubscription } from '../graphql/generated'
+import { useHeatsQuery, useCreateEntryMutation, useReorderEntryMutation, useCategoryGridQuery, useJudgeStatusesQuery, useSetJudgeDeviceMutation, useUnsetJudgeDeviceMutation, useSetCurrentHeatMutation, type ScoresheetBaseFragment, type MarkScoresheetStatusFragment, useCurrentHeatScoresheetsQuery, useEntriesScoresheetsChangedSubscription, useHeatChangedSubscription } from '../graphql/generated'
 
 const groupId = useRouteParams<string>('groupId', '')
 
@@ -306,6 +306,11 @@ const judgeStatusesQuery = useJudgeStatusesQuery(
   () => ({ groupId: groupId.value }),
   { pollInterval: 60_000, fetchPolicy: 'cache-and-network' }
 )
+const heatChanged = useHeatChangedSubscription(() => ({ groupId: groupId.value }))
+
+heatChanged.onResult(() => {
+  void heatsQuery.refetch()
+})
 
 const currentHeat = computed(() => heatsQuery.result.value?.group?.currentHeat)
 const judges = computed(() => judgeStatusesQuery.result.value?.group?.judges ?? [])
@@ -371,7 +376,7 @@ const scoresheetsChanged = useEntriesScoresheetsChangedSubscription(() => ({
 }), { enabled: computed(() => currentHeatEntryIds.value.length > 0) })
 
 scoresheetsChanged.onResult(() => {
-  currentHeatScoresheetsQuery.refetch()
+  void currentHeatScoresheetsQuery.refetch()
 })
 
 async function nextHeat () {

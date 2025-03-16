@@ -30,7 +30,6 @@ if (import.meta.env.PROD) {
     dsn: 'https://dde56038805e456bb0f9bc120547ea07@sentry.io/1045868',
     release: version,
     environment: import.meta.env.VITE_CONTEXT?.toString(),
-    logErrors: true,
     tracePropagationTargets: [
       'localhost',
       'core.ropescore.com',

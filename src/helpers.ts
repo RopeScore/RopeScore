@@ -1,3 +1,4 @@
+import type { EntryResult, OverallResult, TableHeader } from '@ropescore/rulesets'
 import { parseCompetitionEventDefinition } from '@ropescore/rulesets'
 import { ResultVisibilityLevel, type Athlete, type MarkScoresheet, type Participant, type TallyScoresheet, type Team, type ScoresheetBaseFragment } from './graphql/generated'
 import type { DataListItem } from '@ropescore/components'
@@ -95,6 +96,20 @@ export function filterLatestScoresheets <T extends Pick<ScoresheetBaseFragment, 
     .filter((scsh, idx, arr) =>
       idx === arr.findIndex(s => s.judge.id === scsh.judge.id && s.judgeType === scsh.judgeType)
     )
+}
+
+export function extractTableScore (header: TableHeader, result: EntryResult | OverallResult | undefined): string {
+  if (!result) return ''
+  if (header.status) {
+    const score = result.statuses[header.key]
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+    return header.formatter?.(score) ?? `${score ?? ''}`
+  } else {
+    let score: number
+    if (header.component && 'componentResults' in result) score = result.componentResults[header.component].result[header.key]
+    else score = result.result[header.key]
+    return header.formatter?.(score) ?? `${score ?? ''}`
+  }
 }
 
 export const version = (import.meta.env.VITE_COMMIT_REF?.toString()?.substring(0, 7)) ?? pkgVersion

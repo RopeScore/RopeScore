@@ -1,0 +1,3 @@
+subscription HeatChanged ($groupId: ID!) {
+  heatChanged (groupId: $groupId)
+}

@@ -205,7 +205,8 @@ app.on('activate', () => {
 void app.whenReady().then(async () => {
   if (isDevelopment) {
     // Install Vue Devtools
-    const { default: installExtension, VUEJS_DEVTOOLS, APOLLO_DEVELOPER_TOOLS } = await import('electron-devtools-installer')
+    const { default: installExtension, VUEJS_DEVTOOLS } = await import('electron-devtools-installer')
+    const APOLLO_DEVELOPER_TOOLS = 'jdkknkkbebbapilgoeccciglkfbmbnfm'
     try {
       await installExtension(VUEJS_DEVTOOLS)
       await installExtension(APOLLO_DEVELOPER_TOOLS)
