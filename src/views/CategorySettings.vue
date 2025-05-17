@@ -18,25 +18,41 @@
       </menu>
     </div>
 
-    <!-- <fieldset v-if="category">
-      <text-field v-model="category.name" label="Category Name" />
-      <select-field
-        v-model="category.ruleset"
-        label="Ruleset"
-        :data-list="rulesetIds"
-        @update:model-value="clearValues"
-      />
-      <select-field
-        v-model="category.type"
-        label="Competition Type"
-        :data-list="['individual', 'team']"
-        @update:model-value="clearValues"
-      />
+    <form
+      v-if="category"
+      @submit.prevent="updateCategory.mutate({ categoryId: category.id, data: { name: newCategoryName } })"
+    >
+      <fieldset>
+        <text-field :model-value="newCategoryName ?? category.name" label="Category Name" @update:model-value="newCategoryName = $event.toString()" />
+      <!--
+        <select-field
+          v-model="category.ruleset"
+          label="Ruleset"
+          :data-list="rulesetIds"
+          @update:model-value="clearValues"
+        />
+        <select-field
+          v-model="category.type"
+          label="Competition Type"
+          :data-list="['individual', 'team']"
+          @update:model-value="clearValues"
+        />
 
-      <p class="mt-2">
-        Note that changing the ruleset or competition type will clear all competition events, entries, scores and judge assignments
-      </p>
-    </fieldset> -->
+        <p class="mt-2">
+          Note that changing the ruleset or competition type will clear all competition events, entries, scores and judge assignments
+        </p>-->
+      </fieldset>
+
+      <text-button
+        color="blue"
+        class="mt-4"
+        type="submit"
+        :disabled="!newCategoryName"
+        :loading="updateCategory.loading.value"
+      >
+        Save
+      </text-button>
+    </form>
   </div>
 
   <div class="container mx-auto">
@@ -318,9 +334,9 @@
           <td :colspan="category.competitionEventIds.length * 3" />
         </tr>
       </tfoot>
-      <form id="new-judge" @submit.prevent="createJudgeMutation.mutate({ groupId: groupId, data: newJudge })" />
     </table>
   </div>
+  <form id="new-judge" @submit.prevent="createJudgeMutation.mutate({ groupId: groupId, data: newJudge })" />
 </template>
 
 <script setup lang="ts">
@@ -395,9 +411,13 @@ function cEvtEnabled (cEvtDef: CompetitionEvent, category: Pick<Category, 'compe
   return category.competitionEventIds.includes(cEvtDef)
 }
 
+const newCategoryName = ref<string>()
 const updateCategory = useUpdateCategoryMutation({
   refetchQueries: ['CategorySettings'],
   awaitRefetchQueries: true
+})
+updateCategory.onDone(() => {
+  newCategoryName.value = undefined
 })
 
 async function toggleCEvt (cEvtDef: CompetitionEvent) {
