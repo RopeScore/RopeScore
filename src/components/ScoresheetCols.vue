@@ -1,46 +1,48 @@
 <template>
-  <tally-scoresheet
-    v-if="!didNotSkip && isTallyScoresheet(scoresheet)"
-    :scoresheet="scoresheet"
-    :rules-id="rulesId"
-    :competition-event="competitionEvent"
-    :judge-type="judgeType"
-    :disabled="disabled"
-    table
-  />
+  <template v-if="scoresheet != null">
+    <tally-scoresheet
+      v-if="!didNotSkip && isTallyScoresheet(scoresheet)"
+      :scoresheet="scoresheet"
+      :rules-id="rulesId"
+      :competition-event="competitionEvent"
+      :judge-type="judgeType"
+      :disabled="disabled"
+      table
+    />
 
-  <mark-scoresheet
-    v-else-if="!didNotSkip && isMarkScoresheet(scoresheet)"
-    :scoresheet="scoresheet"
-    :rules-id="rulesId"
-    :competition-event="competitionEvent"
-    :judge-type="judgeType"
-    :disabled="disabled"
-    table
-  />
+    <mark-scoresheet
+      v-else-if="!didNotSkip && isMarkScoresheet(scoresheet)"
+      :scoresheet="scoresheet"
+      :rules-id="rulesId"
+      :competition-event="competitionEvent"
+      :judge-type="judgeType"
+      :disabled="disabled"
+      table
+    />
 
-  <td v-else :colspan="colspan - 1" />
+    <td class="border-r-4">
+      <div class="grid grid-cols-1 min-w-max">
+        <text-button
+          dense
+          :disabled="disabled || isTallyScoresheet(scoresheet)"
+          :tabindex="scoresheet ? -1 : undefined"
+          @click="createTallyScoresheet(scoresheet)"
+        >
+          +T
+        </text-button>
+      </div>
+    </td>
+  </template>
 
-  <td class="border-r-4">
-    <div class="grid grid-cols-1 min-w-max">
-      <!-- <text-button
-        dense
-        :disabled="disabled || !scoresheet"
-        :tabindex="scoresheet ? -1 : undefined"
-        @click="createTallyScoresheet(scoresheet)"
-      >
-        +T
-      </text-button> -->
-      <text-button
-        dense
-        :disabled="disabled || !!scoresheet"
-        :loading="createTallyScoresheetMutation.loading.value"
-        :tabindex="scoresheet ? -1 : undefined"
-        @click="createTallyScoresheet()"
-      >
-        +B
-      </text-button>
-    </div>
+  <td v-else :colspan="colspan" class="border-r-4">
+    <text-button
+      dense
+      :disabled="disabled"
+      :loading="createTallyScoresheetMutation.loading.value"
+      @click="createTallyScoresheet()"
+    >
+      +B
+    </text-button>
   </td>
 </template>
 

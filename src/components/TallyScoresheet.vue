@@ -25,6 +25,7 @@
         :min="tField.min"
         :step="tField.step"
         :disabled="disabled"
+        class="min-w-[4ch]"
         dense
         @update:model-value="setTally(tField.schema, $event)"
       />

@@ -17,6 +17,7 @@
         :model-value="tally[tField.schema]"
         :label="tField.name"
         :disabled="true"
+        class="min-w-[8ch] w-max"
         dense
       />
     </td>
