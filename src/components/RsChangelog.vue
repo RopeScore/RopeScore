@@ -1,8 +1,20 @@
 <template>
-  <h2>v6.7.0</h2>
+  <h2>next</h2>
   <ul>
     <li>
-      Admins and viewers are noe added by username/email rather than ID
+      The "ALL" entry mode for speed events has gotten some improvements, you
+      can now create a tally sheet when there's already a mark sheet, and the
+      input field widths should be wider.
+    </li>
+    <li>
+      Category names can now be changed
+    </li>
+    <li>
+      Fix an issue where reskip allowed and other status indicators were not
+      displayed correctly
+    </li>
+    <li>
+      Admins and viewers are now added by username/email rather than ID
     </li>
   </ul>
   <h2>v6.6.0</h2>
